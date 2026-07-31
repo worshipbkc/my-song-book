@@ -396,7 +396,7 @@
 
     function logout() { auth.signOut(); }
 
-    /* 👤 បង្ហាញ Profile Card និងទម្លាក់ Dropdown មកក្រោម */
+    /* 👤 បង្ហាញ Profile Card និងទម្លាក់ Dropdown Menu */
     function renderUserProfile(user) {
         document.getElementById('userProfileArea').innerHTML = `
             <div class="user-profile-card" id="profileToggleBtn" onclick="toggleProfileDropdown()">
@@ -411,7 +411,10 @@
             </div>
 
             <div class="profile-dropdown-menu" id="profileDropdownMenu">
-                ${isAdmin ? `<button class="dropdown-item" onclick="handleInvite()"><span style="font-size:1.1rem;">✉️</span> <span>Invite</span></button>` : ''}
+                ${isAdmin ? `
+                    <button class="dropdown-item" onclick="handleInvite()"><span style="font-size:1.1rem;">✉️</span> <span>Invite</span></button>
+                    <button class="dropdown-item danger" onclick="handleDeleteAlbum()"><span style="font-size:1.1rem;">🗑️</span> <span>លុប Album</span></button>
+                ` : ''}
                 ${(!isAdmin && !isEditor) ? `<button class="dropdown-item" onclick="handleJoin()"><span style="font-size:1.1rem;">✉️</span> <span>សុំសិទ្ធិកែប្រែ</span></button>` : ''}
                 <button class="dropdown-item danger" onclick="logout()"><span style="font-size:1.1rem;">🚪</span> <span>Log Out</span></button>
             </div>
@@ -424,6 +427,42 @@
         const btn = document.getElementById('profileToggleBtn');
         menu.classList.toggle('open');
         btn.classList.toggle('active');
+    }
+
+    /* 🗑️ មុខងារលុប Album (ទាមទារលេខសម្ងាត់ 1234) */
+    async function handleDeleteAlbum() {
+        if (!isAdmin) return alert("❌ មានតែ Admin ទេដែលអាចលុប Album បាន!");
+        if (customAlbums.length === 0) return alert("❌ មិនទាន់មាន Album សម្រាប់លុបឡើយ!");
+
+        // 1. សួររកលេខសម្ងាត់
+        let password = prompt("🔐 សូមបញ្ចូលលេខសម្ងាត់ដើម្បីលុប Album៖");
+        if (password === null) return; // បើចុច Cancel
+        
+        if (password !== "1234") {
+            return alert("❌ លេខសម្ងាត់មិនត្រឹមត្រូវទេ!");
+        }
+
+        // 2. ជ្រើសរើស Album យកមកលុប
+        let albumOptions = customAlbums.map((album, index) => `${index + 1}. ${album}`).join('\n');
+        let selectedIndex = prompt(`✅ លេខសម្ងាត់ត្រឹមត្រូវ!\n\n🗑️ [Admin] សូមជ្រើសរើសលេខ Album ដែលអ្នកចង់លុប៖\n\n${albumOptions}\n\nបញ្ជាក់៖ វានឹងមិនលុបបទចម្រៀងដែលមានស្រាប់ទេ!`);
+
+        if (selectedIndex) {
+            let index = parseInt(selectedIndex) - 1;
+            if (index >= 0 && index < customAlbums.length) {
+                let albumToDelete = customAlbums[index];
+                if (confirm(`⚠️ តើអ្នកប្រាកដថាលុប Album «${albumToDelete}» នេះមែនទេ?`)) {
+                    try {
+                        await db.collection("albums").doc(albumToDelete).delete();
+                        if (currentSelectedAlbum === albumToDelete) currentSelectedAlbum = 'ALL';
+                        alert(`✅ បានលុប Album «${albumToDelete}» រួចរាល់!`);
+                    } catch (error) {
+                        alert("❌ មានបញ្ហា៖ " + error.message);
+                    }
+                }
+            } else {
+                alert("❌ ការជ្រើសរើសមិនត្រឹមត្រូវទេ!");
+            }
+        }
     }
 
     /* ✉️ Admin Invite អ៊ីមែលថ្មី */
@@ -458,9 +497,36 @@
         db.collection("albums").onSnapshot((snapshot) => {
             let albums = [];
             snapshot.forEach(doc => albums.push(doc.data().name));
-            if (albums.length > 0) customAlbums = albums;
+            customAlbums = albums;
             renderSidebarMenu();
         });
+    }
+
+    function renderSidebarMenu() {
+        const menu = document.getElementById('sidebarMenu');
+        let html = `
+            <div class="menu-item ${currentSelectedAlbum === 'ALL' ? 'active' : ''}" onclick="selectAlbum('ALL')">
+                <div class="menu-item-left">🎵 <span>បទចម្រៀងទាំងអស់</span></div>
+            </div>
+        `;
+        customAlbums.forEach(album => {
+            html += `
+                <div class="menu-item ${currentSelectedAlbum === album ? 'active' : ''}" onclick="selectAlbum('${album}')">
+                    <div class="menu-item-left">📁 <span>${album}</span></div>
+                </div>
+            `;
+        });
+        menu.innerHTML = html;
+    }
+
+    function selectAlbum(albumName) {
+        currentSelectedAlbum = albumName;
+        document.getElementById('currentAlbumSubtitle').innerHTML = albumName === 'ALL' ? 
+            `ចូរឱ្យជីវិតទាំងឡាយដែលមានដង្ហើម បានសរសើរដល់ព្រះយ៉េហូវ៉ាចុះ<br><span style="color: #2563eb; font-weight: 700;">ទំនុកដំកើង ១៥០៖៦</span>` : 
+            `📁 Album៖ <span style="color: #2563eb; font-weight: 700;">${albumName}</span>`;
+        renderSidebarMenu();
+        renderSongs();
+        closeMobileSidebar();
     }
 
     async function addNewAlbum() {
@@ -524,7 +590,7 @@
         }).join('');
     }
 
-    /* ➕ បញ្ចូលបទថ្មី (មានប្រព័ន្ធការពារបទជាន់គ្នា) */
+    /* ➕ បញ្ចូលបទថ្មី */
     async function handleAddSong(e) {
         e.preventDefault();
         if (!isEditor) return alert("❌ អ្នកគ្មានសិទ្ធិបញ្ចូលបទចម្រៀងទេ!");
@@ -533,7 +599,6 @@
         const artist = document.getElementById('songArtist').value.trim();
         const album = document.getElementById('songAlbumSelect').value;
 
-        // 🔍 ពិនិត្យមើលថា តើមានបទចំណងជើងនេះនៅក្នុង Album នេះរួចហើយឬនៅ?
         const isDuplicate = songsList.some(song => 
             song.title.toLowerCase() === title.toLowerCase() && 
             song.album === album
@@ -541,7 +606,7 @@
 
         if (isDuplicate) {
             alert(`⚠️ បទ «${title}» នេះមានរួចហើយនៅក្នុង Album «${album}»! សូមពិនិត្យមើលឡើងវិញ។`);
-            return; // បញ្ឈប់ការបញ្ចូល
+            return;
         }
 
         const saveBtn = document.getElementById('saveBtn');
@@ -623,22 +688,24 @@
     function openFullScreen(imgUrl, title) { document.getElementById('fullScreenImg').src = imgUrl; document.getElementById('fullScreenTitle').innerText = title; document.getElementById('fullScreenModal').classList.add('active'); }
     function closeFullScreenModal(e) { if (e.target.classList.contains('fullscreen-modal') || e.target.classList.contains('fullscreen-img-container')) closeFullScreenModalDirect(); }
     function closeFullScreenModalDirect() { document.getElementById('fullScreenModal').classList.remove('active'); }
-    function previewFileImage(e) { const r = new FileReader(); r.onload = (ex) => selectedImageBase64 = ex.target.result; r.readAsDataURL(e.target.files[0]); }
-    function previewEditFileImage(e) { const r = new FileReader(); r.onload = (ex) => selectedEditImageBase64 = ex.target.result; r.readAsDataURL(e.target.files[0]); }
     
-    function renderSidebarMenu() {
-        document.getElementById('sidebarMenu').innerHTML = `
-            <div class="menu-item ${currentSelectedAlbum === 'ALL' ? 'active' : ''}" onclick="selectAlbum('ALL')">
-                <div class="menu-item-left"><div class="menu-icon">📄</div><div>បទទាំងអស់</div></div>
-            </div>
-            ${customAlbums.map(a => `
-                <div class="menu-item ${currentSelectedAlbum === a ? 'active' : ''}" onclick="selectAlbum('${a}')">
-                    <div class="menu-item-left"><div class="menu-icon">📖</div><div>${a}</div></div>
-                </div>
-            `).join('')}`;
+    function previewFileImage(e) {
+        const file = e.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function(uploadEvent) { selectedImageBase64 = uploadEvent.target.result; };
+            reader.readAsDataURL(file);
+        }
     }
-    function selectAlbum(name) { currentSelectedAlbum = name; renderSidebarMenu(); renderSongs(); closeMobileSidebar(); }
+    
+    function previewEditFileImage(e) {
+        const file = e.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function(uploadEvent) { selectedEditImageBase64 = uploadEvent.target.result; };
+            reader.readAsDataURL(file);
+        }
+    }
 </script>
-
 </body>
 </html>
