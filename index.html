@@ -191,8 +191,9 @@
         }
 
         .btn-primary { background-color: var(--primary); color: white; }
-        .btn-danger { background-color: #fee2e2; color: var(--danger); border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 0.85rem; }
-        .btn-save { background-color: #f1f5f9; color: #0f172a; border: 1px solid var(--border); text-decoration: none; padding: 6px 12px; border-radius: 6px; font-size: 0.85rem; font-weight: 600; display: inline-flex; align-items: center; gap: 4px; }
+        .btn-warning { background-color: #fef3c7; color: #b45309; border: none; padding: 6px 10px; border-radius: 6px; cursor: pointer; font-size: 0.85rem; font-weight: 600; }
+        .btn-danger { background-color: #fee2e2; color: var(--danger); border: none; padding: 6px 10px; border-radius: 6px; cursor: pointer; font-size: 0.85rem; font-weight: 600; }
+        .btn-save { background-color: #f1f5f9; color: #0f172a; border: 1px solid var(--border); text-decoration: none; padding: 6px 10px; border-radius: 6px; font-size: 0.85rem; font-weight: 600; display: inline-flex; align-items: center; gap: 4px; }
 
         .song-grid {
             display: grid;
@@ -212,7 +213,6 @@
             box-shadow: 0 4px 12px rgba(0,0,0,0.08);
         }
 
-        /* 🖼️ ចុចលើរូបដើម្បីមើល Full Screen */
         .song-img-container { 
             width: 100%; 
             min-height: 220px; 
@@ -221,7 +221,7 @@
             align-items: center;
             justify-content: center;
             overflow: hidden;
-            cursor: pointer; /* 👆 បង្ហាញដៃចុច */
+            cursor: pointer;
             position: relative;
         }
 
@@ -253,7 +253,7 @@
         }
 
         .song-img-container:hover .song-img {
-            transform: scale(1.03); /* Hover effect ពង្រីកបន្តិច */
+            transform: scale(1.03);
         }
 
         .song-info { padding: 14px; flex: 1; display: flex; flex-direction: column; justify-content: space-between; }
@@ -274,6 +274,17 @@
         .form-group { margin-bottom: 14px; }
         .form-group label { display: block; font-size: 0.9rem; font-weight: 600; margin-bottom: 6px; }
         .form-group input, .form-group select { width: 100%; padding: 10px 14px; border: 1px solid var(--border); border-radius: 8px; outline: none; }
+
+        .img-preview-box {
+            margin-top: 8px;
+            width: 100%;
+            max-height: 150px;
+            border-radius: 8px;
+            object-fit: contain;
+            background: #f1f5f9;
+            border: 1px dashed var(--border);
+            display: none;
+        }
 
         /* 🔍 Full Screen Viewer (Lightbox) Style */
         .fullscreen-modal {
@@ -459,7 +470,7 @@
     </div>
 </div>
 
-<!-- Modal 2: Song -->
+<!-- Modal 2: Song (បន្ថែមបទថ្មី) -->
 <div class="modal" id="addSongModal">
     <div class="modal-content">
         <h2>➕ បញ្ចូលបទចម្រៀងថ្មី</h2>
@@ -489,6 +500,38 @@
     </div>
 </div>
 
+<!-- Modal 3: Edit Song (✏️ កែប្រែបទចម្រៀង និង រូបភាព) -->
+<div class="modal" id="editSongModal">
+    <div class="modal-content">
+        <h2>✏️ កែប្រែបទចម្រៀង / ដូររូបភាព</h2>
+        <form id="editSongForm" onsubmit="handleUpdateSong(event)" style="margin-top: 15px;">
+            <input type="hidden" id="editSongId">
+            <div class="form-group">
+                <label>ជ្រើសរើស Album *</label>
+                <select id="editSongAlbumSelect" required></select>
+            </div>
+            <div class="form-group">
+                <label>ចំណងជើងបទចម្រៀង *</label>
+                <input type="text" id="editSongTitle" required placeholder="ចំណងជើង">
+            </div>
+            <div class="form-group">
+                <label>ឈ្មោះអ្នកចម្រៀង</label>
+                <input type="text" id="editSongArtist" placeholder="ឈ្មោះអ្នកចម្រៀង">
+            </div>
+            <div class="form-group">
+                <label>ប្ដូររូបភាពថ្មី (បើមិនប្ដូរទេ រក្សារូបចាស់)</label>
+                <input type="file" id="editSongImageFile" accept="image/*" onchange="previewEditFileImage(event)">
+                <small id="editImageStatusText" style="color: #64748b; font-size: 0.8rem; display: block; margin-top: 4px;"></small>
+                <img id="editImgPreview" class="img-preview-box" alt="Preview">
+            </div>
+            <div style="text-align: right; margin-top: 20px; display: flex; gap: 10px; justify-content: flex-end;">
+                <button type="button" class="btn" onclick="closeModal('editSongModal')" style="background: #e2e8f0;">បោះបង់</button>
+                <button type="submit" id="updateBtn" class="btn btn-primary">រក្សាទុកការកែប្រែ</button>
+            </div>
+        </form>
+    </div>
+</div>
+
 <script>
     // 🔥 Firebase Config
     const firebaseConfig = {
@@ -512,6 +555,7 @@
     ];
     let currentSelectedAlbum = 'ALL';
     let selectedImageBase64 = '';
+    let selectedEditImageBase64 = ''; // សម្រាប់រូបភាពកែប្រែថ្មី
     let selectedAlbumImageBase64 = '';
 
     window.onload = function() {
@@ -528,7 +572,7 @@
         document.getElementById('sidebarOverlay').classList.remove('active');
     }
 
-    /* 🔍 បើករូបភាពពេញអេក្រង់ (Full Screen Lightbox) នៅពេលចុច/Touch លើរូបភាព */
+    /* 🔍 បើករូបភាពពេញអេក្រង់ (Full Screen Lightbox) */
     function openFullScreen(imgUrl, title) {
         if (!imgUrl) return;
         document.getElementById('fullScreenImg').src = imgUrl;
@@ -540,7 +584,6 @@
     }
 
     function closeFullScreenModal(e) {
-        // ចុចលើផ្ទៃខាងក្រៅ ឬចុចលើរូបភាពដើម្បីបិទវិញ
         if (e.target.classList.contains('fullscreen-modal') || 
             e.target.classList.contains('fullscreen-img-container') || 
             e.target.classList.contains('fullscreen-img')) {
@@ -552,6 +595,7 @@
         document.getElementById('fullScreenModal').classList.remove('active');
     }
 
+    /* 🖼️ Preview រូបភាពពេលបញ្ចូលបទថ្មី */
     function previewFileImage(event) {
         const file = event.target.files[0];
         const statusText = document.getElementById('imageStatusText');
@@ -567,6 +611,30 @@
                 statusText.innerText = "✅ រូបភាពរួចរាល់!";
                 statusText.style.color = "#16a34a";
                 saveBtn.disabled = false;
+            };
+            reader.readAsDataURL(file);
+        }
+    }
+
+    /* ✏️ Preview រូបភាពពេលកែប្រែ (Edit) */
+    function previewEditFileImage(event) {
+        const file = event.target.files[0];
+        const statusText = document.getElementById('editImageStatusText');
+        const updateBtn = document.getElementById('updateBtn');
+        const previewImg = document.getElementById('editImgPreview');
+
+        if (file) {
+            statusText.innerText = "⏳ កំពុងរៀបចំរូបភាព...";
+            updateBtn.disabled = true;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                selectedEditImageBase64 = e.target.result;
+                previewImg.src = selectedEditImageBase64;
+                previewImg.style.display = 'block';
+                statusText.innerText = "✅ រូបភាពថ្មីរួចរាល់!";
+                statusText.style.color = "#16a34a";
+                updateBtn.disabled = false;
             };
             reader.readAsDataURL(file);
         }
@@ -717,7 +785,6 @@
 
             return `
             <div class="song-card">
-                <!-- 👆 ចុច ឬ Touch លើប្លុកថតរូបភាពដើម្បីបើក Full Screen ភ្លាមៗ -->
                 <div class="song-img-container" onclick="openFullScreen('${safeUrl}', '${safeTitle}')">
                     <img src="${safeUrl || 'https://via.placeholder.com/300x200?text=No+Image'}" class="song-img" alt="${safeTitle}" loading="lazy">
                 </div>
@@ -726,9 +793,10 @@
                         <div class="song-title">${song.title}</div>
                         <div class="song-artist">${song.artist || 'មិនស្គាល់អ្នកចម្រៀង'}</div>
                     </div>
-                    <div style="display: flex; gap: 8px; justify-content: flex-end; margin-top: 10px;">
+                    <div style="display: flex; gap: 6px; justify-content: flex-end; margin-top: 10px; flex-wrap: wrap;">
                         <a href="${safeUrl}" download="${song.title}.jpg" class="btn-save" title="ទាញយករូបភាពទុក">💾 Save</a>
-                        <button class="btn-danger" onclick="deleteSong('${song.id}', '${safeTitle}')">🗑️ លុប</button>
+                        <button class="btn-warning" onclick="openEditSongModal('${song.id}')" title="កែប្រែចំណងជើង ឬរូបភាព">✏️ កែប្រែ</button>
+                        <button class="btn-danger" onclick="deleteSong('${song.id}', '${safeTitle}')" title="លុបបទនេះ">🗑️ លុប</button>
                     </div>
                 </div>
             </div>
@@ -744,9 +812,37 @@
         document.getElementById('addSongModal').classList.add('active'); 
     }
 
+    /* ✏️ បើក Modal សម្រាប់កែប្រែបទចម្រៀង */
+    function openEditSongModal(songId) {
+        const song = songsList.find(s => s.id === songId);
+        if (!song) return;
+
+        document.getElementById('editSongId').value = song.id;
+        document.getElementById('editSongTitle').value = song.title || '';
+        document.getElementById('editSongArtist').value = song.artist || '';
+
+        const select = document.getElementById('editSongAlbumSelect');
+        select.innerHTML = customAlbums.map(a => `<option value="${a.name}" ${a.name === song.album ? 'selected' : ''}>${a.name}</option>`).join('');
+
+        const previewImg = document.getElementById('editImgPreview');
+        if (song.imageUrl) {
+            previewImg.src = song.imageUrl;
+            previewImg.style.display = 'block';
+        } else {
+            previewImg.style.display = 'none';
+        }
+
+        selectedEditImageBase64 = ''; // Reset រូបភាពថ្មី
+        document.getElementById('editSongImageFile').value = '';
+        document.getElementById('editImageStatusText').innerText = '';
+
+        document.getElementById('editSongModal').classList.add('active');
+    }
+
     function closeModal(modalId) { 
         document.getElementById(modalId).classList.remove('active'); 
         document.getElementById('imageStatusText').innerText = '';
+        document.getElementById('editImageStatusText').innerText = '';
     }
 
     function handleAddAlbum(e) {
@@ -800,6 +896,42 @@
         } finally {
             saveBtn.innerText = 'រក្សាទុក';
             saveBtn.disabled = false;
+        }
+    }
+
+    /* ✏️ រក្សាទុកការកែប្រែទិន្នន័យ (Update Song & Image) */
+    async function handleUpdateSong(e) {
+        e.preventDefault();
+        const id = document.getElementById('editSongId').value;
+        const title = document.getElementById('editSongTitle').value.trim();
+        const artist = document.getElementById('editSongArtist').value.trim();
+        const album = document.getElementById('editSongAlbumSelect').value;
+
+        const updateBtn = document.getElementById('updateBtn');
+        updateBtn.innerText = '⏳ កំពុងធ្វើបច្ចុប្បន្នភាព...';
+        updateBtn.disabled = true;
+
+        try {
+            const updateData = {
+                title: title,
+                artist: artist,
+                album: album
+            };
+
+            // បើមានជ្រើសរើសរូបភាពថ្មី ទើបធ្វើការដូររូបភាព
+            if (selectedEditImageBase64) {
+                updateData.imageUrl = selectedEditImageBase64;
+            }
+
+            await db.collection("songs").doc(id).update(updateData);
+
+            closeModal('editSongModal');
+            alert('✅ បានកែប្រែបទចម្រៀងដោយជោគជ័យ!');
+        } catch (error) {
+            alert('❌ មានបញ្ហាក្នុងការធ្វើបច្ចុប្បន្នភាព៖ ' + error.message);
+        } finally {
+            updateBtn.innerText = 'រក្សាទុកការកែប្រែ';
+            updateBtn.disabled = false;
         }
     }
 
