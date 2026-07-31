@@ -11,6 +11,7 @@
     <!-- 🔥 Firebase SDKs (v8) -->
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
 
     <style>
         :root {
@@ -25,367 +26,114 @@
             --sidebar-width: 280px;
         }
 
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            font-family: 'Kantumruy Pro', system-ui, -apple-system, sans-serif;
-        }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Kantumruy Pro', sans-serif; }
+        body { background-color: var(--bg); color: var(--text); display: flex; min-height: 100vh; position: relative; }
 
-        body {
-            background-color: var(--bg);
-            color: var(--text);
-            display: flex;
-            min-height: 100vh;
-            position: relative;
-        }
-
-        .sidebar-overlay {
-            display: none;
-            position: fixed;
-            top: 0; left: 0; right: 0; bottom: 0;
-            background: rgba(0, 0, 0, 0.5);
-            z-index: 99;
-        }
+        .sidebar-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0, 0, 0, 0.5); z-index: 99; }
         .sidebar-overlay.active { display: block; }
 
         .sidebar {
-            width: var(--sidebar-width);
-            background: var(--card-bg);
-            border-right: 1px solid var(--border);
-            display: flex;
-            flex-direction: column;
-            position: fixed;
-            top: 0; bottom: 0; left: 0;
-            z-index: 100;
+            width: var(--sidebar-width); background: var(--card-bg); border-right: 1px solid var(--border);
+            display: flex; flex-direction: column; position: fixed; top: 0; bottom: 0; left: 0; z-index: 100;
             transition: transform 0.3s ease;
         }
 
-        .sidebar-header {
-            padding: 18px 20px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            border-bottom: 1px solid var(--border);
-        }
+        .sidebar-header { padding: 18px 20px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--border); }
+        .sidebar-title { font-size: 1.1rem; font-weight: 700; }
+        .close-sidebar-btn { background: none; border: none; font-size: 1.2rem; cursor: pointer; display: none; padding: 4px 8px; border-radius: 6px; }
 
-        .sidebar-title {
-            font-size: 1.1rem;
-            font-weight: 700;
-            color: var(--text);
+        .user-profile-card {
+            padding: 12px 14px; border-bottom: 1px solid var(--border); background: #f1f5f9;
+            display: flex; align-items: center; justify-content: space-between; gap: 10px;
         }
+        .user-info { display: flex; align-items: center; gap: 10px; overflow: hidden; }
+        .user-avatar { width: 36px; height: 36px; border-radius: 50%; object-fit: cover; }
+        .user-details { font-size: 0.8rem; overflow: hidden; }
+        .user-name { font-weight: 700; text-overflow: ellipsis; white-space: nowrap; overflow: hidden; }
+        .user-role { font-size: 0.7rem; color: #16a34a; font-weight: 600; }
 
-        .close-sidebar-btn {
-            background: none;
-            border: none;
-            font-size: 1.2rem;
-            cursor: pointer;
-            display: none;
-            padding: 4px 8px;
-            border-radius: 6px;
+        .btn-auth {
+            padding: 8px 12px; border-radius: 8px; border: none; font-size: 0.85rem; font-weight: 600; cursor: pointer;
+            display: flex; align-items: center; gap: 6px; justify-content: center; width: 100%;
         }
-        .close-sidebar-btn:hover { background: #f1f5f9; }
+        .btn-google { background: white; border: 1px solid var(--border); color: #333; }
+        .btn-logout { background: #fee2e2; color: var(--danger); }
 
         .sidebar-action-container { padding: 12px 14px 4px 14px; }
-
         .add-song-sidebar-btn {
-            width: 100%;
-            padding: 12px 14px;
-            background: var(--primary);
-            color: white;
-            border: none;
-            border-radius: 10px;
-            cursor: pointer;
-            font-weight: 600;
-            font-size: 0.95rem;
-            display: flex; align-items: center; justify-content: center;
-            gap: 8px;
+            width: 100%; padding: 12px 14px; background: var(--primary); color: white; border: none;
+            border-radius: 10px; cursor: pointer; font-weight: 600; font-size: 0.95rem;
+            display: flex; align-items: center; justify-content: center; gap: 8px;
             box-shadow: 0 2px 4px rgba(37, 99, 235, 0.2);
         }
 
         .sidebar-menu { flex: 1; padding: 10px 14px; overflow-y: auto; }
-
         .menu-item {
-            display: flex; align-items: center; justify-content: space-between;
-            padding: 10px 12px;
-            border-radius: 10px;
-            cursor: pointer;
-            color: var(--text-muted);
-            font-weight: 600;
-            font-size: 0.95rem;
-            margin-bottom: 6px;
-            transition: all 0.2s;
+            display: flex; align-items: center; justify-content: space-between; padding: 10px 12px;
+            border-radius: 10px; cursor: pointer; color: var(--text-muted); font-weight: 600; font-size: 0.95rem;
+            margin-bottom: 6px; transition: all 0.2s;
         }
-
         .menu-item-left { display: flex; align-items: center; gap: 12px; overflow: hidden; }
         .menu-item:hover { background-color: #f1f5f9; color: var(--primary); }
         .menu-item.active { background-color: #3b82f6; color: white; }
 
-        .album-actions { display: flex; gap: 4px; opacity: 0.8; }
-        .menu-item.active .album-action-btn { color: white; }
-
-        .album-action-btn {
-            background: none; border: none; font-size: 0.85rem;
-            cursor: pointer; padding: 2px 4px; border-radius: 4px;
-        }
-
-        .album-cover-img {
-            width: 32px; height: 32px; border-radius: 6px;
-            object-fit: cover; border: 1px solid var(--border); background: #e2e8f0;
-        }
-
-        .menu-icon { font-size: 1.2rem; min-width: 32px; text-align: center; }
-
-        .add-album-btn {
-            margin: 14px; padding: 12px 14px;
-            background: #eff6ff; color: var(--primary);
-            border: 1px dashed var(--primary); border-radius: 10px;
-            cursor: pointer; font-weight: 600;
-            display: flex; align-items: center; justify-content: center; gap: 8px;
-        }
-
-        .main-content {
-            margin-left: var(--sidebar-width);
-            flex: 1; padding: 24px;
-            width: 100%;
-        }
-
-        .mobile-header {
-            display: none;
-            align-items: center;
-            gap: 12px;
-            margin-bottom: 16px;
-        }
-
-        .mobile-menu-btn {
-            background: white;
-            border: 1px solid var(--border);
-            padding: 8px 12px;
-            border-radius: 8px;
-            font-size: 1.2rem;
-            cursor: pointer;
-            display: flex; align-items: center; gap: 6px;
-            font-weight: 600;
-        }
+        .main-content { margin-left: var(--sidebar-width); flex: 1; padding: 24px; width: 100%; }
+        .mobile-header { display: none; align-items: center; gap: 12px; margin-bottom: 16px; }
+        .mobile-menu-btn { background: white; border: 1px solid var(--border); padding: 8px 12px; border-radius: 8px; font-size: 1.2rem; cursor: pointer; display: flex; align-items: center; gap: 6px; font-weight: 600; }
 
         header h1 { font-size: 1.8rem; color: var(--primary); margin-bottom: 6px; }
         header p { color: #1e293b; font-size: 1rem; font-weight: 600; line-height: 1.6; text-align: center; }
-        .bible-verse { color: #2563eb; font-weight: 700; display: inline-block; margin-top: 2px; }
 
-        .controls { margin-bottom: 24px; margin-top: 15px;}
+        .controls { margin-bottom: 24px; margin-top: 15px; }
         .search-box { position: relative; display: flex; align-items: center; width: 100%; }
-        .search-box input {
-            width: 100%; padding: 12px 45px 12px 18px;
-            font-size: 0.95rem; border: 1px solid var(--border);
-            border-radius: 10px; outline: none; background: var(--card-bg);
-        }
+        .search-box input { width: 100%; padding: 12px 45px 12px 18px; font-size: 0.95rem; border: 1px solid var(--border); border-radius: 10px; outline: none; background: var(--card-bg); }
+        .search-btn { position: absolute; right: 6px; background: none; border: none; font-size: 1.1rem; cursor: pointer; padding: 8px; border-radius: 8px; }
 
-        .search-btn {
-            position: absolute; right: 6px; background: none; border: none;
-            font-size: 1.1rem; cursor: pointer; padding: 8px; border-radius: 8px;
-        }
-
-        .btn {
-            padding: 12px 20px; font-size: 0.95rem; font-weight: 600;
-            border: none; border-radius: 10px; cursor: pointer;
-        }
-
+        .btn { padding: 12px 20px; font-size: 0.95rem; font-weight: 600; border: none; border-radius: 10px; cursor: pointer; }
         .btn-primary { background-color: var(--primary); color: white; }
         .btn-warning { background-color: #fef3c7; color: #b45309; border: none; padding: 6px 10px; border-radius: 6px; cursor: pointer; font-size: 0.85rem; font-weight: 600; }
         .btn-danger { background-color: #fee2e2; color: var(--danger); border: none; padding: 6px 10px; border-radius: 6px; cursor: pointer; font-size: 0.85rem; font-weight: 600; }
         .btn-save { background-color: #f1f5f9; color: #0f172a; border: 1px solid var(--border); text-decoration: none; padding: 6px 10px; border-radius: 6px; font-size: 0.85rem; font-weight: 600; display: inline-flex; align-items: center; gap: 4px; }
 
-        .song-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-            gap: 20px;
-        }
-
-        .song-card {
-            background: var(--card-bg); border: 1px solid var(--border);
-            border-radius: 12px; overflow: hidden;
-            display: flex; flex-direction: column;
-            transition: transform 0.2s, box-shadow 0.2s;
-        }
-
-        .song-card:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-        }
-
-        .song-img-container { 
-            width: 100%; 
-            min-height: 220px; 
-            background: #f1f5f9; 
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            overflow: hidden;
-            cursor: pointer;
-            position: relative;
-        }
-
-        .song-img-container::after {
-            content: "🔍 ចុចលើរូបដើម្បីពង្រីកធំ";
-            position: absolute;
-            bottom: 8px; right: 8px;
-            background: rgba(15, 23, 42, 0.75);
-            color: white;
-            font-size: 0.75rem;
-            padding: 4px 8px;
-            border-radius: 6px;
-            backdrop-filter: blur(2px);
-            pointer-events: none;
-            transition: opacity 0.2s;
-        }
-
-        .song-img-container:hover::after {
-            background: var(--primary);
-        }
-        
-        .song-img { 
-            width: 100%; 
-            height: 100%;
-            max-height: 380px;
-            object-fit: contain; 
-            display: block;
-            transition: transform 0.3s ease;
-        }
-
-        .song-img-container:hover .song-img {
-            transform: scale(1.03);
-        }
-
+        .song-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 20px; }
+        .song-card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; display: flex; flex-direction: column; }
+        .song-img-container { width: 100%; min-height: 220px; background: #f1f5f9; display: flex; align-items: center; justify-content: center; overflow: hidden; cursor: pointer; position: relative; }
+        .song-img { width: 100%; height: 100%; max-height: 380px; object-fit: contain; display: block; }
         .song-info { padding: 14px; flex: 1; display: flex; flex-direction: column; justify-content: space-between; }
         .song-title { font-size: 1rem; font-weight: 700; margin-bottom: 4px; }
         .song-artist { font-size: 0.85rem; color: var(--text-muted); }
+        .song-editor-info { font-size: 0.72rem; color: #94a3b8; margin-top: 6px; }
 
         .empty-state { text-align: center; padding: 40px 20px; color: var(--text-muted); grid-column: 1 / -1; }
 
-        .modal {
-            display: none; position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.5); align-items: center; justify-content: center;
-            z-index: 1000; padding: 20px;
-        }
-
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); align-items: center; justify-content: center; z-index: 1000; padding: 20px; }
         .modal.active { display: flex; }
         .modal-content { background: white; padding: 24px; border-radius: 16px; width: 100%; max-width: 450px; }
         .form-group { margin-bottom: 14px; }
         .form-group label { display: block; font-size: 0.9rem; font-weight: 600; margin-bottom: 6px; }
         .form-group input, .form-group select { width: 100%; padding: 10px 14px; border: 1px solid var(--border); border-radius: 8px; outline: none; }
 
-        .img-preview-box {
-            margin-top: 8px;
-            width: 100%;
-            max-height: 150px;
-            border-radius: 8px;
-            object-fit: contain;
-            background: #f1f5f9;
-            border: 1px dashed var(--border);
-            display: none;
-        }
+        /* Full Screen Viewer */
+        .fullscreen-modal { display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0, 0, 0, 0.94); z-index: 2000; flex-direction: column; align-items: center; justify-content: center; }
+        .fullscreen-modal.active { display: flex; }
+        .fullscreen-header { position: absolute; top: 15px; left: 20px; right: 20px; display: flex; justify-content: space-between; align-items: center; color: white; }
+        .fullscreen-img-container { width: 100%; height: 82vh; display: flex; align-items: center; justify-content: center; }
+        .fullscreen-img { max-width: 98%; max-height: 98%; object-fit: contain; }
 
-        /* 🔍 Full Screen Viewer (Lightbox) Style */
-        .fullscreen-modal {
-            display: none;
-            position: fixed;
-            top: 0; left: 0; width: 100vw; height: 100vh;
-            background: rgba(0, 0, 0, 0.94);
-            z-index: 2000;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            padding: 10px;
-            user-select: none;
-        }
-
-        .fullscreen-modal.active {
-            display: flex;
-            animation: fadeIn 0.2s ease-in-out;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
-        }
-
-        .fullscreen-header {
-            position: absolute;
-            top: 15px; left: 20px; right: 20px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            color: white;
-            z-index: 2001;
-        }
-
-        .fullscreen-title {
-            font-size: 1.1rem;
-            font-weight: 700;
-            color: #ffffff;
-            text-shadow: 0 2px 4px rgba(0,0,0,0.8);
-        }
-
-        .fullscreen-close-btn {
-            background: rgba(255, 255, 255, 0.25);
-            color: white;
-            border: none;
-            font-size: 1.4rem;
-            width: 42px; height: 42px;
-            border-radius: 50%;
-            cursor: pointer;
-            display: flex; align-items: center; justify-content: center;
-            transition: background 0.2s;
-        }
-        .fullscreen-close-btn:hover {
-            background: rgba(239, 68, 68, 0.8);
-        }
-
-        .fullscreen-img-container {
-            width: 100%;
-            height: 82vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            overflow: auto;
-            cursor: zoom-out;
-        }
-
-        .fullscreen-img {
-            max-width: 98%;
-            max-height: 98%;
-            object-fit: contain;
-            border-radius: 6px;
-            box-shadow: 0 5px 25px rgba(0,0,0,0.6);
-            cursor: pointer;
-        }
-
-        .fullscreen-actions {
-            position: absolute;
-            bottom: 20px;
-            display: flex;
-            gap: 15px;
-            z-index: 2001;
-        }
+        .editor-only { display: none !important; }
+        .editor-authorized .editor-only { display: flex !important; }
+        .editor-authorized button.editor-only { display: inline-block !important; }
 
         @media (max-width: 768px) {
-            .sidebar {
-                transform: translateX(-100%);
-                width: 80%;
-                max-width: 300px;
-                box-shadow: 4px 0 15px rgba(0,0,0,0.1);
-            }
+            .sidebar { transform: translateX(-100%); width: 80%; max-width: 300px; }
             .sidebar.mobile-open { transform: translateX(0); }
             .close-sidebar-btn { display: block; }
             .main-content { margin-left: 0; padding: 16px; }
             .mobile-header { display: flex; }
-            header h1 { font-size: 1.4rem; }
-            header p { font-size: 0.88rem; }
         }
     </style>
 </head>
-<body>
+<body id="bodyContainer">
 
 <div class="sidebar-overlay" id="sidebarOverlay" onclick="closeMobileSidebar()"></div>
 
@@ -395,7 +143,16 @@
         <button class="close-sidebar-btn" onclick="closeMobileSidebar()">✖</button>
     </div>
 
-    <div class="sidebar-action-container">
+    <!-- 👤 ផ្ទាំង Account Login / Profile -->
+    <div class="user-profile-card" id="userProfileArea">
+        <button class="btn-auth btn-google" onclick="loginWithGoogle()">
+            <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" width="18" alt="G">
+            <span>Login តាម Gmail</span>
+        </button>
+    </div>
+
+    <!-- ➕ ប៊ូតុងបន្ថែមបទថ្មី (សម្រាប់តែ Editor) -->
+    <div class="sidebar-action-container editor-only">
         <button class="add-song-sidebar-btn" onclick="openAddSongModal(); closeMobileSidebar();">
             ➕ <span>បញ្ជូលបទថ្មី</span>
         </button>
@@ -403,30 +160,31 @@
 
     <div class="sidebar-menu" id="sidebarMenu"></div>
 
-    <button class="add-album-btn" onclick="openAddAlbumModal(); closeMobileSidebar();">
-        ➕ <span>បន្ថែម Album</span>
-    </button>
+    <!-- 📩 ប៊ូតុង Invite/Join (បង្ហាញតែពេល Login រួច) -->
+    <div id="inviteArea" style="padding: 10px 14px; display: none;">
+        <button class="btn btn-primary" style="width: 100%; font-size: 0.85rem;" onclick="handleJoinOrInvite()">
+            ✉️ <span id="inviteBtnText">ស្នើសុំសិទ្ធិកែប្រែ (Join)</span>
+        </button>
+    </div>
 </div>
 
 <div class="main-content">
     <div class="mobile-header">
-        <button class="mobile-menu-btn" onclick="openMobileSidebar()">
-            ☰ <span>Album</span>
-        </button>
+        <button class="mobile-menu-btn" onclick="openMobileSidebar()">☰ <span>Album</span></button>
     </div>
 
     <header>
         <h1>🎼 ចម្រៀងសរសើរតម្កើងព្រះ</h1>
         <p id="currentAlbumSubtitle">
             ចូរឱ្យជីវិតទាំងឡាយដែលមានដង្ហើម បានសរសើរដល់ព្រះយ៉េហូវ៉ាចុះ<br>
-            <span class="bible-verse">ទំនុកដំកើង ១៥០៖៦</span>
+            <span style="color: #2563eb; font-weight: 700;">ទំនុកដំកើង ១៥០៖៦</span>
         </p>
     </header>
 
     <div class="controls">
         <div class="search-box">
             <input type="text" id="searchInput" placeholder="ស្វែងរកចំណងជើង ឬអ្នកចម្រៀង..." onkeyup="renderSongs()">
-            <button class="search-btn" onclick="renderSongs()" title="ស្វែងរក">🔍</button>
+            <button class="search-btn" onclick="renderSongs()">🔍</button>
         </div>
     </div>
 
@@ -435,42 +193,18 @@
     </div>
 </div>
 
-<!-- 🔍 Full Screen Image Viewer Modal -->
+<!-- 🔍 Lightbox -->
 <div class="fullscreen-modal" id="fullScreenModal" onclick="closeFullScreenModal(event)">
     <div class="fullscreen-header">
-        <div class="fullscreen-title" id="fullScreenTitle"></div>
-        <button class="fullscreen-close-btn" onclick="closeFullScreenModalDirect()">✖</button>
+        <div id="fullScreenTitle" style="font-weight: 700;"></div>
+        <button onclick="closeFullScreenModalDirect()" style="background:none; border:none; color:white; font-size:1.5rem; cursor:pointer;">✖</button>
     </div>
     <div class="fullscreen-img-container">
-        <img src="" id="fullScreenImg" class="fullscreen-img" alt="Full Screen Song Sheet">
-    </div>
-    <div class="fullscreen-actions">
-        <a href="" id="fullScreenDownloadBtn" download="" class="btn btn-primary" style="text-decoration: none;">💾 ទាញយករូបភាព</a>
+        <img src="" id="fullScreenImg" class="fullscreen-img" alt="Song">
     </div>
 </div>
 
-<!-- Modal 1: Album -->
-<div class="modal" id="addAlbumModal">
-    <div class="modal-content">
-        <h2>📂 បន្ថែម Album ថ្មី</h2>
-        <form onsubmit="handleAddAlbum(event)" style="margin-top: 15px;">
-            <div class="form-group">
-                <label>ឈ្មោះ Album ថ្មី *</label>
-                <input type="text" id="newAlbumName" required placeholder="ឧទាហរណ៍៖ ទំនុកដំកើង...">
-            </div>
-            <div class="form-group">
-                <label>ជ្រើសរើសរូបថត Album (Cover Image)</label>
-                <input type="file" id="albumCoverFile" accept="image/*" onchange="previewAlbumImage(event)">
-            </div>
-            <div style="text-align: right; margin-top: 20px; display: flex; gap: 10px; justify-content: flex-end;">
-                <button type="button" class="btn" onclick="closeModal('addAlbumModal')" style="background: #e2e8f0;">បោះបង់</button>
-                <button type="submit" class="btn btn-primary">បង្កើត Album</button>
-            </div>
-        </form>
-    </div>
-</div>
-
-<!-- Modal 2: Song (បន្ថែមបទថ្មី) -->
+<!-- Modal 1: Song (បន្ថែមបទថ្មី) -->
 <div class="modal" id="addSongModal">
     <div class="modal-content">
         <h2>➕ បញ្ចូលបទចម្រៀងថ្មី</h2>
@@ -490,7 +224,6 @@
             <div class="form-group">
                 <label>ជ្រើសរើសរូបភាព *</label>
                 <input type="file" id="songImageFile" accept="image/*" onchange="previewFileImage(event)" required>
-                <small id="imageStatusText" style="color: #64748b; font-size: 0.8rem; display: block; margin-top: 4px;"></small>
             </div>
             <div style="text-align: right; margin-top: 20px; display: flex; gap: 10px; justify-content: flex-end;">
                 <button type="button" class="btn" onclick="closeModal('addSongModal')" style="background: #e2e8f0;">បោះបង់</button>
@@ -500,7 +233,7 @@
     </div>
 </div>
 
-<!-- Modal 3: Edit Song (✏️ កែប្រែបទចម្រៀង និង រូបភាព) -->
+<!-- Modal 2: Edit Song -->
 <div class="modal" id="editSongModal">
     <div class="modal-content">
         <h2>✏️ កែប្រែបទចម្រៀង / ដូររូបភាព</h2>
@@ -512,17 +245,15 @@
             </div>
             <div class="form-group">
                 <label>ចំណងជើងបទចម្រៀង *</label>
-                <input type="text" id="editSongTitle" required placeholder="ចំណងជើង">
+                <input type="text" id="editSongTitle" required>
             </div>
             <div class="form-group">
                 <label>ឈ្មោះអ្នកចម្រៀង</label>
-                <input type="text" id="editSongArtist" placeholder="ឈ្មោះអ្នកចម្រៀង">
+                <input type="text" id="editSongArtist">
             </div>
             <div class="form-group">
                 <label>ប្ដូររូបភាពថ្មី (បើមិនប្ដូរទេ រក្សារូបចាស់)</label>
                 <input type="file" id="editSongImageFile" accept="image/*" onchange="previewEditFileImage(event)">
-                <small id="editImageStatusText" style="color: #64748b; font-size: 0.8rem; display: block; margin-top: 4px;"></small>
-                <img id="editImgPreview" class="img-preview-box" alt="Preview">
             </div>
             <div style="text-align: right; margin-top: 20px; display: flex; gap: 10px; justify-content: flex-end;">
                 <button type="button" class="btn" onclick="closeModal('editSongModal')" style="background: #e2e8f0;">បោះបង់</button>
@@ -546,221 +277,120 @@
 
     firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
+    const auth = firebase.auth();
 
-    const SECURITY_PIN = "1234";
+    let currentUser = null;
+    let isEditor = false;
+    let isAdmin = false;
     let songsList = [];
-    let customAlbums = [
-        { name: 'ទំនុកដំកើង', image: '' },
-        { name: 'ទំនុកខ្មែរបរិសុទ្ធ', image: '' }
-    ];
+    let customAlbums = [{ name: 'ទំនុកដំកើង' }, { name: 'ទំនុកខ្មែរបរិសុទ្ធ' }];
     let currentSelectedAlbum = 'ALL';
     let selectedImageBase64 = '';
     let selectedEditImageBase64 = '';
-    let selectedAlbumImageBase64 = '';
 
     window.onload = function() {
+        listenToAuth();
         listenToSongs();
     };
 
-    function openMobileSidebar() {
-        document.getElementById('sidebar').classList.add('mobile-open');
-        document.getElementById('sidebarOverlay').classList.add('active');
+    /* 🔐 តាមដានការ Login/Logout */
+    function listenToAuth() {
+        auth.onAuthStateChanged(async (user) => {
+            currentUser = user;
+            if (user) {
+                // ពិនិត្យសិទ្ធិក្នុង Firestore (Collection 'editors')
+                const doc = await db.collection("editors").doc(user.email.toLowerCase()).get();
+                if (doc.exists) {
+                    isEditor = true;
+                    isAdmin = doc.data().role === 'admin';
+                    document.getElementById('bodyContainer').classList.add('editor-authorized');
+                } else {
+                    isEditor = false;
+                    isAdmin = false;
+                    document.getElementById('bodyContainer').classList.remove('editor-authorized');
+                }
+
+                renderUserProfile(user);
+                document.getElementById('inviteArea').style.display = 'block';
+                document.getElementById('inviteBtnText').innerText = isAdmin ? '➕ Invite អ៊ីមែលថ្មី' : '✉️ ស្នើសុំសិទ្ធិកែប្រែ (Join)';
+            } else {
+                isEditor = false;
+                isAdmin = false;
+                document.getElementById('bodyContainer').classList.remove('editor-authorized');
+                document.getElementById('userProfileArea').innerHTML = `
+                    <button class="btn-auth btn-google" onclick="loginWithGoogle()">
+                        <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" width="18">
+                        <span>Login តាម Gmail</span>
+                    </button>`;
+                document.getElementById('inviteArea').style.display = 'none';
+            }
+            renderSongs();
+        });
     }
 
-    function closeMobileSidebar() {
-        document.getElementById('sidebar').classList.remove('mobile-open');
-        document.getElementById('sidebarOverlay').classList.remove('active');
+    function loginWithGoogle() {
+        const provider = new firebase.auth.GoogleAuthProvider();
+        auth.signInWithPopup(provider).catch(error => alert("❌ Login ខកខាន៖ " + error.message));
     }
 
-    /* 🔍 បើករូបភាពពេញអេក្រង់ (Full Screen Lightbox) */
-    function openFullScreen(imgUrl, title) {
-        if (!imgUrl) return;
-        document.getElementById('fullScreenImg').src = imgUrl;
-        document.getElementById('fullScreenTitle').innerText = title;
-        const dlBtn = document.getElementById('fullScreenDownloadBtn');
-        dlBtn.href = imgUrl;
-        dlBtn.download = title + ".jpg";
-        document.getElementById('fullScreenModal').classList.add('active');
+    function logout() { auth.signOut(); }
+
+    function renderUserProfile(user) {
+        document.getElementById('userProfileArea').innerHTML = `
+            <div class="user-info">
+                <img src="${user.photoURL || 'https://via.placeholder.com/36'}" class="user-avatar">
+                <div class="user-details">
+                    <div class="user-name">${user.displayName || 'អ្នកប្រើប្រាស់'}</div>
+                    <div class="user-role">${isAdmin ? '👑 Admin' : (isEditor ? '✏️ Editor' : '👁️ មើលប៉ុណ្ណោះ')}</div>
+                </div>
+            </div>
+            <button class="btn-auth btn-logout" onclick="logout()" title="ចាកចេញ">🚪</button>
+        `;
     }
 
-    function closeFullScreenModal(e) {
-        if (e.target.classList.contains('fullscreen-modal') || 
-            e.target.classList.contains('fullscreen-img-container') || 
-            e.target.classList.contains('fullscreen-img')) {
-            document.getElementById('fullScreenModal').classList.remove('active');
+    /* 📩 មុខងារ Invite អ៊ីមែលថ្មី (សម្រាប់ Admin) ឬ Join (សម្រាប់ User) */
+    async function handleJoinOrInvite() {
+        if (!currentUser) return;
+
+        if (isAdmin) {
+            // Admin បញ្ចូល/Invite អ៊ីមែលសមាជិកថ្មី
+            const emailToInvite = prompt("✉️ បញ្ចូល Gmail របស់អ្នកដែលអ្នកចង់ Invite ឱ្យមានសិទ្ធិកែប្រែ៖");
+            if (emailToInvite && emailToInvite.includes('@')) {
+                const cleanEmail = emailToInvite.trim().toLowerCase();
+                await db.collection("editors").doc(cleanEmail).set({
+                    email: cleanEmail,
+                    role: 'editor',
+                    addedBy: currentUser.email,
+                    addedAt: firebase.firestore.FieldValue.serverTimestamp()
+                });
+                alert(`✅ បានបន្ថែមសិទ្ធិឱ្យ ${cleanEmail} រួចរាល់!`);
+            }
+        } else {
+            // User ធម្មតា ចុច Join ស្នើសុំសិទ្ធិ
+            if (isEditor) {
+                alert("✅ អ៊ីមែលរបស់អ្នកមានសិទ្ធិកែប្រែរួចហើយ!");
+                return;
+            }
+            const confirmJoin = confirm(`តើអ្នកចង់ផ្ញើសំណើ Join ដើម្បីសុំសិទ្ធិកែប្រែទិន្នន័យដោយប្រើអ៊ីមែល ${currentUser.email} ដែរឬទេ?`);
+            if (confirmJoin) {
+                await db.collection("join_requests").doc(currentUser.email.toLowerCase()).set({
+                    email: currentUser.email,
+                    name: currentUser.displayName,
+                    requestedAt: firebase.firestore.FieldValue.serverTimestamp()
+                });
+                alert("✅ សំណើរបស់អ្នកត្រូវបានផ្ញើជូន Admin រួចរាល់! សូមរង់ចាំ Admin អនុញ្ញាត។");
+            }
         }
     }
 
-    function closeFullScreenModalDirect() {
-        document.getElementById('fullScreenModal').classList.remove('active');
-    }
-
-    /* 🖼️ Preview រូបភាពពេលបញ្ចូលបទថ្មី */
-    function previewFileImage(event) {
-        const file = event.target.files[0];
-        const statusText = document.getElementById('imageStatusText');
-        const saveBtn = document.getElementById('saveBtn');
-
-        if (file) {
-            statusText.innerText = "⏳ កំពុងរៀបចំរូបភាព...";
-            saveBtn.disabled = true;
-
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                selectedImageBase64 = e.target.result;
-                statusText.innerText = "✅ រូបភាពរួចរាល់!";
-                statusText.style.color = "#16a34a";
-                saveBtn.disabled = false;
-            };
-            reader.readAsDataURL(file);
-        }
-    }
-
-    /* ✏️ Preview រូបភាពពេលកែប្រែ (Edit) */
-    function previewEditFileImage(event) {
-        const file = event.target.files[0];
-        const statusText = document.getElementById('editImageStatusText');
-        const updateBtn = document.getElementById('updateBtn');
-        const previewImg = document.getElementById('editImgPreview');
-
-        if (file) {
-            statusText.innerText = "⏳ កំពុងរៀបចំរូបភាព...";
-            updateBtn.disabled = true;
-
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                selectedEditImageBase64 = e.target.result;
-                previewImg.src = selectedEditImageBase64;
-                previewImg.style.display = 'block';
-                statusText.innerText = "✅ រូបភាពថ្មីរួចរាល់!";
-                statusText.style.color = "#16a34a";
-                updateBtn.disabled = false;
-            };
-            reader.readAsDataURL(file);
-        }
-    }
-
-    function previewAlbumImage(event) {
-        const file = event.target.files[0];
-        if (file) {
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                selectedAlbumImageBase64 = e.target.result;
-            };
-            reader.readAsDataURL(file);
-        }
-    }
-
+    /* 🎶 ស្វែងរក និងបង្ហាញបទចម្រៀង */
     function listenToSongs() {
         db.collection("songs").onSnapshot((snapshot) => {
             songsList = [];
-            snapshot.forEach((doc) => {
-                songsList.push({ id: doc.id, ...doc.data() });
-            });
-
-            songsList.forEach(s => {
-                if (s.album && !customAlbums.some(a => a.name === s.album) && s.album !== 'ទូទៅ') {
-                    customAlbums.push({ name: s.album, image: '' });
-                }
-            });
-
+            snapshot.forEach((doc) => songsList.push({ id: doc.id, ...doc.data() }));
             renderSidebarMenu();
             renderSongs();
-        }, (error) => {
-            console.error("Firebase Error: ", error);
-            document.getElementById('songGrid').innerHTML = `<div class="empty-state">❌ មានបញ្ហាក្នុងការភ្ជាប់៖ ${error.message}</div>`;
         });
-    }
-
-    function renderSidebarMenu() {
-        const menuContainer = document.getElementById('sidebarMenu');
-        let html = `
-            <div class="menu-item ${currentSelectedAlbum === 'ALL' ? 'active' : ''}" onclick="selectAlbum('ALL')">
-                <div class="menu-item-left">
-                    <div class="menu-icon">📄</div>
-                    <div class="menu-text">បទទាំងអស់</div>
-                </div>
-            </div>
-        `;
-
-        customAlbums.forEach(album => {
-            const imgHtml = album.image 
-                ? `<img src="${album.image}" class="album-cover-img" alt="${album.name}">` 
-                : `<div class="menu-icon">📖</div>`;
-
-            html += `
-                <div class="menu-item ${currentSelectedAlbum === album.name ? 'active' : ''}" onclick="selectAlbum('${album.name}')">
-                    <div class="menu-item-left">
-                        ${imgHtml}
-                        <div class="menu-text" title="${album.name}">${album.name}</div>
-                    </div>
-                    <div class="album-actions">
-                        <button class="album-action-btn" onclick="editAlbum(event, '${album.name}')" title="កែឈ្មោះ">✏️</button>
-                        <button class="album-action-btn" onclick="deleteAlbum(event, '${album.name}')" title="លុប Album">🗑️</button>
-                    </div>
-                </div>
-            `;
-        });
-
-        menuContainer.innerHTML = html;
-    }
-
-    function selectAlbum(albumName) {
-        currentSelectedAlbum = albumName;
-        renderSidebarMenu();
-        
-        const subtitle = document.getElementById('currentAlbumSubtitle');
-        if (albumName === 'ALL') {
-            subtitle.innerHTML = 'ចូរឱ្យជីវិតទាំងឡាយដែលមានដង្ហើម បានសរសើរដល់ព្រះយ៉េហូវ៉ាចុះ<br><span class="bible-verse">ទំនុកដំកើង ១៥០៖៦</span>';
-        } else {
-            subtitle.innerText = "Album ៖ " + albumName;
-        }
-
-        renderSongs();
-        closeMobileSidebar();
-    }
-
-    function deleteAlbum(event, albumName) {
-        event.stopPropagation();
-        const inputPin = prompt(`🔒 សូមបញ្ចូលលេខកូដសម្ងាត់ (PIN) ដើម្បីធ្វើការលុប Album «${albumName}»៖`);
-        if (inputPin === null) return;
-
-        if (inputPin.trim() !== SECURITY_PIN) {
-            alert("❌ លេខកូដសម្ងាត់មិនត្រឹមត្រូវទេ!");
-            return;
-        }
-
-        const songsInAlbum = songsList.filter(s => (s.album || 'ទូទៅ') === albumName);
-        if (songsInAlbum.length > 0) {
-            alert(`🛑 មិនអនុញ្ញាតឱ្យលុប Album «${albumName}» នេះឡើយ!\n\nមូលហេតុ៖ Album នេះមានបទចម្រៀងចំនួន ${songsInAlbum.length} បទនៅខាងក្នុង។`);
-            return;
-        }
-
-        const confirmName = prompt(`⚠️ បញ្ជាក់ការលុប Album «${albumName}»\n\nសូមវាយឈ្មោះ Album៖ «${albumName}» ឡើងវិញដើម្បីលុប៖`);
-        if (confirmName && confirmName.trim() === albumName) {
-            customAlbums = customAlbums.filter(a => a.name !== albumName);
-            alert(`✅ បានលុប Album «${albumName}» ដោយជោគជ័យ!`);
-            if (currentSelectedAlbum === albumName) selectAlbum('ALL');
-            else renderSidebarMenu();
-        }
-    }
-
-    function editAlbum(event, oldName) {
-        event.stopPropagation();
-        const newName = prompt("សូមបញ្ចូលឈ្មោះ Album ថ្មី៖", oldName);
-        if (newName && newName.trim() !== "" && newName !== oldName) {
-            const trimmedName = newName.trim();
-            if (customAlbums.some(a => a.name.toLowerCase() === trimmedName.toLowerCase())) {
-                alert("ឈ្មោះ Album នេះមានរួចហើយ!");
-                return;
-            }
-
-            const albumObj = customAlbums.find(a => a.name === oldName);
-            if (albumObj) albumObj.name = trimmedName;
-
-            if (currentSelectedAlbum === oldName) selectAlbum(trimmedName);
-            else renderSidebarMenu();
-        }
     }
 
     function renderSongs() {
@@ -768,8 +398,7 @@
         const query = document.getElementById('searchInput').value.toLowerCase().trim();
 
         const filtered = songsList.filter(s => {
-            const matchesSearch = (s.title && s.title.toLowerCase().includes(query)) || 
-                                  (s.artist && s.artist.toLowerCase().includes(query));
+            const matchesSearch = (s.title && s.title.toLowerCase().includes(query)) || (s.artist && s.artist.toLowerCase().includes(query));
             const matchesAlbum = currentSelectedAlbum === 'ALL' || (s.album || 'ទូទៅ') === currentSelectedAlbum;
             return matchesSearch && matchesAlbum;
         });
@@ -781,22 +410,25 @@
 
         grid.innerHTML = filtered.map(song => {
             const safeTitle = (song.title || '').replace(/'/g, "\\'").replace(/"/g, '&quot;');
-            const safeUrl = song.imageUrl || '';
+            const editorInfo = song.updatedBy ? `កែចុងក្រោយ៖ ${song.updatedBy}` : (song.createdBy ? `បញ្ចូលដោយ៖ ${song.createdBy}` : '');
 
             return `
             <div class="song-card">
-                <div class="song-img-container" onclick="openFullScreen('${safeUrl}', '${safeTitle}')">
-                    <img src="${safeUrl || 'https://via.placeholder.com/300x200?text=No+Image'}" class="song-img" alt="${safeTitle}" loading="lazy">
+                <div class="song-img-container" onclick="openFullScreen('${song.imageUrl}', '${safeTitle}')">
+                    <img src="${song.imageUrl || 'https://via.placeholder.com/300x200'}" class="song-img" loading="lazy">
                 </div>
                 <div class="song-info">
                     <div>
                         <div class="song-title">${song.title}</div>
                         <div class="song-artist">${song.artist || 'មិនស្គាល់អ្នកចម្រៀង'}</div>
+                        ${editorInfo ? `<div class="song-editor-info">👤 ${editorInfo}</div>` : ''}
                     </div>
-                    <div style="display: flex; gap: 6px; justify-content: flex-end; margin-top: 10px; flex-wrap: wrap;">
-                        <a href="${safeUrl}" download="${song.title}.jpg" class="btn-save" title="ទាញយករូបភាពទុក">💾 Save</a>
-                        <button class="btn-warning" onclick="openEditSongModal('${song.id}')" title="កែប្រែចំណងជើង ឬរូបភាព">✏️ កែប្រែ</button>
-                        <button class="btn-danger" onclick="deleteSong('${song.id}', '${safeTitle}')" title="លុបបទនេះ">🗑️ លុប</button>
+                    <div style="display: flex; gap: 6px; justify-content: flex-end; margin-top: 10px;">
+                        <a href="${song.imageUrl}" download="${song.title}.jpg" class="btn-save">💾 Save</a>
+                        ${isEditor ? `
+                            <button class="btn-warning" onclick="openEditSongModal('${song.id}')">✏️ កែប្រែ</button>
+                            <button class="btn-danger" onclick="deleteSong('${song.id}', '${safeTitle}')">🗑️ លុប</button>
+                        ` : ''}
                     </div>
                 </div>
             </div>
@@ -804,29 +436,42 @@
         }).join('');
     }
 
-    function openAddAlbumModal() { document.getElementById('addAlbumModal').classList.add('active'); }
-    
-    function openAddSongModal() { 
-        const select = document.getElementById('songAlbumSelect');
-        select.innerHTML = customAlbums.map(a => `<option value="${a.name}" ${a.name === currentSelectedAlbum ? 'selected' : ''}>${a.name}</option>`).join('');
-        document.getElementById('addSongModal').classList.add('active'); 
+    /* ➕ បញ្ចូលបទថ្មី */
+    async function handleAddSong(e) {
+        e.preventDefault();
+        if (!isEditor) return alert("❌ អ្នកគ្មានសិទ្ធិបញ្ចូលបទចម្រៀងទេ!");
+
+        const title = document.getElementById('songTitle').value.trim();
+        const artist = document.getElementById('songArtist').value.trim();
+        const album = document.getElementById('songAlbumSelect').value;
+
+        const saveBtn = document.getElementById('saveBtn');
+        saveBtn.innerText = '⏳ កំពុងរក្សាទុក...'; saveBtn.disabled = true;
+
+        try {
+            await db.collection("songs").add({
+                title, artist, album,
+                imageUrl: selectedImageBase64,
+                createdBy: currentUser.displayName || currentUser.email,
+                createdAt: firebase.firestore.FieldValue.serverTimestamp()
+            });
+
+            closeModal('addSongModal');
+            document.getElementById('addSongForm').reset();
+            alert('✅ បានបញ្ចូលបទចម្រៀងដោយជោគជ័យ!');
+        } catch (error) {
+            alert('❌ មានបញ្ហា៖ ' + error.message);
+        } finally {
+            saveBtn.innerText = 'រក្សាទុក'; saveBtn.disabled = false;
+        }
     }
 
-    /* 🔒✏️ បើក Modal កែប្រែបទចម្រៀង (ការពារដោយកូដសម្ងាត់ 1234) */
+    /* ✏️ កែប្រែបទចម្រៀង */
     function openEditSongModal(songId) {
+        if (!isEditor) return alert("❌ អ្នកគ្មានសិទ្ធិកែប្រែទេ!");
         const song = songsList.find(s => s.id === songId);
         if (!song) return;
 
-        // 🔒 សួរ PIN សម្ងាត់ (1234) មុននឹងបើក Modal
-        const inputPin = prompt(`🔒 សូមបញ្ចូលលេខកូដសម្ងាត់ (PIN) ដើម្បីកែប្រែបទ «${song.title}»៖`);
-        if (inputPin === null) return; // ឈប់ធ្វើការបើចុច Cancel
-
-        if (inputPin.trim() !== SECURITY_PIN) {
-            alert("❌ លេខកូដសម្ងាត់មិនត្រឹមត្រូវទេ! អ្នកមិនអាចកែប្រែបានឡើយ។");
-            return;
-        }
-
-        // បញ្ជូលទិន្នន័យចូល Form បន្ទាប់ពីវាយកូដត្រូវ
         document.getElementById('editSongId').value = song.id;
         document.getElementById('editSongTitle').value = song.title || '';
         document.getElementById('editSongArtist').value = song.artist || '';
@@ -834,137 +479,61 @@
         const select = document.getElementById('editSongAlbumSelect');
         select.innerHTML = customAlbums.map(a => `<option value="${a.name}" ${a.name === song.album ? 'selected' : ''}>${a.name}</option>`).join('');
 
-        const previewImg = document.getElementById('editImgPreview');
-        if (song.imageUrl) {
-            previewImg.src = song.imageUrl;
-            previewImg.style.display = 'block';
-        } else {
-            previewImg.style.display = 'none';
-        }
-
-        selectedEditImageBase64 = ''; // Reset រូបភាពថ្មី
-        document.getElementById('editSongImageFile').value = '';
-        document.getElementById('editImageStatusText').innerText = '';
-
+        selectedEditImageBase64 = '';
         document.getElementById('editSongModal').classList.add('active');
     }
 
-    function closeModal(modalId) { 
-        document.getElementById(modalId).classList.remove('active'); 
-        document.getElementById('imageStatusText').innerText = '';
-        document.getElementById('editImageStatusText').innerText = '';
-    }
-
-    function handleAddAlbum(e) {
-        e.preventDefault();
-        const albumName = document.getElementById('newAlbumName').value.trim();
-        if (customAlbums.some(a => a.name.toLowerCase() === albumName.toLowerCase())) {
-            alert('Album ឈ្មោះនេះមានរួចហើយ!');
-            return;
-        }
-
-        if (albumName) {
-            customAlbums.push({ name: albumName, image: selectedAlbumImageBase64 });
-            selectAlbum(albumName);
-            document.getElementById('newAlbumName').value = '';
-            document.getElementById('albumCoverFile').value = '';
-            selectedAlbumImageBase64 = '';
-            closeModal('addAlbumModal');
-        }
-    }
-
-    async function handleAddSong(e) {
-        e.preventDefault();
-        const title = document.getElementById('songTitle').value.trim();
-        const artist = document.getElementById('songArtist').value.trim();
-        const album = document.getElementById('songAlbumSelect').value;
-
-        if (!selectedImageBase64) {
-            alert('សូមជ្រើសរើសរូបភាពជាមុនសិន!');
-            return;
-        }
-
-        const saveBtn = document.getElementById('saveBtn');
-        saveBtn.innerText = '⏳ កំពុងរក្សាទុក...';
-        saveBtn.disabled = true;
-
-        try {
-            await db.collection("songs").add({
-                title: title,
-                artist: artist,
-                album: album,
-                imageUrl: selectedImageBase64,
-                createdAt: firebase.firestore.FieldValue.serverTimestamp()
-            });
-
-            closeModal('addSongModal');
-            document.getElementById('addSongForm').reset();
-            selectedImageBase64 = '';
-            alert('✅ បានបញ្ចូលបទចម្រៀងដោយជោគជ័យ!');
-        } catch (error) {
-            alert('❌ មានបញ្ហាក្នុងការរក្សាទុក៖ ' + error.message);
-        } finally {
-            saveBtn.innerText = 'រក្សាទុក';
-            saveBtn.disabled = false;
-        }
-    }
-
-    /* ✏️ រក្សាទុកការកែប្រែទិន្នន័យ (Update Song & Image) */
     async function handleUpdateSong(e) {
         e.preventDefault();
         const id = document.getElementById('editSongId').value;
-        const title = document.getElementById('editSongTitle').value.trim();
-        const artist = document.getElementById('editSongArtist').value.trim();
-        const album = document.getElementById('editSongAlbumSelect').value;
+        const updateData = {
+            title: document.getElementById('editSongTitle').value.trim(),
+            artist: document.getElementById('editSongArtist').value.trim(),
+            album: document.getElementById('editSongAlbumSelect').value,
+            updatedBy: currentUser.displayName || currentUser.email,
+            updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+        };
 
-        const updateBtn = document.getElementById('updateBtn');
-        updateBtn.innerText = '⏳ កំពុងធ្វើបច្ចុប្បន្នភាព...';
-        updateBtn.disabled = true;
+        if (selectedEditImageBase64) updateData.imageUrl = selectedEditImageBase64;
 
-        try {
-            const updateData = {
-                title: title,
-                artist: artist,
-                album: album
-            };
-
-            if (selectedEditImageBase64) {
-                updateData.imageUrl = selectedEditImageBase64;
-            }
-
-            await db.collection("songs").doc(id).update(updateData);
-
-            closeModal('editSongModal');
-            alert('✅ បានកែប្រែបទចម្រៀងដោយជោគជ័យ!');
-        } catch (error) {
-            alert('❌ មានបញ្ហាក្នុងការធ្វើបច្ចុប្បន្នភាព៖ ' + error.message);
-        } finally {
-            updateBtn.innerText = 'រក្សាទុកការកែប្រែ';
-            updateBtn.disabled = false;
-        }
+        await db.collection("songs").doc(id).update(updateData);
+        closeModal('editSongModal');
+        alert('✅ បានកែប្រែដោយជោគជ័យ!');
     }
 
     async function deleteSong(id, title) {
-        const inputPin = prompt(`🔒 ដើមី្បលុបបទ «${title}» សូមបញ្ចូលលេខកូដសម្ងាត់ (PIN)៖`);
-        if (inputPin === null) return;
-
-        if (inputPin.trim() !== SECURITY_PIN) {
-            alert("❌ លេខកូដសម្ងាត់មិនត្រឹមត្រូវទេ!");
-            return;
-        }
-
-        const confirmTitle = prompt(`⚠️ ដើម្បីបញ្ជាក់ការលុប សូមវាយឈ្មោះបទនេះឡើងវិញ៖\n\n"${title}"`);
-        if (confirmTitle && confirmTitle.trim() === title) {
-            try {
-                await db.collection("songs").doc(id).delete();
-                alert(`✅ បានលុបបទ «${title}» ដោយជោគជ័យ!`);
-            } catch (error) {
-                alert('❌ មិនអាចលុបបានទេ៖ ' + error.message);
-            }
-        } else if (confirmTitle !== null) {
-            alert("❌ ឈ្មោះបទចម្រៀងដែលអ្នកវាយមិនត្រូវគ្នាទេ! ការលុបត្រូវបានបោះបង់។");
+        if (!isEditor) return alert("❌ អ្នកគ្មានសិទ្ធិលុបទេ!");
+        if (confirm(`⚠️ តើអ្នកប្រាកដថាលុបបទ «${title}» នេះមែនទេ?`)) {
+            await db.collection("songs").doc(id).delete();
+            alert(`✅ បានលុបបទ «${title}» រួចរាល់!`);
         }
     }
+
+    // Helper Functions
+    function openMobileSidebar() { document.getElementById('sidebar').classList.add('mobile-open'); document.getElementById('sidebarOverlay').classList.add('active'); }
+    function closeMobileSidebar() { document.getElementById('sidebar').classList.remove('mobile-open'); document.getElementById('sidebarOverlay').classList.remove('active'); }
+    function openAddSongModal() { 
+        document.getElementById('songAlbumSelect').innerHTML = customAlbums.map(a => `<option value="${a.name}">${a.name}</option>`).join('');
+        document.getElementById('addSongModal').classList.add('active'); 
+    }
+    function closeModal(id) { document.getElementById(id).classList.remove('active'); }
+    function openFullScreen(imgUrl, title) { document.getElementById('fullScreenImg').src = imgUrl; document.getElementById('fullScreenTitle').innerText = title; document.getElementById('fullScreenModal').classList.add('active'); }
+    function closeFullScreenModal(e) { if (e.target.classList.contains('fullscreen-modal') || e.target.classList.contains('fullscreen-img-container')) closeFullScreenModalDirect(); }
+    function closeFullScreenModalDirect() { document.getElementById('fullScreenModal').classList.remove('active'); }
+    function previewFileImage(e) { const r = new FileReader(); r.onload = (ex) => selectedImageBase64 = ex.target.result; r.readAsDataURL(e.target.files[0]); }
+    function previewEditFileImage(e) { const r = new FileReader(); r.onload = (ex) => selectedEditImageBase64 = ex.target.result; r.readAsDataURL(e.target.files[0]); }
+    function renderSidebarMenu() {
+        document.getElementById('sidebarMenu').innerHTML = `
+            <div class="menu-item ${currentSelectedAlbum === 'ALL' ? 'active' : ''}" onclick="selectAlbum('ALL')">
+                <div class="menu-item-left"><div class="menu-icon">📄</div><div>បទទាំងអស់</div></div>
+            </div>
+            ${customAlbums.map(a => `
+                <div class="menu-item ${currentSelectedAlbum === a.name ? 'active' : ''}" onclick="selectAlbum('${a.name}')">
+                    <div class="menu-item-left"><div class="menu-icon">📖</div><div>${a.name}</div></div>
+                </div>
+            `).join('')}`;
+    }
+    function selectAlbum(name) { currentSelectedAlbum = name; renderSidebarMenu(); renderSongs(); closeMobileSidebar(); }
 </script>
 
 </body>
