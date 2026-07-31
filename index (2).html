@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+<html lang="km">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>បណ្ដុំបទចម្រៀងរបស់ខ្ញុំ - Song Book Web App</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Kantumruy+Pro:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #2563eb;
+            --primary-hover: #1d4ed8;
+            --danger: #ef4444;
+            --danger-hover: #dc2626;
+            --bg: #f8fafc;
+            --card-bg: #ffffff;
+            --text: #0f172a;
+            --text-muted: #64748b;
+            --border: #e2e8f0;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Kantumruy Pro', system-ui, -apple-system, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg);
+            color: var(--text);
+            line-height: 1.5;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 24px;
+        }
+
+        header h1 {
+            font-size: 2rem;
+            color: var(--primary);
+            margin-bottom: 8px;
+        }
+
+        header p {
+            color: var(--text-muted);
+            font-size: 0.95rem;
+        }
+
+        .controls {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 24px;
+            flex-wrap: wrap;
+        }
+
+        .search-box {
+            flex: 1;
+            min-width: 250px;
+            position: relative;
+        }
+
+        .search-box input {
+            width: 100%;
+            padding: 12px 16px 12px 42px;
+            font-size: 1rem;
+            border: 2px solid var(--border);
+            border-radius: 10px;
+            outline: none;
+            transition: border-color 0.2s;
+            background: var(--card-bg);
+        }
+
+        .search-box input:focus {
+            border-color: var(--primary);
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 1.1rem;
+            color: var(--text-muted);
+        }
+
+        .btn {
+            padding: 12px 20px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background-color: var(--primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: var(--primary-hover);
+        }
+
+        .btn-danger {
+            background-color: #fee2e2;
+            color: var(--danger);
+        }
+
+        .btn-danger:hover {
+            background-color: var(--danger);
+            color: white;
+        }
+
+        .song-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+            gap: 20px;
+        }
+
+        .song-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+            transition: transform 0.2s, box-shadow 0.2s;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .song-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 16px rgba(0,0,0,0.08);
+        }
+
+        .song-img-container {
+            width: 100%;
+            height: 220px;
+            background: #f1f5f9;
+            overflow: hidden;
+            position: relative;
+            cursor: pointer;
+        }
+
+        .song-img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .song-info {
+            padding: 16px;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .song-title {
+            font-size: 1.1rem;
+            font-weight: 700;
+            margin-bottom: 4px;
+            color: var(--text);
+        }
+
+        .song-artist {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            margin-bottom: 12px;
+        }
+
+        .song-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 8px;
+            margin-top: auto;
+        }
+
+        /* Modal Popup */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.6);
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            padding: 20px;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 24px;
+            border-radius: 16px;
+            width: 100%;
+            max-width: 480px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        .modal-header h2 {
+            font-size: 1.3rem;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: var(--text-muted);
+        }
+
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 0.9rem;
+            font-weight: 600;
+            margin-bottom: 6px;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 10px 14px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            font-size: 0.95rem;
+            outline: none;
+        }
+
+        .form-group input:focus {
+            border-color: var(--primary);
+        }
+
+        .preview-box {
+            width: 100%;
+            max-height: 150px;
+            object-fit: contain;
+            border-radius: 8px;
+            margin-top: 8px;
+            display: none;
+            border: 1px solid var(--border);
+        }
+
+        /* Image View Modal */
+        .img-modal-content {
+            max-width: 90vw;
+            max-height: 90vh;
+            background: transparent;
+            box-shadow: none;
+            padding: 0;
+            text-align: center;
+        }
+
+        .img-modal-content img {
+            max-width: 100%;
+            max-height: 85vh;
+            border-radius: 8px;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: var(--text-muted);
+            grid-column: 1 / -1;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <header>
+        <h1>🎼 សៀវភៅបទចម្រៀងឌីជីថល</h1>
+        <p>រក្សាទុក និងស្វែងរកសន្លឹកចម្រៀងរបស់អ្នកបានយ៉ាងងាយស្រួល</p>
+    </header>
+
+    <div class="controls">
+        <div class="search-box">
+            <span class="search-icon">🔍</span>
+            <input type="text" id="searchInput" oninput="renderSongs()" placeholder="ស្វែងរកតាមចំណងជើង ឬឈ្មោះអ្នកចម្រៀង...">
+        </div>
+        <button class="btn btn-primary" onclick="openAddModal()">➕ បញ្ចូលបទថ្មី</button>
+    </div>
+
+    <div class="song-grid" id="songGrid">
+        <!-- Songs rendered dynamically via JavaScript -->
+    </div>
+</div>
+
+<!-- Modal បញ្ចូលបទថ្មី -->
+<div class="modal" id="addModal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2>➕ បញ្ចូលបទចម្រៀងថ្មី</h2>
+            <button class="close-btn" onclick="closeAddModal()">&times;</button>
+        </div>
+        <form id="addSongForm" onsubmit="handleAddSong(event)">
+            <div class="form-group">
+                <label>ចំណងជើងបទចម្រៀង *</label>
+                <input type="text" id="songTitle" placeholder="ឧ. ចំប៉ាបាត់ដំបង" required>
+            </div>
+            <div class="form-group">
+                <label>ឈ្មោះអ្នកចម្រៀង / អ្នកនិពន្ធ</label>
+                <input type="text" id="songArtist" placeholder="ឧ. ស៊ីន ស៊ីសាមុត">
+            </div>
+            <div class="form-group">
+                <label>ជ្រើសរើសរូបភាពសន្លឹកចម្រៀង (ពីទូរស័ព្ទ/កុំព្យូទ័រ) *</label>
+                <input type="file" id="songImageFile" accept="image/*" onchange="previewFileImage(event)" required>
+                <img id="filePreview" class="preview-box" alt="Image Preview">
+            </div>
+            <div style="text-align: right; margin-top: 20px;">
+                <button type="button" class="btn" style="background:#e2e8f0; margin-right:8px;" onclick="closeAddModal()">បោះបង់</button>
+                <button type="submit" class="btn btn-primary">រក្សាទុក</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Modal មើលរូបភាពធំ -->
+<div class="modal" id="viewModal" onclick="closeViewModal()">
+    <div class="modal-content img-modal-content">
+        <img id="viewImage" src="" alt="Full View">
+    </div>
+</div>
+
+<script>
+    // គំរូទិន្នន័យដើម (Default Data)
+    const defaultSongs = [
+        {
+            id: 1,
+            title: "ចំប៉ាបាត់ដំបង",
+            artist: "ស៊ីន ស៊ីសាមុត",
+            image: "https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=600&auto=format&fit=crop&q=60"
+        },
+        {
+            id: 2,
+            title: "ផ្កាសារាយ",
+            artist: "រស់ សេរីសុទ្ធា",
+            image: "https://images.unsplash.com/photo-1470225620780-dba8ba36b745?w=600&auto=format&fit=crop&q=60"
+        }
+    ];
+
+    // ទាញយកទិន្នន័យពី LocalStorage ឬប្រើ Default
+    let songs = JSON.parse(localStorage.getItem('my_song_book')) || defaultSongs;
+    let selectedImageBase64 = '';
+
+    // Save ទៅ LocalStorage
+    function saveSongs() {
+        localStorage.setItem('my_song_book', JSON.stringify(songs));
+        renderSongs();
+    }
+
+    // បង្ហាញបញ្ជីបទចម្រៀង (Render)
+    function renderSongs() {
+        const grid = document.getElementById('songGrid');
+        const query = document.getElementById('searchInput').value.toLowerCase().trim();
+
+        const filtered = songs.filter(s => 
+            s.title.toLowerCase().includes(query) || 
+            (s.artist && s.artist.toLowerCase().includes(query))
+        );
+
+        if (filtered.length === 0) {
+            grid.innerHTML = `<div class="empty-state">❌ មិនរកឃើញបទចម្រៀងដែលអ្នកចង់បានឡើយ</div>`;
+            return;
+        }
+
+        grid.innerHTML = filtered.map(song => `
+            <div class="song-card">
+                <div class="song-img-container" onclick="openViewModal('${song.image}')">
+                    <img src="${song.image}" class="song-img" alt="${song.title}" onerror="this.src='https://via.placeholder.com/300x200?text=No+Image'">
+                </div>
+                <div class="song-info">
+                    <div>
+                        <div class="song-title">${song.title}</div>
+                        <div class="song-artist">${song.artist || 'មិនស្គាល់អ្នកចម្រៀង'}</div>
+                    </div>
+                    <div class="song-actions">
+                        <button class="btn btn-danger" onclick="deleteSong(${song.id})">🗑️ លុប</button>
+                    </div>
+                </div>
+            </div>
+        `).join('');
+    }
+
+    // Modal Control
+    function openAddModal() {
+        document.getElementById('addModal').classList.add('active');
+    }
+
+    function closeAddModal() {
+        document.getElementById('addModal').classList.remove('active');
+        document.getElementById('addSongForm').reset();
+        document.getElementById('filePreview').style.display = 'none';
+        selectedImageBase64 = '';
+    }
+
+    function openViewModal(imgSrc) {
+        document.getElementById('viewImage').src = imgSrc;
+        document.getElementById('viewModal').classList.add('active');
+    }
+
+    function closeViewModal() {
+        document.getElementById('viewModal').classList.remove('active');
+    }
+
+    // បំប្លែងរូបភាពដែល Upload ទៅជា Base64 ទុកក្នុង LocalStorage
+    function previewFileImage(event) {
+        const file = event.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                selectedImageBase64 = e.target.result;
+                const preview = document.getElementById('filePreview');
+                preview.src = selectedImageBase64;
+                preview.style.display = 'block';
+            }
+            reader.readAsDataURL(file);
+        }
+    }
+
+    // បន្ថែមបទចម្រៀងថ្មី
+    function handleAddSong(e) {
+        e.preventDefault();
+        const title = document.getElementById('songTitle').value.trim();
+        const artist = document.getElementById('songArtist').value.trim();
+
+        if (!selectedImageBase64) {
+            alert('សូមជ្រើសរើសរូបភាពសន្លឹកចម្រៀង!');
+            return;
+        }
+
+        const newSong = {
+            id: Date.now(),
+            title: title,
+            artist: artist,
+            image: selectedImageBase64
+        };
+
+        songs.unshift(newSong); // ដាក់នៅដើមគេ
+        saveSongs();
+        closeAddModal();
+    }
+
+    // លុបបទចម្រៀង
+    function deleteSong(id) {
+        if (confirm('តើអ្នកពិតជាចង់លុបបទចម្រៀងនេះមែនទេ?')) {
+            songs = songs.filter(s => s.id !== id);
+            saveSongs();
+        }
+    }
+
+    // ដំណើរការដំបូង
+    renderSongs();
+</script>
+
+</body>
+</html>
