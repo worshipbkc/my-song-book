@@ -8,7 +8,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Kantumruy+Pro:wght@400;500;600;700&display=swap" rel="stylesheet">
     
-    <!-- 🔥 Firebase SDKs (v8) -->
+    <!-- 🔥 Firebase SDKs (v8 Compact Compatibility) -->
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
 
@@ -324,27 +324,16 @@
 </div>
 
 <script>
-  // Import the functions you need from the SDKs you need
-import { initializeApp } from "firebase/app";
-import { getAnalytics } from "firebase/analytics";
-// TODO: Add SDKs for Firebase products that you want to use
-// https://firebase.google.com/docs/web/setup#available-libraries
-
-// Your web app's Firebase configuration
-// For Firebase JS SDK v7.20.0 and later, measurementId is optional
-const firebaseConfig = {
-  apiKey: "AIzaSyBtnbu6tEFtHQLaYsoYVaim33h4TkjwYUI",
-  authDomain: "my-song-app-93c70.firebaseapp.com",
-  projectId: "my-song-app-93c70",
-  storageBucket: "my-song-app-93c70.firebasestorage.app",
-  messagingSenderId: "953879214507",
-  appId: "1:953879214507:web:90e84db6373dfdb3c47aee",
-  measurementId: "G-ZXC8HSTY69"
-};
-
-// Initialize Firebase
-const app = initializeApp(firebaseConfig);
-const analytics = getAnalytics(app);
+    // 🔥 Firebase Config របស់អ្នក
+    const firebaseConfig = {
+        apiKey: "AIzaSyBtnbu6tEFtHQLaYsoYVaim33h4TkjwYUI",
+        authDomain: "my-song-app-93c70.firebaseapp.com",
+        projectId: "my-song-app-93c70",
+        storageBucket: "my-song-app-93c70.firebasestorage.app",
+        messagingSenderId: "953879214507",
+        appId: "1:953879214507:web:90e84db6373dfdb3c47aee",
+        measurementId: "G-ZXC8HSTY69"
+    };
 
     firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
@@ -368,7 +357,6 @@ const analytics = getAnalytics(app);
         document.getElementById('mainContent').classList.toggle('expanded');
     }
 
-    // ⚡ មុខងារពង្រួមរូបភាពឱ្យស្រាលស្វ័យប្រវត្តិ (Compress & Resize) ធ្វើឱ្យលឿនខ្លាំង!
     function compressImage(file, maxWidth, quality, callback) {
         const reader = new FileReader();
         reader.readAsDataURL(file);
@@ -396,8 +384,9 @@ const analytics = getAnalytics(app);
         };
     }
 
+    // 🔥 ភ្ជាប់ទិន្នន័យពី Firestore
     function listenToSongs() {
-        db.collection("songs").orderBy("createdAt", "desc").onSnapshot((snapshot) => {
+        db.collection("songs").onSnapshot((snapshot) => {
             songsList = [];
             snapshot.forEach((doc) => {
                 songsList.push({ id: doc.id, ...doc.data() });
@@ -413,7 +402,7 @@ const analytics = getAnalytics(app);
             renderSongs();
         }, (error) => {
             console.error("Firebase Error: ", error);
-            document.getElementById('songGrid').innerHTML = `<div class="empty-state">❌ មិនទាន់មានបទចម្រៀងឡើយ</div>`;
+            document.getElementById('songGrid').innerHTML = `<div class="empty-state">❌ មានបញ្ហាក្នុងការភ្ជាប់៖ ${error.message}</div>`;
         });
     }
 
@@ -581,7 +570,6 @@ const analytics = getAnalytics(app);
     function previewFileImage(event) {
         const file = event.target.files[0];
         if (file) {
-            // ពង្រួមរូបភាពបទចម្រៀងឱ្យនៅ 500px & Quality 70%
             compressImage(file, 500, 0.7, function(base64) {
                 selectedImageBase64 = base64;
             });
