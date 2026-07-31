@@ -189,7 +189,9 @@
 
         .btn-primary { background-color: var(--primary); color: white; }
         .btn-primary:hover { background-color: var(--primary-hover); }
-        .btn-danger { background-color: #fee2e2; color: var(--danger); border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer; }
+        .btn-danger { background-color: #fee2e2; color: var(--danger); border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 0.85rem; }
+        .btn-save { background-color: #f1f5f9; color: #0f172a; border: 1px solid var(--border); text-decoration: none; padding: 6px 12px; border-radius: 6px; font-size: 0.85rem; font-weight: 600; display: inline-flex; align-items: center; gap: 4px; }
+        .btn-save:hover { background-color: #e2e8f0; }
 
         .song-grid {
             display: grid;
@@ -324,7 +326,7 @@
 </div>
 
 <script>
-    // 🔥 Firebase Config របស់អ្នក
+    // 🔥 Firebase Config
     const firebaseConfig = {
         apiKey: "AIzaSyBtnbu6tEFtHQLaYsoYVaim33h4TkjwYUI",
         authDomain: "my-song-app-93c70.firebaseapp.com",
@@ -357,6 +359,7 @@
         document.getElementById('mainContent').classList.toggle('expanded');
     }
 
+    // ⚡ ពង្រួមរូបភាពឱ្យស្រាលស្វ័យប្រវត្តិ
     function compressImage(file, maxWidth, quality, callback) {
         const reader = new FileReader();
         reader.readAsDataURL(file);
@@ -384,7 +387,6 @@
         };
     }
 
-    // 🔥 ភ្ជាប់ទិន្នន័យពី Firestore
     function listenToSongs() {
         db.collection("songs").onSnapshot((snapshot) => {
             songsList = [];
@@ -522,8 +524,9 @@
                         <div class="song-title">${song.title}</div>
                         <div class="song-artist">${song.artist || 'មិនស្គាល់អ្នកចម្រៀង'}</div>
                     </div>
-                    <div style="text-align: right; margin-top: 10px;">
-                        <button class="btn-danger" onclick="deleteSong('${song.id}')">🗑️ លុប</button>
+                    <div style="display: flex; gap: 8px; justify-content: flex-end; margin-top: 10px;">
+                        <a href="${song.imageUrl}" download="${song.title}.jpg" class="btn-save" title="ទាញយករូបភាពទុក">💾 Save</a>
+                        <button class="btn-danger" onclick="deleteSong('${song.id}', '${song.title.replace(/'/g, "\\'")}')">🗑️ លុប</button>
                     </div>
                 </div>
             </div>
@@ -622,13 +625,28 @@
         }
     }
 
-    async function deleteSong(id) {
-        if (confirm('តើអ្នកពិតជាចង់លុបបទចម្រៀងនេះមែនទេ?')) {
+    // 🔒 ប្រព័ន្ធការពារការលុប ២ ជាន់
+    async function deleteSong(id, title) {
+        // ជាន់ទី១៖ ទាមទារលេខកូដសម្ងាត់ PIN
+        const inputPin = prompt(`🔒 ដើមី្បលុបបទ «${title}» សូមបញ្ចូលលេខកូដសម្ងាត់ (PIN)៖`);
+        if (inputPin === null) return;
+
+        if (inputPin.trim() !== SECURITY_PIN) {
+            alert("❌ លេខកូដសម្ងាត់មិនត្រឹមត្រូវទេ!");
+            return;
+        }
+
+        // ជាន់ទី២៖ តម្រូវឱ្យវាយឈ្មោះបទចម្រៀងឡើងវិញដើម្បីបញ្ជាក់
+        const confirmTitle = prompt(`⚠️ ដើម្បីបញ្ជាក់ការលុប សូមវាយឈ្មោះបទនេះឡើងវិញ៖\n\n"${title}"`);
+        if (confirmTitle && confirmTitle.trim() === title) {
             try {
                 await db.collection("songs").doc(id).delete();
+                alert(`✅ បានលុបបទ «${title}» ដោយជោគជ័យ!`);
             } catch (error) {
                 alert('❌ មិនអាចលុបបានទេ៖ ' + error.message);
             }
+        } else if (confirmTitle !== null) {
+            alert("❌ ឈ្មោះបទចម្រៀងដែលអ្នកវាយមិនត្រូវគ្នាទេ! ការលុបត្រូវបានបោះបង់។");
         }
     }
 </script>
