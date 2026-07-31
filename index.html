@@ -42,44 +42,79 @@
         .sidebar-title { font-size: 1.1rem; font-weight: 700; }
         .close-sidebar-btn { background: none; border: none; font-size: 1.2rem; cursor: pointer; display: none; padding: 4px 8px; border-radius: 6px; }
 
-        /* 👤 Profile Card & Dropdown Menu */
-        .user-profile-wrapper { border-bottom: 1px solid var(--border); background: #f1f5f9; position: relative; }
+        /* 👤 Profile Area & Dropdown Menu */
+        .user-profile-wrapper { 
+            border-bottom: 1px solid var(--border); 
+            background: #f8fafc; 
+            position: relative; 
+            width: 100%;
+        }
         
         .user-profile-card {
-            padding: 12px 14px; display: flex; align-items: center; justify-content: space-between;
-            cursor: pointer; user-select: none; transition: background 0.2s;
+            padding: 14px; 
+            display: flex; 
+            align-items: center; 
+            justify-content: space-between;
+            cursor: pointer; 
+            user-select: none; 
+            transition: background 0.2s;
+            width: 100%;
         }
-        .user-profile-card:hover { background: #e2e8f0; }
+        .user-profile-card:hover { background: #f1f5f9; }
 
-        .user-info { display: flex; align-items: center; gap: 10px; overflow: hidden; flex: 1; }
-        .user-avatar { width: 38px; height: 38px; border-radius: 50%; object-fit: cover; }
-        .user-details { font-size: 0.8rem; overflow: hidden; }
-        .user-name { font-weight: 700; text-overflow: ellipsis; white-space: nowrap; overflow: hidden; }
-        .user-role { font-size: 0.7rem; color: #16a34a; font-weight: 600; }
-        .dropdown-arrow { font-size: 0.75rem; color: var(--text-muted); transition: transform 0.3s ease; }
+        .user-info { display: flex; align-items: center; gap: 12px; overflow: hidden; flex: 1; }
+        .user-avatar { width: 42px; height: 42px; border-radius: 50%; object-fit: cover; border: 1px solid var(--border); }
+        .user-details { font-size: 0.85rem; overflow: hidden; display: flex; flex-direction: column; gap: 2px; }
+        .user-name { font-weight: 700; text-overflow: ellipsis; white-space: nowrap; overflow: hidden; color: var(--text); }
+        .user-role { font-size: 0.75rem; color: #16a34a; font-weight: 600; display: flex; align-items: center; gap: 4px; }
+        
+        .dropdown-arrow { 
+            font-size: 0.7rem; 
+            color: var(--text-muted); 
+            transition: transform 0.3s ease; 
+            padding-left: 8px;
+        }
         .user-profile-card.active .dropdown-arrow { transform: rotate(180deg); }
 
-        /* Dropdown Slide Menu */
+        /* Dropdown Slide Container */
         .profile-dropdown-menu {
-            max-height: 0; overflow: hidden; transition: max-height 0.3s ease-in-out, padding 0.3s ease;
-            background: #ffffff; border-top: 1px solid var(--border); padding: 0 10px;
+            display: none;
+            background: #ffffff; 
+            border-top: 1px solid var(--border); 
+            padding: 6px;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.02);
         }
-        .profile-dropdown-menu.open { max-height: 120px; padding: 8px 10px; }
+        .profile-dropdown-menu.open { 
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
 
         .dropdown-item {
-            display: flex; align-items: center; gap: 10px; width: 100%; padding: 8px 10px;
-            border: none; background: transparent; border-radius: 6px; font-size: 0.88rem;
-            font-weight: 600; cursor: pointer; text-align: left; color: var(--text); transition: background 0.2s;
+            display: flex; 
+            align-items: center; 
+            gap: 10px; 
+            width: 100%; 
+            padding: 10px 12px;
+            border: none; 
+            background: transparent; 
+            border-radius: 8px; 
+            font-size: 0.88rem;
+            font-weight: 600; 
+            cursor: pointer; 
+            text-align: left; 
+            color: var(--text); 
+            transition: background 0.2s;
         }
         .dropdown-item:hover { background: #f1f5f9; }
         .dropdown-item.danger { color: var(--danger); }
         .dropdown-item.danger:hover { background: #fee2e2; }
 
         .btn-auth {
-            padding: 8px 12px; border-radius: 8px; border: none; font-size: 0.85rem; font-weight: 600; cursor: pointer;
-            display: flex; align-items: center; gap: 6px; justify-content: center; width: 100%;
+            padding: 10px 14px; border-radius: 8px; border: none; font-size: 0.85rem; font-weight: 600; cursor: pointer;
+            display: flex; align-items: center; gap: 8px; justify-content: center; width: 100%;
         }
-        .btn-google { background: white; border: 1px solid var(--border); color: #333; margin: 10px 14px; width: calc(100% - 28px); }
+        .btn-google { background: white; border: 1px solid var(--border); color: #333; margin: 12px 14px; width: calc(100% - 28px); }
 
         .sidebar-action-container { padding: 12px 14px 4px 14px; }
         .add-song-sidebar-btn {
@@ -172,7 +207,7 @@
         <button class="close-sidebar-btn" onclick="closeMobileSidebar()">✖</button>
     </div>
 
-    <!-- 👤 ផ្ទាំង Profile Admin / Login ជាមួយ Dropdown Menu -->
+    <!-- 👤 ផ្ទាំង Profile Admin / Login ជាមួយ Dropdown Menu ដែលបានលាក់ប៊ូតុងចាស់ៗចេញ -->
     <div class="user-profile-wrapper" id="userProfileArea">
         <button class="btn-auth btn-google" onclick="loginWithGoogle()">
             <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" width="18" alt="G">
@@ -361,12 +396,12 @@
 
     function logout() { auth.signOut(); }
 
-    /* 👤 បង្ហាញ Profile ជាមួយ Dropdown Menu ថ្មី */
+    /* 👤 បង្ហាញ Profile Card និងទម្លាក់ Dropdown មកក្រោម */
     function renderUserProfile(user) {
         document.getElementById('userProfileArea').innerHTML = `
             <div class="user-profile-card" id="profileToggleBtn" onclick="toggleProfileDropdown()">
                 <div class="user-info">
-                    <img src="${user.photoURL || 'https://via.placeholder.com/36'}" class="user-avatar">
+                    <img src="${user.photoURL || 'https://via.placeholder.com/42'}" class="user-avatar">
                     <div class="user-details">
                         <div class="user-name">${user.displayName || 'អ្នកប្រើប្រាស់'}</div>
                         <div class="user-role">${isAdmin ? '👑 Admin' : (isEditor ? '✏️ Editor' : '👁️ មើលប៉ុណ្ណោះ')}</div>
