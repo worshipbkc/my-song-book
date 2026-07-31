@@ -17,7 +17,7 @@
             --text: #0f172a;
             --text-muted: #64748b;
             --border: #e2e8f0;
-            --sidebar-width: 240px;
+            --sidebar-width: 260px;
             --sidebar-collapsed-width: 70px;
         }
 
@@ -104,6 +104,7 @@
 
         .sidebar.collapsed .sidebar-title,
         .sidebar.collapsed .menu-text,
+        .sidebar.collapsed .album-actions,
         .sidebar.collapsed .add-album-btn span,
         .sidebar.collapsed .add-song-sidebar-btn span { display: none; }
 
@@ -112,7 +113,7 @@
         .menu-item {
             display: flex;
             align-items: center;
-            gap: 12px;
+            justify-content: space-between;
             padding: 8px 10px;
             border-radius: 10px;
             cursor: pointer;
@@ -124,19 +125,50 @@
             white-space: nowrap;
         }
 
+        .menu-item-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            overflow: hidden;
+        }
+
         .menu-item:hover { background-color: #f1f5f9; color: var(--primary); }
         .menu-item.active { background-color: #3b82f6; color: white; }
 
+        .album-actions {
+            display: none;
+            gap: 4px;
+        }
+
+        .menu-item:hover .album-actions {
+            display: flex;
+        }
+
+        .album-action-btn {
+            background: none;
+            border: none;
+            font-size: 0.85rem;
+            cursor: pointer;
+            padding: 2px 4px;
+            border-radius: 4px;
+            opacity: 0.8;
+        }
+
+        .album-action-btn:hover {
+            opacity: 1;
+            background: rgba(0, 0, 0, 0.1);
+        }
+
         .album-cover-img {
-            width: 36px;
-            height: 36px;
-            border-radius: 8px;
+            width: 32px;
+            height: 32px;
+            border-radius: 6px;
             object-fit: cover;
             border: 1px solid var(--border);
             background: #e2e8f0;
         }
 
-        .menu-icon { font-size: 1.2rem; min-width: 36px; text-align: center; }
+        .menu-icon { font-size: 1.2rem; min-width: 32px; text-align: center; }
 
         .add-album-btn {
             margin: 10px;
@@ -281,7 +313,7 @@
 
         @media (max-width: 600px) {
             .sidebar { width: var(--sidebar-collapsed-width); }
-            .sidebar-title, .menu-text, .add-album-btn span, .add-song-sidebar-btn span { display: none; }
+            .sidebar-title, .menu-text, .album-actions, .add-album-btn span, .add-song-sidebar-btn span { display: none; }
             .main-content { margin-left: var(--sidebar-collapsed-width); padding: 16px; }
         }
     </style>
@@ -385,7 +417,11 @@
 </div>
 
 <script>
-    const GOOGLE_SHEET_URL = "https://script.google.com/macros/s/AKfycbxzvUXngoX13hYiXvwU-UQxYlxhzGz5zf9eds5I29FKhO1W_n5HHKbETLYzBUk844Fnlw/exec";
+    // 🔗 សូមជំនួស URL នេះដោយ Web App URL របស់ Google Apps Script អ្នក
+    const GOOGLE_SHEET_URL = "https://script.google.com/macros/s/AKfycbzOV3gY2adt15hZiCizh9VNWFHMEFQjH4Tt_X0EyVofOIlgWo51y-QJGmLcAH22X3c4KA/execc";
+    
+    // 🔑 លេខកូដសម្ងាត់សម្រាប់លុប Album (អ្នកអាចផ្លាស់ប្តូរលេខនេះបាន)
+    const SECURITY_PIN = "1234";
 
     let songsList = [];
     let customAlbums = [
@@ -431,8 +467,10 @@
 
         let html = `
             <div class="menu-item ${currentSelectedAlbum === 'ALL' ? 'active' : ''}" onclick="selectAlbum('ALL')">
-                <div class="menu-icon">📄</div>
-                <div class="menu-text">បទទាំងអស់</div>
+                <div class="menu-item-left">
+                    <div class="menu-icon">📄</div>
+                    <div class="menu-text">បទទាំងអស់</div>
+                </div>
             </div>
         `;
 
@@ -443,8 +481,14 @@
 
             html += `
                 <div class="menu-item ${currentSelectedAlbum === album.name ? 'active' : ''}" onclick="selectAlbum('${album.name}')">
-                    ${imgHtml}
-                    <div class="menu-text">${album.name}</div>
+                    <div class="menu-item-left">
+                        ${imgHtml}
+                        <div class="menu-text" title="${album.name}">${album.name}</div>
+                    </div>
+                    <div class="album-actions">
+                        <button class="album-action-btn" onclick="editAlbum(event, '${album.name}')" title="កែឈ្មោះ">✏️</button>
+                        <button class="album-action-btn" onclick="deleteAlbum(event, '${album.name}')" title="លុប Album">🗑️</button>
+                    </div>
                 </div>
             `;
         });
@@ -464,6 +508,83 @@
         }
 
         renderSongs();
+    }
+
+    // 🔒 មុខងារលុប Album ប្រកបដោយសុវត្ថិភាពខ្ពស់
+    function deleteAlbum(event, albumName) {
+        event.stopPropagation();
+
+        // 1. ទាមទារលេខកូដសម្ងាត់ជាមុនសិន
+        const inputPin = prompt(`🔒 សូមបញ្ចូលលេខកូដសម្ងាត់ (PIN) ដើម្បីធ្វើការលុប Album «${albumName}»៖`);
+
+        if (inputPin === null) return;
+
+        if (inputPin.trim() !== SECURITY_PIN) {
+            alert("❌ លេខកូដសម្ងាត់មិនត្រឹមត្រូវទេ! ការលុបត្រូវបានបដិសេធ។");
+            return;
+        }
+
+        // 2. ពិនិត្យមើលថាតើ Album នេះមានបទចម្រៀងដែរឬទេ?
+        const songsInAlbum = songsList.filter(s => (s.album || 'ទូទៅ') === albumName);
+
+        if (songsInAlbum.length > 0) {
+            alert(
+                `🛑 មិនអនុញ្ញាតឱ្យលុប Album «${albumName}» នេះឡើយ!\n\n` +
+                `មូលហេតុ៖ Album នេះមានបទចម្រៀងចំនួន ${songsInAlbum.length} បទនៅខាងក្នុង។\n\n` +
+                `👉 សូមអ្នកយកបទចម្រៀងទាំងនោះចេញ ឬលុបបទចម្រៀងក្នុង Album នេះឱ្យអស់សិន ទើបអាចលុប Album នេះបាន!`
+            );
+            return;
+        }
+
+        // 3. Album ទទេរ -> តម្រូវឱ្យវាយឈ្មោះ Album ដើម្បីបញ្ជាក់ចុងក្រោយ
+        const confirmName = prompt(
+            `⚠️ បញ្ជាក់ការលុប Album «${albumName}» ( Album នេះទទេរគ្មានបទចម្រៀងទេ)\n\n` +
+            `សូមវាយឈ្មោះ Album៖ «${albumName}» ឡើងវិញដើម្បីលុប៖`
+        );
+
+        if (confirmName === null) return;
+
+        if (confirmName.trim() === albumName) {
+            customAlbums = customAlbums.filter(a => a.name !== albumName);
+            
+            alert(`✅ បានលុប Album «${albumName}» ដោយជោគជ័យ!`);
+
+            if (currentSelectedAlbum === albumName) {
+                selectAlbum('ALL');
+            } else {
+                renderSidebarMenu();
+            }
+        } else {
+            alert("❌ ឈ្មោះ Album ដែលអ្នកវាយមិនត្រឹមត្រូវទេ! ការលុបត្រូវបានបោះបង់។");
+        }
+    }
+
+    // ✏️ មុខងារកែឈ្មោះ Album
+    function editAlbum(event, oldName) {
+        event.stopPropagation();
+
+        const newName = prompt("សូមបញ្ចូលឈ្មោះ Album ថ្មី៖", oldName);
+        if (newName && newName.trim() !== "" && newName !== oldName) {
+            const trimmedName = newName.trim();
+            
+            if (customAlbums.some(a => a.name.toLowerCase() === trimmedName.toLowerCase())) {
+                alert("ឈ្មោះ Album នេះមានរួចហើយ!");
+                return;
+            }
+
+            const albumObj = customAlbums.find(a => a.name === oldName);
+            if (albumObj) albumObj.name = trimmedName;
+
+            songsList.forEach(s => {
+                if (s.album === oldName) s.album = trimmedName;
+            });
+
+            if (currentSelectedAlbum === oldName) {
+                selectAlbum(trimmedName);
+            } else {
+                renderSidebarMenu();
+            }
+        }
     }
 
     function handleSearchKey(event) {
@@ -529,9 +650,8 @@
         e.preventDefault();
         const albumName = document.getElementById('newAlbumName').value.trim();
         
-        // 📍 ការពារកុំឱ្យបង្កើតឈ្មោះ Album ជាន់គ្នា
         if (customAlbums.some(a => a.name.toLowerCase() === albumName.toLowerCase())) {
-            alert(' Album ឈ្មោះនេះមានរួចហើយ! សូមប្រើឈ្មោះផ្សេង។');
+            alert('Album ឈ្មោះនេះមានរួចហើយ! សូមប្រើឈ្មោះផ្សេង។');
             return;
         }
 
@@ -557,13 +677,14 @@
         }
     }
 
+    // 🚫 មុខងារបន្ថែមបទចម្រៀងថ្មី (ការពារកុំឱ្យបញ្ចូលជាន់ឈ្មោះ)
     async function handleAddSong(e) {
         e.preventDefault();
         const title = document.getElementById('songTitle').value.trim();
         const artist = document.getElementById('songArtist').value.trim();
         const album = document.getElementById('songAlbumSelect').value;
 
-        // 📍 ពិនិត្យមើលក្រែងលោមានបទចម្រៀងឈ្មោះនេះ ក្នុង Album នេះរួចហើយ
+        // ពិនិត្យមើលក្រែងលោមានបទចម្រៀងនេះក្នុង Album នេះរួចហើយ
         const isDuplicate = songsList.some(song => 
             song.title.toLowerCase().trim() === title.toLowerCase() && 
             (song.album || 'ទូទៅ') === album
