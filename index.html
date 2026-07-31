@@ -207,7 +207,7 @@
         <button class="close-sidebar-btn" onclick="closeMobileSidebar()">✖</button>
     </div>
 
-    <!-- 👤 ផ្ទាំង Profile Admin / Login ជាមួយ Dropdown Menu ដែលបានលាក់ប៊ូតុងចាស់ៗចេញ -->
+    <!-- 👤 ផ្ទាំង Profile Admin / Login ជាមួយ Dropdown Menu -->
     <div class="user-profile-wrapper" id="userProfileArea">
         <button class="btn-auth btn-google" onclick="loginWithGoogle()">
             <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" width="18" alt="G">
@@ -524,7 +524,7 @@
         }).join('');
     }
 
-    /* ➕ បញ្ចូលបទថ្មី */
+    /* ➕ បញ្ចូលបទថ្មី (មានប្រព័ន្ធការពារបទជាន់គ្នា) */
     async function handleAddSong(e) {
         e.preventDefault();
         if (!isEditor) return alert("❌ អ្នកគ្មានសិទ្ធិបញ្ចូលបទចម្រៀងទេ!");
@@ -533,12 +533,26 @@
         const artist = document.getElementById('songArtist').value.trim();
         const album = document.getElementById('songAlbumSelect').value;
 
+        // 🔍 ពិនិត្យមើលថា តើមានបទចំណងជើងនេះនៅក្នុង Album នេះរួចហើយឬនៅ?
+        const isDuplicate = songsList.some(song => 
+            song.title.toLowerCase() === title.toLowerCase() && 
+            song.album === album
+        );
+
+        if (isDuplicate) {
+            alert(`⚠️ បទ «${title}» នេះមានរួចហើយនៅក្នុង Album «${album}»! សូមពិនិត្យមើលឡើងវិញ។`);
+            return; // បញ្ឈប់ការបញ្ចូល
+        }
+
         const saveBtn = document.getElementById('saveBtn');
-        saveBtn.innerText = '⏳ កំពុងរក្សាទុក...'; saveBtn.disabled = true;
+        saveBtn.innerText = '⏳ កំពុងរក្សាទុក...'; 
+        saveBtn.disabled = true;
 
         try {
             await db.collection("songs").add({
-                title, artist, album,
+                title, 
+                artist, 
+                album,
                 imageUrl: selectedImageBase64,
                 createdBy: currentUser.displayName || currentUser.email,
                 createdAt: firebase.firestore.FieldValue.serverTimestamp()
@@ -550,7 +564,8 @@
         } catch (error) {
             alert('❌ មានបញ្ហា៖ ' + error.message);
         } finally {
-            saveBtn.innerText = 'រក្សាទុក'; saveBtn.disabled = false;
+            saveBtn.innerText = 'រក្សាទុក'; 
+            saveBtn.disabled = false;
         }
     }
 
