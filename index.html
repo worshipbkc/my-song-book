@@ -17,6 +17,8 @@
             --text: #0f172a;
             --text-muted: #64748b;
             --border: #e2e8f0;
+            --sidebar-width: 240px;
+            --sidebar-collapsed-width: 70px;
         }
 
         * {
@@ -29,51 +31,199 @@
         body {
             background-color: var(--bg);
             color: var(--text);
-            padding: 20px;
-        }
-
-        .container {
-            max-width: 900px;
-            margin: 0 auto;
-        }
-
-        header {
-            text-align: center;
-            margin-bottom: 24px;
-        }
-
-        header h1 {
-            font-size: 2rem;
-            color: var(--primary);
-            margin-bottom: 8px;
-        }
-
-        .controls {
             display: flex;
-            gap: 12px;
-            margin-bottom: 20px;
-            flex-wrap: wrap;
+            min-height: 100vh;
         }
+
+        /* Sidebar ខាងឆ្វេង */
+        .sidebar {
+            width: var(--sidebar-width);
+            background: var(--card-bg);
+            border-right: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            transition: width 0.3s ease;
+            position: fixed;
+            top: 0; bottom: 0; left: 0;
+            z-index: 100;
+        }
+
+        .sidebar.collapsed { width: var(--sidebar-collapsed-width); }
+
+        .sidebar-header {
+            padding: 18px 20px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .toggle-btn {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: var(--text);
+            width: 32px; height: 32px;
+            border-radius: 8px;
+            display: flex; align-items: center; justify-content: center;
+        }
+
+        .toggle-btn:hover { background: #f1f5f9; }
+
+        .sidebar-title {
+            font-size: 1rem;
+            font-weight: 700;
+            white-space: nowrap;
+            overflow: hidden;
+        }
+
+        .sidebar-action-container {
+            padding: 12px 10px 4px 10px;
+        }
+
+        .add-song-sidebar-btn {
+            width: 100%;
+            padding: 10px 14px;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: background 0.2s;
+            box-shadow: 0 2px 4px rgba(37, 99, 235, 0.2);
+        }
+
+        .add-song-sidebar-btn:hover { background: var(--primary-hover); }
+
+        .sidebar.collapsed .sidebar-title,
+        .sidebar.collapsed .menu-text,
+        .sidebar.collapsed .add-album-btn span,
+        .sidebar.collapsed .add-song-sidebar-btn span { display: none; }
+
+        .sidebar-menu { flex: 1; padding: 8px 10px; overflow-y: auto; }
+
+        .menu-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 8px 10px;
+            border-radius: 10px;
+            cursor: pointer;
+            color: var(--text-muted);
+            font-weight: 600;
+            font-size: 0.95rem;
+            margin-bottom: 6px;
+            transition: all 0.2s;
+            white-space: nowrap;
+        }
+
+        .menu-item:hover { background-color: #f1f5f9; color: var(--primary); }
+        .menu-item.active { background-color: #3b82f6; color: white; }
+
+        .album-cover-img {
+            width: 36px;
+            height: 36px;
+            border-radius: 8px;
+            object-fit: cover;
+            border: 1px solid var(--border);
+            background: #e2e8f0;
+        }
+
+        .menu-icon { font-size: 1.2rem; min-width: 36px; text-align: center; }
+
+        .add-album-btn {
+            margin: 10px;
+            padding: 10px 14px;
+            background: #eff6ff;
+            color: var(--primary);
+            border: 1px dashed var(--primary);
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .add-album-btn:hover { background: #dbeafe; }
+
+        /* Main Content ខាងស្តាំ */
+        .main-content {
+            margin-left: var(--sidebar-width);
+            flex: 1;
+            padding: 24px;
+            transition: margin-left 0.3s ease;
+        }
+
+        .main-content.expanded { margin-left: var(--sidebar-collapsed-width); }
+
+        header { margin-bottom: 24px; }
+
+        header h1 { 
+            font-size: 1.8rem; 
+            color: var(--primary); 
+            margin-bottom: 6px; 
+        }
+
+        header p { 
+            color: #1e293b; 
+            font-size: 1rem; 
+            font-weight: 600;
+            line-height: 1.6;
+            text-align: center; 
+        }
+
+        .bible-verse {
+            color: #2563eb; 
+            font-weight: 700;
+            display: inline-block;
+            margin-top: 2px;
+        }
+
+        /* Controls */
+        .controls { margin-bottom: 24px; }
 
         .search-box {
-            flex: 2;
-            min-width: 200px;
+            position: relative;
+            display: flex;
+            align-items: center;
+            width: 100%;
         }
 
-        .search-box input, .filter-select {
+        .search-box input {
             width: 100%;
-            padding: 12px 16px;
+            padding: 12px 45px 12px 18px;
             font-size: 0.95rem;
-            border: 2px solid var(--border);
+            border: 1px solid var(--border);
             border-radius: 10px;
             outline: none;
             background: var(--card-bg);
         }
 
-        .filter-box {
-            flex: 1;
-            min-width: 150px;
+        .search-btn {
+            position: absolute;
+            right: 6px;
+            background: none;
+            border: none;
+            font-size: 1.1rem;
+            cursor: pointer;
+            padding: 8px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.2s;
         }
+
+        .search-btn:hover { background-color: #f1f5f9; }
 
         .btn {
             padding: 12px 20px;
@@ -82,22 +232,17 @@
             border: none;
             border-radius: 10px;
             cursor: pointer;
-            transition: all 0.2s;
+            white-space: nowrap;
         }
 
-        .btn-primary {
-            background-color: var(--primary);
-            color: white;
-        }
+        .btn-primary { background-color: var(--primary); color: white; }
+        .btn-primary:hover { background-color: var(--primary-hover); }
+        .btn-danger { background-color: #fee2e2; color: var(--danger); border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer; }
 
-        .btn-danger {
-            background-color: #fee2e2;
-            color: var(--danger);
-        }
-
+        /* Song Grid */
         .song-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
             gap: 20px;
         }
 
@@ -110,143 +255,129 @@
             flex-direction: column;
         }
 
-        .song-img-container {
-            width: 100%;
-            height: 220px;
-            background: #f1f5f9;
-        }
+        .song-img-container { width: 100%; height: 180px; background: #f1f5f9; }
+        .song-img { width: 100%; height: 100%; object-fit: cover; }
+        .song-info { padding: 14px; flex: 1; display: flex; flex-direction: column; justify-content: space-between; }
+        .song-title { font-size: 1rem; font-weight: 700; margin-bottom: 4px; }
+        .song-artist { font-size: 0.85rem; color: var(--text-muted); }
 
-        .song-img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
+        .empty-state { text-align: center; padding: 40px 20px; color: var(--text-muted); grid-column: 1 / -1; }
 
-        .song-info {
-            padding: 16px;
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-        }
-
-        .song-title {
-            font-size: 1.1rem;
-            font-weight: 700;
-            margin-bottom: 4px;
-        }
-
-        .song-artist {
-            font-size: 0.9rem;
-            color: var(--text-muted);
-            margin-bottom: 6px;
-        }
-
-        .song-album-tag {
-            display: inline-block;
-            background: #e0e7ff;
-            color: #3730a3;
-            font-size: 0.75rem;
-            padding: 3px 8px;
-            border-radius: 6px;
-            font-weight: 600;
-            margin-bottom: 12px;
-            width: fit-content;
-        }
-
+        /* Modal */
         .modal {
             display: none;
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.6);
-            align-items: center;
-            justify-content: center;
-            z-index: 1000;
-            padding: 20px;
+            background: rgba(0,0,0,0.5);
+            align-items: center; justify-content: center;
+            z-index: 1000; padding: 20px;
         }
 
         .modal.active { display: flex; }
+        .modal-content { background: white; padding: 24px; border-radius: 16px; width: 100%; max-width: 450px; }
+        .form-group { margin-bottom: 14px; }
+        .form-group label { display: block; font-size: 0.9rem; font-weight: 600; margin-bottom: 6px; }
+        .form-group input, .form-group select { width: 100%; padding: 10px 14px; border: 1px solid var(--border); border-radius: 8px; outline: none; }
 
-        .modal-content {
-            background: white;
-            padding: 24px;
-            border-radius: 16px;
-            width: 100%;
-            max-width: 480px;
-        }
-
-        .form-group { margin-bottom: 16px; }
-
-        .form-group label {
-            display: block;
-            font-size: 0.9rem;
-            font-weight: 600;
-            margin-bottom: 6px;
-        }
-
-        .form-group input, .form-group select {
-            width: 100%;
-            padding: 10px 14px;
-            border: 1px solid var(--border);
-            border-radius: 8px;
-        }
-
-        .empty-state {
-            text-align: center;
-            padding: 40px;
-            color: var(--text-muted);
-            grid-column: 1 / -1;
+        @media (max-width: 600px) {
+            .sidebar { width: var(--sidebar-collapsed-width); }
+            .sidebar-title, .menu-text, .add-album-btn span, .add-song-sidebar-btn span { display: none; }
+            .main-content { margin-left: var(--sidebar-collapsed-width); padding: 16px; }
         }
     </style>
 </head>
 <body>
 
-<div class="container">
-    <header>
-        <h1>🎼 ចម្រៀងសរសើរតម្កើងព្រះ</h1>
-        <p>ចូរឲ្យជីវិតដែលមានដង្ហើមបានសរសើរព្រះ</p>
-    </header>
-
-    <div class="controls">
-        <div class="search-box">
-            <input type="text" id="searchInput" oninput="renderSongs()" placeholder="ស្វែងរកចំណងជើង ឬអ្នកចម្រៀង...">
-        </div>
-        <div class="filter-box">
-            <select id="albumFilter" class="filter-select" onchange="renderSongs()">
-                <option value="ALL">📂 Album ទាំងអស់</option>
-            </select>
-        </div>
-        <button class="btn btn-primary" onclick="openAddModal()">➕ បញ្ចូលបទថ្មី</button>
+<!-- Sidebar Menu ខាងឆ្វេង -->
+<div class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+        <button class="toggle-btn" onclick="toggleSidebar()">☰</button>
+        <div class="sidebar-title">Album ចម្រៀង</div>
     </div>
 
+    <div class="sidebar-action-container">
+        <button class="add-song-sidebar-btn" onclick="openAddSongModal()">
+            ➕ <span>បញ្ជូលបទថ្មី</span>
+        </button>
+    </div>
+
+    <div class="sidebar-menu" id="sidebarMenu">
+        <!-- Menu Items -->
+    </div>
+
+    <button class="add-album-btn" onclick="openAddAlbumModal()">
+        ➕ <span>បន្ថែម Album</span>
+    </button>
+</div>
+
+<!-- Main Content ខាងស្តាំ -->
+<div class="main-content" id="mainContent">
+    <header>
+        <h1>🎼 ចម្រៀងសរសើរតម្កើងព្រះ</h1>
+        <p id="currentAlbumSubtitle">
+            ចូរឱ្យជីវិតទាំងឡាយដែលមានដង្ហើម បានសរសើរដល់ព្រះយ៉េហូវ៉ាចុះ<br>
+            <span class="bible-verse">ទំនុកដំកើង ១៥០៖៦</span>
+        </p>
+    </header>
+
+    <!-- Controls -->
+    <div class="controls">
+        <div class="search-box">
+            <input type="text" id="searchInput" placeholder="ស្វែងរកចំណងជើង ឬអ្នកចម្រៀង..." onkeydown="handleSearchKey(event)">
+            <button class="search-btn" onclick="renderSongs()" title="ស្វែងរក">🔍</button>
+        </div>
+    </div>
+
+    <!-- បញ្ជីបទចម្រៀង -->
     <div class="song-grid" id="songGrid">
         <div class="empty-state">⏳ កំពុងទាញយកទិន្នន័យ...</div>
     </div>
 </div>
 
-<!-- Modal បញ្ចូលបទថ្មី -->
-<div class="modal" id="addModal">
+<!-- Modal 1: បន្ថែម Album ថ្មី -->
+<div class="modal" id="addAlbumModal">
+    <div class="modal-content">
+        <h2>📂 បន្ថែម Album ថ្មី</h2>
+        <form onsubmit="handleAddAlbum(event)" style="margin-top: 15px;">
+            <div class="form-group">
+                <label>ឈ្មោះ Album ថ្មី *</label>
+                <input type="text" id="newAlbumName" required placeholder="ឧទាហរណ៍៖ ទំនុកដំកើង, ទំនុកខ្មែរបរិសុទ្ធ...">
+            </div>
+            <div class="form-group">
+                <label>ជ្រើសរើសរូបថត Album (Cover Image)</label>
+                <input type="file" id="albumCoverFile" accept="image/*" onchange="previewAlbumImage(event)">
+            </div>
+            <div style="text-align: right; margin-top: 20px; display: flex; gap: 10px; justify-content: flex-end;">
+                <button type="button" class="btn" onclick="closeModal('addAlbumModal')" style="background: #e2e8f0;">បោះបង់</button>
+                <button type="submit" class="btn btn-primary">បង្កើត Album</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Modal 2: បញ្ចូលបទចម្រៀងថ្មី -->
+<div class="modal" id="addSongModal">
     <div class="modal-content">
         <h2>➕ បញ្ចូលបទចម្រៀងថ្មី</h2>
         <form id="addSongForm" onsubmit="handleAddSong(event)" style="margin-top: 15px;">
             <div class="form-group">
+                <label>ជ្រើសរើស Album *</label>
+                <select id="songAlbumSelect" required></select>
+            </div>
+            <div class="form-group">
                 <label>ចំណងជើងបទចម្រៀង *</label>
-                <input type="text" id="songTitle" required>
+                <input type="text" id="songTitle" required placeholder="ឧទាហរណ៍៖ ព្រះគុណព្រះអង្គ">
             </div>
             <div class="form-group">
                 <label>ឈ្មោះអ្នកចម្រៀង</label>
-                <input type="text" id="songArtist">
-            </div>
-            <div class="form-group">
-                <label>ឈ្មោះ Album (ឧទាហរណ៍៖ Album 1, ថ្វាយបង្គំ...)</label>
-                <input type="text" id="songAlbum" placeholder="ទូទៅ">
+                <input type="text" id="songArtist" placeholder="ឈ្មោះអ្នកចម្រៀង">
             </div>
             <div class="form-group">
                 <label>ជ្រើសរើសរូបភាព *</label>
                 <input type="file" id="songImageFile" accept="image/*" onchange="previewFileImage(event)" required>
             </div>
-            <div style="text-align: right; margin-top: 20px;">
-                <button type="button" class="btn" onclick="closeAddModal()">បោះបង់</button>
+            <div style="text-align: right; margin-top: 20px; display: flex; gap: 10px; justify-content: flex-end;">
+                <button type="button" class="btn" onclick="closeModal('addSongModal')" style="background: #e2e8f0;">បោះបង់</button>
                 <button type="submit" id="saveBtn" class="btn btn-primary">រក្សាទុក</button>
             </div>
         </form>
@@ -254,17 +385,25 @@
 </div>
 
 <script>
-    // --------------------------------------------------------------------------
-    // ⚠️ ដាក់ LINK WEB APP URL របស់អ្នកត្រង់នេះ៖
-    // --------------------------------------------------------------------------
     const GOOGLE_SHEET_URL = "https://script.google.com/macros/s/AKfycbxzvUXngoX13hYiXvwU-UQxYlxhzGz5zf9eds5I29FKhO1W_n5HHKbETLYzBUk844Fnlw/exec";
 
     let songsList = [];
+    let customAlbums = [
+        { name: 'ទំនុកដំកើង', image: '' },
+        { name: 'ទំនុកខ្មែរបរិសុទ្ធ', image: '' }
+    ];
+    let currentSelectedAlbum = 'ALL';
     let selectedImageBase64 = '';
+    let selectedAlbumImageBase64 = '';
 
     window.onload = function() {
         fetchSongs();
     };
+
+    function toggleSidebar() {
+        document.getElementById('sidebar').classList.toggle('collapsed');
+        document.getElementById('mainContent').classList.toggle('expanded');
+    }
 
     async function fetchSongs() {
         const grid = document.getElementById('songGrid');
@@ -273,35 +412,77 @@
             const response = await fetch(GOOGLE_SHEET_URL);
             songsList = await response.json();
             songsList.reverse();
-            populateAlbumFilter();
+
+            songsList.forEach(s => {
+                if (s.album && !customAlbums.some(a => a.name === s.album) && s.album !== 'ទូទៅ') {
+                    customAlbums.push({ name: s.album, image: '' });
+                }
+            });
+
+            renderSidebarMenu();
             renderSongs();
         } catch (error) {
-            grid.innerHTML = `<div class="empty-state">❌ មានបញ្ហាក្នុងការទាញយកទិន្នន័យ!</div>`;
+            grid.innerHTML = `<div class="empty-state">❌ មិនទាន់មានបទចម្រៀងឡើយ</div>`;
         }
     }
 
-    function populateAlbumFilter() {
-        const filterSelect = document.getElementById('albumFilter');
-        const albums = [...new Set(songsList.map(s => s.album || 'ទូទៅ'))];
+    function renderSidebarMenu() {
+        const menuContainer = document.getElementById('sidebarMenu');
+
+        let html = `
+            <div class="menu-item ${currentSelectedAlbum === 'ALL' ? 'active' : ''}" onclick="selectAlbum('ALL')">
+                <div class="menu-icon">📄</div>
+                <div class="menu-text">បទទាំងអស់</div>
+            </div>
+        `;
+
+        customAlbums.forEach(album => {
+            const imgHtml = album.image 
+                ? `<img src="${album.image}" class="album-cover-img" alt="${album.name}">` 
+                : `<div class="menu-icon">📖</div>`;
+
+            html += `
+                <div class="menu-item ${currentSelectedAlbum === album.name ? 'active' : ''}" onclick="selectAlbum('${album.name}')">
+                    ${imgHtml}
+                    <div class="menu-text">${album.name}</div>
+                </div>
+            `;
+        });
+
+        menuContainer.innerHTML = html;
+    }
+
+    function selectAlbum(albumName) {
+        currentSelectedAlbum = albumName;
+        renderSidebarMenu();
         
-        filterSelect.innerHTML = `<option value="ALL">📂 Album ទាំងអស់</option>` + 
-            albums.map(a => `<option value="${a}">💿 ${a}</option>`).join('');
+        const subtitle = document.getElementById('currentAlbumSubtitle');
+        if (albumName === 'ALL') {
+            subtitle.innerHTML = 'ចូរឱ្យជីវិតទាំងឡាយដែលមានដង្ហើម បានសរសើរដល់ព្រះយ៉េហូវ៉ាចុះ<br><span class="bible-verse">ទំនុកដំកើង ១៥០៖៦</span>';
+        } else {
+            subtitle.innerText = "Album ៖ " + albumName;
+        }
+
+        renderSongs();
+    }
+
+    function handleSearchKey(event) {
+        if (event.key === 'Enter') renderSongs();
     }
 
     function renderSongs() {
         const grid = document.getElementById('songGrid');
         const query = document.getElementById('searchInput').value.toLowerCase().trim();
-        const selectedAlbum = document.getElementById('albumFilter').value;
 
         const filtered = songsList.filter(s => {
             const matchesSearch = (s.title && s.title.toLowerCase().includes(query)) || 
                                   (s.artist && s.artist.toLowerCase().includes(query));
-            const matchesAlbum = selectedAlbum === 'ALL' || (s.album || 'ទូទៅ') === selectedAlbum;
+            const matchesAlbum = currentSelectedAlbum === 'ALL' || (s.album || 'ទូទៅ') === currentSelectedAlbum;
             return matchesSearch && matchesAlbum;
         });
 
         if (filtered.length === 0) {
-            grid.innerHTML = `<div class="empty-state">❌ មិនមានបទចម្រៀងឡើយ</div>`;
+            grid.innerHTML = `<div class="empty-state">❌ មិនទាន់មានបទចម្រៀងឡើយ</div>`;
             return;
         }
 
@@ -314,30 +495,64 @@
                     <div>
                         <div class="song-title">${song.title}</div>
                         <div class="song-artist">${song.artist || 'មិនស្គាល់អ្នកចម្រៀង'}</div>
-                        <div class="song-album-tag">💿 ${song.album || 'ទូទៅ'}</div>
                     </div>
                     <div style="text-align: right; margin-top: 10px;">
-                        <button class="btn btn-danger" onclick="deleteSong('${song.id}')">🗑️ លុប</button>
+                        <button class="btn-danger" onclick="deleteSong('${song.id}')">🗑️ លុប</button>
                     </div>
                 </div>
             </div>
         `).join('');
     }
 
-    function openAddModal() { document.getElementById('addModal').classList.add('active'); }
-    function closeAddModal() { 
-        document.getElementById('addModal').classList.remove('active'); 
-        document.getElementById('addSongForm').reset();
-        selectedImageBase64 = '';
+    function openAddAlbumModal() { document.getElementById('addAlbumModal').classList.add('active'); }
+    
+    function openAddSongModal() { 
+        const select = document.getElementById('songAlbumSelect');
+        select.innerHTML = customAlbums.map(a => `<option value="${a.name}" ${a.name === currentSelectedAlbum ? 'selected' : ''}>${a.name}</option>`).join('');
+        document.getElementById('addSongModal').classList.add('active'); 
+    }
+
+    function closeModal(modalId) { 
+        document.getElementById(modalId).classList.remove('active'); 
+    }
+
+    function previewAlbumImage(event) {
+        const file = event.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function(e) { selectedAlbumImageBase64 = e.target.result; }
+            reader.readAsDataURL(file);
+        }
+    }
+
+    function handleAddAlbum(e) {
+        e.preventDefault();
+        const albumName = document.getElementById('newAlbumName').value.trim();
+        
+        // 📍 ការពារកុំឱ្យបង្កើតឈ្មោះ Album ជាន់គ្នា
+        if (customAlbums.some(a => a.name.toLowerCase() === albumName.toLowerCase())) {
+            alert(' Album ឈ្មោះនេះមានរួចហើយ! សូមប្រើឈ្មោះផ្សេង។');
+            return;
+        }
+
+        if (albumName) {
+            customAlbums.push({
+                name: albumName,
+                image: selectedAlbumImageBase64
+            });
+            selectAlbum(albumName);
+            document.getElementById('newAlbumName').value = '';
+            document.getElementById('albumCoverFile').value = '';
+            selectedAlbumImageBase64 = '';
+            closeModal('addAlbumModal');
+        }
     }
 
     function previewFileImage(event) {
         const file = event.target.files[0];
         if (file) {
             const reader = new FileReader();
-            reader.onload = function(e) {
-                selectedImageBase64 = e.target.result;
-            }
+            reader.onload = function(e) { selectedImageBase64 = e.target.result; }
             reader.readAsDataURL(file);
         }
     }
@@ -346,7 +561,18 @@
         e.preventDefault();
         const title = document.getElementById('songTitle').value.trim();
         const artist = document.getElementById('songArtist').value.trim();
-        const album = document.getElementById('songAlbum').value.trim() || 'ទូទៅ';
+        const album = document.getElementById('songAlbumSelect').value;
+
+        // 📍 ពិនិត្យមើលក្រែងលោមានបទចម្រៀងឈ្មោះនេះ ក្នុង Album នេះរួចហើយ
+        const isDuplicate = songsList.some(song => 
+            song.title.toLowerCase().trim() === title.toLowerCase() && 
+            (song.album || 'ទូទៅ') === album
+        );
+
+        if (isDuplicate) {
+            alert(`⚠️ បទចម្រៀងចំណងជើង «${title}» មានក្នុង Album «${album}» រួចរាល់ហើយ! សូមពិនិត្យមើលឡើងវិញ។`);
+            return;
+        }
 
         if (!selectedImageBase64) {
             alert('សូមជ្រើសរើសរូបភាព!');
@@ -368,7 +594,9 @@
                     image: selectedImageBase64
                 })
             });
-            closeAddModal();
+            closeModal('addSongModal');
+            document.getElementById('addSongForm').reset();
+            selectedImageBase64 = '';
             fetchSongs();
         } catch (error) {
             alert('មានបញ្ហាក្នុងការរក្សាទុក៖ ' + error);
@@ -382,10 +610,7 @@
         if (confirm('តើអ្នកពិតជាចង់លុបបទចម្រៀងនេះមែនទេ?')) {
             await fetch(GOOGLE_SHEET_URL, {
                 method: 'POST',
-                body: JSON.stringify({
-                    action: 'delete',
-                    id: id
-                })
+                body: JSON.stringify({ action: 'delete', id: id })
             });
             fetchSongs();
         }
