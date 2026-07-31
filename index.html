@@ -204,38 +204,56 @@
             background: var(--card-bg); border: 1px solid var(--border);
             border-radius: 12px; overflow: hidden;
             display: flex; flex-direction: column;
+            transition: transform 0.2s, box-shadow 0.2s;
         }
 
+        .song-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+        }
+
+        /* 🖼️ ចុចលើរូបដើម្បីមើល Full Screen */
         .song-img-container { 
             width: 100%; 
-            min-height: 200px; 
+            min-height: 220px; 
             background: #f1f5f9; 
             display: flex;
             align-items: center;
             justify-content: center;
             overflow: hidden;
-            cursor: pointer;
+            cursor: pointer; /* 👆 បង្ហាញដៃចុច */
             position: relative;
         }
 
         .song-img-container::after {
-            content: "🔍 ចុចមើលពេញអេក្រង់";
+            content: "🔍 ចុចលើរូបដើម្បីពង្រីកធំ";
             position: absolute;
             bottom: 8px; right: 8px;
-            background: rgba(0, 0, 0, 0.6);
+            background: rgba(15, 23, 42, 0.75);
             color: white;
             font-size: 0.75rem;
             padding: 4px 8px;
             border-radius: 6px;
-            opacity: 0.9;
+            backdrop-filter: blur(2px);
+            pointer-events: none;
+            transition: opacity 0.2s;
+        }
+
+        .song-img-container:hover::after {
+            background: var(--primary);
         }
         
         .song-img { 
             width: 100%; 
-            height: auto; 
-            max-height: 400px;
+            height: 100%;
+            max-height: 380px;
             object-fit: contain; 
             display: block;
+            transition: transform 0.3s ease;
+        }
+
+        .song-img-container:hover .song-img {
+            transform: scale(1.03); /* Hover effect ពង្រីកបន្តិច */
         }
 
         .song-info { padding: 14px; flex: 1; display: flex; flex-direction: column; justify-content: space-between; }
@@ -262,16 +280,23 @@
             display: none;
             position: fixed;
             top: 0; left: 0; width: 100vw; height: 100vh;
-            background: rgba(0, 0, 0, 0.92);
+            background: rgba(0, 0, 0, 0.94);
             z-index: 2000;
             flex-direction: column;
             align-items: center;
             justify-content: center;
             padding: 10px;
+            user-select: none;
         }
 
         .fullscreen-modal.active {
             display: flex;
+            animation: fadeIn 0.2s ease-in-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
         }
 
         .fullscreen-header {
@@ -288,35 +313,41 @@
             font-size: 1.1rem;
             font-weight: 700;
             color: #ffffff;
-            text-shadow: 0 1px 3px rgba(0,0,0,0.8);
+            text-shadow: 0 2px 4px rgba(0,0,0,0.8);
         }
 
         .fullscreen-close-btn {
-            background: rgba(255, 255, 255, 0.2);
+            background: rgba(255, 255, 255, 0.25);
             color: white;
             border: none;
             font-size: 1.4rem;
-            width: 40px; height: 40px;
+            width: 42px; height: 42px;
             border-radius: 50%;
             cursor: pointer;
             display: flex; align-items: center; justify-content: center;
+            transition: background 0.2s;
+        }
+        .fullscreen-close-btn:hover {
+            background: rgba(239, 68, 68, 0.8);
         }
 
         .fullscreen-img-container {
             width: 100%;
-            height: 80vh;
+            height: 82vh;
             display: flex;
             align-items: center;
             justify-content: center;
             overflow: auto;
+            cursor: zoom-out;
         }
 
         .fullscreen-img {
-            max-width: 100%;
-            max-height: 100%;
+            max-width: 98%;
+            max-height: 98%;
             object-fit: contain;
-            border-radius: 8px;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+            border-radius: 6px;
+            box-shadow: 0 5px 25px rgba(0,0,0,0.6);
+            cursor: pointer;
         }
 
         .fullscreen-actions {
@@ -497,8 +528,9 @@
         document.getElementById('sidebarOverlay').classList.remove('active');
     }
 
-    /* 🔍 បើករូបភាពពេញអេក្រង់ (Full Screen) */
+    /* 🔍 បើករូបភាពពេញអេក្រង់ (Full Screen Lightbox) នៅពេលចុច/Touch លើរូបភាព */
     function openFullScreen(imgUrl, title) {
+        if (!imgUrl) return;
         document.getElementById('fullScreenImg').src = imgUrl;
         document.getElementById('fullScreenTitle').innerText = title;
         const dlBtn = document.getElementById('fullScreenDownloadBtn');
@@ -508,7 +540,10 @@
     }
 
     function closeFullScreenModal(e) {
-        if (e.target.classList.contains('fullscreen-modal') || e.target.classList.contains('fullscreen-img-container')) {
+        // ចុចលើផ្ទៃខាងក្រៅ ឬចុចលើរូបភាពដើម្បីបិទវិញ
+        if (e.target.classList.contains('fullscreen-modal') || 
+            e.target.classList.contains('fullscreen-img-container') || 
+            e.target.classList.contains('fullscreen-img')) {
             document.getElementById('fullScreenModal').classList.remove('active');
         }
     }
@@ -676,10 +711,15 @@
             return;
         }
 
-        grid.innerHTML = filtered.map(song => `
+        grid.innerHTML = filtered.map(song => {
+            const safeTitle = (song.title || '').replace(/'/g, "\\'").replace(/"/g, '&quot;');
+            const safeUrl = song.imageUrl || '';
+
+            return `
             <div class="song-card">
-                <div class="song-img-container" onclick="openFullScreen('${song.imageUrl || ''}', '${song.title.replace(/'/g, "\\'")}')">
-                    <img src="${song.imageUrl || 'https://via.placeholder.com/300x200?text=No+Image'}" class="song-img" alt="${song.title}" loading="lazy">
+                <!-- 👆 ចុច ឬ Touch លើប្លុកថតរូបភាពដើម្បីបើក Full Screen ភ្លាមៗ -->
+                <div class="song-img-container" onclick="openFullScreen('${safeUrl}', '${safeTitle}')">
+                    <img src="${safeUrl || 'https://via.placeholder.com/300x200?text=No+Image'}" class="song-img" alt="${safeTitle}" loading="lazy">
                 </div>
                 <div class="song-info">
                     <div>
@@ -687,12 +727,13 @@
                         <div class="song-artist">${song.artist || 'មិនស្គាល់អ្នកចម្រៀង'}</div>
                     </div>
                     <div style="display: flex; gap: 8px; justify-content: flex-end; margin-top: 10px;">
-                        <a href="${song.imageUrl}" download="${song.title}.jpg" class="btn-save" title="ទាញយករូបភាពទុក">💾 Save</a>
-                        <button class="btn-danger" onclick="deleteSong('${song.id}', '${song.title.replace(/'/g, "\\'")}')">🗑️ លុប</button>
+                        <a href="${safeUrl}" download="${song.title}.jpg" class="btn-save" title="ទាញយករូបភាពទុក">💾 Save</a>
+                        <button class="btn-danger" onclick="deleteSong('${song.id}', '${safeTitle}')">🗑️ លុប</button>
                     </div>
                 </div>
             </div>
-        `).join('');
+            `;
+        }).join('');
     }
 
     function openAddAlbumModal() { document.getElementById('addAlbumModal').classList.add('active'); }
