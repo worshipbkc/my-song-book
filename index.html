@@ -555,7 +555,7 @@
     ];
     let currentSelectedAlbum = 'ALL';
     let selectedImageBase64 = '';
-    let selectedEditImageBase64 = ''; // សម្រាប់រូបភាពកែប្រែថ្មី
+    let selectedEditImageBase64 = '';
     let selectedAlbumImageBase64 = '';
 
     window.onload = function() {
@@ -812,11 +812,21 @@
         document.getElementById('addSongModal').classList.add('active'); 
     }
 
-    /* ✏️ បើក Modal សម្រាប់កែប្រែបទចម្រៀង */
+    /* 🔒✏️ បើក Modal កែប្រែបទចម្រៀង (ការពារដោយកូដសម្ងាត់ 1234) */
     function openEditSongModal(songId) {
         const song = songsList.find(s => s.id === songId);
         if (!song) return;
 
+        // 🔒 សួរ PIN សម្ងាត់ (1234) មុននឹងបើក Modal
+        const inputPin = prompt(`🔒 សូមបញ្ចូលលេខកូដសម្ងាត់ (PIN) ដើម្បីកែប្រែបទ «${song.title}»៖`);
+        if (inputPin === null) return; // ឈប់ធ្វើការបើចុច Cancel
+
+        if (inputPin.trim() !== SECURITY_PIN) {
+            alert("❌ លេខកូដសម្ងាត់មិនត្រឹមត្រូវទេ! អ្នកមិនអាចកែប្រែបានឡើយ។");
+            return;
+        }
+
+        // បញ្ជូលទិន្នន័យចូល Form បន្ទាប់ពីវាយកូដត្រូវ
         document.getElementById('editSongId').value = song.id;
         document.getElementById('editSongTitle').value = song.title || '';
         document.getElementById('editSongArtist').value = song.artist || '';
@@ -918,7 +928,6 @@
                 album: album
             };
 
-            // បើមានជ្រើសរើសរូបភាពថ្មី ទើបធ្វើការដូររូបភាព
             if (selectedEditImageBase64) {
                 updateData.imageUrl = selectedEditImageBase64;
             }
