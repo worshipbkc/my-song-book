@@ -396,7 +396,7 @@
 
     function logout() { auth.signOut(); }
 
-    /* 👤 បង្ហាញ Profile Card និងទម្លាក់ Dropdown មកក្រោម */
+    /* 👤 បង្ហាញ Profile Card និងទម្លាក់ Dropdown Menu */
     function renderUserProfile(user) {
         document.getElementById('userProfileArea').innerHTML = `
             <div class="user-profile-card" id="profileToggleBtn" onclick="toggleProfileDropdown()">
@@ -411,7 +411,10 @@
             </div>
 
             <div class="profile-dropdown-menu" id="profileDropdownMenu">
-                ${isAdmin ? `<button class="dropdown-item" onclick="handleInvite()"><span style="font-size:1.1rem;">✉️</span> <span>Invite</span></button>` : ''}
+                ${isAdmin ? `
+                    <button class="dropdown-item" onclick="handleInvite()"><span style="font-size:1.1rem;">✉️</span> <span>Invite</span></button>
+                    <button class="dropdown-item danger" onclick="handleDeleteAlbum()"><span style="font-size:1.1rem;">🗑️</span> <span>លុប Album</span></button>
+                ` : ''}
                 ${(!isAdmin && !isEditor) ? `<button class="dropdown-item" onclick="handleJoin()"><span style="font-size:1.1rem;">✉️</span> <span>សុំសិទ្ធិកែប្រែ</span></button>` : ''}
                 <button class="dropdown-item danger" onclick="logout()"><span style="font-size:1.1rem;">🚪</span> <span>Log Out</span></button>
             </div>
@@ -424,6 +427,42 @@
         const btn = document.getElementById('profileToggleBtn');
         menu.classList.toggle('open');
         btn.classList.toggle('active');
+    }
+
+    /* 🗑️ មុខងារលុប Album (តម្រូវឱ្យវាយលេខសម្ងាត់ 1234) */
+    async function handleDeleteAlbum() {
+        if (!isAdmin) return alert("❌ មានតែ Admin ទេដែលអាចលុប Album បាន!");
+        if (customAlbums.length === 0) return alert("❌ មិនទាន់មាន Album សម្រាប់លុបឡើយ!");
+
+        // 1. សួររកលេខសម្ងាត់
+        let password = prompt("🔐 សូមបញ្ចូលលេខសម្ងាត់ដើម្បីលុប Album៖");
+        if (password === null) return; // បើចុច Cancel
+        
+        if (password !== "1234") {
+            return alert("❌ លេខសម្ងាត់មិនត្រឹមត្រូវទេ!");
+        }
+
+        // 2. ជ្រើសរើស Album ដែលត្រូវលុប
+        let albumOptions = customAlbums.map((album, index) => `${index + 1}. ${album}`).join('\n');
+        let selectedIndex = prompt(`✅ លេខសម្ងាត់ត្រឹមត្រូវ!\n\n🗑️ សូមជ្រើសរើសលេខ Album ដែលអ្នកចង់លុប៖\n\n${albumOptions}`);
+
+        if (selectedIndex) {
+            let index = parseInt(selectedIndex) - 1;
+            if (index >= 0 && index < customAlbums.length) {
+                let albumToDelete = customAlbums[index];
+                if (confirm(`⚠️ តើអ្នកប្រាកដថាលុប Album «${albumToDelete}» នេះមែនទេ?`)) {
+                    try {
+                        await db.collection("albums").doc(albumToDelete).delete();
+                        if (currentSelectedAlbum === albumToDelete) currentSelectedAlbum = 'ALL';
+                        alert(`✅ បានលុប Album «${albumToDelete}» រួចរាល់!`);
+                    } catch (error) {
+                        alert("❌ មានបញ្ហា៖ " + error.message);
+                    }
+                }
+            } else {
+                alert("❌ ការជ្រើសរើសមិនត្រឹមត្រូវទេ!");
+            }
+        }
     }
 
     /* ✉️ Admin Invite អ៊ីមែលថ្មី */
@@ -458,7 +497,7 @@
         db.collection("albums").onSnapshot((snapshot) => {
             let albums = [];
             snapshot.forEach(doc => albums.push(doc.data().name));
-            if (albums.length > 0) customAlbums = albums;
+            customAlbums = albums;
             renderSidebarMenu();
         });
     }
@@ -541,7 +580,7 @@
 
         if (isDuplicate) {
             alert(`⚠️ បទ «${title}» នេះមានរួចហើយនៅក្នុង Album «${album}»! សូមពិនិត្យមើលឡើងវិញ។`);
-            return; // បញ្ឈប់ការបញ្ចូល
+            return;
         }
 
         const saveBtn = document.getElementById('saveBtn');
@@ -604,11 +643,26 @@
         alert('✅ បានកែប្រែដោយជោគជ័យ!');
     }
 
+    /* 🗑️ មុខងារលុបបទចម្រៀង (តម្រូវឱ្យវាយលេខសម្ងាត់ 1234 ផងដែរ) */
     async function deleteSong(id, title) {
         if (!isEditor) return alert("❌ អ្នកគ្មានសិទ្ធិលុបទេ!");
+
+        // 1. សួររកលេខសម្ងាត់
+        let password = prompt(`🔐 សូមបញ្ចូលលេខសម្ងាត់ដើម្បីលុបបទ «${title}»៖`);
+        if (password === null) return; // បើចុច Cancel
+        
+        if (password !== "1234") {
+            return alert("❌ លេខសម្ងាត់មិនត្រឹមត្រូវទេ!");
+        }
+
+        // 2. លុបចេញពី Database
         if (confirm(`⚠️ តើអ្នកប្រាកដថាលុបបទ «${title}» នេះមែនទេ?`)) {
-            await db.collection("songs").doc(id).delete();
-            alert(`✅ បានលុបបទ «${title}» រួចរាល់!`);
+            try {
+                await db.collection("songs").doc(id).delete();
+                alert(`✅ បានលុបបទ «${title}» រួចរាល់!`);
+            } catch (error) {
+                alert("❌ មានបញ្ហា៖ " + error.message);
+            }
         }
     }
 
