@@ -7,6 +7,11 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Kantumruy+Pro:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- 🔥 Firebase SDKs (v8) -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+
     <style>
         :root {
             --primary: #2563eb;
@@ -333,9 +338,7 @@
         </button>
     </div>
 
-    <div class="sidebar-menu" id="sidebarMenu">
-        <!-- Menu Items -->
-    </div>
+    <div class="sidebar-menu" id="sidebarMenu"></div>
 
     <button class="add-album-btn" onclick="openAddAlbumModal()">
         ➕ <span>បន្ថែម Album</span>
@@ -355,7 +358,7 @@
     <!-- Controls -->
     <div class="controls">
         <div class="search-box">
-            <input type="text" id="searchInput" placeholder="ស្វែងរកចំណងជើង ឬអ្នកចម្រៀង..." onkeydown="handleSearchKey(event)">
+            <input type="text" id="searchInput" placeholder="ស្វែងរកចំណងជើង ឬអ្នកចម្រៀង..." onkeyup="renderSongs()">
             <button class="search-btn" onclick="renderSongs()" title="ស្វែងរក">🔍</button>
         </div>
     </div>
@@ -417,12 +420,13 @@
 </div>
 
 <script>
-    // 🔗 សូមជំនួស URL នេះដោយ Web App URL របស់ Google Apps Script អ្នក
-    const GOOGLE_SHEET_URL = "https://script.google.com/macros/s/AKfycbweSQ6RNl406FkKPfYHZlN9GUht0tJH7h55VhR4A_Omokikuu1nOtkd9I3J03kk9mw9vg/exec";
-    
-    // 🔑 លេខកូដសម្ងាត់សម្រាប់លុប Album (អ្នកអាចផ្លាស់ប្តូរលេខនេះបាន)
-    const SECURITY_PIN = "1234";
+    /npm install firebase
 
+    // Initialize Firebase
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+
+    const SECURITY_PIN = "1234";
     let songsList = [];
     let customAlbums = [
         { name: 'ទំនុកដំកើង', image: '' },
@@ -433,7 +437,7 @@
     let selectedAlbumImageBase64 = '';
 
     window.onload = function() {
-        fetchSongs();
+        listenToSongs();
     };
 
     function toggleSidebar() {
@@ -441,13 +445,13 @@
         document.getElementById('mainContent').classList.toggle('expanded');
     }
 
-    async function fetchSongs() {
-        const grid = document.getElementById('songGrid');
-        grid.innerHTML = `<div class="empty-state">⏳ កំពុងទាញយកទិន្នន័យ...</div>`;
-        try {
-            const response = await fetch(GOOGLE_SHEET_URL);
-            songsList = await response.json();
-            songsList.reverse();
+    // 🔥 ទាញយកទិន្នន័យពី Firebase Realtime
+    function listenToSongs() {
+        db.collection("songs").orderBy("createdAt", "desc").onSnapshot((snapshot) => {
+            songsList = [];
+            snapshot.forEach((doc) => {
+                songsList.push({ id: doc.id, ...doc.data() });
+            });
 
             songsList.forEach(s => {
                 if (s.album && !customAlbums.some(a => a.name === s.album) && s.album !== 'ទូទៅ') {
@@ -457,14 +461,14 @@
 
             renderSidebarMenu();
             renderSongs();
-        } catch (error) {
-            grid.innerHTML = `<div class="empty-state">❌ មិនទាន់មានបទចម្រៀងឡើយ</div>`;
-        }
+        }, (error) => {
+            console.error("Firebase Error: ", error);
+            document.getElementById('songGrid').innerHTML = `<div class="empty-state">❌ មិនទាន់មានបទចម្រៀងឡើយ</div>`;
+        });
     }
 
     function renderSidebarMenu() {
         const menuContainer = document.getElementById('sidebarMenu');
-
         let html = `
             <div class="menu-item ${currentSelectedAlbum === 'ALL' ? 'active' : ''}" onclick="selectAlbum('ALL')">
                 <div class="menu-item-left">
@@ -510,63 +514,36 @@
         renderSongs();
     }
 
-    // 🔒 មុខងារលុប Album ប្រកបដោយសុវត្ថិភាពខ្ពស់
     function deleteAlbum(event, albumName) {
         event.stopPropagation();
-
-        // 1. ទាមទារលេខកូដសម្ងាត់ជាមុនសិន
         const inputPin = prompt(`🔒 សូមបញ្ចូលលេខកូដសម្ងាត់ (PIN) ដើម្បីធ្វើការលុប Album «${albumName}»៖`);
-
         if (inputPin === null) return;
 
         if (inputPin.trim() !== SECURITY_PIN) {
-            alert("❌ លេខកូដសម្ងាត់មិនត្រឹមត្រូវទេ! ការលុបត្រូវបានបដិសេធ។");
+            alert("❌ លេខកូដសម្ងាត់មិនត្រឹមត្រូវទេ!");
             return;
         }
 
-        // 2. ពិនិត្យមើលថាតើ Album នេះមានបទចម្រៀងដែរឬទេ?
         const songsInAlbum = songsList.filter(s => (s.album || 'ទូទៅ') === albumName);
-
         if (songsInAlbum.length > 0) {
-            alert(
-                `🛑 មិនអនុញ្ញាតឱ្យលុប Album «${albumName}» នេះឡើយ!\n\n` +
-                `មូលហេតុ៖ Album នេះមានបទចម្រៀងចំនួន ${songsInAlbum.length} បទនៅខាងក្នុង។\n\n` +
-                `👉 សូមអ្នកយកបទចម្រៀងទាំងនោះចេញ ឬលុបបទចម្រៀងក្នុង Album នេះឱ្យអស់សិន ទើបអាចលុប Album នេះបាន!`
-            );
+            alert(`🛑 មិនអនុញ្ញាតឱ្យលុប Album «${albumName}» នេះឡើយ!\n\nមូលហេតុ៖ Album នេះមានបទចម្រៀងចំនួន ${songsInAlbum.length} បទនៅខាងក្នុង។`);
             return;
         }
 
-        // 3. Album ទទេរ -> តម្រូវឱ្យវាយឈ្មោះ Album ដើម្បីបញ្ជាក់ចុងក្រោយ
-        const confirmName = prompt(
-            `⚠️ បញ្ជាក់ការលុប Album «${albumName}» ( Album នេះទទេរគ្មានបទចម្រៀងទេ)\n\n` +
-            `សូមវាយឈ្មោះ Album៖ «${albumName}» ឡើងវិញដើម្បីលុប៖`
-        );
-
-        if (confirmName === null) return;
-
-        if (confirmName.trim() === albumName) {
+        const confirmName = prompt(`⚠️ បញ្ជាក់ការលុប Album «${albumName}»\n\nសូមវាយឈ្មោះ Album៖ «${albumName}» ឡើងវិញដើម្បីលុប៖`);
+        if (confirmName && confirmName.trim() === albumName) {
             customAlbums = customAlbums.filter(a => a.name !== albumName);
-            
             alert(`✅ បានលុប Album «${albumName}» ដោយជោគជ័យ!`);
-
-            if (currentSelectedAlbum === albumName) {
-                selectAlbum('ALL');
-            } else {
-                renderSidebarMenu();
-            }
-        } else {
-            alert("❌ ឈ្មោះ Album ដែលអ្នកវាយមិនត្រឹមត្រូវទេ! ការលុបត្រូវបានបោះបង់។");
+            if (currentSelectedAlbum === albumName) selectAlbum('ALL');
+            else renderSidebarMenu();
         }
     }
 
-    // ✏️ មុខងារកែឈ្មោះ Album
     function editAlbum(event, oldName) {
         event.stopPropagation();
-
         const newName = prompt("សូមបញ្ចូលឈ្មោះ Album ថ្មី៖", oldName);
         if (newName && newName.trim() !== "" && newName !== oldName) {
             const trimmedName = newName.trim();
-            
             if (customAlbums.some(a => a.name.toLowerCase() === trimmedName.toLowerCase())) {
                 alert("ឈ្មោះ Album នេះមានរួចហើយ!");
                 return;
@@ -575,20 +552,9 @@
             const albumObj = customAlbums.find(a => a.name === oldName);
             if (albumObj) albumObj.name = trimmedName;
 
-            songsList.forEach(s => {
-                if (s.album === oldName) s.album = trimmedName;
-            });
-
-            if (currentSelectedAlbum === oldName) {
-                selectAlbum(trimmedName);
-            } else {
-                renderSidebarMenu();
-            }
+            if (currentSelectedAlbum === oldName) selectAlbum(trimmedName);
+            else renderSidebarMenu();
         }
-    }
-
-    function handleSearchKey(event) {
-        if (event.key === 'Enter') renderSongs();
     }
 
     function renderSongs() {
@@ -610,7 +576,7 @@
         grid.innerHTML = filtered.map(song => `
             <div class="song-card">
                 <div class="song-img-container">
-                    <img src="${song.image}" class="song-img" alt="${song.title}" onerror="this.src='https://via.placeholder.com/300x200?text=No+Image'">
+                    <img src="${song.imageUrl || 'https://via.placeholder.com/300x200?text=No+Image'}" class="song-img" alt="${song.title}">
                 </div>
                 <div class="song-info">
                     <div>
@@ -633,9 +599,7 @@
         document.getElementById('addSongModal').classList.add('active'); 
     }
 
-    function closeModal(modalId) { 
-        document.getElementById(modalId).classList.remove('active'); 
-    }
+    function closeModal(modalId) { document.getElementById(modalId).classList.remove('active'); }
 
     function previewAlbumImage(event) {
         const file = event.target.files[0];
@@ -649,17 +613,13 @@
     function handleAddAlbum(e) {
         e.preventDefault();
         const albumName = document.getElementById('newAlbumName').value.trim();
-        
         if (customAlbums.some(a => a.name.toLowerCase() === albumName.toLowerCase())) {
-            alert('Album ឈ្មោះនេះមានរួចហើយ! សូមប្រើឈ្មោះផ្សេង។');
+            alert('Album ឈ្មោះនេះមានរួចហើយ!');
             return;
         }
 
         if (albumName) {
-            customAlbums.push({
-                name: albumName,
-                image: selectedAlbumImageBase64
-            });
+            customAlbums.push({ name: albumName, image: selectedAlbumImageBase64 });
             selectAlbum(albumName);
             document.getElementById('newAlbumName').value = '';
             document.getElementById('albumCoverFile').value = '';
@@ -677,21 +637,20 @@
         }
     }
 
-    // 🚫 មុខងារបន្ថែមបទចម្រៀងថ្មី (ការពារកុំឱ្យបញ្ចូលជាន់ឈ្មោះ)
+    // 🔥 បន្ថែមបទចម្រៀងទៅ Firebase
     async function handleAddSong(e) {
         e.preventDefault();
         const title = document.getElementById('songTitle').value.trim();
         const artist = document.getElementById('songArtist').value.trim();
         const album = document.getElementById('songAlbumSelect').value;
 
-        // ពិនិត្យមើលក្រែងលោមានបទចម្រៀងនេះក្នុង Album នេះរួចហើយ
         const isDuplicate = songsList.some(song => 
             song.title.toLowerCase().trim() === title.toLowerCase() && 
             (song.album || 'ទូទៅ') === album
         );
 
         if (isDuplicate) {
-            alert(`⚠️ បទចម្រៀងចំណងជើង «${title}» មានក្នុង Album «${album}» រួចរាល់ហើយ! សូមពិនិត្យមើលឡើងវិញ។`);
+            alert(`⚠️ បទចម្រៀង «${title}» មានក្នុង Album «${album}» រួចហើយ!`);
             return;
         }
 
@@ -705,35 +664,34 @@
         saveBtn.disabled = true;
 
         try {
-            await fetch(GOOGLE_SHEET_URL, {
-                method: 'POST',
-                body: JSON.stringify({
-                    action: 'add',
-                    title: title,
-                    artist: artist,
-                    album: album,
-                    image: selectedImageBase64
-                })
+            await db.collection("songs").add({
+                title: title,
+                artist: artist,
+                album: album,
+                imageUrl: selectedImageBase64,
+                createdAt: firebase.firestore.FieldValue.serverTimestamp()
             });
+
             closeModal('addSongModal');
             document.getElementById('addSongForm').reset();
             selectedImageBase64 = '';
-            fetchSongs();
+            alert('✅ បានបញ្ចូលបទចម្រៀងដោយជោគជ័យ!');
         } catch (error) {
-            alert('មានបញ្ហាក្នុងការរក្សាទុក៖ ' + error);
+            alert('❌ មានបញ្ហាក្នុងការរក្សាទុក៖ ' + error.message);
         } finally {
             saveBtn.innerText = 'រក្សាទុក';
             saveBtn.disabled = false;
         }
     }
 
+    // 🔥 លុបបទចម្រៀងចេញពី Firebase
     async function deleteSong(id) {
         if (confirm('តើអ្នកពិតជាចង់លុបបទចម្រៀងនេះមែនទេ?')) {
-            await fetch(GOOGLE_SHEET_URL, {
-                method: 'POST',
-                body: JSON.stringify({ action: 'delete', id: id })
-            });
-            fetchSongs();
+            try {
+                await db.collection("songs").doc(id).delete();
+            } catch (error) {
+                alert('❌ មិនអាចលុបបានទេ៖ ' + error.message);
+            }
         }
     }
 </script>
