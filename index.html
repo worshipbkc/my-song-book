@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>បណ្ដុំបទចម្រៀង - Google Sheet Sync</title>
+    <title>ចម្រៀងសរសើរតម្កើងព្រះ</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Kantumruy+Pro:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -51,23 +51,28 @@
         .controls {
             display: flex;
             gap: 12px;
-            margin-bottom: 24px;
+            margin-bottom: 20px;
             flex-wrap: wrap;
         }
 
         .search-box {
-            flex: 1;
-            min-width: 250px;
+            flex: 2;
+            min-width: 200px;
         }
 
-        .search-box input {
+        .search-box input, .filter-select {
             width: 100%;
             padding: 12px 16px;
-            font-size: 1rem;
+            font-size: 0.95rem;
             border: 2px solid var(--border);
             border-radius: 10px;
             outline: none;
             background: var(--card-bg);
+        }
+
+        .filter-box {
+            flex: 1;
+            min-width: 150px;
         }
 
         .btn {
@@ -109,7 +114,6 @@
             width: 100%;
             height: 220px;
             background: #f1f5f9;
-            cursor: pointer;
         }
 
         .song-img {
@@ -135,7 +139,19 @@
         .song-artist {
             font-size: 0.9rem;
             color: var(--text-muted);
+            margin-bottom: 6px;
+        }
+
+        .song-album-tag {
+            display: inline-block;
+            background: #e0e7ff;
+            color: #3730a3;
+            font-size: 0.75rem;
+            padding: 3px 8px;
+            border-radius: 6px;
+            font-weight: 600;
             margin-bottom: 12px;
+            width: fit-content;
         }
 
         .modal {
@@ -168,7 +184,7 @@
             margin-bottom: 6px;
         }
 
-        .form-group input {
+        .form-group input, .form-group select {
             width: 100%;
             padding: 10px 14px;
             border: 1px solid var(--border);
@@ -185,7 +201,6 @@
 </head>
 <body>
 
-<!-- ផ្នែក Header ថ្មី -->
 <div class="container">
     <header>
         <h1>🎼 ចម្រៀងសរសើរតម្កើងព្រះ</h1>
@@ -193,17 +208,19 @@
     </header>
 
     <div class="controls">
-...
-
-    <div class="controls">
         <div class="search-box">
             <input type="text" id="searchInput" oninput="renderSongs()" placeholder="ស្វែងរកចំណងជើង ឬអ្នកចម្រៀង...">
+        </div>
+        <div class="filter-box">
+            <select id="albumFilter" class="filter-select" onchange="renderSongs()">
+                <option value="ALL">📂 Album ទាំងអស់</option>
+            </select>
         </div>
         <button class="btn btn-primary" onclick="openAddModal()">➕ បញ្ចូលបទថ្មី</button>
     </div>
 
     <div class="song-grid" id="songGrid">
-        <div class="empty-state">⏳ កំពុងទាញយកទិន្នន័យពី Google Sheet...</div>
+        <div class="empty-state">⏳ កំពុងទាញយកទិន្នន័យ...</div>
     </div>
 </div>
 
@@ -221,6 +238,10 @@
                 <input type="text" id="songArtist">
             </div>
             <div class="form-group">
+                <label>ឈ្មោះ Album (ឧទាហរណ៍៖ Album 1, ថ្វាយបង្គំ...)</label>
+                <input type="text" id="songAlbum" placeholder="ទូទៅ">
+            </div>
+            <div class="form-group">
                 <label>ជ្រើសរើសរូបភាព *</label>
                 <input type="file" id="songImageFile" accept="image/*" onchange="previewFileImage(event)" required>
             </div>
@@ -234,42 +255,53 @@
 
 <script>
     // --------------------------------------------------------------------------
-    // ⚠️ ដាក់ LINK WEB APP URL ដែលបានមកពី GOOGLE APPS SCRIPT (ជំហានទី ២) ត្រង់នេះ៖
+    // ⚠️ ដាក់ LINK WEB APP URL របស់អ្នកត្រង់នេះ៖
     // --------------------------------------------------------------------------
-    const GOOGLE_SHEET_URL = "https://script.google.com/macros/s/AKfycbx1McfLQq-h9VBWH_nVD1eToNzqkzMw25tfmwvuVpqso2lr2TzemF0p74ye7wIlgwRolw/exec";
+    const GOOGLE_SHEET_URL = "https://script.google.com/macros/s/AKfycbxzvUXngoX13hYiXvwU-UQxYlxhzGz5zf9eds5I29FKhO1W_n5HHKbETLYzBUk844Fnlw/exec";
 
     let songsList = [];
     let selectedImageBase64 = '';
 
-    // ទាញយកទិន្នន័យពេលបើក Web ដំបូង
     window.onload = function() {
         fetchSongs();
     };
 
     async function fetchSongs() {
         const grid = document.getElementById('songGrid');
-        grid.innerHTML = `<div class="empty-state">⏳ កំពុងទាញយកទិន្នន័យពី Google Sheet...</div>`;
+        grid.innerHTML = `<div class="empty-state">⏳ កំពុងទាញយកទិន្នន័យ...</div>`;
         try {
             const response = await fetch(GOOGLE_SHEET_URL);
             songsList = await response.json();
-            songsList.reverse(); // បទថ្មីនៅមុខ
+            songsList.reverse();
+            populateAlbumFilter();
             renderSongs();
         } catch (error) {
-            grid.innerHTML = `<div class="empty-state">❌ មានបញ្ហាក្នុងការទាញយកទិន្នន័យ! សូមពិនិត្យមើល GOOGLE_SHEET_URL ឡើងវិញ។</div>`;
+            grid.innerHTML = `<div class="empty-state">❌ មានបញ្ហាក្នុងការទាញយកទិន្នន័យ!</div>`;
         }
+    }
+
+    function populateAlbumFilter() {
+        const filterSelect = document.getElementById('albumFilter');
+        const albums = [...new Set(songsList.map(s => s.album || 'ទូទៅ'))];
+        
+        filterSelect.innerHTML = `<option value="ALL">📂 Album ទាំងអស់</option>` + 
+            albums.map(a => `<option value="${a}">💿 ${a}</option>`).join('');
     }
 
     function renderSongs() {
         const grid = document.getElementById('songGrid');
         const query = document.getElementById('searchInput').value.toLowerCase().trim();
+        const selectedAlbum = document.getElementById('albumFilter').value;
 
-        const filtered = songsList.filter(s => 
-            (s.title && s.title.toLowerCase().includes(query)) || 
-            (s.artist && s.artist.toLowerCase().includes(query))
-        );
+        const filtered = songsList.filter(s => {
+            const matchesSearch = (s.title && s.title.toLowerCase().includes(query)) || 
+                                  (s.artist && s.artist.toLowerCase().includes(query));
+            const matchesAlbum = selectedAlbum === 'ALL' || (s.album || 'ទូទៅ') === selectedAlbum;
+            return matchesSearch && matchesAlbum;
+        });
 
         if (filtered.length === 0) {
-            grid.innerHTML = `<div class="empty-state">❌ មិនទាន់មានបទចម្រៀងឡើយ</div>`;
+            grid.innerHTML = `<div class="empty-state">❌ មិនមានបទចម្រៀងឡើយ</div>`;
             return;
         }
 
@@ -282,6 +314,7 @@
                     <div>
                         <div class="song-title">${song.title}</div>
                         <div class="song-artist">${song.artist || 'មិនស្គាល់អ្នកចម្រៀង'}</div>
+                        <div class="song-album-tag">💿 ${song.album || 'ទូទៅ'}</div>
                     </div>
                     <div style="text-align: right; margin-top: 10px;">
                         <button class="btn btn-danger" onclick="deleteSong('${song.id}')">🗑️ លុប</button>
@@ -313,6 +346,7 @@
         e.preventDefault();
         const title = document.getElementById('songTitle').value.trim();
         const artist = document.getElementById('songArtist').value.trim();
+        const album = document.getElementById('songAlbum').value.trim() || 'ទូទៅ';
 
         if (!selectedImageBase64) {
             alert('សូមជ្រើសរើសរូបភាព!');
@@ -330,11 +364,12 @@
                     action: 'add',
                     title: title,
                     artist: artist,
+                    album: album,
                     image: selectedImageBase64
                 })
             });
             closeAddModal();
-            fetchSongs(); // ទាញយកទិន្នន័យថ្មីមកបង្ហាញ
+            fetchSongs();
         } catch (error) {
             alert('មានបញ្ហាក្នុងការរក្សាទុក៖ ' + error);
         } finally {
