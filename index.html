@@ -442,28 +442,38 @@
             return alert("❌ លេខសម្ងាត់មិនត្រឹមត្រូវទេ!");
         }
 
-        // 2. ជ្រើសរើស Album យកមកលុប
-        let albumOptions = customAlbums.map((album, index) => `${index + 1}. ${album}`).join('\n');
-        let selectedIndex = prompt(`✅ លេខសម្ងាត់ត្រឹមត្រូវ!\n\n🗑️ [Admin] សូមជ្រើសរើសលេខ Album ដែលអ្នកចង់លុប៖\n\n${albumOptions}\n\nបញ្ជាក់៖ វានឹងមិនលុបបទចម្រៀងដែលមានស្រាប់ទេ!`);
+async function handleDeleteAlbum() {
+    if (!isAdmin) return alert("❌ មានតែ Admin ទេដែលអាចលុប Album បាន!");
+    if (customAlbums.length === 0) return alert("❌ មិនទាន់មាន Album សម្រាប់លុបឡើយ!");
 
-        if (selectedIndex) {
-            let index = parseInt(selectedIndex) - 1;
-            if (index >= 0 && index < customAlbums.length) {
-                let albumToDelete = customAlbums[index];
-                if (confirm(`⚠️ តើអ្នកប្រាកដថាលុប Album «${albumToDelete}» នេះមែនទេ?`)) {
-                    try {
-                        await db.collection("albums").doc(albumToDelete).delete();
-                        if (currentSelectedAlbum === albumToDelete) currentSelectedAlbum = 'ALL';
-                        alert(`✅ បានលុប Album «${albumToDelete}» រួចរាល់!`);
-                    } catch (error) {
-                        alert("❌ មានបញ្ហា៖ " + error.message);
-                    }
+    let password = prompt("🔐 សូមបញ្ចូលលេខសម្ងាត់ដើម្បីលុប Album៖");
+    if (password === null) return;
+    
+    if (password !== "1234") {
+        return alert("❌ លេខសម្ងាត់មិនត្រឹមត្រូវទេ!");
+    }
+
+    let albumOptions = customAlbums.map((album, index) => `${index + 1}. ${album}`).join('\n');
+    let selectedIndex = prompt(`✅ លេខសម្ងាត់ត្រឹមត្រូវ!\n\n🗑️ [Admin] សូមជ្រើសរើសលេខ Album ដែលអ្នកចង់លុប៖\n\n${albumOptions}\n\nបញ្ជាក់៖ វានឹងមិនលុបបទចម្រៀងដែលមានស្រាប់ទេ!`);
+
+    if (selectedIndex) {
+        let index = parseInt(selectedIndex) - 1;
+        if (index >= 0 && index < customAlbums.length) {
+            let albumToDelete = customAlbums[index];
+            if (confirm(`⚠️ តើអ្នកប្រាកដថាលុប Album «${albumToDelete}» នេះមែនទេ?`)) {
+                try {
+                    await db.collection("albums").doc(albumToDelete).delete();
+                    if (currentSelectedAlbum === albumToDelete) currentSelectedAlbum = 'ALL';
+                    alert(`✅ បានលុប Album «${albumToDelete}» រួចរាល់!`);
+                } catch (error) {
+                    alert("❌ មានបញ្ហា៖ " + error.message);
                 }
-            } else {
-                alert("❌ ការជ្រើសរើសមិនត្រឹមត្រូវទេ!");
             }
+        } else {
+            alert("❌ ការជ្រើសរើសមិនត្រឹមត្រូវទេ!");
         }
     }
+}
 
     /* ✉️ Admin Invite អ៊ីមែលថ្មី */
     async function handleInvite() {
