@@ -206,7 +206,6 @@
             display: flex; flex-direction: column;
         }
 
-        /* 🖼️ ការពាររូបភាពមិនឱ្យបាត់ និងអាចចុចពង្រីកបាន */
         .song-img-container { 
             width: 100%; 
             min-height: 200px; 
@@ -215,6 +214,20 @@
             align-items: center;
             justify-content: center;
             overflow: hidden;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .song-img-container::after {
+            content: "🔍 ចុចមើលពេញអេក្រង់";
+            position: absolute;
+            bottom: 8px; right: 8px;
+            background: rgba(0, 0, 0, 0.6);
+            color: white;
+            font-size: 0.75rem;
+            padding: 4px 8px;
+            border-radius: 6px;
+            opacity: 0.9;
         }
         
         .song-img { 
@@ -243,6 +256,76 @@
         .form-group { margin-bottom: 14px; }
         .form-group label { display: block; font-size: 0.9rem; font-weight: 600; margin-bottom: 6px; }
         .form-group input, .form-group select { width: 100%; padding: 10px 14px; border: 1px solid var(--border); border-radius: 8px; outline: none; }
+
+        /* 🔍 Full Screen Viewer (Lightbox) Style */
+        .fullscreen-modal {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100vw; height: 100vh;
+            background: rgba(0, 0, 0, 0.92);
+            z-index: 2000;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 10px;
+        }
+
+        .fullscreen-modal.active {
+            display: flex;
+        }
+
+        .fullscreen-header {
+            position: absolute;
+            top: 15px; left: 20px; right: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            color: white;
+            z-index: 2001;
+        }
+
+        .fullscreen-title {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: #ffffff;
+            text-shadow: 0 1px 3px rgba(0,0,0,0.8);
+        }
+
+        .fullscreen-close-btn {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: none;
+            font-size: 1.4rem;
+            width: 40px; height: 40px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
+        }
+
+        .fullscreen-img-container {
+            width: 100%;
+            height: 80vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: auto;
+        }
+
+        .fullscreen-img {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+            border-radius: 8px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+        }
+
+        .fullscreen-actions {
+            position: absolute;
+            bottom: 20px;
+            display: flex;
+            gap: 15px;
+            z-index: 2001;
+        }
 
         @media (max-width: 768px) {
             .sidebar {
@@ -307,6 +390,20 @@
 
     <div class="song-grid" id="songGrid">
         <div class="empty-state">⏳ កំពុងទាញយកទិន្នន័យ...</div>
+    </div>
+</div>
+
+<!-- 🔍 Full Screen Image Viewer Modal -->
+<div class="fullscreen-modal" id="fullScreenModal" onclick="closeFullScreenModal(event)">
+    <div class="fullscreen-header">
+        <div class="fullscreen-title" id="fullScreenTitle"></div>
+        <button class="fullscreen-close-btn" onclick="closeFullScreenModalDirect()">✖</button>
+    </div>
+    <div class="fullscreen-img-container">
+        <img src="" id="fullScreenImg" class="fullscreen-img" alt="Full Screen Song Sheet">
+    </div>
+    <div class="fullscreen-actions">
+        <a href="" id="fullScreenDownloadBtn" download="" class="btn btn-primary" style="text-decoration: none;">💾 ទាញយករូបភាព</a>
     </div>
 </div>
 
@@ -400,7 +497,26 @@
         document.getElementById('sidebarOverlay').classList.remove('active');
     }
 
-    // ⚡ វិធីបំផ្លែងរូបភាព Data URL ដោយសុវត្ថិភាព 100%
+    /* 🔍 បើករូបភាពពេញអេក្រង់ (Full Screen) */
+    function openFullScreen(imgUrl, title) {
+        document.getElementById('fullScreenImg').src = imgUrl;
+        document.getElementById('fullScreenTitle').innerText = title;
+        const dlBtn = document.getElementById('fullScreenDownloadBtn');
+        dlBtn.href = imgUrl;
+        dlBtn.download = title + ".jpg";
+        document.getElementById('fullScreenModal').classList.add('active');
+    }
+
+    function closeFullScreenModal(e) {
+        if (e.target.classList.contains('fullscreen-modal') || e.target.classList.contains('fullscreen-img-container')) {
+            document.getElementById('fullScreenModal').classList.remove('active');
+        }
+    }
+
+    function closeFullScreenModalDirect() {
+        document.getElementById('fullScreenModal').classList.remove('active');
+    }
+
     function previewFileImage(event) {
         const file = event.target.files[0];
         const statusText = document.getElementById('imageStatusText');
@@ -562,7 +678,7 @@
 
         grid.innerHTML = filtered.map(song => `
             <div class="song-card">
-                <div class="song-img-container">
+                <div class="song-img-container" onclick="openFullScreen('${song.imageUrl || ''}', '${song.title.replace(/'/g, "\\'")}')">
                     <img src="${song.imageUrl || 'https://via.placeholder.com/300x200?text=No+Image'}" class="song-img" alt="${song.title}" loading="lazy">
                 </div>
                 <div class="song-info">
