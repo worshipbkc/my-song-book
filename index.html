@@ -40,7 +40,6 @@
             position: relative;
         }
 
-        /* Overlay សម្រាប់បិទ Sidebar លើ Mobile */
         .sidebar-overlay {
             display: none;
             position: fixed;
@@ -50,7 +49,6 @@
         }
         .sidebar-overlay.active { display: block; }
 
-        /* Sidebar Standard Desktop */
         .sidebar {
             width: var(--sidebar-width);
             background: var(--card-bg);
@@ -82,7 +80,7 @@
             border: none;
             font-size: 1.2rem;
             cursor: pointer;
-            display: none; /* បង្ហាញតែលើទូរស័ព្ទ */
+            display: none;
             padding: 4px 8px;
             border-radius: 6px;
         }
@@ -152,7 +150,6 @@
             width: 100%;
         }
 
-        /* Top Bar លើទូរស័ព្ទ */
         .mobile-header {
             display: none;
             align-items: center;
@@ -199,7 +196,7 @@
 
         .song-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
             gap: 20px;
         }
 
@@ -209,8 +206,25 @@
             display: flex; flex-direction: column;
         }
 
-        .song-img-container { width: 100%; height: 180px; background: #f1f5f9; }
-        .song-img { width: 100%; height: 100%; object-fit: cover; }
+        /* 🖼️ ការពាររូបភាពមិនឱ្យបាត់ និងអាចចុចពង្រីកបាន */
+        .song-img-container { 
+            width: 100%; 
+            min-height: 200px; 
+            background: #f1f5f9; 
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+        
+        .song-img { 
+            width: 100%; 
+            height: auto; 
+            max-height: 400px;
+            object-fit: contain; 
+            display: block;
+        }
+
         .song-info { padding: 14px; flex: 1; display: flex; flex-direction: column; justify-content: space-between; }
         .song-title { font-size: 1rem; font-weight: 700; margin-bottom: 4px; }
         .song-artist { font-size: 0.85rem; color: var(--text-muted); }
@@ -230,26 +244,16 @@
         .form-group label { display: block; font-size: 0.9rem; font-weight: 600; margin-bottom: 6px; }
         .form-group input, .form-group select { width: 100%; padding: 10px 14px; border: 1px solid var(--border); border-radius: 8px; outline: none; }
 
-        /* 📱 Mobile Responsive Style ថ្មី */
         @media (max-width: 768px) {
             .sidebar {
-                transform: translateX(-100%); /* លាក់ Sidebar ទៅខាងឆ្វេង */
+                transform: translateX(-100%);
                 width: 80%;
                 max-width: 300px;
                 box-shadow: 4px 0 15px rgba(0,0,0,0.1);
             }
-            
-            .sidebar.mobile-open {
-                transform: translateX(0); /* បង្ហាញ Sidebar មកវិញ */
-            }
-
-            .close-sidebar-btn { display: block; } /* បង្ហាញប៊ូតុង X */
-
-            .main-content {
-                margin-left: 0; /* ពេញអេក្រង់ទូរស័ព្ទ */
-                padding: 16px;
-            }
-
+            .sidebar.mobile-open { transform: translateX(0); }
+            .close-sidebar-btn { display: block; }
+            .main-content { margin-left: 0; padding: 16px; }
             .mobile-header { display: flex; }
             header h1 { font-size: 1.4rem; }
             header p { font-size: 0.88rem; }
@@ -347,6 +351,7 @@
             <div class="form-group">
                 <label>ជ្រើសរើសរូបភាព *</label>
                 <input type="file" id="songImageFile" accept="image/*" onchange="previewFileImage(event)" required>
+                <small id="imageStatusText" style="color: #64748b; font-size: 0.8rem; display: block; margin-top: 4px;"></small>
             </div>
             <div style="text-align: right; margin-top: 20px; display: flex; gap: 10px; justify-content: flex-end;">
                 <button type="button" class="btn" onclick="closeModal('addSongModal')" style="background: #e2e8f0;">បោះបង់</button>
@@ -395,31 +400,36 @@
         document.getElementById('sidebarOverlay').classList.remove('active');
     }
 
-    function compressImage(file, maxWidth, quality, callback) {
-        const reader = new FileReader();
-        reader.readAsDataURL(file);
-        reader.onload = event => {
-            const img = new Image();
-            img.src = event.target.result;
-            img.onload = () => {
-                const canvas = document.createElement('canvas');
-                let width = img.width;
-                let height = img.height;
+    // ⚡ វិធីបំផ្លែងរូបភាព Data URL ដោយសុវត្ថិភាព 100%
+    function previewFileImage(event) {
+        const file = event.target.files[0];
+        const statusText = document.getElementById('imageStatusText');
+        const saveBtn = document.getElementById('saveBtn');
 
-                if (width > maxWidth) {
-                    height = Math.round((height * maxWidth) / width);
-                    width = maxWidth;
-                }
+        if (file) {
+            statusText.innerText = "⏳ កំពុងរៀបចំរូបភាព...";
+            saveBtn.disabled = true;
 
-                canvas.width = width;
-                canvas.height = height;
-                const ctx = canvas.getContext('2d');
-                ctx.drawImage(img, 0, 0, width, height);
-
-                const compressedBase64 = canvas.toDataURL('image/jpeg', quality);
-                callback(compressedBase64);
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                selectedImageBase64 = e.target.result;
+                statusText.innerText = "✅ រូបភាពរួចរាល់!";
+                statusText.style.color = "#16a34a";
+                saveBtn.disabled = false;
             };
-        };
+            reader.readAsDataURL(file);
+        }
+    }
+
+    function previewAlbumImage(event) {
+        const file = event.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                selectedAlbumImageBase64 = e.target.result;
+            };
+            reader.readAsDataURL(file);
+        }
     }
 
     function listenToSongs() {
@@ -488,7 +498,7 @@
         }
 
         renderSongs();
-        closeMobileSidebar(); // បិទ Menu ស្វ័យប្រវត្តិពេលជ្រើសរើស Album រួចលើទូរស័ព្ទ
+        closeMobileSidebar();
     }
 
     function deleteAlbum(event, albumName) {
@@ -553,7 +563,7 @@
         grid.innerHTML = filtered.map(song => `
             <div class="song-card">
                 <div class="song-img-container">
-                    <img src="${song.imageUrl || 'https://via.placeholder.com/300x200?text=No+Image'}" class="song-img" alt="${song.title}">
+                    <img src="${song.imageUrl || 'https://via.placeholder.com/300x200?text=No+Image'}" class="song-img" alt="${song.title}" loading="lazy">
                 </div>
                 <div class="song-info">
                     <div>
@@ -577,24 +587,9 @@
         document.getElementById('addSongModal').classList.add('active'); 
     }
 
-    function closeModal(modalId) { document.getElementById(modalId).classList.remove('active'); }
-
-    function previewAlbumImage(event) {
-        const file = event.target.files[0];
-        if (file) {
-            compressImage(file, 200, 0.6, function(base64) {
-                selectedAlbumImageBase64 = base64;
-            });
-        }
-    }
-
-    function previewFileImage(event) {
-        const file = event.target.files[0];
-        if (file) {
-            compressImage(file, 500, 0.7, function(base64) {
-                selectedImageBase64 = base64;
-            });
-        }
+    function closeModal(modalId) { 
+        document.getElementById(modalId).classList.remove('active'); 
+        document.getElementById('imageStatusText').innerText = '';
     }
 
     function handleAddAlbum(e) {
@@ -621,18 +616,8 @@
         const artist = document.getElementById('songArtist').value.trim();
         const album = document.getElementById('songAlbumSelect').value;
 
-        const isDuplicate = songsList.some(song => 
-            song.title.toLowerCase().trim() === title.toLowerCase() && 
-            (song.album || 'ទូទៅ') === album
-        );
-
-        if (isDuplicate) {
-            alert(`⚠️ បទចម្រៀង «${title}» មានក្នុង Album «${album}» រួចហើយ!`);
-            return;
-        }
-
         if (!selectedImageBase64) {
-            alert('សូមរង់ចាំមួយភ្លែត ឱ្យរូបភាពដំណើរការរៀបចំរួចរាល់សិន!');
+            alert('សូមជ្រើសរើសរូបភាពជាមុនសិន!');
             return;
         }
 
