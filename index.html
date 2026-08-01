@@ -76,7 +76,6 @@
         }
         .user-profile-card.active .dropdown-arrow { transform: rotate(180deg); }
 
-        /* Dropdown Slide Container */
         .profile-dropdown-menu {
             display: none;
             background: #ffffff; 
@@ -172,10 +171,62 @@
 
         .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); align-items: center; justify-content: center; z-index: 1000; padding: 20px; }
         .modal.active { display: flex; }
-        .modal-content { background: white; padding: 24px; border-radius: 16px; width: 100%; max-width: 450px; }
+        .modal-content { background: white; padding: 24px; border-radius: 16px; width: 100%; max-width: 450px; max-height: 90vh; overflow-y: auto; }
         .form-group { margin-bottom: 14px; }
         .form-group label { display: block; font-size: 0.9rem; font-weight: 600; margin-bottom: 6px; }
         .form-group input, .form-group select { width: 100%; padding: 10px 14px; border: 1px solid var(--border); border-radius: 8px; outline: none; }
+
+        /* 🖼️ Drag & Drop / Paste Image Box Style */
+        .image-drop-zone {
+            border: 2px dashed #cbd5e1;
+            border-radius: 10px;
+            padding: 16px;
+            text-align: center;
+            background: #f8fafc;
+            cursor: pointer;
+            transition: all 0.2s;
+            position: relative;
+        }
+        .image-drop-zone:hover, .image-drop-zone.dragover {
+            border-color: var(--primary);
+            background: #eff6ff;
+        }
+        .image-drop-zone p {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            margin-bottom: 8px;
+        }
+        .preview-container {
+            margin-top: 10px;
+            display: none;
+            position: relative;
+            max-height: 150px;
+            overflow: hidden;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            background: #fff;
+        }
+        .preview-container img {
+            width: 100%;
+            max-height: 140px;
+            object-fit: contain;
+        }
+        .remove-img-btn {
+            position: absolute;
+            top: 4px;
+            right: 4px;
+            background: rgba(239, 68, 68, 0.9);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            font-size: 0.8rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
 
         /* Full Screen Viewer */
         .fullscreen-modal { display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0, 0, 0, 0.94); z-index: 2000; flex-direction: column; align-items: center; justify-content: center; }
@@ -286,10 +337,20 @@
                 <label>ឈ្មោះអ្នកចម្រៀង</label>
                 <input type="text" id="songArtist" placeholder="ឈ្មោះអ្នកចម្រៀង">
             </div>
+            
             <div class="form-group">
-                <label>ជ្រើសរើសរូបភាព *</label>
-                <input type="file" id="songImageFile" accept="image/*" onchange="previewFileImage(event)" required>
+                <label>រូបភាពបទចម្រៀង (ទាញទម្លាក់, Paste, ឬចុចជ្រើសរើស) *</label>
+                <div class="image-drop-zone" id="dropZone" onclick="document.getElementById('songImageFile').click()" ondragover="handleDragOver(event)" ondragleave="handleDragLeave(event)" ondrop="handleDrop(event)">
+                    <p>📁 ចុចទីនេះ ឬ **ទាញទម្លាក់រូបភាព** ចូលទីនេះ<br><span style="color:var(--primary); font-weight:600;">(អាចចុច Ctrl+V ដើម្បី Paste រូបភាពពី Clipboard បាន)</span></p>
+                    <input type="file" id="songImageFile" accept="image/*" onchange="handleFileSelect(event)" style="display: none;">
+                    
+                    <div class="preview-container" id="previewContainer">
+                        <img id="previewImg" src="" alt="Preview">
+                        <button type="button" class="remove-img-btn" onclick="removeSelectedImage(event)">✖</button>
+                    </div>
+                </div>
             </div>
+
             <div style="text-align: right; margin-top: 20px; display: flex; gap: 10px; justify-content: flex-end;">
                 <button type="button" class="btn" onclick="closeModal('addSongModal')" style="background: #e2e8f0;">បោះបង់</button>
                 <button type="submit" id="saveBtn" class="btn btn-primary">រក្សាទុក</button>
@@ -316,10 +377,20 @@
                 <label>ឈ្មោះអ្នកចម្រៀង</label>
                 <input type="text" id="editSongArtist">
             </div>
+
             <div class="form-group">
-                <label>ប្ដូររូបភាពថ្មី (បើមិនប្ដូរទេ រក្សារូបចាស់)</label>
-                <input type="file" id="editSongImageFile" accept="image/*" onchange="previewEditFileImage(event)">
+                <label>ប្ដូររូបភាពថ្មី (ទាញទម្លាក់, Paste, ឬជ្រើសរើស)</label>
+                <div class="image-drop-zone" id="editDropZone" onclick="document.getElementById('editSongImageFile').click()" ondragover="handleEditDragOver(event)" ondragleave="handleEditDragLeave(event)" ondrop="handleEditDrop(event)">
+                    <p>📁 ចុចទីនេះ ឬ **ទាញទម្លាក់រូបភាពថ្មី** ចូលទីនេះ<br><span style="color:var(--primary); font-weight:600;">(បើមិនប្ដូរទេ ទុកនៅស្ងៀម)</span></p>
+                    <input type="file" id="editSongImageFile" accept="image/*" onchange="handleEditFileSelect(event)" style="display: none;">
+                    
+                    <div class="preview-container" id="editPreviewContainer">
+                        <img id="editPreviewImg" src="" alt="Preview">
+                        <button type="button" class="remove-img-btn" onclick="removeSelectedEditImage(event)">✖</button>
+                    </div>
+                </div>
             </div>
+
             <div style="text-align: right; margin-top: 20px; display: flex; gap: 10px; justify-content: flex-end;">
                 <button type="button" class="btn" onclick="closeModal('editSongModal')" style="background: #e2e8f0;">បោះបង់</button>
                 <button type="submit" id="updateBtn" class="btn btn-primary">រក្សាទុកការកែប្រែ</button>
@@ -357,6 +428,7 @@
         listenToAuth();
         listenToAlbums();
         listenToSongs();
+        setupGlobalPasteListener();
     };
 
     /* 🔐 តាមដានការ Login/Logout */
@@ -588,6 +660,90 @@
         }).join('');
     }
 
+    /* 🖼️ Image Handling Helpers (Drag, Drop, Paste, Select) */
+    function processImageFile(file, isEdit = false) {
+        if (!file || !file.type.startsWith('image/')) {
+            alert('⚠️ សូមបញ្ចូលឯកសារប្រភេទរូបភាពប៉ុណ្ណោះ!');
+            return;
+        }
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            if (!isEdit) {
+                selectedImageBase64 = e.target.result;
+                document.getElementById('previewImg').src = selectedImageBase64;
+                document.getElementById('previewContainer').style.display = 'block';
+            } else {
+                selectedEditImageBase64 = e.target.result;
+                document.getElementById('editPreviewImg').src = selectedEditImageBase64;
+                document.getElementById('editPreviewContainer').style.display = 'block';
+            }
+        };
+        reader.readAsDataURL(file);
+    }
+
+    function handleFileSelect(e) {
+        if (e.target.files[0]) processImageFile(e.target.files[0], false);
+    }
+    function handleEditFileSelect(e) {
+        if (e.target.files[0]) processImageFile(e.target.files[0], true);
+    }
+
+    function handleDragOver(e) { e.preventDefault(); e.stopPropagation(); document.getElementById('dropZone').classList.add('dragover'); }
+    function handleDragLeave(e) { e.preventDefault(); e.stopPropagation(); document.getElementById('dropZone').classList.remove('dragover'); }
+    function handleDrop(e) {
+        e.preventDefault(); e.stopPropagation();
+        document.getElementById('dropZone').classList.remove('dragover');
+        if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+            processImageFile(e.dataTransfer.files[0], false);
+        }
+    }
+
+    function handleEditDragOver(e) { e.preventDefault(); e.stopPropagation(); document.getElementById('editDropZone').classList.add('dragover'); }
+    function handleEditDragLeave(e) { e.preventDefault(); e.stopPropagation(); document.getElementById('editDropZone').classList.remove('dragover'); }
+    function handleEditDrop(e) {
+        e.preventDefault(); e.stopPropagation();
+        document.getElementById('editDropZone').classList.remove('dragover');
+        if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+            processImageFile(e.dataTransfer.files[0], true);
+        }
+    }
+
+    function removeSelectedImage(e) {
+        e.stopPropagation();
+        selectedImageBase64 = '';
+        document.getElementById('songImageFile').value = '';
+        document.getElementById('previewContainer').style.display = 'none';
+        document.getElementById('previewImg').src = '';
+    }
+
+    function removeSelectedEditImage(e) {
+        e.stopPropagation();
+        selectedEditImageBase64 = '';
+        document.getElementById('editSongImageFile').value = '';
+        document.getElementById('editPreviewContainer').style.display = 'none';
+        document.getElementById('editPreviewImg').src = '';
+    }
+
+    /* 📋 Global Paste Listener (Ctrl+V ពេលបើក Modal) */
+    function setupGlobalPasteListener() {
+        window.addEventListener('paste', (e) => {
+            const addModalActive = document.getElementById('addSongModal').classList.contains('active');
+            const editModalActive = document.getElementById('editSongModal').classList.contains('active');
+            
+            if (!addModalActive && !editModalActive) return;
+
+            const items = (e.clipboardData || e.originalEvent.clipboardData).items;
+            for (let item of items) {
+                if (item.kind === 'file' && item.type.startsWith('image/')) {
+                    const blob = item.getAsFile();
+                    if (addModalActive) processImageFile(blob, false);
+                    if (editModalActive) processImageFile(blob, true);
+                    break;
+                }
+            }
+        });
+    }
+
     /* ➕ បញ្ចូលបទថ្មី */
     async function handleAddSong(e) {
         e.preventDefault();
@@ -596,6 +752,11 @@
         const title = document.getElementById('songTitle').value.trim();
         const artist = document.getElementById('songArtist').value.trim();
         const album = document.getElementById('songAlbumSelect').value;
+
+        if (!selectedImageBase64) {
+            alert("⚠️ សូមជ្រើសរើស ឬទាញទម្លាក់រូបភាពបទចម្រៀងជាមុនសិន!");
+            return;
+        }
 
         const isDuplicate = songsList.some(song => 
             song.title.toLowerCase() === title.toLowerCase() && 
@@ -623,6 +784,7 @@
 
             closeModal('addSongModal');
             document.getElementById('addSongForm').reset();
+            removeSelectedImage({stopPropagation:()=>{}});
             alert('✅ បានបញ្ចូលបទចម្រៀងដោយជោគជ័យ!');
         } catch (error) {
             alert('❌ មានបញ្ហា៖ ' + error.message);
@@ -646,6 +808,7 @@
         select.innerHTML = customAlbums.map(a => `<option value="${a}" ${a === song.album ? 'selected' : ''}>${a}</option>`).join('');
 
         selectedEditImageBase64 = '';
+        document.getElementById('editPreviewContainer').style.display = 'none';
         document.getElementById('editSongModal').classList.add('active');
     }
 
@@ -680,30 +843,14 @@
     function closeMobileSidebar() { document.getElementById('sidebar').classList.remove('mobile-open'); document.getElementById('sidebarOverlay').classList.remove('active'); }
     function openAddSongModal() { 
         document.getElementById('songAlbumSelect').innerHTML = customAlbums.map(a => `<option value="${a}">${a}</option>`).join('');
+        selectedImageBase64 = '';
+        document.getElementById('previewContainer').style.display = 'none';
         document.getElementById('addSongModal').classList.add('active'); 
     }
     function closeModal(id) { document.getElementById(id).classList.remove('active'); }
     function openFullScreen(imgUrl, title) { document.getElementById('fullScreenImg').src = imgUrl; document.getElementById('fullScreenTitle').innerText = title; document.getElementById('fullScreenModal').classList.add('active'); }
     function closeFullScreenModal(e) { if (e.target.classList.contains('fullscreen-modal') || e.target.classList.contains('fullscreen-img-container')) closeFullScreenModalDirect(); }
     function closeFullScreenModalDirect() { document.getElementById('fullScreenModal').classList.remove('active'); }
-    
-    function previewFileImage(e) {
-        const file = e.target.files[0];
-        if (file) {
-            const reader = new FileReader();
-            reader.onload = function(uploadEvent) { selectedImageBase64 = uploadEvent.target.result; };
-            reader.readAsDataURL(file);
-        }
-    }
-    
-    function previewEditFileImage(e) {
-        const file = e.target.files[0];
-        if (file) {
-            const reader = new FileReader();
-            reader.onload = function(uploadEvent) { selectedEditImageBase64 = uploadEvent.target.result; };
-            reader.readAsDataURL(file);
-        }
-    }
 </script>
 </body>
 </html>
