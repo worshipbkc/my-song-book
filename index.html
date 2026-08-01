@@ -222,11 +222,8 @@
             color: var(--text);
         }
         
-        .song-action-btn:hover {
-            opacity: 0.85;
-        }
+        .song-action-btn:hover { opacity: 0.85; }
 
-        /* 🎨 ប៊ូតុងនីមួយៗមានពណ៌សម្គាល់ស្រាលៗស្អាត */
         .btn-share-custom { background-color: #e0f2fe; color: #0284c7; border-color: #bae6fd; }
         body.dark-mode .btn-share-custom { background-color: #0369a1; color: #e0f2fe; border-color: #0284c7; }
 
@@ -242,7 +239,6 @@
         .song-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 20px; }
         .song-card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; display: flex; flex-direction: column; position: relative; }
         
-        /* 🔢 ស្លាកបង្ហាញលេខរៀងចម្រៀង */
         .song-index-badge {
             position: absolute;
             top: 10px;
@@ -273,7 +269,6 @@
         .form-group label { display: block; font-size: 0.9rem; font-weight: 600; margin-bottom: 6px; color: var(--text); }
         .form-group input, .form-group select { width: 100%; padding: 10px 14px; border: 1px solid var(--border); border-radius: 8px; outline: none; background: var(--bg); color: var(--text); }
 
-        /* 🖼️ Drag & Drop / Paste Image Box Style */
         .image-drop-zone {
             border: 2px dashed var(--border);
             border-radius: 10px;
@@ -284,15 +279,8 @@
             transition: all 0.2s;
             position: relative;
         }
-        .image-drop-zone:hover, .image-drop-zone.dragover {
-            border-color: var(--primary);
-            background: var(--border);
-        }
-        .image-drop-zone p {
-            font-size: 0.85rem;
-            color: var(--text-muted);
-            margin-bottom: 8px;
-        }
+        .image-drop-zone:hover, .image-drop-zone.dragover { border-color: var(--primary); background: var(--border); }
+        .image-drop-zone p { font-size: 0.85rem; color: var(--text-muted); margin-bottom: 8px; }
         .preview-container {
             margin-top: 10px;
             display: none;
@@ -303,29 +291,13 @@
             border: 1px solid var(--border);
             background: var(--card-bg);
         }
-        .preview-container img {
-            width: 100%;
-            max-height: 140px;
-            object-fit: contain;
-        }
+        .preview-container img { width: 100%; max-height: 140px; object-fit: contain; }
         .remove-img-btn {
-            position: absolute;
-            top: 4px;
-            right: 4px;
-            background: rgba(239, 68, 68, 0.9);
-            color: white;
-            border: none;
-            border-radius: 50%;
-            width: 24px;
-            height: 24px;
-            font-size: 0.8rem;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            position: absolute; top: 4px; right: 4px; background: rgba(239, 68, 68, 0.9);
+            color: white; border: none; border-radius: 50%; width: 24px; height: 24px;
+            font-size: 0.8rem; cursor: pointer; display: flex; align-items: center; justify-content: center;
         }
 
-        /* Full Screen Viewer */
         .fullscreen-modal { display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0, 0, 0, 0.94); z-index: 2000; flex-direction: column; align-items: center; justify-content: center; }
         .fullscreen-modal.active { display: flex; }
         .fullscreen-header { position: absolute; top: 15px; left: 20px; right: 20px; display: flex; justify-content: space-between; align-items: center; color: white; }
@@ -355,7 +327,7 @@
         <button class="close-sidebar-btn" onclick="closeMobileSidebar()">✖</button>
     </div>
 
-    <!-- 👤 ផ្ទាំង Profile Admin / Login ជាមួយ Dropdown Menu -->
+    <!-- 👤 Profile Area & Dropdown -->
     <div class="user-profile-wrapper" id="userProfileArea">
         <button class="btn-auth btn-google" onclick="loginWithGoogle()">
             <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" width="18" alt="G">
@@ -363,7 +335,7 @@
         </button>
     </div>
 
-    <!-- ➕ ប៊ូតុងបន្ថែមបទថ្មី (សម្រាប់ Editor/Admin) -->
+    <!-- ➕ ប៊ូតុងបន្ថែមបទថ្មី -->
     <div class="sidebar-action-container editor-only">
         <button class="add-song-sidebar-btn" onclick="openAddSongModal(); closeMobileSidebar();">
             ➕ <span>បញ្ជូលបទថ្មី</span>
@@ -373,8 +345,6 @@
     <!-- 📖 បញ្ជី Album -->
     <div class="sidebar-menu">
         <div id="sidebarMenu"></div>
-        
-        <!-- ➕ ប៊ូតុងបង្កើត Album ថ្មី (សម្រាប់តែ Editor/Admin) -->
         <button class="add-album-btn editor-only" onclick="addNewAlbum()">
             ➕ <span>បង្កើត Album ថ្មី</span>
         </button>
@@ -394,7 +364,6 @@
         </p>
     </header>
 
-    <!-- Controls: Search Box និង Dark Mode Button (Sticky មិនរំកិលតាមពេល Scroll) -->
     <div class="controls">
         <div class="search-box">
             <input type="text" id="searchInput" placeholder="ស្វែងរកចំណងជើង ឬអ្នកចម្រៀង..." onkeyup="renderSongs()">
@@ -404,7 +373,7 @@
     </div>
 
     <div class="song-grid" id="songGrid">
-        <div class="empty-state">⏳ កំពុងទាញយកទិន្នន័យ...</div>
+        <div class="empty-state" id="loadingState">⏳ កំពុងទាញយកទិន្នន័យ...</div>
     </div>
 </div>
 
@@ -437,18 +406,16 @@
                 <input type="text" id="songArtist" placeholder="ឈ្មោះអ្នកចម្រៀង">
             </div>
             <div class="form-group">
-                <label>រូបភាពបទចម្រៀង (ទាញទម្លាក់, Paste, ឬចុចជ្រើសរើស) *</label>
+                <label>រូបភាពបទចម្រៀង *</label>
                 <div class="image-drop-zone" id="dropZone" onclick="document.getElementById('songImageFile').click()" ondragover="handleDragOver(event)" ondragleave="handleDragLeave(event)" ondrop="handleDrop(event)">
-                    <p>📁 ចុចទីនេះ ឬ **ទាញទម្លាក់រូបភាព** ចូលទីនេះ<br><span style="color:var(--primary); font-weight:600;">(អាចចុច Ctrl+V ដើម្បី Paste រូបភាពពី Clipboard)</span></p>
+                    <p>📁 ចុចទីនេះ ឬ **ទាញទម្លាក់រូបភាព** ចូលទីនេះ<br><span style="color:var(--primary); font-weight:600;">(អាចចុច Ctrl+V ដើម្បី Paste រូបភាព)</span></p>
                     <input type="file" id="songImageFile" accept="image/*" onchange="handleFileSelect(event)" style="display: none;">
-                    
                     <div class="preview-container" id="previewContainer">
                         <img id="previewImg" src="" alt="Preview">
                         <button type="button" class="remove-img-btn" onclick="removeSelectedImage(event)">✖</button>
                     </div>
                 </div>
             </div>
-
             <div style="text-align: right; margin-top: 20px; display: flex; gap: 10px; justify-content: flex-end;">
                 <button type="button" class="btn" onclick="closeModal('addSongModal')" style="background: var(--border); color: var(--text);">បោះបង់</button>
                 <button type="submit" id="saveBtn" class="btn btn-primary">រក្សាទុក</button>
@@ -475,20 +442,17 @@
                 <label>ឈ្មោះអ្នកចម្រៀង</label>
                 <input type="text" id="editSongArtist">
             </div>
-
             <div class="form-group">
-                <label>ប្ដូររូបភាពថ្មី (ទាញទម្លាក់, Paste, ឬជ្រើសរើស)</label>
+                <label>ប្ដូររូបភាពថ្មី</label>
                 <div class="image-drop-zone" id="editDropZone" onclick="document.getElementById('editSongImageFile').click()" ondragover="handleEditDragOver(event)" ondragleave="handleEditDragLeave(event)" ondrop="handleEditDrop(event)">
-                    <p>📁 ចុចទីនេះ ឬ **ទាញទម្លាក់រូបភាពថ្មី** ចូលទីនេះ<br><span style="color:var(--primary); font-weight:600;">(បើមិនប្ដូរទេ ទុកនៅស្ងៀម)</span></p>
+                    <p>📁 ចុចទីនេះ ឬ **ទាញទម្លាក់រូបភាពថ្មី** ចូលទីនេះ</p>
                     <input type="file" id="editSongImageFile" accept="image/*" onchange="handleEditFileSelect(event)" style="display: none;">
-                    
                     <div class="preview-container" id="editPreviewContainer">
                         <img id="editPreviewImg" src="" alt="Preview">
                         <button type="button" class="remove-img-btn" onclick="removeSelectedEditImage(event)">✖</button>
                     </div>
                 </div>
             </div>
-
             <div style="text-align: right; margin-top: 20px; display: flex; gap: 10px; justify-content: flex-end;">
                 <button type="button" class="btn" onclick="closeModal('editSongModal')" style="background: var(--border); color: var(--text);">បោះបង់</button>
                 <button type="submit" id="updateBtn" class="btn btn-primary">រក្សាទុកការកែប្រែ</button>
@@ -513,10 +477,15 @@
     const db = firebase.firestore();
     const auth = firebase.auth();
 
+    // 🔐 កំណត់ Local Persistence ដើម្បីឱ្យចងចាំការ Login ជាប់ជានិច្ច
+    auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL).catch((error) => {
+        console.error("Auth persistence error:", error);
+    });
+
     let currentUser = null;
     let isEditor = false;
     let isAdmin = false;
-    let songsList = [];
+    let songsMap = new Map(); // ប្រើ Map ដើម្បីគ្រប់គ្រង និង Streaming ទិន្នន័យបទចម្រៀង
     let customAlbums = ['ទំនុកដំកើង', 'ទំនុកខ្មែរបរិសុទ្ធ'];
     let currentSelectedAlbum = 'ALL';
     let selectedImageBase64 = '';
@@ -526,7 +495,7 @@
         checkInitialDarkMode();
         listenToAuth();
         listenToAlbums();
-        listenToSongs();
+        listenToSongsStreaming(); // ប្រើប្រាស់ Streaming Rendering លឿនរហ័ស
         setupGlobalPasteListener();
     };
 
@@ -558,15 +527,20 @@
         auth.onAuthStateChanged(async (user) => {
             currentUser = user;
             if (user) {
-                const doc = await db.collection("editors").doc(user.email.toLowerCase()).get();
-                if (doc.exists) {
-                    isEditor = true;
-                    isAdmin = doc.data().role === 'admin';
-                    document.getElementById('bodyContainer').classList.add('editor-authorized');
-                } else {
+                try {
+                    const doc = await db.collection("editors").doc(user.email.toLowerCase()).get();
+                    if (doc.exists) {
+                        isEditor = true;
+                        isAdmin = doc.data().role === 'admin';
+                        document.getElementById('bodyContainer').classList.add('editor-authorized');
+                    } else {
+                        isEditor = false;
+                        isAdmin = false;
+                        document.getElementById('bodyContainer').classList.remove('editor-authorized');
+                    }
+                } catch (e) {
                     isEditor = false;
                     isAdmin = false;
-                    document.getElementById('bodyContainer').classList.remove('editor-authorized');
                 }
                 renderUserProfile(user);
             } else {
@@ -583,14 +557,14 @@
         });
     }
 
+    /* 🚀 ប្រើប្រាស់ signInWithRedirect សម្រាប់ GitHub Pages */
     function loginWithGoogle() {
         const provider = new firebase.auth.GoogleAuthProvider();
-        auth.signInWithPopup(provider).catch(error => alert("❌ Login ខកខាន៖ " + error.message));
+        auth.signInWithRedirect(provider).catch(error => alert("❌ Login ខកខាន៖ " + error.message));
     }
 
     function logout() { auth.signOut(); }
 
-    /* 👤 បង្ហាញ Profile Card និងទម្លាក់ Dropdown Menu */
     function renderUserProfile(user) {
         document.getElementById('userProfileArea').innerHTML = `
             <div class="user-profile-card" id="profileToggleBtn" onclick="toggleProfileDropdown()">
@@ -603,7 +577,6 @@
                 </div>
                 <div class="dropdown-arrow">▼</div>
             </div>
-
             <div class="profile-dropdown-menu" id="profileDropdownMenu">
                 ${isAdmin ? `
                     <button class="dropdown-item" onclick="handleInvite()"><span style="font-size:1.1rem;">✉️</span> <span>Invite</span></button>
@@ -615,7 +588,6 @@
         `;
     }
 
-    /* 🔽 បើក/បិទ Dropdown Menu */
     function toggleProfileDropdown() {
         const menu = document.getElementById('profileDropdownMenu');
         const btn = document.getElementById('profileToggleBtn');
@@ -623,20 +595,16 @@
         btn.classList.toggle('active');
     }
 
-    /* 🗑️ មុខងារលុប Album */
     async function handleDeleteAlbum() {
-        if (!isAdmin) return alert("❌ មានតែ Admin ទេដែលអាចលុប Album បាន!");
+        if (!isAdmin) return alert("❌ មានតែ Admin ទេដែលអាចលុប Album ได้!");
         if (customAlbums.length === 0) return alert("❌ មិនទាន់មាន Album សម្រាប់លុបឡើយ!");
 
         let password = prompt("🔐 សូមបញ្ចូលលេខសម្ងាត់ដើម្បីលុប Album៖");
         if (password === null) return;
-        
-        if (password !== "1234") {
-            return alert("❌ លេខសម្ងាត់មិនត្រឹមត្រូវទេ!");
-        }
+        if (password !== "1234") return alert("❌ លេខសម្ងាត់មិនត្រឹមត្រូវទេ!");
 
         let albumOptions = customAlbums.map((album, index) => `${index + 1}. ${album}`).join('\n');
-        let selectedIndex = prompt(`✅ លេខសម្ងាត់ត្រឹមត្រូវ!\n\n🗑️ [Admin] សូមជ្រើសរើសលេខ Album ដែលអ្នកចង់លុប៖\n\n${albumOptions}\n\nបញ្ជាក់៖ វានឹងមិនលុបបទចម្រៀងដែលមានស្រាប់ទេ!`);
+        let selectedIndex = prompt(`✅ លេខសម្ងាត់ត្រឹមត្រូវ!\n\n🗑️ [Admin] សូមជ្រើសរើសលេខ Album ដែលអ្នកចង់លុប៖\n\n${albumOptions}`);
 
         if (selectedIndex) {
             let index = parseInt(selectedIndex) - 1;
@@ -651,13 +619,10 @@
                         alert("❌ មានបញ្ហា៖ " + error.message);
                     }
                 }
-            } else {
-                alert("❌ ការជ្រើសរើសមិនត្រឹមត្រូវទេ!");
             }
         }
     }
 
-    /* ✉️ Admin Invite អ៊ីមែលថ្មី */
     async function handleInvite() {
         const emailToInvite = prompt("✉️ [Admin] បញ្ចូល Gmail របស់អ្នកដែលអ្នកចង់ Invite ឱ្យមានសិទ្ធិកែប្រែ៖");
         if (emailToInvite && emailToInvite.includes('@')) {
@@ -672,7 +637,6 @@
         }
     }
 
-    /* ✉️ User ធម្មតាសុំ Join */
     async function handleJoin() {
         if (confirm(`តើអ្នកចង់ផ្ញើសំណើ Join ដើម្បីសុំសិទ្ធិកែប្រែទិន្នន័យដោយប្រើអ៊ីមែល ${currentUser.email} ដែរឬទេ?`)) {
             await db.collection("join_requests").doc(currentUser.email.toLowerCase()).set({
@@ -684,7 +648,6 @@
         }
     }
 
-    /* 📖 គ្រប់គ្រង Album */
     function listenToAlbums() {
         db.collection("albums").onSnapshot((snapshot) => {
             let albums = [];
@@ -730,18 +693,17 @@
         }
     }
 
-    /* 🎶 ស្វែងរក និងបង្ហាញបទចម្រៀង */
-    function listenToSongs() {
+    /* ⚡ Streaming Rendering (ទាញបានប៉ុន្មានបង្ហាញប៉ុណ្ណឹងភ្លាមៗតាមកន្លែង) */
+    function listenToSongsStreaming() {
         db.collection("songs").onSnapshot((snapshot) => {
-            songsList = [];
-            snapshot.forEach((doc) => songsList.push({ id: doc.id, ...doc.data() }));
-            
-            songsList.sort((a, b) => {
-                const timeA = a.createdAt ? a.createdAt.toMillis() : 0;
-                const timeB = b.createdAt ? b.createdAt.toMillis() : 0;
-                return timeA - timeB;
+            snapshot.docChanges().forEach((change) => {
+                const songData = { id: change.doc.id, ...change.doc.data() };
+                if (change.type === "added" || change.type === "modified") {
+                    songsMap.set(songData.id, songData);
+                } else if (change.type === "removed") {
+                    songsMap.delete(songData.id);
+                }
             });
-
             renderSongs();
         });
     }
@@ -749,6 +711,13 @@
     function renderSongs() {
         const grid = document.getElementById('songGrid');
         const query = document.getElementById('searchInput').value.toLowerCase().trim();
+
+        let songsList = Array.from(songsMap.values());
+        songsList.sort((a, b) => {
+            const timeA = a.createdAt ? a.createdAt.toMillis() : 0;
+            const timeB = b.createdAt ? b.createdAt.toMillis() : 0;
+            return timeA - timeB;
+        });
 
         const filtered = songsList.filter(s => {
             const matchesSearch = (s.title && s.title.toLowerCase().includes(query)) || (s.artist && s.artist.toLowerCase().includes(query));
@@ -761,19 +730,19 @@
             return;
         }
 
-        grid.innerHTML = filtered.map((song, index) => {
+        grid.innerHTML = filtered.map((song) => {
             const safeTitle = (song.title || '').replace(/'/g, "\\'").replace(/"/g, '&quot;');
             
             let dateText = '';
             if (song.updatedAt) {
                 const dateObj = song.updatedAt.toDate();
-                dateText = `កែប្រែ៖ ${dateObj.toLocaleDateString('km-KH')} ${dateObj.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}`;
+                dateText = `កែប្រែ៖ ${dateObj.toLocaleDateString('km-KH')}`;
             } else if (song.createdAt) {
                 const dateObj = song.createdAt.toDate();
-                dateText = `បញ្ចូល៖ ${dateObj.toLocaleDateString('km-KH')} ${dateObj.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}`;
+                dateText = `បញ្ចូល៖ ${dateObj.toLocaleDateString('km-KH')}`;
             }
 
-            const editorInfo = song.updatedBy ? `👤 កែដោយ៖ ${song.updatedBy}` : (song.createdBy ? `👤 បញ្ចូលដោយ៖ ${song.createdBy}` : '');
+            const editorInfo = song.updatedBy ? `👤 កែโดย៖ ${song.updatedBy}` : (song.createdBy ? `👤 បញ្ចូលโดย៖ ${song.createdBy}` : '');
             const globalIndex = songsList.findIndex(s => s.id === song.id) + 1;
 
             return `
@@ -791,8 +760,6 @@
                             ${editorInfo ? `<span>${editorInfo}</span>` : ''}
                         </div>
                     </div>
-                    
-                    <!-- 🎛️ ប៊ូតុង Share, Save, កែ និងលុប ដែលត្រូវបានរៀបចំទំហំឱ្យស្មើគ្នាជា Grid -->
                     <div class="song-actions">
                         <button class="song-action-btn btn-share-custom" onclick="shareSongImage('${song.imageUrl}', '${safeTitle}')">📤 Share</button>
                         <a href="${song.imageUrl}" download="${song.title}.jpg" class="song-action-btn btn-save-custom">💾 Save</a>
@@ -807,47 +774,28 @@
         }).join('');
     }
 
-    /* 📤 មុខងារ Share រូបភាពបទចម្រៀង */
     async function shareSongImage(imgUrl, title) {
         if (navigator.share) {
             try {
                 const response = await fetch(imgUrl);
                 const blob = await response.blob();
                 const file = new File([blob], `${title}.jpg`, { type: blob.type });
-
                 if (navigator.canShare && navigator.canShare({ files: [file] })) {
-                    await navigator.share({
-                        title: title,
-                        text: `សូមអានបទចម្រៀងសរសើរតម្កើងព្រះ៖ ${title}`,
-                        files: [file],
-                    });
+                    await navigator.share({ title: title, text: `បទចម្រៀង៖ ${title}`, files: [file] });
                     return;
                 }
-            } catch (error) {
-                console.log("Sharing file failed, fallback to link:", error);
-            }
-
+            } catch (error) {}
             try {
-                await navigator.share({
-                    title: title,
-                    text: `សូមអានបទចម្រៀងសរសើរតម្កើងព្រះ៖ ${title}`,
-                    url: imgUrl,
-                });
-            } catch (err) {
-                console.log("Share canceled or failed", err);
-            }
+                await navigator.share({ title: title, text: `បទចម្រៀង៖ ${title}`, url: imgUrl });
+            } catch (err) {}
         } else {
             navigator.clipboard.writeText(imgUrl);
-            alert("📋 បានចម្លងតំណភ្ជាប់ (Link) រូបភាពរួចរាល់!");
+            alert("📋 បានចម្លងតំណភ្ជាប់រូបភាពរួចរាល់!");
         }
     }
 
-    /* 🖼️ Image Handling Helpers (Drag, Drop, Paste, Select) */
     function processImageFile(file, isEdit = false) {
-        if (!file || !file.type.startsWith('image/')) {
-            alert('⚠️ សូមបញ្ចូលឯកសារប្រភេទរូបភាពប៉ុណ្ណោះ!');
-            return;
-        }
+        if (!file || !file.type.startsWith('image/')) return alert('⚠️ សូមបញ្ចូលរូបភាព!');
         const reader = new FileReader();
         reader.onload = function(e) {
             if (!isEdit) {
@@ -865,29 +813,18 @@
 
     function handleFileSelect(e) { if (e.target.files[0]) processImageFile(e.target.files[0], false); }
     function handleEditFileSelect(e) { if (e.target.files[0]) processImageFile(e.target.files[0], true); }
-
-    function handleDragOver(e) { e.preventDefault(); e.stopPropagation(); document.getElementById('dropZone').classList.add('dragover'); }
-    function handleDragLeave(e) { e.preventDefault(); e.stopPropagation(); document.getElementById('dropZone').classList.remove('dragover'); }
-    function handleDrop(e) {
-        e.preventDefault(); e.stopPropagation();
-        document.getElementById('dropZone').classList.remove('dragover');
-        if (e.dataTransfer.files && e.dataTransfer.files[0]) processImageFile(e.dataTransfer.files[0], false);
-    }
-
-    function handleEditDragOver(e) { e.preventDefault(); e.stopPropagation(); document.getElementById('editDropZone').classList.add('dragover'); }
-    function handleEditDragLeave(e) { e.preventDefault(); e.stopPropagation(); document.getElementById('editDropZone').classList.remove('dragover'); }
-    function handleEditDrop(e) {
-        e.preventDefault(); e.stopPropagation();
-        document.getElementById('editDropZone').classList.remove('dragover');
-        if (e.dataTransfer.files && e.dataTransfer.files[0]) processImageFile(e.dataTransfer.files[0], true);
-    }
+    function handleDragOver(e) { e.preventDefault(); e.stopPropagation(); }
+    function handleDragLeave(e) { e.preventDefault(); e.stopPropagation(); }
+    function handleDrop(e) { e.preventDefault(); e.stopPropagation(); if (e.dataTransfer.files[0]) processImageFile(e.dataTransfer.files[0], false); }
+    function handleEditDragOver(e) { e.preventDefault(); e.stopPropagation(); }
+    function handleEditDragLeave(e) { e.preventDefault(); e.stopPropagation(); }
+    function handleEditDrop(e) { e.preventDefault(); e.stopPropagation(); if (e.dataTransfer.files[0]) processImageFile(e.dataTransfer.files[0], true); }
 
     function removeSelectedImage(e) {
         e.stopPropagation();
         selectedImageBase64 = '';
         document.getElementById('songImageFile').value = '';
         document.getElementById('previewContainer').style.display = 'none';
-        document.getElementById('previewImg').src = '';
     }
 
     function removeSelectedEditImage(e) {
@@ -895,7 +832,6 @@
         selectedEditImageBase64 = '';
         document.getElementById('editSongImageFile').value = '';
         document.getElementById('editPreviewContainer').style.display = 'none';
-        document.getElementById('editPreviewImg').src = '';
     }
 
     function setupGlobalPasteListener() {
@@ -918,26 +854,13 @@
 
     async function handleAddSong(e) {
         e.preventDefault();
-        if (!isEditor) return alert("❌ អ្នកគ្មានសិទ្ធិបញ្ចូលបទចម្រៀងទេ!");
+        if (!isEditor) return alert("❌ គ្មានសិទ្ធិ!");
 
         const title = document.getElementById('songTitle').value.trim();
         const artist = document.getElementById('songArtist').value.trim();
         const album = document.getElementById('songAlbumSelect').value;
 
-        if (!selectedImageBase64) {
-            alert("⚠️ សូមជ្រើសរើស ឬទាញទម្លាក់រូបភាពបទចម្រៀងជាមុនសិន!");
-            return;
-        }
-
-        const isDuplicate = songsList.some(song => 
-            song.title.toLowerCase() === title.toLowerCase() && 
-            song.album === album
-        );
-
-        if (isDuplicate) {
-            alert(`⚠️ បទ «${title}» នេះមានរួចហើយនៅក្នុង Album «${album}»!`);
-            return;
-        }
+        if (!selectedImageBase64) return alert("⚠️ សូមជ្រើសរើសរូបភាពបទចម្រៀង!");
 
         const saveBtn = document.getElementById('saveBtn');
         saveBtn.innerText = '⏳ កំពុងរក្សាទុក...'; 
@@ -945,18 +868,15 @@
 
         try {
             await db.collection("songs").add({
-                title, 
-                artist, 
-                album,
+                title, artist, album,
                 imageUrl: selectedImageBase64,
                 createdBy: currentUser.displayName || currentUser.email,
                 createdAt: firebase.firestore.FieldValue.serverTimestamp()
             });
-
             closeModal('addSongModal');
             document.getElementById('addSongForm').reset();
             removeSelectedImage({stopPropagation:()=>{}});
-            alert('✅ បានបញ្ចូលបទចម្រៀងដោយជោគជ័យ!');
+            alert('✅ បញ្ចូលបទចម្រៀងបានជោគជ័យ!');
         } catch (error) {
             alert('❌ មានបញ្ហា៖ ' + error.message);
         } finally {
@@ -966,8 +886,8 @@
     }
 
     function openEditSongModal(songId) {
-        if (!isEditor) return alert("❌ អ្នកគ្មានសិទ្ធិកែប្រែទេ!");
-        const song = songsList.find(s => s.id === songId);
+        if (!isEditor) return;
+        const song = songsMap.get(songId);
         if (!song) return;
 
         document.getElementById('editSongId').value = song.id;
@@ -992,19 +912,18 @@
             updatedBy: currentUser.displayName || currentUser.email,
             updatedAt: firebase.firestore.FieldValue.serverTimestamp()
         };
-
         if (selectedEditImageBase64) updateData.imageUrl = selectedEditImageBase64;
 
         await db.collection("songs").doc(id).update(updateData);
         closeModal('editSongModal');
-        alert('✅ បានកែប្រែដោយជោគជ័យ!');
+        alert('✅ បានកែប្រែជោគជ័យ!');
     }
 
     async function deleteSong(id, title) {
-        if (!isEditor) return alert("❌ អ្នកគ្មានសិទ្ធិលុបទេ!");
-        if (confirm(`⚠️ តើអ្នកប្រាកដថាលុបបទ «${title}» នេះមែនទេ?`)) {
+        if (!isEditor) return;
+        if (confirm(`⚠️ លុបបទ «${title}»?`)) {
             await db.collection("songs").doc(id).delete();
-            alert(`✅ បានលុបបទ «${title}» រួចរាល់!`);
+            alert(`✅ បានលុបរួចរាល់!`);
         }
     }
 
