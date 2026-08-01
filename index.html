@@ -108,12 +108,16 @@
         .btn { padding: 12px 20px; font-size: 0.95rem; font-weight: 600; border: none; border-radius: 10px; cursor: pointer; }
         .btn-primary { background-color: var(--primary); color: white; }
 
-        /* 🎛️ ប៊ូតុងបញ្ជាក្នុងកាតបទចម្រៀង តម្រៀបជា ១ជួរផ្ដេកស្មើគ្នា (4 Columns) */
+        /* 🎛️ ប៊ូតុងបញ្ជា៖ បើ Viewer ធម្មតាបង្ហាញ ២ជួរ (Share & Save) បើ Editor បង្ហាញ ៤ជួរ */
         .song-actions {
             display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 6px;
+            margin-top: 12px;
+        }
+        .editor-authorized .song-actions {
             grid-template-columns: repeat(4, 1fr);
             gap: 4px;
-            margin-top: 12px;
         }
 
         .song-action-btn {
@@ -426,9 +430,18 @@
         });
     }
 
+    // 🚀 ដូរមកប្រើ signInWithPopup ដើម្បីកុំឱ្យ Refresh ផ្អាក់ដំណើរការ Login
     function loginWithGoogle() {
         const provider = new firebase.auth.GoogleAuthProvider();
-        auth.signInWithRedirect(provider).catch(error => alert("❌ Login ខកខាន៖ " + error.message));
+        auth.signInWithPopup(provider)
+            .then((result) => {
+                // Login ចូលបានជោគជ័យភ្លាមៗដោយរលូន
+            })
+            .catch(error => {
+                if (error.code !== 'auth/popup-closed-by-user') {
+                    alert("❌ Login ខកខាន៖ " + error.message);
+                }
+            });
     }
 
     function logout() { auth.signOut(); }
