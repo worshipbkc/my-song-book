@@ -7,7 +7,6 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Kantumruy+Pro:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <!-- 🔥 Firebase SDKs (v8) -->
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
@@ -27,19 +26,8 @@
             --sidebar-width: 280px;
         }
 
-        /* Dark Mode Colors */
-        [data-theme="dark"] {
-            --bg: #121212;
-            --card-bg: #1e1e1e;
-            --text: #e2e8f0;
-            --text-muted: #94a3b8;
-            --border: #333333;
-            --primary: #bb86fc;
-            --primary-hover: #3700b3;
-        }
-
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Kantumruy Pro', sans-serif; }
-        body { background-color: var(--bg); color: var(--text); display: flex; min-height: 100vh; position: relative; transition: background 0.3s, color 0.3s; }
+        body { background-color: var(--bg); color: var(--text); display: flex; min-height: 100vh; position: relative; }
 
         .sidebar-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0, 0, 0, 0.5); z-index: 99; }
         .sidebar-overlay.active { display: block; }
@@ -51,12 +39,28 @@
         }
 
         .sidebar-header { padding: 18px 20px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--border); }
-        .sidebar-title { font-size: 1.1rem; font-weight: 700; color: var(--text); }
-        .close-sidebar-btn { background: none; border: none; font-size: 1.2rem; cursor: pointer; display: none; padding: 4px 8px; border-radius: 6px; color: var(--text); }
+        .sidebar-title { font-size: 1.1rem; font-weight: 700; }
+        .close-sidebar-btn { background: none; border: none; font-size: 1.2rem; cursor: pointer; display: none; padding: 4px 8px; border-radius: 6px; }
 
-        .user-profile-wrapper { border-bottom: 1px solid var(--border); background: var(--card-bg); position: relative; width: 100%; }
-        .user-profile-card { padding: 14px; display: flex; align-items: center; justify-content: space-between; cursor: pointer; user-select: none; transition: background 0.2s; width: 100%; }
-        .user-profile-card:hover { opacity: 0.8; }
+        /* 👤 Profile Area & Dropdown Menu */
+        .user-profile-wrapper { 
+            border-bottom: 1px solid var(--border); 
+            background: #f8fafc; 
+            position: relative; 
+            width: 100%;
+        }
+        
+        .user-profile-card {
+            padding: 14px; 
+            display: flex; 
+            align-items: center; 
+            justify-content: space-between;
+            cursor: pointer; 
+            user-select: none; 
+            transition: background 0.2s;
+            width: 100%;
+        }
+        .user-profile-card:hover { background: #f1f5f9; }
 
         .user-info { display: flex; align-items: center; gap: 12px; overflow: hidden; flex: 1; }
         .user-avatar { width: 42px; height: 42px; border-radius: 50%; object-fit: cover; border: 1px solid var(--border); }
@@ -64,21 +68,51 @@
         .user-name { font-weight: 700; text-overflow: ellipsis; white-space: nowrap; overflow: hidden; color: var(--text); }
         .user-role { font-size: 0.75rem; color: #16a34a; font-weight: 600; display: flex; align-items: center; gap: 4px; }
         
-        .dropdown-arrow { font-size: 0.7rem; color: var(--text-muted); transition: transform 0.3s ease; padding-left: 8px; }
+        .dropdown-arrow { 
+            font-size: 0.7rem; 
+            color: var(--text-muted); 
+            transition: transform 0.3s ease; 
+            padding-left: 8px;
+        }
         .user-profile-card.active .dropdown-arrow { transform: rotate(180deg); }
 
-        .profile-dropdown-menu { display: none; background: var(--card-bg); border-top: 1px solid var(--border); padding: 6px; }
-        .profile-dropdown-menu.open { display: flex; flex-direction: column; gap: 4px; }
+        .profile-dropdown-menu {
+            display: none;
+            background: #ffffff; 
+            border-top: 1px solid var(--border); 
+            padding: 6px;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.02);
+        }
+        .profile-dropdown-menu.open { 
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
 
         .dropdown-item {
-            display: flex; align-items: center; gap: 10px; width: 100%; padding: 10px 12px;
-            border: none; background: transparent; border-radius: 8px; font-size: 0.88rem;
-            font-weight: 600; cursor: pointer; text-align: left; color: var(--text); transition: background 0.2s;
+            display: flex; 
+            align-items: center; 
+            gap: 10px; 
+            width: 100%; 
+            padding: 10px 12px;
+            border: none; 
+            background: transparent; 
+            border-radius: 8px; 
+            font-size: 0.88rem;
+            font-weight: 600; 
+            cursor: pointer; 
+            text-align: left; 
+            color: var(--text); 
+            transition: background 0.2s;
         }
-        .dropdown-item:hover { opacity: 0.7; }
+        .dropdown-item:hover { background: #f1f5f9; }
         .dropdown-item.danger { color: var(--danger); }
+        .dropdown-item.danger:hover { background: #fee2e2; }
 
-        .btn-auth { padding: 10px 14px; border-radius: 8px; border: none; font-size: 0.85rem; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 8px; justify-content: center; width: 100%; }
+        .btn-auth {
+            padding: 10px 14px; border-radius: 8px; border: none; font-size: 0.85rem; font-weight: 600; cursor: pointer;
+            display: flex; align-items: center; gap: 8px; justify-content: center; width: 100%;
+        }
         .btn-google { background: white; border: 1px solid var(--border); color: #333; margin: 12px 14px; width: calc(100% - 28px); }
 
         .sidebar-action-container { padding: 12px 14px 4px 14px; }
@@ -86,6 +120,7 @@
             width: 100%; padding: 12px 14px; background: var(--primary); color: white; border: none;
             border-radius: 10px; cursor: pointer; font-weight: 600; font-size: 0.95rem;
             display: flex; align-items: center; justify-content: center; gap: 8px;
+            box-shadow: 0 2px 4px rgba(37, 99, 235, 0.2);
         }
 
         .sidebar-menu { flex: 1; padding: 10px 14px; overflow-y: auto; }
@@ -95,66 +130,105 @@
             margin-bottom: 6px; transition: all 0.2s;
         }
         .menu-item-left { display: flex; align-items: center; gap: 12px; overflow: hidden; }
-        .menu-item:hover { color: var(--primary); }
-        .menu-item.active { background-color: var(--primary); color: white; }
+        .menu-item:hover { background-color: #f1f5f9; color: var(--primary); }
+        .menu-item.active { background-color: #3b82f6; color: white; }
 
         .add-album-btn {
             display: flex; align-items: center; justify-content: center; gap: 6px;
             width: 100%; padding: 8px; background: transparent; border: 1px dashed var(--border);
             border-radius: 8px; color: var(--text-muted); font-size: 0.85rem; cursor: pointer; margin-top: 10px; font-weight: 600;
         }
+        .add-album-btn:hover { background: #f1f5f9; color: var(--primary); }
 
         .main-content { margin-left: var(--sidebar-width); flex: 1; padding: 24px; width: 100%; }
         .mobile-header { display: none; align-items: center; gap: 12px; margin-bottom: 16px; }
-        .mobile-menu-btn { background: var(--card-bg); color: var(--text); border: 1px solid var(--border); padding: 8px 12px; border-radius: 8px; font-size: 1.2rem; cursor: pointer; display: flex; align-items: center; gap: 6px; font-weight: 600; }
+        .mobile-menu-btn { background: white; border: 1px solid var(--border); padding: 8px 12px; border-radius: 8px; font-size: 1.2rem; cursor: pointer; display: flex; align-items: center; gap: 6px; font-weight: 600; }
 
-        .header-top-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
-        header h1 { font-size: 1.8rem; color: var(--primary); }
-        header p { color: var(--text-muted); font-size: 1rem; font-weight: 600; line-height: 1.6; }
-
-        /* Dark Mode Button at top right */
-        .dark-mode-btn {
-            background: var(--card-bg); border: 1px solid var(--border); color: var(--text);
-            padding: 8px 14px; border-radius: 20px; cursor: pointer; font-weight: 600;
-            display: flex; align-items: center; gap: 6px; font-size: 0.9rem;
-        }
+        header h1 { font-size: 1.8rem; color: var(--primary); margin-bottom: 6px; }
+        header p { color: #1e293b; font-size: 1rem; font-weight: 600; line-height: 1.6; text-align: center; }
 
         .controls { margin-bottom: 24px; margin-top: 15px; }
         .search-box { position: relative; display: flex; align-items: center; width: 100%; }
-        .search-box input { width: 100%; padding: 12px 45px 12px 18px; font-size: 0.95rem; border: 1px solid var(--border); border-radius: 10px; outline: none; background: var(--card-bg); color: var(--text); }
+        .search-box input { width: 100%; padding: 12px 45px 12px 18px; font-size: 0.95rem; border: 1px solid var(--border); border-radius: 10px; outline: none; background: var(--card-bg); }
         .search-btn { position: absolute; right: 6px; background: none; border: none; font-size: 1.1rem; cursor: pointer; padding: 8px; border-radius: 8px; }
 
-        .btn { padding: 10px 16px; font-size: 0.9rem; font-weight: 600; border: none; border-radius: 8px; cursor: pointer; }
+        .btn { padding: 12px 20px; font-size: 0.95rem; font-weight: 600; border: none; border-radius: 10px; cursor: pointer; }
         .btn-primary { background-color: var(--primary); color: white; }
-        .btn-warning { background-color: #fef3c7; color: #b45309; border: none; padding: 6px 10px; border-radius: 6px; cursor: pointer; font-size: 0.8rem; font-weight: 600; }
-        .btn-danger { background-color: #fee2e2; color: var(--danger); border: none; padding: 6px 10px; border-radius: 6px; cursor: pointer; font-size: 0.8rem; font-weight: 600; }
-        .btn-save { background-color: #f1f5f9; color: #0f172a; border: 1px solid var(--border); text-decoration: none; padding: 6px 10px; border-radius: 6px; font-size: 0.8rem; font-weight: 600; display: inline-flex; align-items: center; gap: 4px; }
-        .btn-share { background-color: #ecfdf5; color: #059669; border: 1px solid #a7f3d0; padding: 6px 10px; border-radius: 6px; font-size: 0.8rem; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: 4px; }
+        .btn-warning { background-color: #fef3c7; color: #b45309; border: none; padding: 6px 10px; border-radius: 6px; cursor: pointer; font-size: 0.85rem; font-weight: 600; }
+        .btn-danger { background-color: #fee2e2; color: var(--danger); border: none; padding: 6px 10px; border-radius: 6px; cursor: pointer; font-size: 0.85rem; font-weight: 600; }
+        .btn-save { background-color: #f1f5f9; color: #0f172a; border: 1px solid var(--border); text-decoration: none; padding: 6px 10px; border-radius: 6px; font-size: 0.85rem; font-weight: 600; display: inline-flex; align-items: center; gap: 4px; }
 
         .song-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 20px; }
         .song-card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; display: flex; flex-direction: column; }
-        .song-img-container { width: 100%; min-height: 200px; background: #f1f5f9; display: flex; align-items: center; justify-content: center; overflow: hidden; cursor: pointer; position: relative; }
-        .song-img { width: 100%; height: 100%; max-height: 350px; object-fit: contain; display: block; }
+        .song-img-container { width: 100%; min-height: 220px; background: #f1f5f9; display: flex; align-items: center; justify-content: center; overflow: hidden; cursor: pointer; position: relative; }
+        .song-img { width: 100%; height: 100%; max-height: 380px; object-fit: contain; display: block; }
         .song-info { padding: 14px; flex: 1; display: flex; flex-direction: column; justify-content: space-between; }
-        .song-title { font-size: 1rem; font-weight: 700; margin-bottom: 4px; color: var(--text); }
+        .song-title { font-size: 1rem; font-weight: 700; margin-bottom: 4px; }
         .song-artist { font-size: 0.85rem; color: var(--text-muted); }
-        .song-meta-info { font-size: 0.72rem; color: var(--text-muted); margin-top: 6px; line-height: 1.4; }
+        .song-editor-info { font-size: 0.72rem; color: #94a3b8; margin-top: 6px; }
 
         .empty-state { text-align: center; padding: 40px 20px; color: var(--text-muted); grid-column: 1 / -1; }
 
         .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); align-items: center; justify-content: center; z-index: 1000; padding: 20px; }
         .modal.active { display: flex; }
-        .modal-content { background: var(--card-bg); color: var(--text); padding: 24px; border-radius: 16px; width: 100%; max-width: 450px; max-height: 90vh; overflow-y: auto; border: 1px solid var(--border); }
+        .modal-content { background: white; padding: 24px; border-radius: 16px; width: 100%; max-width: 450px; max-height: 90vh; overflow-y: auto; }
         .form-group { margin-bottom: 14px; }
-        .form-group label { display: block; font-size: 0.9rem; font-weight: 600; margin-bottom: 6px; color: var(--text); }
-        .form-group input, .form-group select { width: 100%; padding: 10px 14px; border: 1px solid var(--border); border-radius: 8px; outline: none; background: var(--card-bg); color: var(--text); }
+        .form-group label { display: block; font-size: 0.9rem; font-weight: 600; margin-bottom: 6px; }
+        .form-group input, .form-group select { width: 100%; padding: 10px 14px; border: 1px solid var(--border); border-radius: 8px; outline: none; }
 
-        .image-drop-zone { border: 2px dashed var(--border); border-radius: 10px; padding: 16px; text-align: center; background: var(--bg); cursor: pointer; transition: all 0.2s; position: relative; }
-        .image-drop-zone p { font-size: 0.85rem; color: var(--text-muted); margin-bottom: 8px; }
-        .preview-container { margin-top: 10px; display: none; position: relative; max-height: 150px; overflow: hidden; border-radius: 8px; border: 1px solid var(--border); }
-        .preview-container img { width: 100%; max-height: 140px; object-fit: contain; }
-        .remove-img-btn { position: absolute; top: 4px; right: 4px; background: rgba(239, 68, 68, 0.9); color: white; border: none; border-radius: 50%; width: 24px; height: 24px; font-size: 0.8rem; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+        /* 🖼️ Drag & Drop / Paste Image Box Style */
+        .image-drop-zone {
+            border: 2px dashed #cbd5e1;
+            border-radius: 10px;
+            padding: 16px;
+            text-align: center;
+            background: #f8fafc;
+            cursor: pointer;
+            transition: all 0.2s;
+            position: relative;
+        }
+        .image-drop-zone:hover, .image-drop-zone.dragover {
+            border-color: var(--primary);
+            background: #eff6ff;
+        }
+        .image-drop-zone p {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            margin-bottom: 8px;
+        }
+        .preview-container {
+            margin-top: 10px;
+            display: none;
+            position: relative;
+            max-height: 150px;
+            overflow: hidden;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            background: #fff;
+        }
+        .preview-container img {
+            width: 100%;
+            max-height: 140px;
+            object-fit: contain;
+        }
+        .remove-img-btn {
+            position: absolute;
+            top: 4px;
+            right: 4px;
+            background: rgba(239, 68, 68, 0.9);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            font-size: 0.8rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
 
+        /* Full Screen Viewer */
         .fullscreen-modal { display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0, 0, 0, 0.94); z-index: 2000; flex-direction: column; align-items: center; justify-content: center; }
         .fullscreen-modal.active { display: flex; }
         .fullscreen-header { position: absolute; top: 15px; left: 20px; right: 20px; display: flex; justify-content: space-between; align-items: center; color: white; }
@@ -174,7 +248,7 @@
         }
     </style>
 </head>
-<body id="bodyContainer" data-theme="light">
+<body id="bodyContainer">
 
 <div class="sidebar-overlay" id="sidebarOverlay" onclick="closeMobileSidebar()"></div>
 
@@ -184,6 +258,7 @@
         <button class="close-sidebar-btn" onclick="closeMobileSidebar()">✖</button>
     </div>
 
+    <!-- 👤 ផ្ទាំង Profile Admin / Login ជាមួយ Dropdown Menu -->
     <div class="user-profile-wrapper" id="userProfileArea">
         <button class="btn-auth btn-google" onclick="loginWithGoogle()">
             <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" width="18" alt="G">
@@ -191,14 +266,18 @@
         </button>
     </div>
 
+    <!-- ➕ ប៊ូតុងបន្ថែមបទថ្មី (សម្រាប់ Editor/Admin) -->
     <div class="sidebar-action-container editor-only">
         <button class="add-song-sidebar-btn" onclick="openAddSongModal(); closeMobileSidebar();">
             ➕ <span>បញ្ជូលបទថ្មី</span>
         </button>
     </div>
 
+    <!-- 📖 បញ្ជី Album -->
     <div class="sidebar-menu">
         <div id="sidebarMenu"></div>
+        
+        <!-- ➕ ប៊ូតុងបង្កើត Album ថ្មី (សម្រាប់តែ Editor/Admin) -->
         <button class="add-album-btn editor-only" onclick="addNewAlbum()">
             ➕ <span>បង្កើត Album ថ្មី</span>
         </button>
@@ -211,20 +290,16 @@
     </div>
 
     <header>
-        <div class="header-top-row">
-            <h1>🎼 ចម្រៀងសរសើរតម្កើងព្រះ</h1>
-            <button class="dark-mode-btn" onclick="toggleDarkMode()">
-                <i class="fa-solid fa-moon" id="themeIcon"></i> <span>Dark Mode</span>
-            </button>
-        </div>
+        <h1>🎼 ចម្រៀងសរសើរតម្កើងព្រះ</h1>
         <p id="currentAlbumSubtitle">
-            ចូរឱ្យជីវិតទាំងឡាយដែលមានដង្ហើម បានសរសើរដល់ព្រះយ៉េហូវ៉ាចុះ
+            ចូរឱ្យជីវិតទាំងឡាយដែលមានដង្ហើម បានសរសើរដល់ព្រះយ៉េហូវ៉ាចុះ<br>
+            <span style="color: #2563eb; font-weight: 700;">ទំនុកដំកើង ១៥០៖៦</span>
         </p>
     </header>
 
     <div class="controls">
         <div class="search-box">
-            <input type="text" id="searchInput" placeholder="ស្វែងរកលេខរៀង, ចំណងជើង ឬអ្នកចម្រៀង..." onkeyup="renderSongs()">
+            <input type="text" id="searchInput" placeholder="ស្វែងរកចំណងជើង ឬអ្នកចម្រៀង..." onkeyup="renderSongs()">
             <button class="search-btn" onclick="renderSongs()">🔍</button>
         </div>
     </div>
@@ -234,7 +309,7 @@
     </div>
 </div>
 
-<!-- Lightbox Viewer -->
+<!-- 🔍 Lightbox Viewer -->
 <div class="fullscreen-modal" id="fullScreenModal" onclick="closeFullScreenModal(event)">
     <div class="fullscreen-header">
         <div id="fullScreenTitle" style="font-weight: 700;"></div>
@@ -245,7 +320,7 @@
     </div>
 </div>
 
-<!-- Modal: បន្ថែមបទថ្មី -->
+<!-- Modal 1: បន្ថែមបទថ្មី -->
 <div class="modal" id="addSongModal">
     <div class="modal-content">
         <h2>➕ បញ្ចូលបទចម្រៀងថ្មី</h2>
@@ -253,10 +328,6 @@
             <div class="form-group">
                 <label>ជ្រើសរើស Album *</label>
                 <select id="songAlbumSelect" required></select>
-            </div>
-            <div class="form-group">
-                <label>លេខរៀងបទចម្រៀង (Song No) *</label>
-                <input type="number" id="songNo" required placeholder="ឧទាហរណ៍៖ 1, 2, 90">
             </div>
             <div class="form-group">
                 <label>ចំណងជើងបទចម្រៀង *</label>
@@ -268,9 +339,9 @@
             </div>
             
             <div class="form-group">
-                <label>រូបភាពបទចម្រៀង (Drag, Paste ឬ Choose file) *</label>
+                <label>រូបភាពបទចម្រៀង (ទាញទម្លាក់, Paste, ឬចុចជ្រើសរើស) *</label>
                 <div class="image-drop-zone" id="dropZone" onclick="document.getElementById('songImageFile').click()" ondragover="handleDragOver(event)" ondragleave="handleDragLeave(event)" ondrop="handleDrop(event)">
-                    <p>📁 ចុចទីនេះ ឬ **ទាញទម្លាក់រូបភាព** ចូលទីនេះ<br><span style="color:var(--primary); font-weight:600;">(អាចចុច Ctrl+V ដើម្បី Paste រូបភាព)</span></p>
+                    <p>📁 ចុចទីនេះ ឬ **ទាញទម្លាក់រូបភាព** ចូលទីនេះ<br><span style="color:var(--primary); font-weight:600;">(អាចចុច Ctrl+V ដើម្បី Paste រូបភាពពី Clipboard បាន)</span></p>
                     <input type="file" id="songImageFile" accept="image/*" onchange="handleFileSelect(event)" style="display: none;">
                     
                     <div class="preview-container" id="previewContainer">
@@ -281,26 +352,22 @@
             </div>
 
             <div style="text-align: right; margin-top: 20px; display: flex; gap: 10px; justify-content: flex-end;">
-                <button type="button" class="btn" onclick="closeModal('addSongModal')" style="background: #e2e8f0; color: #333;">បោះបង់</button>
+                <button type="button" class="btn" onclick="closeModal('addSongModal')" style="background: #e2e8f0;">បោះបង់</button>
                 <button type="submit" id="saveBtn" class="btn btn-primary">រក្សាទុក</button>
             </div>
         </form>
     </div>
 </div>
 
-<!-- Modal: កែប្រែបទចម្រៀង -->
+<!-- Modal 2: កែប្រែបទចម្រៀង -->
 <div class="modal" id="editSongModal">
     <div class="modal-content">
-        <h2>✏️ កែប្រែបទចម្រៀង</h2>
+        <h2>✏️ កែប្រែបទចម្រៀង / ដូររូបភាព</h2>
         <form id="editSongForm" onsubmit="handleUpdateSong(event)" style="margin-top: 15px;">
             <input type="hidden" id="editSongId">
             <div class="form-group">
                 <label>ជ្រើសរើស Album *</label>
                 <select id="editSongAlbumSelect" required></select>
-            </div>
-            <div class="form-group">
-                <label>លេខរៀងបទចម្រៀង (Song No) *</label>
-                <input type="number" id="editSongNo" required>
             </div>
             <div class="form-group">
                 <label>ចំណងជើងបទចម្រៀង *</label>
@@ -312,9 +379,9 @@
             </div>
 
             <div class="form-group">
-                <label>ប្ដូររូបភាពថ្មី (Drag, Paste ឬ Choose file)</label>
+                <label>ប្ដូររូបភាពថ្មី (ទាញទម្លាក់, Paste, ឬជ្រើសរើស)</label>
                 <div class="image-drop-zone" id="editDropZone" onclick="document.getElementById('editSongImageFile').click()" ondragover="handleEditDragOver(event)" ondragleave="handleEditDragLeave(event)" ondrop="handleEditDrop(event)">
-                    <p>📁 ចុចទីនេះ ឬ **ទាញទម្លាក់រូបភាពថ្មី**<br><span style="color:var(--primary); font-weight:600;">(បើមិនប្ដូរទេ ទុកនៅស្ងៀម)</span></p>
+                    <p>📁 ចុចទីនេះ ឬ **ទាញទម្លាក់រូបភាពថ្មី** ចូលទីនេះ<br><span style="color:var(--primary); font-weight:600;">(បើមិនប្ដូរទេ ទុកនៅស្ងៀម)</span></p>
                     <input type="file" id="editSongImageFile" accept="image/*" onchange="handleEditFileSelect(event)" style="display: none;">
                     
                     <div class="preview-container" id="editPreviewContainer">
@@ -325,7 +392,7 @@
             </div>
 
             <div style="text-align: right; margin-top: 20px; display: flex; gap: 10px; justify-content: flex-end;">
-                <button type="button" class="btn" onclick="closeModal('editSongModal')" style="background: #e2e8f0; color: #333;">បោះបង់</button>
+                <button type="button" class="btn" onclick="closeModal('editSongModal')" style="background: #e2e8f0;">បោះបង់</button>
                 <button type="submit" id="updateBtn" class="btn btn-primary">រក្សាទុកការកែប្រែ</button>
             </div>
         </form>
@@ -333,6 +400,7 @@
 </div>
 
 <script>
+    // 🔥 Firebase Config
     const firebaseConfig = {
         apiKey: "AIzaSyBtnbu6tEFtHQLaYsoYVaim33h4TkjwYUI",
         authDomain: "my-song-app-93c70.firebaseapp.com",
@@ -351,7 +419,7 @@
     let isEditor = false;
     let isAdmin = false;
     let songsList = [];
-    let customAlbums = [];
+    let customAlbums = ['ទំនុកដំកើង', 'ទំនុកខ្មែរបរិសុទ្ធ'];
     let currentSelectedAlbum = 'ALL';
     let selectedImageBase64 = '';
     let selectedEditImageBase64 = '';
@@ -363,6 +431,7 @@
         setupGlobalPasteListener();
     };
 
+    /* 🔐 តាមដានការ Login/Logout */
     function listenToAuth() {
         auth.onAuthStateChanged(async (user) => {
             currentUser = user;
@@ -399,6 +468,7 @@
 
     function logout() { auth.signOut(); }
 
+    /* 👤 បង្ហាញ Profile Card និងទម្លាក់ Dropdown Menu */
     function renderUserProfile(user) {
         document.getElementById('userProfileArea').innerHTML = `
             <div class="user-profile-card" id="profileToggleBtn" onclick="toggleProfileDropdown()">
@@ -423,6 +493,7 @@
         `;
     }
 
+    /* 🔽 បើក/បិទ Dropdown Menu */
     function toggleProfileDropdown() {
         const menu = document.getElementById('profileDropdownMenu');
         const btn = document.getElementById('profileToggleBtn');
@@ -430,51 +501,68 @@
         btn.classList.toggle('active');
     }
 
+    /* 🗑️ មុខងារលុប Album (ទាមទារលេខសម្ងាត់ 1234) */
     async function handleDeleteAlbum() {
         if (!isAdmin) return alert("❌ មានតែ Admin ទេដែលអាចលុប Album បាន!");
         if (customAlbums.length === 0) return alert("❌ មិនទាន់មាន Album សម្រាប់លុបឡើយ!");
 
-        let password = prompt("🔐 សូមបញ្ចូលលេខសម្ងាត់ដើម្បីលុប Album (1234)៖");
-        if (password !== "1234") return alert("❌ លេខសម្ងាត់មិនត្រឹមត្រូវទេ!");
+        let password = prompt("🔐 សូមបញ្ចូលលេខសម្ងាត់ដើម្បីលុប Album៖");
+        if (password === null) return;
+        
+        if (password !== "1234") {
+            return alert("❌ លេខសម្ងាត់មិនត្រឹមត្រូវទេ!");
+        }
 
         let albumOptions = customAlbums.map((album, index) => `${index + 1}. ${album}`).join('\n');
-        let selectedIndex = prompt(`🗑️ សូមជ្រើសរើសលេខ Album ដែលអ្នកចង់លុប៖\n\n${albumOptions}`);
+        let selectedIndex = prompt(`✅ លេខសម្ងាត់ត្រឹមត្រូវ!\n\n🗑️ [Admin] សូមជ្រើសរើសលេខ Album ដែលអ្នកចង់លុប៖\n\n${albumOptions}\n\nបញ្ជាក់៖ វានឹងមិនលុបបទចម្រៀងដែលមានស្រាប់ទេ!`);
 
         if (selectedIndex) {
             let index = parseInt(selectedIndex) - 1;
             if (index >= 0 && index < customAlbums.length) {
                 let albumToDelete = customAlbums[index];
-                if (confirm(`⚠️ ប្រាកដថាលុប Album «${albumToDelete}» មែនទេ?`)) {
-                    await db.collection("albums").doc(albumToDelete).delete();
-                    if (currentSelectedAlbum === albumToDelete) currentSelectedAlbum = 'ALL';
-                    alert(`✅ បានលុប Album រួចរាល់!`);
+                if (confirm(`⚠️ តើអ្នកប្រាកដថាលុប Album «${albumToDelete}» នេះមែនទេ?`)) {
+                    try {
+                        await db.collection("albums").doc(albumToDelete).delete();
+                        if (currentSelectedAlbum === albumToDelete) currentSelectedAlbum = 'ALL';
+                        alert(`✅ បានលុប Album «${albumToDelete}» រួចរាល់!`);
+                    } catch (error) {
+                        alert("❌ មានបញ្ហា៖ " + error.message);
+                    }
                 }
+            } else {
+                alert("❌ ការជ្រើសរើសមិនត្រឹមត្រូវទេ!");
             }
         }
     }
 
+    /* ✉️ Admin Invite អ៊ីមែលថ្មី */
     async function handleInvite() {
-        const emailToInvite = prompt("✉️ បញ្ចូល Gmail ដែលអ្នកចង់ផ្ដល់សិទ្ធិ:");
+        const emailToInvite = prompt("✉️ [Admin] បញ្ចូល Gmail របស់អ្នកដែលអ្នកចង់ Invite ឱ្យមានសិទ្ធិកែប្រែ៖");
         if (emailToInvite && emailToInvite.includes('@')) {
             const cleanEmail = emailToInvite.trim().toLowerCase();
             await db.collection("editors").doc(cleanEmail).set({
-                email: cleanEmail, role: 'editor', addedBy: currentUser.email,
+                email: cleanEmail,
+                role: 'editor',
+                addedBy: currentUser.email,
                 addedAt: firebase.firestore.FieldValue.serverTimestamp()
             });
             alert(`✅ បានបន្ថែមសិទ្ធិឱ្យ ${cleanEmail} រួចរាល់!`);
         }
     }
 
+    /* ✉️ User ធម្មតាសុំ Join */
     async function handleJoin() {
-        if (confirm(`ផ្ញើសំណើរសុំសិទ្ធិកែប្រែដោយប្រើអ៊ីមែល ${currentUser.email}?`)) {
+        if (confirm(`តើអ្នកចង់ផ្ញើសំណើ Join ដើម្បីសុំសិទ្ធិកែប្រែទិន្នន័យដោយប្រើអ៊ីមែល ${currentUser.email} ដែរឬទេ?`)) {
             await db.collection("join_requests").doc(currentUser.email.toLowerCase()).set({
-                email: currentUser.email, name: currentUser.displayName,
+                email: currentUser.email,
+                name: currentUser.displayName,
                 requestedAt: firebase.firestore.FieldValue.serverTimestamp()
             });
-            alert("✅ បានផ្ញើសំណើជូន Admin រួចរាល់!");
+            alert("✅ សំណើរបស់អ្នកត្រូវបានផ្ញើជូន Admin រួចរាល់!");
         }
     }
 
+    /* 📖 គ្រប់គ្រង Album */
     function listenToAlbums() {
         db.collection("albums").onSnapshot((snapshot) => {
             let albums = [];
@@ -504,8 +592,8 @@
     function selectAlbum(albumName) {
         currentSelectedAlbum = albumName;
         document.getElementById('currentAlbumSubtitle').innerHTML = albumName === 'ALL' ? 
-            `ចូរឱ្យជីវិតទាំងឡាយដែលមានដង្ហើម បានសរសើរដល់ព្រះយ៉េហូវ៉ាចុះ` : 
-            `📁 Album៖ <span style="color: var(--primary); font-weight: 700;">${albumName}</span>`;
+            `ចូរឱ្យជីវិតទាំងឡាយដែលមានដង្ហើម បានសរសើរដល់ព្រះយ៉េហូវ៉ាចុះ<br><span style="color: #2563eb; font-weight: 700;">ទំនុកដំកើង ១៥០៖៦</span>` : 
+            `📁 Album៖ <span style="color: #2563eb; font-weight: 700;">${albumName}</span>`;
         renderSidebarMenu();
         renderSongs();
         closeMobileSidebar();
@@ -520,6 +608,7 @@
         }
     }
 
+    /* 🎶 ស្វែងរក និងបង្ហាញបទចម្រៀង */
     function listenToSongs() {
         db.collection("songs").onSnapshot((snapshot) => {
             songsList = [];
@@ -533,14 +622,10 @@
         const query = document.getElementById('searchInput').value.toLowerCase().trim();
 
         const filtered = songsList.filter(s => {
-            const songNoStr = s.no ? String(s.no) : '';
-            const matchesSearch = songNoStr.includes(query) || (s.title && s.title.toLowerCase().includes(query)) || (s.artist && s.artist.toLowerCase().includes(query));
+            const matchesSearch = (s.title && s.title.toLowerCase().includes(query)) || (s.artist && s.artist.toLowerCase().includes(query));
             const matchesAlbum = currentSelectedAlbum === 'ALL' || (s.album || 'ទូទៅ') === currentSelectedAlbum;
             return matchesSearch && matchesAlbum;
         });
-
-        // តម្រៀបតាមលេខរៀងពីតូចទៅធំ (1, 2, 3...) ស្វ័យប្រវត្តិ
-        filtered.sort((a, b) => (Number(a.no) || 0) - (Number(b.no) || 0));
 
         if (filtered.length === 0) {
             grid.innerHTML = `<div class="empty-state">❌ មិនទាន់មានបទចម្រៀងឡើយ</div>`;
@@ -549,27 +634,21 @@
 
         grid.innerHTML = filtered.map(song => {
             const safeTitle = (song.title || '').replace(/'/g, "\\'").replace(/"/g, '&quot;');
-            const dateStr = song.createdAt ? new Date(song.createdAt.toDate()).toLocaleDateString('km-KH') : '';
-            const uploaderName = song.createdBy || 'Admin';
+            const editorInfo = song.updatedBy ? `កែចុងក្រោយ៖ ${song.updatedBy}` : (song.createdBy ? `បញ្ចូលដោយ៖ ${song.createdBy}` : '');
 
             return `
             <div class="song-card">
-                <div class="song-img-container" onclick="openFullScreen('${song.imageUrl}', '${song.no ? song.no + '. ' : ''}${safeTitle}')">
+                <div class="song-img-container" onclick="openFullScreen('${song.imageUrl}', '${safeTitle}')">
                     <img src="${song.imageUrl || 'https://via.placeholder.com/300x200'}" class="song-img" loading="lazy">
                 </div>
                 <div class="song-info">
                     <div>
-                        <div class="song-title">${song.no ? song.no + '. ' : ''}${song.title}</div>
-                        <div class="song-artist">${song.artist || ''}</div>
-                        <div class="song-meta-info">
-                            📁 ${song.album || 'ទូទៅ'}<br>
-                            👤 បញ្ចូលដោយ៖ ${uploaderName}<br>
-                            📅 ${dateStr}
-                        </div>
+                        <div class="song-title">${song.title}</div>
+                        <div class="song-artist">${song.artist || 'មិនស្គាល់អ្នកចម្រៀង'}</div>
+                        ${editorInfo ? `<div class="song-editor-info">👤 ${editorInfo}</div>` : ''}
                     </div>
-                    <div style="display: flex; gap: 6px; justify-content: flex-end; margin-top: 10px; flex-wrap: wrap;">
-                        <a href="${song.imageUrl}" download="${song.title}.jpg" class="btn-save"><i class="fa-solid fa-bookmark"></i> Save</a>
-                        <button class="btn-share" onclick="shareSongInfo('${song.no || ''}', '${safeTitle}', '${song.album || ''}')"><i class="fa-solid fa-share-nodes"></i> Share</button>
+                    <div style="display: flex; gap: 6px; justify-content: flex-end; margin-top: 10px;">
+                        <a href="${song.imageUrl}" download="${song.title}.jpg" class="btn-save">💾 Save</a>
                         ${isEditor ? `
                             <button class="btn-warning" onclick="openEditSongModal('${song.id}')">✏️ កែប្រែ</button>
                             <button class="btn-danger" onclick="deleteSong('${song.id}', '${safeTitle}')">🗑️ លុប</button>
@@ -581,14 +660,7 @@
         }).join('');
     }
 
-    // មុខងារ Share តំណភ្ជាប់ / ព័ត៌មានបទចម្រៀង
-    function shareSongInfo(no, title, album) {
-        const text = `បទចម្រៀងលេខ ${no ? no + ': ' : ''}${title} (Album: ${album})`;
-        navigator.clipboard.writeText(text).then(() => {
-            alert("📋 បានចម្លងព័ត៌មានបទចម្រៀងរួចរាល់:\n" + text);
-        });
-    }
-
+    /* 🖼️ Image Handling Helpers (Drag, Drop, Paste, Select) */
     function processImageFile(file, isEdit = false) {
         if (!file || !file.type.startsWith('image/')) {
             alert('⚠️ សូមបញ្ចូលឯកសារប្រភេទរូបភាពប៉ុណ្ណោះ!');
@@ -596,181 +668,247 @@
         }
         const reader = new FileReader();
         reader.onload = function(e) {
-            if (!isEdit) {
-                selectedImageBase64 = e.target.result;
-                document.getElementById('previewImg').src = selectedImageBase64;
-                document.getElementById('previewContainer').style.display = 'block';
-            } else {
-                selectedEditImageBase64 = e.target.result;
-                document.getElementById('editPreviewImg').src = selectedEditImageBase64;
+            const base64String = e.target.result;
+            if (isEdit) {
+                selectedEditImageBase64 = base64String;
+                document.getElementById('editPreviewImg').src = base64String;
                 document.getElementById('editPreviewContainer').style.display = 'block';
+            } else {
+                selectedImageBase64 = base64String;
+                document.getElementById('previewImg').src = base64String;
+                document.getElementById('previewContainer').style.display = 'block';
             }
         };
         reader.readAsDataURL(file);
     }
 
-    function handleFileSelect(e) { if (e.target.files[0]) processImageFile(e.target.files[0], false); }
-    function handleEditFileSelect(e) { if (e.target.files[0]) processImageFile(e.target.files[0], true); }
-
-    function handleDragOver(e) { e.preventDefault(); e.stopPropagation(); document.getElementById('dropZone').style.borderColor = 'var(--primary)'; }
-    function handleDragLeave(e) { e.preventDefault(); e.stopPropagation(); document.getElementById('dropZone').style.borderColor = 'var(--border)'; }
-    function handleDrop(e) {
-        e.preventDefault(); e.stopPropagation();
-        document.getElementById('dropZone').style.borderColor = 'var(--border)';
-        if (e.dataTransfer.files && e.dataTransfer.files[0]) processImageFile(e.dataTransfer.files[0], false);
+    function handleFileSelect(event) {
+        const file = event.target.files[0];
+        processImageFile(file, false);
     }
 
-    function handleEditDragOver(e) { e.preventDefault(); e.stopPropagation(); }
-    function handleEditDragLeave(e) { e.preventDefault(); e.stopPropagation(); }
-    function handleEditDrop(e) {
-        e.preventDefault(); e.stopPropagation();
-        if (e.dataTransfer.files && e.dataTransfer.files[0]) processImageFile(e.dataTransfer.files[0], true);
+    function handleEditFileSelect(event) {
+        const file = event.target.files[0];
+        processImageFile(file, true);
     }
 
-    function removeSelectedImage(e) {
-        e.stopPropagation(); selectedImageBase64 = '';
-        document.getElementById('songImageFile').value = '';
-        document.getElementById('previewContainer').style.display = 'none';
+    function handleDragOver(event) {
+        event.preventDefault();
+        document.getElementById('dropZone').classList.add('dragover');
     }
 
-    function removeSelectedEditImage(e) {
-        e.stopPropagation(); selectedEditImageBase64 = '';
-        document.getElementById('editSongImageFile').value = '';
-        document.getElementById('editPreviewContainer').style.display = 'none';
+    function handleDragLeave(event) {
+        event.preventDefault();
+        document.getElementById('dropZone').classList.remove('dragover');
     }
 
+    function handleDrop(event) {
+        event.preventDefault();
+        document.getElementById('dropZone').classList.remove('dragover');
+        const file = event.dataTransfer.files[0];
+        processImageFile(file, false);
+    }
+
+    function handleEditDragOver(event) {
+        event.preventDefault();
+        document.getElementById('editDropZone').classList.add('dragover');
+    }
+
+    function handleEditDragLeave(event) {
+        event.preventDefault();
+        document.getElementById('editDropZone').classList.remove('dragover');
+    }
+
+    function handleEditDrop(event) {
+        event.preventDefault();
+        document.getElementById('editDropZone').classList.remove('dragover');
+        const file = event.dataTransfer.files[0];
+        processImageFile(file, true);
+    }
+
+    /* 📋 Global Paste Image Listener (Ctrl + V) */
     function setupGlobalPasteListener() {
-        window.addEventListener('paste', (e) => {
-            const addModal = document.getElementById('addSongModal').classList.contains('active');
-            const editModal = document.getElementById('editSongModal').classList.contains('active');
-            if (!addModal && !editModal) return;
-
-            const items = (e.clipboardData || e.originalEvent.clipboardData).items;
+        window.addEventListener('paste', function(event) {
+            const items = (event.clipboardData || event.originalEvent.clipboardData).items;
             for (let item of items) {
-                if (item.kind === 'file' && item.type.startsWith('image/')) {
+                if (item.type.indexOf('image') === 0) {
                     const blob = item.getAsFile();
-                    if (addModal) processImageFile(blob, false);
-                    if (editModal) processImageFile(blob, true);
-                    break;
+                    const isAddModalActive = document.getElementById('addSongModal').classList.contains('active');
+                    const isEditModalActive = document.getElementById('editSongModal').classList.contains('active');
+
+                    if (isAddModalActive) {
+                        processImageFile(blob, false);
+                    } else if (isEditModalActive) {
+                        processImageFile(blob, true);
+                    }
                 }
             }
         });
     }
 
-    async function handleAddSong(e) {
-        e.preventDefault();
-        if (!isEditor) return;
+    function removeSelectedImage(event) {
+        event.stopPropagation();
+        selectedImageBase64 = '';
+        document.getElementById('songImageFile').value = '';
+        document.getElementById('previewContainer').style.display = 'none';
+        document.getElementById('previewImg').src = '';
+    }
 
-        const no = document.getElementById('songNo').value.trim();
+    function removeSelectedEditImage(event) {
+        event.stopPropagation();
+        selectedEditImageBase64 = '';
+        document.getElementById('editSongImageFile').value = '';
+        document.getElementById('editPreviewContainer').style.display = 'none';
+        document.getElementById('editPreviewImg').src = '';
+    }
+
+    /* ➕ បន្ថែមបទចម្រៀងថ្មី */
+    function openAddSongModal() {
+        if (!isEditor) return alert("❌ អ្នកមិនមានសិទ្ធិបញ្ជូលបទថ្មីទេ!");
+        document.getElementById('addSongForm').reset();
+        selectedImageBase64 = '';
+        document.getElementById('previewContainer').style.display = 'none';
+        
+        // បំពេញ Album Select Dropdown
+        const select = document.getElementById('songAlbumSelect');
+        select.innerHTML = customAlbums.map(a => `<option value="${a}">${a}</option>`).join('');
+        if (currentSelectedAlbum !== 'ALL') {
+            select.value = currentSelectedAlbum;
+        }
+
+        document.getElementById('addSongModal').classList.add('active');
+    }
+
+    async function handleAddSong(event) {
+        event.preventDefault();
+        if (!selectedImageBase64) return alert("⚠️ សូមជ្រើសរើស ឬទម្លាក់រូបភាពបទចម្រៀង!");
+
         const title = document.getElementById('songTitle').value.trim();
         const artist = document.getElementById('songArtist').value.trim();
         const album = document.getElementById('songAlbumSelect').value;
-
-        if (!selectedImageBase64) {
-            alert("⚠️ សូមជ្រើសរើស ឬទាញទម្លាក់រូបភាពបទចម្រៀង!");
-            return;
-        }
-
-        const isDuplicate = songsList.some(song => 
-            (song.no === no || song.title.toLowerCase() === title.toLowerCase()) && 
-            song.album === album
-        );
-
-        if (isDuplicate) {
-            alert(`⚠️ លេខរៀង ឬចំណងជើងបទនេះមានរួចហើយក្នុង Album «${album»}!`);
-            return;
-        }
-
         const saveBtn = document.getElementById('saveBtn');
-        saveBtn.innerText = '⏳ កំពុងរក្សាទុក...'; saveBtn.disabled = true;
+
+        saveBtn.disabled = true;
+        saveBtn.innerText = 'កំពុងរក្សាទុក...';
 
         try {
             await db.collection("songs").add({
-                no, title, artist, album,
+                title,
+                artist,
+                album,
                 imageUrl: selectedImageBase64,
-                createdBy: currentUser.displayName || currentUser.email,
+                createdBy: currentUser.email,
                 createdAt: firebase.firestore.FieldValue.serverTimestamp()
             });
-
             closeModal('addSongModal');
-            document.getElementById('addSongForm').reset();
-            removeSelectedImage({stopPropagation:()=>{}});
-            alert('✅ បានបញ្ចូលបទចម្រៀងដោយជោគជ័យ!');
+            alert("✅ បានបញ្ជូលបទចម្រៀងថ្មីដោយជោគជ័យ!");
         } catch (error) {
-            alert('❌ មានបញ្ហា៖ ' + error.message);
+            alert("❌ មានបញ្ហា៖ " + error.message);
         } finally {
-            saveBtn.innerText = 'រក្សាទុក'; saveBtn.disabled = false;
+            saveBtn.disabled = false;
+            saveBtn.innerText = 'រក្សាទុក';
         }
     }
 
-    function openEditSongModal(songId) {
-        const song = songsList.find(s => s.id === songId);
+    /* ✏️ កែប្រែបទចម្រៀង */
+    function openEditSongModal(id) {
+        const song = songsList.find(s => s.id === id);
         if (!song) return;
 
         document.getElementById('editSongId').value = song.id;
-        document.getElementById('editSongNo').value = song.no || '';
         document.getElementById('editSongTitle').value = song.title || '';
         document.getElementById('editSongArtist').value = song.artist || '';
 
         const select = document.getElementById('editSongAlbumSelect');
-        select.innerHTML = customAlbums.map(a => `<option value="${a}" ${a === song.album ? 'selected' : ''}>${a}</option>`).join('');
+        select.innerHTML = customAlbums.map(a => `<option value="${a}">${a}</option>`).join('');
+        select.value = song.album || customAlbums[0];
 
         selectedEditImageBase64 = '';
         document.getElementById('editPreviewContainer').style.display = 'none';
+        document.getElementById('editSongImageFile').value = '';
+
         document.getElementById('editSongModal').classList.add('active');
     }
 
-    async function handleUpdateSong(e) {
-        e.preventDefault();
+    async function handleUpdateSong(event) {
+        event.preventDefault();
         const id = document.getElementById('editSongId').value;
-        const updateData = {
-            no: document.getElementById('editSongNo').value.trim(),
-            title: document.getElementById('editSongTitle').value.trim(),
-            artist: document.getElementById('editSongArtist').value.trim(),
-            album: document.getElementById('editSongAlbumSelect').value,
-            updatedBy: currentUser.displayName || currentUser.email,
-            updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-        };
+        const title = document.getElementById('editSongTitle').value.trim();
+        const artist = document.getElementById('editSongArtist').value.trim();
+        const album = document.getElementById('editSongAlbumSelect').value;
+        const updateBtn = document.getElementById('updateBtn');
 
-        if (selectedEditImageBase64) updateData.imageUrl = selectedEditImageBase64;
+        updateBtn.disabled = true;
+        updateBtn.innerText = 'កំពុងកែប្រែ...';
 
-        await db.collection("songs").doc(id).update(updateData);
-        closeModal('editSongModal');
-        alert('✅ បានកែប្រែដោយជោគជ័យ!');
+        try {
+            let updateData = {
+                title,
+                artist,
+                album,
+                updatedBy: currentUser.email,
+                updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+            };
+
+            if (selectedEditImageBase64) {
+                updateData.imageUrl = selectedEditImageBase64;
+            }
+
+            await db.collection("songs").doc(id).update(updateData);
+            closeModal('editSongModal');
+            alert("✅ បានកែប្រែបទចម្រៀងរួចរាល់!");
+        } catch (error) {
+            alert("❌ មានបញ្ហា៖ " + error.message);
+        } finally {
+            updateBtn.disabled = false;
+            updateBtn.innerText = 'រក្សាទុកការកែប្រែ';
+        }
     }
 
+    /* 🗑️ លុបបទចម្រៀង */
     async function deleteSong(id, title) {
-        if (confirm(`⚠️ ប្រាកដថាលុបបទ «${title}» មែនទេ?`)) {
-            await db.collection("songs").doc(id).delete();
-            alert(`✅ បានលុបបទចម្រៀងរួចរាល់!`);
+        if (!isEditor) return alert("❌ អ្នកមិនមានសិទ្ធិលុបទេ!");
+        if (confirm(`⚠️ តើអ្នកប្រាកដជាចង់លុបទាក់ទងនឹង «${title}» នេះមែនទេ?`)) {
+            try {
+                await db.collection("songs").doc(id).delete();
+                alert("✅ បានលុបរួចរាល់!");
+            } catch (error) {
+                alert("❌ មានបញ្ហា៖ " + error.message);
+            }
         }
     }
 
-    // Dark Mode Toggle ដាក់នៅជ្រុងខាងស្តាំស្មើចំណងជើង
-    function toggleDarkMode() {
-        const body = document.body;
-        const icon = document.getElementById('themeIcon');
-        if (body.getAttribute('data-theme') === 'light') {
-            body.setAttribute('data-theme', 'dark');
-            icon.className = "fa-solid fa-sun";
-        } else {
-            body.setAttribute('data-theme', 'light');
-            icon.className = "fa-solid fa-moon";
+    /* 🔍 Fullscreen Modal Lightbox */
+    function openFullScreen(imgUrl, title) {
+        document.getElementById('fullScreenImg').src = imgUrl;
+        document.getElementById('fullScreenTitle').innerText = title;
+        document.getElementById('fullScreenModal').classList.add('active');
+    }
+
+    function closeFullScreenModal(event) {
+        if (event.target.id === 'fullScreenModal') {
+            closeFullScreenModalDirect();
         }
     }
 
-    function openMobileSidebar() { document.getElementById('sidebar').classList.add('mobile-open'); document.getElementById('sidebarOverlay').classList.add('active'); }
-    function closeMobileSidebar() { document.getElementById('sidebar').classList.remove('mobile-open'); document.getElementById('sidebarOverlay').classList.remove('active'); }
-    function openAddSongModal() { 
-        document.getElementById('songAlbumSelect').innerHTML = customAlbums.map(a => `<option value="${a}">${a}</option>`).join('');
-        selectedImageBase64 = '';
-        document.getElementById('previewContainer').style.display = 'none';
-        document.getElementById('addSongModal').classList.add('active'); 
+    function closeFullScreenModalDirect() {
+        document.getElementById('fullScreenModal').classList.remove('active');
     }
-    function closeModal(id) { document.getElementById(id).classList.remove('active'); }
-    function openFullScreen(imgUrl, title) { document.getElementById('fullScreenImg').src = imgUrl; document.getElementById('fullScreenTitle').innerText = title; document.getElementById('fullScreenModal').classList.add('active'); }
-    function closeFullScreenModal(e) { if (e.target.classList.contains('fullscreen-modal') || e.target.classList.contains('fullscreen-img-container')) closeFullScreenModalDirect(); }
-    function closeFullScreenModalDirect() { document.getElementById('fullScreenModal').classList.remove('active'); }
+
+    function closeModal(modalId) {
+        document.getElementById(modalId).classList.remove('active');
+    }
+
+    /* 📱 Responsive Mobile Sidebar Controls */
+    function openMobileSidebar() {
+        document.getElementById('sidebar').classList.add('mobile-open');
+        document.getElementById('sidebarOverlay').classList.add('active');
+    }
+
+    function closeMobileSidebar() {
+        document.getElementById('sidebar').classList.remove('mobile-open');
+        document.getElementById('sidebarOverlay').classList.remove('active');
+    }
 </script>
 </body>
 </html>
