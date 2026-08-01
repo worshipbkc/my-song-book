@@ -53,24 +53,8 @@
         .sidebar-title { font-size: 1.1rem; font-weight: 700; color: var(--text); }
         .close-sidebar-btn { background: none; border: none; font-size: 1.2rem; cursor: pointer; display: none; padding: 4px 8px; border-radius: 6px; color: var(--text); }
 
-        /* 👤 Profile Area & Dropdown Menu */
-        .user-profile-wrapper { 
-            border-bottom: 1px solid var(--border); 
-            background: var(--card-bg); 
-            position: relative; 
-            width: 100%;
-        }
-        
-        .user-profile-card {
-            padding: 14px; 
-            display: flex; 
-            align-items: center; 
-            justify-content: space-between;
-            cursor: pointer; 
-            user-select: none; 
-            transition: background 0.2s;
-            width: 100%;
-        }
+        .user-profile-wrapper { border-bottom: 1px solid var(--border); background: var(--card-bg); position: relative; width: 100%; }
+        .user-profile-card { padding: 14px; display: flex; align-items: center; justify-content: space-between; cursor: pointer; user-select: none; transition: background 0.2s; width: 100%; }
         .user-profile-card:hover { background: var(--border); }
 
         .user-info { display: flex; align-items: center; gap: 12px; overflow: hidden; flex: 1; }
@@ -79,76 +63,30 @@
         .user-name { font-weight: 700; text-overflow: ellipsis; white-space: nowrap; overflow: hidden; color: var(--text); }
         .user-role { font-size: 0.75rem; color: #16a34a; font-weight: 600; display: flex; align-items: center; gap: 4px; }
         
-        .dropdown-arrow { 
-            font-size: 0.7rem; 
-            color: var(--text-muted); 
-            transition: transform 0.3s ease; 
-            padding-left: 8px;
-        }
+        .dropdown-arrow { font-size: 0.7rem; color: var(--text-muted); transition: transform 0.3s ease; padding-left: 8px; }
         .user-profile-card.active .dropdown-arrow { transform: rotate(180deg); }
 
-        .profile-dropdown-menu {
-            display: none;
-            background: var(--card-bg); 
-            border-top: 1px solid var(--border); 
-            padding: 6px;
-            box-shadow: inset 0 2px 4px rgba(0,0,0,0.02);
-        }
-        .profile-dropdown-menu.open { 
-            display: flex;
-            flex-direction: column;
-            gap: 4px;
-        }
+        .profile-dropdown-menu { display: none; background: var(--card-bg); border-top: 1px solid var(--border); padding: 6px; box-shadow: inset 0 2px 4px rgba(0,0,0,0.02); }
+        .profile-dropdown-menu.open { display: flex; flex-direction: column; gap: 4px; }
 
-        .dropdown-item {
-            display: flex; 
-            align-items: center; 
-            gap: 10px; 
-            width: 100%; 
-            padding: 10px 12px;
-            border: none; 
-            background: transparent; 
-            border-radius: 8px; 
-            font-size: 0.88rem;
-            font-weight: 600; 
-            cursor: pointer; 
-            text-align: left; 
-            color: var(--text); 
-            transition: background 0.2s;
-        }
+        .dropdown-item { display: flex; align-items: center; gap: 10px; width: 100%; padding: 10px 12px; border: none; background: transparent; border-radius: 8px; font-size: 0.88rem; font-weight: 600; cursor: pointer; text-align: left; color: var(--text); transition: background 0.2s; }
         .dropdown-item:hover { background: var(--border); }
         .dropdown-item.danger { color: var(--danger); }
         .dropdown-item.danger:hover { background: #fee2e2; }
 
-        .btn-auth {
-            padding: 10px 14px; border-radius: 8px; border: none; font-size: 0.85rem; font-weight: 600; cursor: pointer;
-            display: flex; align-items: center; gap: 8px; justify-content: center; width: 100%;
-        }
+        .btn-auth { padding: 10px 14px; border-radius: 8px; border: none; font-size: 0.85rem; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 8px; justify-content: center; width: 100%; }
         .btn-google { background: white; border: 1px solid var(--border); color: #333; margin: 12px 14px; width: calc(100% - 28px); }
 
         .sidebar-action-container { padding: 12px 14px 4px 14px; }
-        .add-song-sidebar-btn {
-            width: 100%; padding: 12px 14px; background: var(--primary); color: white; border: none;
-            border-radius: 10px; cursor: pointer; font-weight: 600; font-size: 0.95rem;
-            display: flex; align-items: center; justify-content: center; gap: 8px;
-            box-shadow: 0 2px 4px rgba(37, 99, 235, 0.2);
-        }
+        .add-song-sidebar-btn { width: 100%; padding: 12px 14px; background: var(--primary); color: white; border: none; border-radius: 10px; cursor: pointer; font-weight: 600; font-size: 0.95rem; display: flex; align-items: center; justify-content: center; gap: 8px; box-shadow: 0 2px 4px rgba(37, 99, 235, 0.2); }
 
         .sidebar-menu { flex: 1; padding: 10px 14px; overflow-y: auto; }
-        .menu-item {
-            display: flex; align-items: center; justify-content: space-between; padding: 10px 12px;
-            border-radius: 10px; cursor: pointer; color: var(--text-muted); font-weight: 600; font-size: 0.95rem;
-            margin-bottom: 6px; transition: all 0.2s;
-        }
+        .menu-item { display: flex; align-items: center; justify-content: space-between; padding: 10px 12px; border-radius: 10px; cursor: pointer; color: var(--text-muted); font-weight: 600; font-size: 0.95rem; margin-bottom: 6px; transition: all 0.2s; }
         .menu-item-left { display: flex; align-items: center; gap: 12px; overflow: hidden; }
         .menu-item:hover { background-color: var(--border); color: var(--primary); }
         .menu-item.active { background-color: var(--primary); color: white; }
 
-        .add-album-btn {
-            display: flex; align-items: center; justify-content: center; gap: 6px;
-            width: 100%; padding: 8px; background: transparent; border: 1px dashed var(--border);
-            border-radius: 8px; color: var(--text-muted); font-size: 0.85rem; cursor: pointer; margin-top: 10px; font-weight: 600;
-        }
+        .add-album-btn { display: flex; align-items: center; justify-content: center; gap: 6px; width: 100%; padding: 8px; background: transparent; border: 1px dashed var(--border); border-radius: 8px; color: var(--text-muted); font-size: 0.85rem; cursor: pointer; margin-top: 10px; font-weight: 600; }
         .add-album-btn:hover { background: var(--border); color: var(--primary); }
 
         .main-content { margin-left: var(--sidebar-width); flex: 1; padding: 24px; width: 100%; background: var(--bg); }
@@ -159,67 +97,42 @@
         header h1 { font-size: 1.8rem; color: var(--primary); margin-bottom: 6px; }
         header p { color: var(--text-muted); font-size: 1rem; font-weight: 600; line-height: 1.6; }
 
-        /* 📌 Sticky Controls Layout */
-        .controls {
-            position: sticky;
-            top: 0;
-            z-index: 90;
-            background: var(--bg);
-            padding: 10px 0 16px 0;
-            margin-bottom: 24px;
-            margin-top: 15px;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
+        .controls { position: sticky; top: 0; z-index: 90; background: var(--bg); padding: 10px 0 16px 0; margin-bottom: 24px; margin-top: 15px; display: flex; align-items: center; gap: 12px; }
         .search-box { position: relative; display: flex; align-items: center; flex: 1; }
         .search-box input { width: 100%; padding: 12px 45px 12px 18px; font-size: 0.95rem; border: 1px solid var(--border); border-radius: 10px; outline: none; background: var(--card-bg); color: var(--text); box-shadow: 0 2px 5px rgba(0,0,0,0.02); }
         .search-btn { position: absolute; right: 6px; background: none; border: none; font-size: 1.1rem; cursor: pointer; padding: 8px; border-radius: 8px; }
 
-        .dark-mode-btn {
-            background: var(--card-bg);
-            border: 1px solid var(--border);
-            color: var(--text);
-            width: 46px;
-            height: 46px;
-            border-radius: 10px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.2rem;
-            flex-shrink: 0;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
-        }
+        .dark-mode-btn { background: var(--card-bg); border: 1px solid var(--border); color: var(--text); width: 46px; height: 46px; border-radius: 10px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; flex-shrink: 0; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
         .dark-mode-btn:hover { background: var(--border); }
 
         .btn { padding: 12px 20px; font-size: 0.95rem; font-weight: 600; border: none; border-radius: 10px; cursor: pointer; }
         .btn-primary { background-color: var(--primary); color: white; }
 
-        /* 🎛️ ប៊ូតុងបញ្ជាក្នុងកាតបទចម្រៀង (ស្មើគ្នាទាំងអស់) */
+        /* 🎛️ ប៊ូតុងបញ្ជាក្នុងកាតបទចម្រៀង តម្រៀបជា ១ជួរផ្ដេកស្មើគ្នា (4 Columns) */
         .song-actions {
             display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 6px;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 4px;
             margin-top: 12px;
         }
 
         .song-action-btn {
-            padding: 7px 10px;
+            padding: 7px 4px;
             border-radius: 8px;
-            font-size: 0.82rem;
+            font-size: 0.75rem;
             font-weight: 600;
             border: 1px solid var(--border);
             cursor: pointer;
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            gap: 5px;
+            gap: 2px;
             text-decoration: none;
             text-align: center;
             width: 100%;
             background-color: var(--card-bg);
             color: var(--text);
+            white-space: nowrap;
         }
         
         .song-action-btn:hover { opacity: 0.85; }
@@ -236,22 +149,10 @@
         .btn-delete-custom { background-color: #fee2e2; color: var(--danger); border-color: #fecaca; }
         body.dark-mode .btn-delete-custom { background-color: #7f1d1d; color: #fee2e2; border-color: #991b1b; }
 
-        .song-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 20px; }
+        .song-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 20px; }
         .song-card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; display: flex; flex-direction: column; position: relative; }
         
-        .song-index-badge {
-            position: absolute;
-            top: 10px;
-            left: 10px;
-            background: rgba(0, 0, 0, 0.6);
-            color: white;
-            font-size: 0.75rem;
-            font-weight: 700;
-            padding: 2px 8px;
-            border-radius: 20px;
-            z-index: 2;
-            backdrop-filter: blur(4px);
-        }
+        .song-index-badge { position: absolute; top: 10px; left: 10px; background: rgba(0, 0, 0, 0.6); color: white; font-size: 0.75rem; font-weight: 700; padding: 2px 8px; border-radius: 20px; z-index: 2; backdrop-filter: blur(4px); }
 
         .song-img-container { width: 100%; min-height: 220px; background: var(--border); display: flex; align-items: center; justify-content: center; overflow: hidden; cursor: pointer; position: relative; }
         .song-img { width: 100%; height: 100%; max-height: 380px; object-fit: contain; display: block; }
@@ -269,34 +170,12 @@
         .form-group label { display: block; font-size: 0.9rem; font-weight: 600; margin-bottom: 6px; color: var(--text); }
         .form-group input, .form-group select { width: 100%; padding: 10px 14px; border: 1px solid var(--border); border-radius: 8px; outline: none; background: var(--bg); color: var(--text); }
 
-        .image-drop-zone {
-            border: 2px dashed var(--border);
-            border-radius: 10px;
-            padding: 16px;
-            text-align: center;
-            background: var(--bg);
-            cursor: pointer;
-            transition: all 0.2s;
-            position: relative;
-        }
+        .image-drop-zone { border: 2px dashed var(--border); border-radius: 10px; padding: 16px; text-align: center; background: var(--bg); cursor: pointer; transition: all 0.2s; position: relative; }
         .image-drop-zone:hover, .image-drop-zone.dragover { border-color: var(--primary); background: var(--border); }
         .image-drop-zone p { font-size: 0.85rem; color: var(--text-muted); margin-bottom: 8px; }
-        .preview-container {
-            margin-top: 10px;
-            display: none;
-            position: relative;
-            max-height: 150px;
-            overflow: hidden;
-            border-radius: 8px;
-            border: 1px solid var(--border);
-            background: var(--card-bg);
-        }
+        .preview-container { margin-top: 10px; display: none; position: relative; max-height: 150px; overflow: hidden; border-radius: 8px; border: 1px solid var(--border); background: var(--card-bg); }
         .preview-container img { width: 100%; max-height: 140px; object-fit: contain; }
-        .remove-img-btn {
-            position: absolute; top: 4px; right: 4px; background: rgba(239, 68, 68, 0.9);
-            color: white; border: none; border-radius: 50%; width: 24px; height: 24px;
-            font-size: 0.8rem; cursor: pointer; display: flex; align-items: center; justify-content: center;
-        }
+        .remove-img-btn { position: absolute; top: 4px; right: 4px; background: rgba(239, 68, 68, 0.9); color: white; border: none; border-radius: 50%; width: 24px; height: 24px; font-size: 0.8rem; cursor: pointer; display: flex; align-items: center; justify-content: center; }
 
         .fullscreen-modal { display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0, 0, 0, 0.94); z-index: 2000; flex-direction: column; align-items: center; justify-content: center; }
         .fullscreen-modal.active { display: flex; }
@@ -327,7 +206,6 @@
         <button class="close-sidebar-btn" onclick="closeMobileSidebar()">✖</button>
     </div>
 
-    <!-- 👤 Profile Area & Dropdown -->
     <div class="user-profile-wrapper" id="userProfileArea">
         <button class="btn-auth btn-google" onclick="loginWithGoogle()">
             <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" width="18" alt="G">
@@ -335,14 +213,12 @@
         </button>
     </div>
 
-    <!-- ➕ ប៊ូតុងបន្ថែមបទថ្មី -->
     <div class="sidebar-action-container editor-only">
         <button class="add-song-sidebar-btn" onclick="openAddSongModal(); closeMobileSidebar();">
             ➕ <span>បញ្ជូលបទថ្មី</span>
         </button>
     </div>
 
-    <!-- 📖 បញ្ជី Album -->
     <div class="sidebar-menu">
         <div id="sidebarMenu"></div>
         <button class="add-album-btn editor-only" onclick="addNewAlbum()">
@@ -377,7 +253,6 @@
     </div>
 </div>
 
-<!-- 🔍 Lightbox Viewer -->
 <div class="fullscreen-modal" id="fullScreenModal" onclick="closeFullScreenModal(event)">
     <div class="fullscreen-header">
         <div id="fullScreenTitle" style="font-weight: 700;"></div>
@@ -388,7 +263,6 @@
     </div>
 </div>
 
-<!-- Modal 1: បន្ថែមបទថ្មី -->
 <div class="modal" id="addSongModal">
     <div class="modal-content">
         <h2>➕ បញ្ចូលបទចម្រៀងថ្មី</h2>
@@ -424,7 +298,6 @@
     </div>
 </div>
 
-<!-- Modal 2: កែប្រែបទចម្រៀង -->
 <div class="modal" id="editSongModal">
     <div class="modal-content">
         <h2>✏️ កែប្រែបទចម្រៀង / ដូររូបភាព</h2>
@@ -462,7 +335,6 @@
 </div>
 
 <script>
-    // 🔥 Firebase Config
     const firebaseConfig = {
         apiKey: "AIzaSyBtnbu6tEFtHQLaYsoYVaim33h4TkjwYUI",
         authDomain: "my-song-app-93c70.firebaseapp.com",
@@ -477,7 +349,6 @@
     const db = firebase.firestore();
     const auth = firebase.auth();
 
-    // 🔐 កំណត់ Local Persistence ដើម្បីឱ្យចងចាំការ Login ជាប់ជានិច្ច
     auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL).catch((error) => {
         console.error("Auth persistence error:", error);
     });
@@ -485,7 +356,7 @@
     let currentUser = null;
     let isEditor = false;
     let isAdmin = false;
-    let songsMap = new Map(); // ប្រើ Map ដើម្បីគ្រប់គ្រង និង Streaming ទិន្នន័យបទចម្រៀង
+    let songsMap = new Map();
     let customAlbums = ['ទំនុកដំកើង', 'ទំនុកខ្មែរបរិសុទ្ធ'];
     let currentSelectedAlbum = 'ALL';
     let selectedImageBase64 = '';
@@ -495,11 +366,10 @@
         checkInitialDarkMode();
         listenToAuth();
         listenToAlbums();
-        listenToSongsStreaming(); // ប្រើប្រាស់ Streaming Rendering លឿនរហ័ស
+        listenToSongsStreaming();
         setupGlobalPasteListener();
     };
 
-    /* 🌙 Dark Mode Management */
     function checkInitialDarkMode() {
         const savedMode = localStorage.getItem('theme_mode');
         if (savedMode === 'dark') {
@@ -522,7 +392,6 @@
         if (btn) btn.innerText = iconText;
     }
 
-    /* 🔐 តាមដានការ Login/Logout */
     function listenToAuth() {
         auth.onAuthStateChanged(async (user) => {
             currentUser = user;
@@ -557,7 +426,6 @@
         });
     }
 
-    /* 🚀 ប្រើប្រាស់ signInWithRedirect សម្រាប់ GitHub Pages */
     function loginWithGoogle() {
         const provider = new firebase.auth.GoogleAuthProvider();
         auth.signInWithRedirect(provider).catch(error => alert("❌ Login ខកខាន៖ " + error.message));
@@ -693,7 +561,6 @@
         }
     }
 
-    /* ⚡ Streaming Rendering (ទាញបានប៉ុន្មានបង្ហាញប៉ុណ្ណឹងភ្លាមៗតាមកន្លែង) */
     function listenToSongsStreaming() {
         db.collection("songs").onSnapshot((snapshot) => {
             snapshot.docChanges().forEach((change) => {
@@ -742,7 +609,7 @@
                 dateText = `បញ្ចូល៖ ${dateObj.toLocaleDateString('km-KH')}`;
             }
 
-            const editorInfo = song.updatedBy ? `👤 កែโดย៖ ${song.updatedBy}` : (song.createdBy ? `👤 បញ្ចូលโดย៖ ${song.createdBy}` : '');
+            const editorInfo = song.updatedBy ? `កែដោយ៖ ${song.updatedBy}` : (song.createdBy ? `បញ្ចូលដោយ៖ ${song.createdBy}` : '');
             const globalIndex = songsList.findIndex(s => s.id === song.id) + 1;
 
             return `
@@ -757,16 +624,14 @@
                         <div class="song-artist">${song.artist || 'មិនស្គាល់អ្នកចម្រៀង'}</div>
                         <div class="song-meta-info">
                             ${dateText ? `<span>📅 ${dateText}</span>` : ''}
-                            ${editorInfo ? `<span>${editorInfo}</span>` : ''}
+                            ${editorInfo ? `<span>👤 ${editorInfo}</span>` : ''}
                         </div>
                     </div>
                     <div class="song-actions">
                         <button class="song-action-btn btn-share-custom" onclick="shareSongImage('${song.imageUrl}', '${safeTitle}')">📤 Share</button>
                         <a href="${song.imageUrl}" download="${song.title}.jpg" class="song-action-btn btn-save-custom">💾 Save</a>
-                        ${isEditor ? `
-                            <button class="song-action-btn btn-edit-custom" onclick="openEditSongModal('${song.id}')">✏️ កែប្រែ</button>
-                            <button class="song-action-btn btn-delete-custom" onclick="deleteSong('${song.id}', '${safeTitle}')">🗑️ លុប</button>
-                        ` : ''}
+                        <button class="song-action-btn btn-edit-custom editor-only" onclick="openEditSongModal('${song.id}')">✏️ កែប្រែ</button>
+                        <button class="song-action-btn btn-delete-custom editor-only" onclick="deleteSong('${song.id}', '${safeTitle}')">🗑️ លុប</button>
                     </div>
                 </div>
             </div>
