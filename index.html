@@ -159,7 +159,7 @@
         header h1 { font-size: 1.8rem; color: var(--primary); margin-bottom: 6px; }
         header p { color: var(--text-muted); font-size: 1rem; font-weight: 600; line-height: 1.6; }
 
-        /* 📌 Sticky Controls Layout: Search Box + Dark Mode Button នៅស្ងៀមពេល Scroll */
+        /* 📌 Sticky Controls Layout */
         .controls {
             position: sticky;
             top: 0;
@@ -195,11 +195,49 @@
 
         .btn { padding: 12px 20px; font-size: 0.95rem; font-weight: 600; border: none; border-radius: 10px; cursor: pointer; }
         .btn-primary { background-color: var(--primary); color: white; }
-        .btn-warning { background-color: #fef3c7; color: #b45309; border: none; padding: 6px 10px; border-radius: 6px; cursor: pointer; font-size: 0.85rem; font-weight: 600; }
-        .btn-danger { background-color: #fee2e2; color: var(--danger); border: none; padding: 6px 10px; border-radius: 6px; cursor: pointer; font-size: 0.85rem; font-weight: 600; }
-        .btn-save { background-color: var(--card-bg); color: var(--text); border: 1px solid var(--border); text-decoration: none; padding: 6px 10px; border-radius: 6px; font-size: 0.85rem; font-weight: 600; display: inline-flex; align-items: center; gap: 4px; }
-        .btn-share { background-color: #e0f2fe; color: #0284c7; border: none; padding: 6px 10px; border-radius: 6px; cursor: pointer; font-size: 0.85rem; font-weight: 600; display: inline-flex; align-items: center; gap: 4px; }
-        body.dark-mode .btn-share { background-color: #0369a1; color: #e0f2fe; }
+
+        /* 🎛️ ប៊ូតុងបញ្ជាក្នុងកាតបទចម្រៀង (ស្មើគ្នាទាំងអស់) */
+        .song-actions {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 6px;
+            margin-top: 12px;
+        }
+
+        .song-action-btn {
+            padding: 7px 10px;
+            border-radius: 8px;
+            font-size: 0.82rem;
+            font-weight: 600;
+            border: 1px solid var(--border);
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+            text-decoration: none;
+            text-align: center;
+            width: 100%;
+            background-color: var(--card-bg);
+            color: var(--text);
+        }
+        
+        .song-action-btn:hover {
+            opacity: 0.85;
+        }
+
+        /* 🎨 ប៊ូតុងនីមួយៗមានពណ៌សម្គាល់ស្រាលៗស្អាត */
+        .btn-share-custom { background-color: #e0f2fe; color: #0284c7; border-color: #bae6fd; }
+        body.dark-mode .btn-share-custom { background-color: #0369a1; color: #e0f2fe; border-color: #0284c7; }
+
+        .btn-save-custom { background-color: #f1f5f9; color: var(--text); border-color: var(--border); }
+        body.dark-mode .btn-save-custom { background-color: #334155; color: #f8fafc; border-color: #475569; }
+
+        .btn-edit-custom { background-color: #fef3c7; color: #b45309; border-color: #fde68a; }
+        body.dark-mode .btn-edit-custom { background-color: #78350f; color: #fef3c7; border-color: #92400e; }
+
+        .btn-delete-custom { background-color: #fee2e2; color: var(--danger); border-color: #fecaca; }
+        body.dark-mode .btn-delete-custom { background-color: #7f1d1d; color: #fee2e2; border-color: #991b1b; }
 
         .song-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 20px; }
         .song-card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; display: flex; flex-direction: column; position: relative; }
@@ -753,12 +791,14 @@
                             ${editorInfo ? `<span>${editorInfo}</span>` : ''}
                         </div>
                     </div>
-                    <div style="display: flex; gap: 6px; justify-content: flex-end; flex-wrap: wrap; margin-top: 10px;">
-                        <button class="btn-share" onclick="shareSongImage('${song.imageUrl}', '${safeTitle}')">📤 Share</button>
-                        <a href="${song.imageUrl}" download="${song.title}.jpg" class="btn-save">💾 Save</a>
+                    
+                    <!-- 🎛️ ប៊ូតុង Share, Save, កែ និងលុប ដែលត្រូវបានរៀបចំទំហំឱ្យស្មើគ្នាជា Grid -->
+                    <div class="song-actions">
+                        <button class="song-action-btn btn-share-custom" onclick="shareSongImage('${song.imageUrl}', '${safeTitle}')">📤 Share</button>
+                        <a href="${song.imageUrl}" download="${song.title}.jpg" class="song-action-btn btn-save-custom">💾 Save</a>
                         ${isEditor ? `
-                            <button class="btn-warning" onclick="openEditSongModal('${song.id}')">✏️ កែ</button>
-                            <button class="btn-danger" onclick="deleteSong('${song.id}', '${safeTitle}')">🗑️ លុប</button>
+                            <button class="song-action-btn btn-edit-custom" onclick="openEditSongModal('${song.id}')">✏️ កែប្រែ</button>
+                            <button class="song-action-btn btn-delete-custom" onclick="deleteSong('${song.id}', '${safeTitle}')">🗑️ លុប</button>
                         ` : ''}
                     </div>
                 </div>
