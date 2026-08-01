@@ -155,32 +155,43 @@
         .mobile-header { display: none; align-items: center; justify-content: space-between; margin-bottom: 16px; }
         .mobile-menu-btn { background: var(--card-bg); color: var(--text); border: 1px solid var(--border); padding: 8px 12px; border-radius: 8px; font-size: 1.2rem; cursor: pointer; display: flex; align-items: center; gap: 6px; font-weight: 600; }
 
-        /* Header layout with Dark mode button on top right */
-        .header-container { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 20px; }
+        header { margin-bottom: 20px; }
         header h1 { font-size: 1.8rem; color: var(--primary); margin-bottom: 6px; }
         header p { color: var(--text-muted); font-size: 1rem; font-weight: 600; line-height: 1.6; }
-        
+
+        /* 📌 Sticky Controls Layout: Search Box + Dark Mode Button នៅស្ងៀមពេល Scroll */
+        .controls {
+            position: sticky;
+            top: 0;
+            z-index: 90;
+            background: var(--bg);
+            padding: 10px 0 16px 0;
+            margin-bottom: 24px;
+            margin-top: 15px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .search-box { position: relative; display: flex; align-items: center; flex: 1; }
+        .search-box input { width: 100%; padding: 12px 45px 12px 18px; font-size: 0.95rem; border: 1px solid var(--border); border-radius: 10px; outline: none; background: var(--card-bg); color: var(--text); box-shadow: 0 2px 5px rgba(0,0,0,0.02); }
+        .search-btn { position: absolute; right: 6px; background: none; border: none; font-size: 1.1rem; cursor: pointer; padding: 8px; border-radius: 8px; }
+
         .dark-mode-btn {
             background: var(--card-bg);
             border: 1px solid var(--border);
             color: var(--text);
-            width: 42px;
-            height: 42px;
-            border-radius: 50%;
+            width: 46px;
+            height: 46px;
+            border-radius: 10px;
             cursor: pointer;
             display: flex;
             align-items: center;
             justify-content: center;
             font-size: 1.2rem;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
             flex-shrink: 0;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
         }
         .dark-mode-btn:hover { background: var(--border); }
-
-        .controls { margin-bottom: 24px; margin-top: 15px; }
-        .search-box { position: relative; display: flex; align-items: center; width: 100%; }
-        .search-box input { width: 100%; padding: 12px 45px 12px 18px; font-size: 0.95rem; border: 1px solid var(--border); border-radius: 10px; outline: none; background: var(--card-bg); color: var(--text); }
-        .search-btn { position: absolute; right: 6px; background: none; border: none; font-size: 1.1rem; cursor: pointer; padding: 8px; border-radius: 8px; }
 
         .btn { padding: 12px 20px; font-size: 0.95rem; font-weight: 600; border: none; border-radius: 10px; cursor: pointer; }
         .btn-primary { background-color: var(--primary); color: white; }
@@ -293,8 +304,6 @@
             .close-sidebar-btn { display: block; }
             .main-content { margin-left: 0; padding: 16px; }
             .mobile-header { display: flex; }
-            .header-container { flex-direction: column-reverse; gap: 14px; align-items: stretch; }
-            .header-container .dark-mode-btn { align-self: flex-end; }
         }
     </style>
 </head>
@@ -339,23 +348,21 @@
         <button class="mobile-menu-btn" onclick="openMobileSidebar()">☰ <span>Album</span></button>
     </div>
 
-    <div class="header-container">
-        <header>
-            <h1>🎼 ចម្រៀងសរសើរតម្កើងព្រះ</h1>
-            <p id="currentAlbumSubtitle">
-                ចូរឱ្យជីវិតទាំងឡាយដែលមានដង្ហើម បានសរសើរដល់ព្រះយ៉េហូវ៉ាចុះ<br>
-                <span style="color: var(--primary); font-weight: 700;">ទំនុកដំកើង ១៥០៖៦</span>
-            </p>
-        </header>
-        <!-- Dark Mode Button (Unique on top right) -->
-        <button class="dark-mode-btn" id="darkModeBtn" onclick="toggleDarkMode()" title="ប្តូរពណ៌ Dark/Light Mode">🌙</button>
-    </div>
+    <header>
+        <h1>🎼 ចម្រៀងសរសើរតម្កើងព្រះ</h1>
+        <p id="currentAlbumSubtitle">
+            ចូរឱ្យជីវិតទាំងឡាយដែលមានដង្ហើម បានសរសើរដល់ព្រះយ៉េហូវ៉ាចុះ<br>
+            <span style="color: var(--primary); font-weight: 700;">ទំនុកដំកើង ១៥០៖៦</span>
+        </p>
+    </header>
 
+    <!-- Controls: Search Box និង Dark Mode Button (Sticky មិនរំកិលតាមពេល Scroll) -->
     <div class="controls">
         <div class="search-box">
             <input type="text" id="searchInput" placeholder="ស្វែងរកចំណងជើង ឬអ្នកចម្រៀង..." onkeyup="renderSongs()">
             <button class="search-btn" onclick="renderSongs()">🔍</button>
         </div>
+        <button class="dark-mode-btn" id="darkModeBtn" onclick="toggleDarkMode()" title="ប្តូរពណ៌ Dark/Light Mode">🌙</button>
     </div>
 
     <div class="song-grid" id="songGrid">
@@ -394,7 +401,7 @@
             <div class="form-group">
                 <label>រូបភាពបទចម្រៀង (ទាញទម្លាក់, Paste, ឬចុចជ្រើសរើស) *</label>
                 <div class="image-drop-zone" id="dropZone" onclick="document.getElementById('songImageFile').click()" ondragover="handleDragOver(event)" ondragleave="handleDragLeave(event)" ondrop="handleDrop(event)">
-                    <p>📁 ចុចទីនេះ ឬ **ទាញទម្លាក់រូបភាព** ចូលទីនេះ<br><span style="color:var(--primary); font-weight:600;">(អាចចុច Ctrl+V ដើម្បី Paste រូបភាពពី Clipboard ได้)</span></p>
+                    <p>📁 ចុចទីនេះ ឬ **ទាញទម្លាក់រូបភាព** ចូលទីនេះ<br><span style="color:var(--primary); font-weight:600;">(អាចចុច Ctrl+V ដើម្បី Paste រូបភាពពី Clipboard)</span></p>
                     <input type="file" id="songImageFile" accept="image/*" onchange="handleFileSelect(event)" style="display: none;">
                     
                     <div class="preview-container" id="previewContainer">
@@ -691,7 +698,6 @@
             songsList = [];
             snapshot.forEach((doc) => songsList.push({ id: doc.id, ...doc.data() }));
             
-            // រៀបចំតម្រៀបតាមពេលវេលាបញ្ចូលពីចាស់ទៅថ្មី
             songsList.sort((a, b) => {
                 const timeA = a.createdAt ? a.createdAt.toMillis() : 0;
                 const timeB = b.createdAt ? b.createdAt.toMillis() : 0;
