@@ -97,7 +97,6 @@
         .header-text h1 { font-size: 1.8rem; color: var(--primary); margin-bottom: 6px; }
         .header-text p { color: var(--text-muted); font-size: 1rem; font-weight: 600; line-height: 1.6; }
 
-        /* 🚀 Styles for Fetch All Button & Progress */
         .fetch-all-container { display: flex; flex-direction: column; align-items: flex-end; gap: 6px; }
         .fetch-all-btn { background: var(--card-bg); border: 1px solid var(--primary); color: var(--primary); padding: 10px 16px; border-radius: 10px; font-weight: 600; font-size: 0.9rem; cursor: pointer; display: flex; align-items: center; gap: 8px; box-shadow: 0 2px 5px rgba(37,99,235,0.1); }
         .fetch-all-btn:hover { background: var(--primary); color: white; }
@@ -387,13 +386,16 @@
 
     window.onload = function() {
         checkInitialDarkMode();
+        
+        // Handling redirect result for iOS/PWA
+        auth.getRedirectResult().catch((error) => {
+            console.error("Redirect error:", error);
+        });
+
         listenToAuth();
         listenToAlbums();
         
-        // Load Cache មកបង្ហាញជាមុនសិនដើម្បីលឿន
         loadSongsFromCache();
-        
-        // Realtime listener សំរាប់បទថ្មីៗដំបូង (ឧទាហរណ៍ ២០បទចុងក្រោយ)
         listenToRecentSongs();
         setupGlobalPasteListener();
     };
@@ -473,12 +475,11 @@
         });
     }
 
+    // 🔄 បានប្តូរពី signInWithPopup មកជា signInWithRedirect ដើម្បីដោះស្រាយបញ្ហាគាំងអេក្រង់ស (about:blank) ពេល Add to Home Screen នៅលើ iOS
     function loginWithGoogle() {
         const provider = new firebase.auth.GoogleAuthProvider();
-        auth.signInWithPopup(provider).catch(error => {
-            if (error.code !== 'auth/popup-closed-by-user') {
-                alert("❌ Login ខកខាន៖ " + error.message);
-            }
+        auth.signInWithRedirect(provider).catch(error => {
+            alert("❌ Login ខកខាន៖ " + error.message);
         });
     }
 
@@ -621,7 +622,6 @@
                 updatedAt: doc.data().updatedAt ? { seconds: doc.data().updatedAt.seconds } : null
             }));
             
-            // Merge ກັບ songsList ដែលមានស្រាប់ (ដើម្បីកុំឱ្យបាត់ទិន្នន័យដែលធ្លាប់ Load មកហើយ)
             const map = new Map();
             songsList.forEach(s => map.set(s.id, s));
             newSongs.forEach(s => map.set(s.id, s));
@@ -634,7 +634,6 @@
         });
     }
 
-    // 🚀 ប៊ូតុងទាញយកទិន្នន័យបទចម្រៀងទាំងអស់ពី Database មកបង្ហាញជាមួយភាគរយ (%)
     async function fetchAllSongsWithProgress() {
         const btn = document.getElementById('fetchAllBtn');
         const progressWrapper = document.getElementById('progressWrapper');
