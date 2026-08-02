@@ -393,7 +393,7 @@
         listenToAuth();
         listenToAlbums();
         
-        // 📂 អានទិន្នន័យដែលមានស្រាប់ក្នុង LocalStorage មកបង្ហាញភ្លាមៗដោយមិនបាច់ទាញយកពី Server ទេ
+        // 📂 អានទិន្នន័យដែលមានស្រាប់ក្នុង LocalStorage មកបង្ហាញភ្លាមៗពេល Refresh Website
         loadSongsFromCache();
         
         setupGlobalPasteListener();
@@ -409,7 +409,6 @@
                 console.error("Cache parse error", e);
             }
         }
-        // បើគ្មានទិន្នន័យក្នុង Cache គឺទុកឱ្យវាបង្ហាញសភាពទទេ (empty-state) ហើយចាំអ្នកចុចទាញយកដោយខ្លួនឯង
     }
 
     function saveSongsToCache() {
@@ -612,7 +611,7 @@
         }
     }
 
-    // 📥 ប៊ូតុងទាញយកទិន្នន័យពី Server តាមការចង់បានរបស់អ្នក
+    // 📥 ទាញយកទិន្នន័យថ្មីពី Server និងរក្សាទុកចូល Cache ស្វ័យប្រវត្តិ
     async function fetchAllSongsWithProgress() {
         const btn = document.getElementById('fetchAllBtn');
         const progressWrapper = document.getElementById('progressWrapper');
@@ -641,7 +640,7 @@
                 updatedAt: doc.data().updatedAt ? { seconds: doc.data().updatedAt.seconds } : null
             }));
 
-            saveSongsToCache(); // រក្សាទុកចូល LocalStorage
+            saveSongsToCache(); // រក្សាទុកទិន្នន័យចូល LocalStorage
             
             progressBar.style.width = '100%';
             progressText.innerText = '✅ ទាញយកទិន្នន័យថ្មីបាន ១០០% ជោគជ័យ!';
@@ -839,7 +838,7 @@
                 createdBy: currentUser.displayName || currentUser.email,
                 createdAt: { seconds: Math.floor(Date.now() / 1000) }
             });
-            saveSongsToCache();
+            saveSongsToCache(); // កត់ត្រាទុកក្នុង Cache ពេលមានការបន្ថែមបទថ្មី
             renderSongs();
 
             closeModal('addSongModal');
@@ -889,7 +888,7 @@
         if (index !== -1) {
             songsList[index] = { ...songsList[index], ...updateData };
             if (selectedEditImageBase64) songsList[index].imageUrl = selectedEditImageBase64;
-            saveSongsToCache();
+            saveSongsToCache(); // កត់ត្រាទុកក្នុង Cache ពេលមានការកែប្រែ
             renderSongs();
         }
 
@@ -903,7 +902,7 @@
             await db.collection("songs").doc(id).delete();
             
             songsList = songsList.filter(s => s.id !== id);
-            saveSongsToCache();
+            saveSongsToCache(); // កត់ត្រាទុកក្នុង Cache ពេលមានការលុប
             renderSongs();
 
             alert(`✅ បានលុបរួចរាល់!`);
