@@ -3,7 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ចម្រៀងសរសើរតម្កើងព្រះ</title>
+    <title>W.BKC - ចម្រៀងសរសើរតម្កើងព្រះ</title>
+    
+    <!-- PWA Manifest & App Icon Setup -->
+    <link rel="manifest" href="manifest.json">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="W.BKC">
+    <link rel="apple-touch-icon" href="icon.jpg">
+    <meta name="theme-color" content="#2563eb">
+
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Kantumruy+Pro:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -392,10 +401,7 @@
 
         listenToAuth();
         listenToAlbums();
-        
-        // 🚀 ទាញយកទិន្នន័យស្វ័យប្រវត្តិពី Cache ពេល Refresh Website
         fetchAllSongsSilently();
-        
         setupGlobalPasteListener();
     };
 
@@ -419,7 +425,6 @@
             }
         }
 
-        // ប្រសិនបើគ្មានទិន្នន័យក្នុង Cache ទេ ទើបវាទាញយកពី Firebase ស្វ័យប្រវត្តិ
         try {
             const snapshot = await db.collection("songs").orderBy("createdAt", "desc").get();
             
@@ -585,7 +590,7 @@
     }
 
     async function handleDeleteAlbum() {
-        if (!isAdmin) return alert("❌ មានតែ Admin ទេដែលអាចលុប Album ได้!");
+        if (!isAdmin) return alert("❌ មានតែ Admin ទេដែលអាចលុប Album បាន!");
         if (customAlbums.length === 0) return alert("❌ មិនទាន់មាន Album សម្រាប់លុបឡើយ!");
 
         let password = prompt("🔐 សូមបញ្ចូលលេខសម្ងាត់ដើម្បីលុប Album៖");
