@@ -26,7 +26,6 @@
             --sidebar-width: 280px;
         }
 
-        /* 🌙 Dark Mode Variables */
         body.dark-mode {
             --primary: #3b82f6;
             --primary-hover: #2563eb;
@@ -270,7 +269,7 @@
     </div>
 
     <div class="song-grid" id="songGrid">
-        <div class="empty-state" id="loadingState">⏳ កំពុងផ្ទុកទិន្នន័យ (បង្ហាញទិន្នន័យចុងក្រោយ)... សូមចុចប៊ូតុង "ទាញយកបទចម្រៀងទាំងអស់" នៅខាងលើស្តាំបើចង់បានគ្រប់បទទាំងអស់។</div>
+        <div class="empty-state" id="loadingState">📂 មិនទាន់មានបទចម្រៀងក្នុងម៉ាស៊ីន សូមចុចប៊ូតុង **"ទាញយកបទចម្រៀងទាំងអស់"** នៅខាងលើ។</div>
     </div>
 </div>
 
@@ -387,7 +386,6 @@
     window.onload = function() {
         checkInitialDarkMode();
         
-        // Handling redirect result for iOS/PWA
         auth.getRedirectResult().catch((error) => {
             console.error("Redirect error:", error);
         });
@@ -395,8 +393,9 @@
         listenToAuth();
         listenToAlbums();
         
+        // 📂 អានទិន្នន័យដែលមានស្រាប់ក្នុង LocalStorage មកបង្ហាញភ្លាមៗដោយមិនបាច់ទាញយកពី Server ទេ
         loadSongsFromCache();
-        listenToRecentSongs();
+        
         setupGlobalPasteListener();
     };
 
@@ -410,6 +409,7 @@
                 console.error("Cache parse error", e);
             }
         }
+        // បើគ្មានទិន្នន័យក្នុង Cache គឺទុកឱ្យវាបង្ហាញសភាពទទេ (empty-state) ហើយចាំអ្នកចុចទាញយកដោយខ្លួនឯង
     }
 
     function saveSongsToCache() {
@@ -475,7 +475,6 @@
         });
     }
 
-    // 🔄 បានប្តូរពី signInWithPopup មកជា signInWithRedirect ដើម្បីដោះស្រាយបញ្ហាគាំងអេក្រង់ស (about:blank) ពេល Add to Home Screen នៅលើ iOS
     function loginWithGoogle() {
         const provider = new firebase.auth.GoogleAuthProvider();
         auth.signInWithRedirect(provider).catch(error => {
@@ -558,7 +557,7 @@
     }
 
     async function handleJoin() {
-        if (confirm(`តើអ្នកចង់ផ្ើសំណើ Join ដើម្បីសុំសិទ្ធិកែប្រែទិន្នន័យដោយប្រើអ៊ីមែល ${currentUser.email} ដែរឬទេ?`)) {
+        if (confirm(`តើអ្នកចង់ផ្ញើសំណើ Join ដើម្បីសុំសិទ្ធិកែប្រែទិន្នន័យដោយប្រើអ៊ីមែល ${currentUser.email} ដែរឬទេ?`)) {
             await db.collection("join_requests").doc(currentUser.email.toLowerCase()).set({
                 email: currentUser.email,
                 name: currentUser.displayName,
@@ -613,27 +612,7 @@
         }
     }
 
-    function listenToRecentSongs() {
-        db.collection("songs").orderBy("createdAt", "desc").limit(20).onSnapshot((snapshot) => {
-            let newSongs = snapshot.docs.map(doc => ({ 
-                id: doc.id, 
-                ...doc.data(),
-                createdAt: doc.data().createdAt ? { seconds: doc.data().createdAt.seconds } : null,
-                updatedAt: doc.data().updatedAt ? { seconds: doc.data().updatedAt.seconds } : null
-            }));
-            
-            const map = new Map();
-            songsList.forEach(s => map.set(s.id, s));
-            newSongs.forEach(s => map.set(s.id, s));
-            songsList = Array.from(map.values());
-
-            saveSongsToCache();
-            renderSongs();
-        }, (error) => {
-            console.error("Error listening to recent songs: ", error);
-        });
-    }
-
+    // 📥 ប៊ូតុងទាញយកទិន្នន័យពី Server តាមការចង់បានរបស់អ្នក
     async function fetchAllSongsWithProgress() {
         const btn = document.getElementById('fetchAllBtn');
         const progressWrapper = document.getElementById('progressWrapper');
@@ -647,12 +626,12 @@
         progressBar.style.width = '10%';
 
         try {
-            progressText.innerText = 'កំពុងទាញយកបញ្ជីបទចម្រៀងទាំងអស់... (50%)';
+            progressText.innerText = 'កំពុងទាញយកបទចម្រៀងទាំងអស់... (50%)';
             progressBar.style.width = '50%';
 
             const snapshot = await db.collection("songs").orderBy("createdAt", "desc").get();
             
-            progressText.innerText = 'កំពុងរៀបចំទិន្នន័យ... (80%)';
+            progressText.innerText = 'កំពុងរៀបចំរក្សាទុកក្នុងម៉ាស៊ីន... (80%)';
             progressBar.style.width = '80%';
 
             songsList = snapshot.docs.map(doc => ({ 
@@ -662,10 +641,10 @@
                 updatedAt: doc.data().updatedAt ? { seconds: doc.data().updatedAt.seconds } : null
             }));
 
-            saveSongsToCache();
+            saveSongsToCache(); // រក្សាទុកចូល LocalStorage
             
             progressBar.style.width = '100%';
-            progressText.innerText = '✅ ទាញយកបាន ១០០% ជោគជ័យ!';
+            progressText.innerText = '✅ ទាញយកទិន្នន័យថ្មីបាន ១០០% ជោគជ័យ!';
             renderSongs();
 
             setTimeout(() => {
@@ -701,12 +680,12 @@
         });
 
         if (filtered.length === 0 && songsList.length === 0) {
-            grid.innerHTML = `<div class="empty-state" id="loadingState">⏳ កំពុងផ្ទុកទិន្នន័យ...</div>`;
+            grid.innerHTML = `<div class="empty-state" id="loadingState">📂 មិនទាន់មានបទចម្រៀងក្នុងម៉ាស៊ីន សូមចុចប៊ូតុង **"ទាញយកបទចម្រៀងទាំងអស់"** នៅខាងលើ។</div>`;
             return;
         }
 
         if (filtered.length === 0) {
-            grid.innerHTML = `<div class="empty-state">❌ រកមិនឃើញបទចម្រៀងដែលត្រូវនឹងការស្វែងរករបស់អ្នកឡើយ។ (សូមចុចប៊ូតុង "ទាញយកបទចម្រៀងទាំងអស់" នៅខាងលើបើចង់ស្វែងរកក្នុងគ្រប់បទទាំងអស់)</div>`;
+            grid.innerHTML = `<div class="empty-state">❌ រកមិនឃើញបទចម្រៀងដែលត្រូវនឹងការស្វែងរករបស់អ្នកឡើយ។</div>`;
             return;
         }
 
@@ -846,13 +825,23 @@
         saveBtn.disabled = true;
 
         try {
-            await db.collection("songs").add({
+            const docRef = await db.collection("songs").add({
                 title, artist, album,
                 imageUrl: selectedImageBase64,
                 createdBy: currentUser.displayName || currentUser.email,
                 createdAt: firebase.firestore.FieldValue.serverTimestamp()
             });
             
+            songsList.unshift({
+                id: docRef.id,
+                title, artist, album,
+                imageUrl: selectedImageBase64,
+                createdBy: currentUser.displayName || currentUser.email,
+                createdAt: { seconds: Math.floor(Date.now() / 1000) }
+            });
+            saveSongsToCache();
+            renderSongs();
+
             closeModal('addSongModal');
             document.getElementById('addSongForm').reset();
             removeSelectedImage({stopPropagation:()=>{}});
@@ -896,6 +885,14 @@
 
         await db.collection("songs").doc(id).update(updateData);
         
+        const index = songsList.findIndex(s => s.id === id);
+        if (index !== -1) {
+            songsList[index] = { ...songsList[index], ...updateData };
+            if (selectedEditImageBase64) songsList[index].imageUrl = selectedEditImageBase64;
+            saveSongsToCache();
+            renderSongs();
+        }
+
         closeModal('editSongModal');
         alert('✅ បានកែប្រែជោគជ័យ!');
     }
@@ -904,6 +901,11 @@
         if (!isEditor) return;
         if (confirm(`⚠️ លុបបទ «${title}»?`)) {
             await db.collection("songs").doc(id).delete();
+            
+            songsList = songsList.filter(s => s.id !== id);
+            saveSongsToCache();
+            renderSongs();
+
             alert(`✅ បានលុបរួចរាល់!`);
         }
     }
