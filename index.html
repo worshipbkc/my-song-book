@@ -93,9 +93,17 @@
         .mobile-header { display: none; align-items: center; justify-content: space-between; margin-bottom: 16px; }
         .mobile-menu-btn { background: var(--card-bg); color: var(--text); border: 1px solid var(--border); padding: 8px 12px; border-radius: 8px; font-size: 1.2rem; cursor: pointer; display: flex; align-items: center; gap: 6px; font-weight: 600; }
 
-        header { margin-bottom: 20px; }
-        header h1 { font-size: 1.8rem; color: var(--primary); margin-bottom: 6px; }
-        header p { color: var(--text-muted); font-size: 1rem; font-weight: 600; line-height: 1.6; }
+        header { margin-bottom: 20px; display: flex; justify-content: space-between; align-items: flex-start; gap: 15px; flex-wrap: wrap; }
+        .header-text h1 { font-size: 1.8rem; color: var(--primary); margin-bottom: 6px; }
+        .header-text p { color: var(--text-muted); font-size: 1rem; font-weight: 600; line-height: 1.6; }
+
+        /* 🚀 Styles for Fetch All Button & Progress */
+        .fetch-all-container { display: flex; flex-direction: column; align-items: flex-end; gap: 6px; }
+        .fetch-all-btn { background: var(--card-bg); border: 1px solid var(--primary); color: var(--primary); padding: 10px 16px; border-radius: 10px; font-weight: 600; font-size: 0.9rem; cursor: pointer; display: flex; align-items: center; gap: 8px; box-shadow: 0 2px 5px rgba(37,99,235,0.1); }
+        .fetch-all-btn:hover { background: var(--primary); color: white; }
+        .progress-wrapper { width: 180px; background: var(--border); border-radius: 8px; overflow: hidden; height: 8px; display: none; }
+        .progress-bar { width: 0%; height: 100%; background: var(--primary); transition: width 0.2s ease; }
+        .progress-text { font-size: 0.75rem; color: var(--text-muted); font-weight: 600; display: none; }
 
         .controls { position: sticky; top: 0; z-index: 90; background: var(--bg); padding: 10px 0 16px 0; margin-bottom: 24px; margin-top: 15px; display: flex; align-items: center; gap: 12px; }
         .search-box { position: relative; display: flex; align-items: center; flex: 1; }
@@ -134,7 +142,6 @@
             color: var(--text);
             white-space: nowrap;
         }
-        
         .song-action-btn:hover { opacity: 0.85; }
 
         .btn-share-custom { background-color: #e0f2fe; color: #0284c7; border-color: #bae6fd; }
@@ -162,11 +169,6 @@
         .song-meta-info { font-size: 0.72rem; color: var(--text-muted); margin-top: 6px; display: flex; flex-direction: column; gap: 2px; }
 
         .empty-state { text-align: center; padding: 40px 20px; color: var(--text-muted); grid-column: 1 / -1; }
-        
-        /* 🔥 Load More Button Container */
-        .load-more-container { grid-column: 1 / -1; text-align: center; margin-top: 20px; }
-        .load-more-btn { padding: 12px 24px; background: var(--card-bg); border: 1px solid var(--border); color: var(--text); font-weight: 600; border-radius: 10px; cursor: pointer; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
-        .load-more-btn:hover { background: var(--border); color: var(--primary); }
 
         .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); align-items: center; justify-content: center; z-index: 1000; padding: 20px; }
         .modal.active { display: flex; }
@@ -198,6 +200,10 @@
             .close-sidebar-btn { display: block; }
             .main-content { margin-left: 0; padding: 16px; }
             .mobile-header { display: flex; }
+            header { flex-direction: column; align-items: stretch; }
+            .fetch-all-container { align-items: stretch; width: 100%; }
+            .fetch-all-btn { width: 100%; justify-content: center; }
+            .progress-wrapper { width: 100%; }
         }
     </style>
 </head>
@@ -238,11 +244,22 @@
     </div>
 
     <header>
-        <h1>🎼 ចម្រៀងសរសើរតម្កើងព្រះ</h1>
-        <p id="currentAlbumSubtitle">
-            ចូរឱ្យជីវិតទាំងឡាយដែលមានដង្ហើម បានសរសើរដល់ព្រះយ៉េហូវ៉ាចុះ<br>
-            <span style="color: var(--primary); font-weight: 700;">ទំនុកដំកើង ១៥០៖៦</span>
-        </p>
+        <div class="header-text">
+            <h1>🎼 ចម្រៀងសរសើរតម្កើងព្រះ</h1>
+            <p id="currentAlbumSubtitle">
+                ចូរឱ្យជីវិតទាំងឡាយដែលមានដង្ហើម បានសរសើរដល់ព្រះយ៉េហូវ៉ាចុះ<br>
+                <span style="color: var(--primary); font-weight: 700;">ទំនុកដំកើង ១៥០៖៦</span>
+            </p>
+        </div>
+        <div class="fetch-all-container">
+            <button class="fetch-all-btn" id="fetchAllBtn" onclick="fetchAllSongsWithProgress()">
+                📥 <span>ទាញយកបទចម្រៀងទាំងអស់</span>
+            </button>
+            <div class="progress-wrapper" id="progressWrapper">
+                <div class="progress-bar" id="progressBar"></div>
+            </div>
+            <div class="progress-text" id="progressText">កំពុងរៀបចំទាញយក...</div>
+        </div>
     </header>
 
     <div class="controls">
@@ -254,7 +271,7 @@
     </div>
 
     <div class="song-grid" id="songGrid">
-        <div class="empty-state" id="loadingState">⏳ កំពុងទាញយកទិន្នន័យ...</div>
+        <div class="empty-state" id="loadingState">⏳ កំពុងផ្ទុកទិន្នន័យ (បង្ហាញទិន្នន័យចុងក្រោយ)... សូមចុចប៊ូតុង "ទាញយកបទចម្រៀងទាំងអស់" នៅខាងលើស្តាំបើចង់បានគ្រប់បទទាំងអស់។</div>
     </div>
 </div>
 
@@ -362,9 +379,6 @@
     let isEditor = false;
     let isAdmin = false;
     let songsList = [];          
-    let lastVisibleDoc = null;   
-    let hasMoreSongs = true;     
-    const PAGE_SIZE = 15;        
     
     let customAlbums = ['ទំនុកដំកើង', 'ទំនុកខ្មែរបរិសុទ្ធ'];
     let currentSelectedAlbum = 'ALL';
@@ -376,11 +390,11 @@
         listenToAuth();
         listenToAlbums();
         
-        // 🚀 បង្ហាញទិន្នន័យពី LocalStorage ជាមុនសិនភ្លាមៗ (Instant Cache Load)
+        // Load Cache មកបង្ហាញជាមុនសិនដើម្បីលឿន
         loadSongsFromCache();
         
-        // បន្ទាប់មកទាញយកកញ្ចប់ថ្មីពី Firebase
-        loadSongsChunk(true); 
+        // Realtime listener សំរាប់បទថ្មីៗដំបូង (ឧទាហរណ៍ ២០បទចុងក្រោយ)
+        listenToRecentSongs();
         setupGlobalPasteListener();
     };
 
@@ -389,7 +403,7 @@
         if (cachedSongs) {
             try {
                 songsList = JSON.parse(cachedSongs);
-                renderSongs(); // បង្ហាញចេញមកភ្លាមៗមិនបាច់រង់ចាំ
+                renderSongs();
             } catch (e) {
                 console.error("Cache parse error", e);
             }
@@ -398,10 +412,9 @@
 
     function saveSongsToCache() {
         try {
-            // រក្សាទុករាល់បទចម្រៀងដែលបានទាញរួចចូល LocalStorage
             localStorage.setItem('cached_songs_list', JSON.stringify(songsList));
         } catch (e) {
-            console.error("Cache save error (storage might be full)", e);
+            console.error("Cache save error", e);
         }
     }
 
@@ -544,7 +557,7 @@
     }
 
     async function handleJoin() {
-        if (confirm(`តើអ្នកចង់ផ្ញើសំណើ Join ដើម្បីសុំសិទ្ធិកែប្រែទិន្នន័យដោយប្រើអ៊ីមែល ${currentUser.email} ដែរឬទេ?`)) {
+        if (confirm(`តើអ្នកចង់ផ្ើសំណើ Join ដើម្បីសុំសិទ្ធិកែប្រែទិន្នន័យដោយប្រើអ៊ីមែល ${currentUser.email} ដែរឬទេ?`)) {
             await db.collection("join_requests").doc(currentUser.email.toLowerCase()).set({
                 email: currentUser.email,
                 name: currentUser.displayName,
@@ -586,10 +599,7 @@
             `ចូរឱ្យជីវិតទាំងឡាយដែលមានដង្ហើម បានសរសើរដល់ព្រះយ៉េហូវ៉ាចុះ<br><span style="color: var(--primary); font-weight: 700;">ទំនុកដំកើង ១៥០៖៦</span>` : 
             `📁 Album៖ <span style="color: var(--primary); font-weight: 700;">${albumName}</span>`;
         renderSidebarMenu();
-        
-        lastVisibleDoc = null;
-        hasMoreSongs = true;
-        loadSongsChunk(true);
+        renderSongs();
         closeMobileSidebar();
     }
 
@@ -602,52 +612,78 @@
         }
     }
 
-    // 🚀 ទាញយកទិន្នន័យ Chunk by Chunk និងធ្វើការ Cache ទុក
-    async function loadSongsChunk(isReset = false) {
-        if (!hasMoreSongs && !isReset) return;
-
-        let query = db.collection("songs").orderBy("createdAt", "desc").limit(PAGE_SIZE);
-
-        try {
-            if (lastVisibleDoc && !isReset) {
-                query = query.startAfter(lastVisibleDoc);
-            }
-
-            const snapshot = await query.get();
-
-            if (snapshot.empty) {
-                hasMoreSongs = false;
-                renderSongs();
-                return;
-            }
-
-            lastVisibleDoc = snapshot.docs[snapshot.docs.length - 1];
-
-            if (snapshot.docs.length < PAGE_SIZE) {
-                hasMoreSongs = false;
-            }
-
-            const newSongs = snapshot.docs.map(doc => ({ 
+    function listenToRecentSongs() {
+        db.collection("songs").orderBy("createdAt", "desc").limit(20).onSnapshot((snapshot) => {
+            let newSongs = snapshot.docs.map(doc => ({ 
                 id: doc.id, 
                 ...doc.data(),
                 createdAt: doc.data().createdAt ? { seconds: doc.data().createdAt.seconds } : null,
                 updatedAt: doc.data().updatedAt ? { seconds: doc.data().updatedAt.seconds } : null
             }));
             
-            if (isReset) {
-                songsList = newSongs;
-            } else {
-                songsList = [...songsList, ...newSongs];
-            }
+            // Merge ກັບ songsList ដែលមានស្រាប់ (ដើម្បីកុំឱ្យបាត់ទិន្នន័យដែលធ្លាប់ Load មកហើយ)
+            const map = new Map();
+            songsList.forEach(s => map.set(s.id, s));
+            newSongs.forEach(s => map.set(s.id, s));
+            songsList = Array.from(map.values());
 
-            // រក្សាទុកចូល LocalStorage
             saveSongsToCache();
             renderSongs();
+        }, (error) => {
+            console.error("Error listening to recent songs: ", error);
+        });
+    }
+
+    // 🚀 ប៊ូតុងទាញយកទិន្នន័យបទចម្រៀងទាំងអស់ពី Database មកបង្ហាញជាមួយភាគរយ (%)
+    async function fetchAllSongsWithProgress() {
+        const btn = document.getElementById('fetchAllBtn');
+        const progressWrapper = document.getElementById('progressWrapper');
+        const progressBar = document.getElementById('progressBar');
+        const progressText = document.getElementById('progressText');
+
+        btn.style.display = 'none';
+        progressWrapper.style.display = 'block';
+        progressText.style.display = 'block';
+        progressText.innerText = 'កំពុងតភ្ជាប់ទៅកាន់ Database... (10%)';
+        progressBar.style.width = '10%';
+
+        try {
+            progressText.innerText = 'កំពុងទាញយកបញ្ជីបទចម្រៀងទាំងអស់... (50%)';
+            progressBar.style.width = '50%';
+
+            const snapshot = await db.collection("songs").orderBy("createdAt", "desc").get();
+            
+            progressText.innerText = 'កំពុងរៀបចំទិន្នន័យ... (80%)';
+            progressBar.style.width = '80%';
+
+            songsList = snapshot.docs.map(doc => ({ 
+                id: doc.id, 
+                ...doc.data(),
+                createdAt: doc.data().createdAt ? { seconds: doc.data().createdAt.seconds } : null,
+                updatedAt: doc.data().updatedAt ? { seconds: doc.data().updatedAt.seconds } : null
+            }));
+
+            saveSongsToCache();
+            
+            progressBar.style.width = '100%';
+            progressText.innerText = '✅ ទាញយកបាន ១០០% ជោគជ័យ!';
+            renderSongs();
+
+            setTimeout(() => {
+                progressWrapper.style.display = 'none';
+                progressText.style.display = 'none';
+                btn.style.display = 'flex';
+                btn.innerHTML = '📥 <span>ទាញយកបទចម្រៀងរួចរាល់</span>';
+            }, 2500);
+
         } catch (error) {
-            console.error("Error loading songs chunk: ", error);
-            if (songsList.length === 0) {
-                document.getElementById('songGrid').innerHTML = `<div class="empty-state">❌ មានបញ្ហាក្នុងការទាញយកទិន្នន័យ។</div>`;
-            }
+            console.error("Fetch all error:", error);
+            progressText.innerText = '❌ មានបញ្ហាក្នុងការទាញយក!';
+            setTimeout(() => {
+                progressWrapper.style.display = 'none';
+                progressText.style.display = 'none';
+                btn.style.display = 'flex';
+            }, 3000);
         }
     }
 
@@ -666,12 +702,12 @@
         });
 
         if (filtered.length === 0 && songsList.length === 0) {
-            grid.innerHTML = `<div class="empty-state" id="loadingState">⏳ កំពុងទាញយកទិន្នន័យ...</div>`;
+            grid.innerHTML = `<div class="empty-state" id="loadingState">⏳ កំពុងផ្ទុកទិន្នន័យ...</div>`;
             return;
         }
 
         if (filtered.length === 0) {
-            grid.innerHTML = `<div class="empty-state">❌ រកមិនឃើញបទចម្រៀងដែលត្រូវនឹងការស្វែងរករបស់អ្នកឡើយ</div>`;
+            grid.innerHTML = `<div class="empty-state">❌ រកមិនឃើញបទចម្រៀងដែលត្រូវនឹងការស្វែងរករបស់អ្នកឡើយ។ (សូមចុចប៊ូតុង "ទាញយកបទចម្រៀងទាំងអស់" នៅខាងលើបើចង់ស្វែងរកក្នុងគ្រប់បទទាំងអស់)</div>`;
             return;
         }
 
@@ -714,14 +750,6 @@
             </div>
             `;
         }).join('');
-
-        if (hasMoreSongs && query === '') {
-            html += `
-                <div class="load-more-container">
-                    <button class="load-more-btn" onclick="loadSongsChunk(false)">👇 ទាញយកបន្ថែម (Load More)</button>
-                </div>
-            `;
-        }
 
         grid.innerHTML = html;
     }
@@ -819,26 +847,16 @@
         saveBtn.disabled = true;
 
         try {
-            const docRef = await db.collection("songs").add({
+            await db.collection("songs").add({
                 title, artist, album,
                 imageUrl: selectedImageBase64,
                 createdBy: currentUser.displayName || currentUser.email,
                 createdAt: firebase.firestore.FieldValue.serverTimestamp()
             });
             
-            songsList.unshift({
-                id: docRef.id,
-                title, artist, album,
-                imageUrl: selectedImageBase64,
-                createdBy: currentUser.displayName || currentUser.email,
-                createdAt: { seconds: Math.floor(Date.now() / 1000) }
-            });
-
-            saveSongsToCache();
             closeModal('addSongModal');
             document.getElementById('addSongForm').reset();
             removeSelectedImage({stopPropagation:()=>{}});
-            renderSongs();
             alert('✅ បញ្ចូលបទចម្រៀងបានជោគជ័យ!');
         } catch (error) {
             alert('❌ មានបញ្ហា៖ ' + error.message);
@@ -879,19 +897,7 @@
 
         await db.collection("songs").doc(id).update(updateData);
         
-        const index = songsList.findIndex(s => s.id === id);
-        if (index !== -1) {
-            songsList[index] = { 
-                ...songsList[index], 
-                ...updateData, 
-                updatedAt: { seconds: Math.floor(Date.now() / 1000) } 
-            };
-            if (selectedEditImageBase64) songsList[index].imageUrl = selectedEditImageBase64;
-        }
-
-        saveSongsToCache();
         closeModal('editSongModal');
-        renderSongs();
         alert('✅ បានកែប្រែជោគជ័យ!');
     }
 
@@ -899,9 +905,6 @@
         if (!isEditor) return;
         if (confirm(`⚠️ លុបបទ «${title}»?`)) {
             await db.collection("songs").doc(id).delete();
-            songsList = songsList.filter(s => s.id !== id);
-            saveSongsToCache();
-            renderSongs();
             alert(`✅ បានលុបរួចរាល់!`);
         }
     }
