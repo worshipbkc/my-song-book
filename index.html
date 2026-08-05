@@ -3,13 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>W.BKC - ចម្រៀងសរសើរតម្កើងព្រះ</title>
+    <title>ចម្រៀងសរសើរតម្កើងព្រះ</title>
     
-    <!-- PWA Manifest & App Icon Setup -->
+    <!-- 🔥 PWA & Mobile Home Screen Meta & Icons -->
     <link rel="manifest" href="manifest.json">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="W.BKC">
     <link rel="apple-touch-icon" href="icon.jpg">
     <meta name="theme-color" content="#2563eb">
 
@@ -394,11 +391,6 @@
 
     window.onload = function() {
         checkInitialDarkMode();
-        
-        auth.getRedirectResult().catch((error) => {
-            console.error("Redirect error:", error);
-        });
-
         listenToAuth();
         listenToAlbums();
         fetchAllSongsSilently();
@@ -543,16 +535,20 @@
                 document.getElementById('bodyContainer').classList.remove('editor-authorized');
                 document.getElementById('userProfileArea').innerHTML = `
                     <button class="btn-auth btn-google" onclick="loginWithGoogle()">
-                        <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" width="18">
+                        <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" width="18" alt="G">
                         <span>Login តាម Gmail</span>
                     </button>`;
             }
         });
     }
 
+    // 🚀 ប្តូរមកប្រើ signInWithPopup ដើម្បីឱ្យដំណើរកាបានទាំងលើ Computer និង Mobile Home Screen App
     function loginWithGoogle() {
         const provider = new firebase.auth.GoogleAuthProvider();
-        auth.signInWithRedirect(provider).catch(error => {
+        auth.signInWithPopup(provider).then((result) => {
+            console.log("Login Success:", result.user);
+        }).catch((error) => {
+            console.error("Login error:", error);
             alert("❌ Login ខកខាន៖ " + error.message);
         });
     }
