@@ -440,15 +440,14 @@
     let songsList = [];          
     
     let customAlbums = ['ទំនុកដំកើង', 'ទំនុកខ្មែរបរិសុទ្ធ'];
-    let currentFilterType = 'ALL';      // 'ALL', 'FAV', 'ALBUM', ឬ 'TAG'
-    let currentFilterValue = 'ALL';     // ឈ្មោះ Album ឬ Tag ដែលត្រូវ filter
+    let currentFilterType = 'ALL';      
+    let currentFilterValue = 'ALL';     
     
     let favoritesList = JSON.parse(localStorage.getItem('user_favorites') || '[]');
 
     let selectedImageBase64 = '';
     let selectedEditImageBase64 = '';
 
-    // Fullscreen Slide Variables
     let currentFilteredSongs = [];
     let currentFullscreenIndex = 0;
 
@@ -1091,7 +1090,6 @@
     }
     function closeModal(id) { document.getElementById(id).classList.remove('active'); }
 
-    // --- Fullscreen & Slide Functions ---
     function openFullScreenByIndex(index) {
         currentFilteredSongs = getFilteredSongs();
         if (currentFilteredSongs.length === 0) return;
@@ -1117,9 +1115,9 @@
         
         currentFullscreenIndex += direction;
         if (currentFullscreenIndex < 0) {
-            currentFullscreenIndex = currentFilteredSongs.length - 1; // Loop to end
+            currentFullscreenIndex = currentFilteredSongs.length - 1; 
         } else if (currentFullscreenIndex >= currentFilteredSongs.length) {
-            currentFullscreenIndex = 0; // Loop to start
+            currentFullscreenIndex = 0; 
         }
         updateFullScreenContent();
     }
@@ -1133,7 +1131,6 @@
         document.getElementById('fullScreenModal').classList.remove('active'); 
     }
 
-    // Touch Swipe Support for Fullscreen Modal
     let touchStartX = 0;
     let touchEndX = 0;
 
@@ -1152,17 +1149,14 @@
     }
 
     function handleSwipeGesture() {
-        const threshold = 50; // Minimum distance for swipe
+        const threshold = 50; 
         if (touchEndX < touchStartX - threshold) {
-            // Swiped Left -> Next Song
             slideFullScreen(1);
         } else if (touchEndX > touchStartX + threshold) {
-            // Swiped Right -> Previous Song
             slideFullScreen(-1);
         }
     }
 
-    // ចុះឈ្មោះ Service Worker សម្រាប់ Offline Mode
     if ('serviceWorker' in navigator) {
         window.addEventListener('load', () => {
             navigator.serviceWorker.register('./sw.js')
