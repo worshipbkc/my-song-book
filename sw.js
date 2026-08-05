@@ -44,7 +44,7 @@ self.addEventListener('fetch', (event) => {
                 return cachedResponse;
             }
             return fetch(event.request).catch(() => {
-                // กรณีគ្មានអ៊ិនធឺណិត ហើយសំណើគឺចូលទំព័រ HTML
+                // ករណីគ្មានអ៊ិនធឺណិត ហើយសំណើគឺចូលទំព័រ HTML
                 if (event.request.mode === 'navigate') {
                     return caches.match('./index.html');
                 }
