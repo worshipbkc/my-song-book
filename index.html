@@ -1162,17 +1162,20 @@
         }
     }
 <script>
-if ('serviceWorker' in navigator) {
-    window.addEventListener('load', () => {
-        navigator.serviceWorker.register('./sw.js')
-            .then((reg) => {
-                console.log('Service Worker បានចុះឈ្មោះជោគជ័យ៖', reg.scope);
-            })
-            .catch((err) => {
-                console.log('Service Worker ចុះឈ្មោះបរាជ័យ៖', err);
-            });
-    });
-}
+    // កូដ JavaScript ផ្សេងៗដែលមានស្រាប់នៅចុងស្គ្រីបរបស់អ្នកអាចនៅទីនេះ...
+
+    // ចុះឈ្មោះ Service Worker សម្រាប់ Offline Mode
+    if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+            navigator.serviceWorker.register('./sw.js')
+                .then((reg) => {
+                    console.log('Service Worker បានចុះឈ្មោះជោគជ័យ៖', reg.scope);
+                })
+                .catch((err) => {
+                    console.log('Service Worker ចុះឈ្មោះបរាជ័យ៖', err);
+                });
+        });
+    }
 </script>
 </body>
 </html>
