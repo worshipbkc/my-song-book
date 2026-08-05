@@ -455,7 +455,21 @@
         checkSystemDarkMode();
         listenToAuth();
         listenToAlbums();
-        fetchAllSongsSilently();
+        
+        const cachedSongs = localStorage.getItem('cached_songs_list');
+        if (cachedSongs) {
+            try {
+                songsList = JSON.parse(cachedSongs);
+                renderSongs();
+                const btn = document.getElementById('fetchAllBtn');
+                if(btn) btn.innerHTML = '📥 <span>ទាញយកបទចម្រៀងរួចរាល់</span>';
+            } catch (e) {
+                fetchAllSongsSilently();
+            }
+        } else {
+            fetchAllSongsSilently();
+        }
+
         setupGlobalPasteListener();
         setupTouchSwipeListeners();
     };
@@ -552,6 +566,8 @@
             }));
 
             saveSongsToCache();
+            localStorage.setItem('has_fetched_all', 'true');
+
             progressBar.style.width = '100%';
             progressText.innerText = '✅ ទាញយកបាន ១០០% ជោគជ័យ!';
             renderSongs();
@@ -561,7 +577,7 @@
                 progressText.style.display = 'none';
                 btn.style.display = 'flex';
                 btn.innerHTML = '📥 <span>ទាញយកបទចម្រៀងរួចរាល់</span>';
-            }, 2500);
+            }, 2000);
 
         } catch (error) {
             progressText.innerText = '❌ មានបញ្ហា!';
@@ -1156,19 +1172,6 @@
             slideFullScreen(-1);
         }
     }
-
-    if ('serviceWorker' in navigator) {
-        window.addEventListener('load', () => {
-            navigator.serviceWorker.register('./sw.js')
-                .then((reg) => {
-                    console.log('Service Worker បានចុះឈ្មោះជោគជ័យ៖', reg.scope);
-                })
-                .catch((err) => {
-                    console.log('Service Worker ចុះឈ្មោះបរាជ័យ៖', err);
-                });
-        });
-    }
 </script>
-
 </body>
 </html>
