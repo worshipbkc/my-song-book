@@ -43,7 +43,7 @@
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Kantumruy Pro', sans-serif; transition: background-color 0.2s, color 0.2s; }
-        body { background-color: var(--bg); color: var(--text); display: flex; min-height: 100vh; position: relative; }
+        body { background-color: var(--bg); color: var(--text); display: flex; min-height: 100vh; position: relative; padding-bottom: 70px; }
 
         .sidebar-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0, 0, 0, 0.5); z-index: 99; }
         .sidebar-overlay.active { display: block; }
@@ -164,13 +164,27 @@
         .song-card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; display: flex; flex-direction: column; position: relative; }
         
         .song-index-badge { position: absolute; top: 10px; left: 10px; background: rgba(0, 0, 0, 0.6); color: white; font-size: 0.75rem; font-weight: 700; padding: 2px 8px; border-radius: 20px; z-index: 2; backdrop-filter: blur(4px); }
+        
+        .fav-btn { position: absolute; top: 10px; right: 10px; background: rgba(255, 255, 255, 0.8); border: none; width: 32px; height: 32px; border-radius: 50%; font-size: 1rem; cursor: pointer; display: flex; align-items: center; justify-content: center; z-index: 2; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        body.dark-mode .fav-btn { background: rgba(30, 41, 59, 0.8); }
 
         .song-img-container { width: 100%; min-height: 220px; background: var(--border); display: flex; align-items: center; justify-content: center; overflow: hidden; cursor: pointer; position: relative; }
         .song-img { width: 100%; height: 100%; max-height: 380px; object-fit: contain; display: block; }
         .song-info { padding: 14px; flex: 1; display: flex; flex-direction: column; justify-content: space-between; }
         .song-title { font-size: 1rem; font-weight: 700; margin-bottom: 4px; color: var(--text); }
         .song-artist { font-size: 0.85rem; color: var(--text-muted); }
+        
+        .song-tag-badge { display: inline-block; font-size: 0.7rem; background: var(--border); color: var(--text-muted); padding: 2px 6px; border-radius: 4px; margin-top: 4px; font-weight: 600; }
+        
         .song-meta-info { font-size: 0.72rem; color: var(--text-muted); margin-top: 6px; display: flex; flex-direction: column; gap: 2px; }
+
+        /* Audio Player Bar Footer */
+        .audio-player-bar { position: fixed; bottom: 0; left: 0; right: 0; background: var(--card-bg); border-top: 1px solid var(--border); padding: 10px 20px; display: none; align-items: center; justify-content: space-between; z-index: 1500; box-shadow: 0 -4px 10px rgba(0,0,0,0.05); gap: 15px; }
+        .audio-player-bar.active { display: flex; }
+        .audio-info { font-size: 0.85rem; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 250px; }
+        .audio-controls { display: flex; align-items: center; gap: 10px; flex: 1; max-width: 500px; }
+        .audio-controls audio { width: 100%; height: 35px; }
+        .close-audio-btn { background: none; border: none; font-size: 1.1rem; cursor: pointer; color: var(--danger); padding: 4px; }
 
         .empty-state { text-align: center; padding: 40px 20px; color: var(--text-muted); grid-column: 1 / -1; }
 
@@ -208,6 +222,8 @@
             .fetch-all-container { align-items: stretch; width: 100%; }
             .fetch-all-btn { width: 100%; justify-content: center; }
             .progress-wrapper { width: 100%; }
+            .audio-player-bar { flex-direction: column; align-items: stretch; gap: 8px; padding: 10px; }
+            .audio-controls { max-width: 100%; }
         }
     </style>
 </head>
@@ -268,7 +284,7 @@
 
     <div class="controls">
         <div class="search-box">
-            <input type="text" id="searchInput" placeholder="ស្វែងរកចំណងជើង ឬអ្នកចម្រៀង..." oninput="handleSearchInput()">
+            <input type="text" id="searchInput" placeholder="ស្វែងរកចំណងជើង អ្នកចម្រៀង ឬ Tag..." oninput="handleSearchInput()">
             <button class="search-btn" onclick="renderSongs()">🔍</button>
         </div>
         <button class="dark-mode-btn" id="darkModeBtn" onclick="toggleDarkMode()" title="ប្តូរពណ៌ Dark/Light Mode">🌙</button>
@@ -277,6 +293,15 @@
     <div class="song-grid" id="songGrid">
         <div class="empty-state" id="loadingState">📂 កំពុងផ្ទុកទិន្នន័យ...</div>
     </div>
+</div>
+
+<!-- Audio Player Floating Bar -->
+<div class="audio-player-bar" id="audioPlayerBar">
+    <div class="audio-info" id="audioPlayerTitle">🎧 កំពុងចាក់បទចម្រៀង</div>
+    <div class="audio-controls">
+        <audio id="globalAudio" controls></audio>
+    </div>
+    <button class="close-audio-btn" onclick="stopGlobalAudio()" title="បិទ Player">✖</button>
 </div>
 
 <div class="fullscreen-modal" id="fullScreenModal" onclick="closeFullScreenModal(event)">
@@ -306,6 +331,14 @@
                 <input type="text" id="songArtist" placeholder="ឈ្មោះអ្នកចម្រៀង">
             </div>
             <div class="form-group">
+                <label>ប្រភេទបទ (Tag)</label>
+                <input type="text" id="songTag" placeholder="ឧទាហរណ៍៖ Worship, Praise, Youth">
+            </div>
+            <div class="form-group">
+                <label>តំណភ្ជាប់ភ្លេងអូឌីយ៉ូ (Audio MP3 Link - ដាក់បើមាន)</label>
+                <input type="url" id="songAudioUrl" placeholder="https://example.com/song.mp3">
+            </div>
+            <div class="form-group">
                 <label>រូបភាពបទចម្រៀង *</label>
                 <div class="image-drop-zone" id="dropZone" onclick="document.getElementById('songImageFile').click()" ondragover="handleDragOver(event)" ondragleave="handleDragLeave(event)" ondrop="handleDrop(event)">
                     <p>📁 ចុចទីនេះ ឬ **ទាញទម្លាក់រូបភាព** ចូលទីនេះ<br><span style="color:var(--primary); font-weight:600;">(អាចចុច Ctrl+V ដើម្បី Paste រូបភាព)</span></p>
@@ -326,7 +359,7 @@
 
 <div class="modal" id="editSongModal">
     <div class="modal-content">
-        <h2>✏️ កែប្រែបទចម្រៀង / ដូររូបភាព</h2>
+        <h2>✏️ កែប្រែបទចម្រៀង</h2>
         <form id="editSongForm" onsubmit="handleUpdateSong(event)" style="margin-top: 15px;">
             <input type="hidden" id="editSongId">
             <div class="form-group">
@@ -340,6 +373,14 @@
             <div class="form-group">
                 <label>ឈ្មោះអ្នកចម្រៀង</label>
                 <input type="text" id="editSongArtist">
+            </div>
+            <div class="form-group">
+                <label>ប្រភេទបទ (Tag)</label>
+                <input type="text" id="editSongTag">
+            </div>
+            <div class="form-group">
+                <label>តំណភ្ជាប់ភ្លេងអូឌីយ៉ូ (Audio MP3 Link)</label>
+                <input type="url" id="editSongAudioUrl">
             </div>
             <div class="form-group">
                 <label>ប្ដូររូបភាពថ្មី</label>
@@ -386,16 +427,50 @@
     
     let customAlbums = ['ទំនុកដំកើង', 'ទំនុកខ្មែរបរិសុទ្ធ'];
     let currentSelectedAlbum = 'ALL';
+    let favoritesList = JSON.parse(localStorage.getItem('user_favorites') || '[]');
+
     let selectedImageBase64 = '';
     let selectedEditImageBase64 = '';
 
     window.onload = function() {
-        checkInitialDarkMode();
+        checkSystemDarkMode();
         listenToAuth();
         listenToAlbums();
         fetchAllSongsSilently();
         setupGlobalPasteListener();
     };
+
+    // 4. Auto Dark/Light Mode (Sync with System Theme + manual override)
+    function checkSystemDarkMode() {
+        const savedMode = localStorage.getItem('theme_mode');
+        if (savedMode) {
+            if (savedMode === 'dark') {
+                document.body.classList.add('dark-mode');
+                updateDarkModeIcon('☀️');
+            } else {
+                document.body.classList.remove('dark-mode');
+                updateDarkModeIcon('🌙');
+            }
+        } else {
+            // Check system preference
+            if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+                document.body.classList.add('dark-mode');
+                updateDarkModeIcon('☀️');
+            }
+        }
+    }
+
+    function toggleDarkMode() {
+        document.body.classList.toggle('dark-mode');
+        const isDark = document.body.classList.contains('dark-mode');
+        localStorage.setItem('theme_mode', isDark ? 'dark' : 'light');
+        updateDarkModeIcon(isDark ? '☀️' : '🌙');
+    }
+
+    function updateDarkModeIcon(iconText) {
+        const btn = document.getElementById('darkModeBtn');
+        if (btn) btn.innerText = iconText;
+    }
 
     function saveSongsToCache() {
         try {
@@ -412,25 +487,20 @@
                 songsList = JSON.parse(cachedSongs);
                 renderSongs();
                 return;
-            } catch (e) {
-                console.error("Cache parse error", e);
-            }
+            } catch (e) {}
         }
 
         try {
             const snapshot = await db.collection("songs").orderBy("createdAt", "desc").get();
-            
             songsList = snapshot.docs.map(doc => ({ 
                 id: doc.id, 
                 ...doc.data(),
                 createdAt: doc.data().createdAt ? { seconds: doc.data().createdAt.seconds } : null,
                 updatedAt: doc.data().updatedAt ? { seconds: doc.data().updatedAt.seconds } : null
             }));
-
             saveSongsToCache();
             renderSongs();
         } catch (error) {
-            console.error("Auto fetch error:", error);
             document.getElementById('songGrid').innerHTML = `<div class="empty-state">❌ មានបញ្ហាក្នុងការទាញយកទិន្នន័យ សូមចុចប៊ូតុង "ទាញយកបទចម្រៀងទាំងអស់"។</div>`;
         }
     }
@@ -444,7 +514,7 @@
         btn.style.display = 'none';
         progressWrapper.style.display = 'block';
         progressText.style.display = 'block';
-        progressText.innerText = 'កំពុងតភ្ជាប់ទៅកាន់ Database... (10%)';
+        progressText.innerText = 'កំពុងតភ្ជាប់... (10%)';
         progressBar.style.width = '10%';
 
         try {
@@ -453,7 +523,7 @@
 
             const snapshot = await db.collection("songs").orderBy("createdAt", "desc").get();
             
-            progressText.innerText = 'កំពុងរៀបចំរក្សាទុកក្នុងម៉ាស៊ីន... (80%)';
+            progressText.innerText = 'កំពុងរក្សាទុក... (80%)';
             progressBar.style.width = '80%';
 
             songsList = snapshot.docs.map(doc => ({ 
@@ -464,9 +534,8 @@
             }));
 
             saveSongsToCache();
-            
             progressBar.style.width = '100%';
-            progressText.innerText = '✅ ទាញយកទិន្នន័យថ្មីបាន ១០០% ជោគជ័យ!';
+            progressText.innerText = '✅ ទាញយកបាន ១០០% ជោគជ័យ!';
             renderSongs();
 
             setTimeout(() => {
@@ -477,36 +546,13 @@
             }, 2500);
 
         } catch (error) {
-            console.error("Fetch all error:", error);
-            progressText.innerText = '❌ មានបញ្ហាក្នុងការទាញយក!';
+            progressText.innerText = '❌ មានបញ្ហា!';
             setTimeout(() => {
                 progressWrapper.style.display = 'none';
                 progressText.style.display = 'none';
                 btn.style.display = 'flex';
             }, 3000);
         }
-    }
-
-    function checkInitialDarkMode() {
-        const savedMode = localStorage.getItem('theme_mode');
-        if (savedMode === 'dark') {
-            document.body.classList.add('dark-mode');
-            updateDarkModeIcon('☀️');
-        } else {
-            updateDarkModeIcon('🌙');
-        }
-    }
-
-    function toggleDarkMode() {
-        document.body.classList.toggle('dark-mode');
-        const isDark = document.body.classList.contains('dark-mode');
-        localStorage.setItem('theme_mode', isDark ? 'dark' : 'light');
-        updateDarkModeIcon(isDark ? '☀️' : '🌙');
-    }
-
-    function updateDarkModeIcon(iconText) {
-        const btn = document.getElementById('darkModeBtn');
-        if (btn) btn.innerText = iconText;
     }
 
     function listenToAuth() {
@@ -542,13 +588,9 @@
         });
     }
 
-    // 🚀 ប្តូរមកប្រើ signInWithPopup ដើម្បីឱ្យដំណើរកាបានទាំងលើ Computer និង Mobile Home Screen App
     function loginWithGoogle() {
         const provider = new firebase.auth.GoogleAuthProvider();
-        auth.signInWithPopup(provider).then((result) => {
-            console.log("Login Success:", result.user);
-        }).catch((error) => {
-            console.error("Login error:", error);
+        auth.signInWithPopup(provider).catch((error) => {
             alert("❌ Login ខកខាន៖ " + error.message);
         });
     }
@@ -579,62 +621,43 @@
     }
 
     function toggleProfileDropdown() {
-        const menu = document.getElementById('profileDropdownMenu');
-        const btn = document.getElementById('profileToggleBtn');
-        menu.classList.toggle('open');
-        btn.classList.toggle('active');
+        document.getElementById('profileDropdownMenu').classList.toggle('open');
+        document.getElementById('profileToggleBtn').classList.toggle('active');
     }
 
     async function handleDeleteAlbum() {
         if (!isAdmin) return alert("❌ មានតែ Admin ទេដែលអាចលុប Album បាន!");
-        if (customAlbums.length === 0) return alert("❌ មិនទាន់មាន Album សម្រាប់លុបឡើយ!");
-
-        let password = prompt("🔐 សូមបញ្ចូលលេខសម្ងាត់ដើម្បីលុប Album៖");
-        if (password === null) return;
-        if (password !== "1234") return alert("❌ លេខសម្ងាត់មិនត្រឹមត្រូវទេ!");
+        let password = prompt("🔐 លេខសម្ងាត់ Admin៖");
+        if (password !== "1234") return alert("❌ លេខសម្ងាត់ខុស!");
 
         let albumOptions = customAlbums.map((album, index) => `${index + 1}. ${album}`).join('\n');
-        let selectedIndex = prompt(`✅ លេខសម្ងាត់ត្រឹមត្រូវ!\n\n🗑️ [Admin] សូមជ្រើសរើសលេខ Album ដែលអ្នកចង់លុប៖\n\n${albumOptions}`);
-
+        let selectedIndex = prompt(`🗑️ ជ្រើសរើសលេខ Album ដែលត្រូវលុប៖\n\n${albumOptions}`);
         if (selectedIndex) {
             let index = parseInt(selectedIndex) - 1;
             if (index >= 0 && index < customAlbums.length) {
                 let albumToDelete = customAlbums[index];
-                if (confirm(`⚠️ តើអ្នកប្រាកដថាលុប Album «${albumToDelete}» នេះមែនទេ?`)) {
-                    try {
-                        await db.collection("albums").doc(albumToDelete).delete();
-                        if (currentSelectedAlbum === albumToDelete) currentSelectedAlbum = 'ALL';
-                        alert(`✅ បានលុប Album «${albumToDelete}» រួចរាល់!`);
-                    } catch (error) {
-                        alert("❌ មានបញ្ហា៖ " + error.message);
-                    }
+                if (confirm(`⚠️ លុប Album «${albumToDelete}»?`)) {
+                    await db.collection("albums").doc(albumToDelete).delete();
+                    if (currentSelectedAlbum === albumToDelete) currentSelectedAlbum = 'ALL';
+                    alert(`✅ បានលុប Album រួចរាល់!`);
                 }
             }
         }
     }
 
     async function handleInvite() {
-        const emailToInvite = prompt("✉️ [Admin] បញ្ចូល Gmail របស់អ្នកដែលអ្នកចង់ Invite ឱ្យមានសិទ្ធិកែប្រែ៖");
+        const emailToInvite = prompt("✉️ បញ្ចូល Gmail ដែលត្រូវផ្ដល់សិទ្ធិ:");
         if (emailToInvite && emailToInvite.includes('@')) {
             const cleanEmail = emailToInvite.trim().toLowerCase();
-            await db.collection("editors").doc(cleanEmail).set({
-                email: cleanEmail,
-                role: 'editor',
-                addedBy: currentUser.email,
-                addedAt: firebase.firestore.FieldValue.serverTimestamp()
-            });
+            await db.collection("editors").doc(cleanEmail).set({ email: cleanEmail, role: 'editor' });
             alert(`✅ បានបន្ថែមសិទ្ធិឱ្យ ${cleanEmail} រួចរាល់!`);
         }
     }
 
     async function handleJoin() {
-        if (confirm(`តើអ្នកចង់ផ្ញើសំណើ Join ដើម្បីសុំសិទ្ធិកែប្រែទិន្នន័យដោយប្រើអ៊ីមែល ${currentUser.email} ដែរឬទេ?`)) {
-            await db.collection("join_requests").doc(currentUser.email.toLowerCase()).set({
-                email: currentUser.email,
-                name: currentUser.displayName,
-                requestedAt: firebase.firestore.FieldValue.serverTimestamp()
-            });
-            alert("✅ សំណើរបស់អ្នកត្រូវបានផ្ញើជូន Admin រួចរាល់!");
+        if (confirm(`ស្នើសុំសិទ្ធិកែប្រែដោយប្រើអ៊ីមែល ${currentUser.email}?`)) {
+            await db.collection("join_requests").doc(currentUser.email.toLowerCase()).set({ email: currentUser.email, name: currentUser.displayName });
+            alert("✅ បានផ្ញើសំណើជូន Admin រួចរាល់!");
         }
     }
 
@@ -653,6 +676,9 @@
             <div class="menu-item ${currentSelectedAlbum === 'ALL' ? 'active' : ''}" onclick="selectAlbum('ALL')">
                 <div class="menu-item-left">🎵 <span>បទចម្រៀងទាំងអស់</span></div>
             </div>
+            <div class="menu-item ${currentSelectedAlbum === 'FAV' ? 'active' : ''}" onclick="selectAlbum('FAV')">
+                <div class="menu-item-left">❤️ <span>បទសំណព្វចិត្តខ្ញុំ</span></div>
+            </div>
         `;
         customAlbums.forEach(album => {
             html += `
@@ -666,25 +692,59 @@
 
     function selectAlbum(albumName) {
         currentSelectedAlbum = albumName;
-        document.getElementById('currentAlbumSubtitle').innerHTML = albumName === 'ALL' ? 
-            `ចូរឱ្យជីវិតទាំងឡាយដែលមានដង្ហើម បានសរសើរដល់ព្រះយ៉េហូវ៉ាចុះ<br><span style="color: var(--primary); font-weight: 700;">ទំនុកដំកើង ១៥០៖៦</span>` : 
-            `📁 Album៖ <span style="color: var(--primary); font-weight: 700;">${albumName}</span>`;
+        if (albumName === 'ALL') {
+            document.getElementById('currentAlbumSubtitle').innerHTML = `ចូរឱ្យជីវិតទាំងឡាយដែលមានដង្ហើម បានសរសើរដល់ព្រះយ៉េហូវ៉ាចុះ<br><span style="color: var(--primary); font-weight: 700;">ទំនុកដំកើង ១៥០៖៦</span>`;
+        } else if (albumName === 'FAV') {
+            document.getElementById('currentAlbumSubtitle').innerHTML = `❤️ Album បទចម្រៀងសំណព្វចិត្តដែលបានរក្សាទុក`;
+        } else {
+            document.getElementById('currentAlbumSubtitle').innerHTML = `📁 Album៖ <span style="color: var(--primary); font-weight: 700;">${albumName}</span>`;
+        }
         renderSidebarMenu();
         renderSongs();
         closeMobileSidebar();
     }
 
     async function addNewAlbum() {
-        const albumName = prompt("➕ បញ្ចូលឈ្មោះ Album ថ្មី៖");
+        const albumName = prompt("➕ ឈ្មោះ Album ថ្មី៖");
         if (albumName && albumName.trim() !== "") {
             const name = albumName.trim();
             await db.collection("albums").doc(name).set({ name });
-            alert(`✅ បានបង្កើត Album «${name}» រួចរាល់!`);
+            alert(`✅ បានបង្កើត Album «${name}»!`);
         }
     }
 
-    function handleSearchInput() {
+    function handleSearchInput() { renderSongs(); }
+
+    // 2. Toggle Favorite
+    function toggleFavorite(songId, event) {
+        if(event) event.stopPropagation();
+        const index = favoritesList.indexOf(songId);
+        if (index > -1) {
+            favoritesList.splice(index, 1);
+        } else {
+            favoritesList.push(songId);
+        }
+        localStorage.setItem('user_favorites', JSON.stringify(favoritesList));
         renderSongs();
+    }
+
+    // 1. Play Background Audio
+    function playAudio(audioUrl, songTitle, event) {
+        if(event) event.stopPropagation();
+        if(!audioUrl) return alert("⚠️ បទចម្រៀងនេះមិនទាន់មានតំណភ្ជាប់ភ្លេងអូឌីយ៉ូឡើយ!");
+        const bar = document.getElementById('audioPlayerBar');
+        const audio = document.getElementById('globalAudio');
+        document.getElementById('audioPlayerTitle').innerText = `🎧 ${songTitle}`;
+        audio.src = audioUrl;
+        bar.classList.add('active');
+        audio.play().catch(e => alert("❌ មិនអាចលេងភ្លេងបាន៖ " + e.message));
+    }
+
+    function stopGlobalAudio() {
+        const audio = document.getElementById('globalAudio');
+        audio.pause();
+        audio.src = '';
+        document.getElementById('audioPlayerBar').classList.remove('active');
     }
 
     function renderSongs() {
@@ -692,31 +752,38 @@
         const query = document.getElementById('searchInput').value.toLowerCase().trim();
 
         const filtered = songsList.filter(s => {
-            const matchesSearch = (s.title && s.title.toLowerCase().includes(query)) || (s.artist && s.artist.toLowerCase().includes(query));
-            const matchesAlbum = currentSelectedAlbum === 'ALL' || (s.album || 'ទូទៅ') === currentSelectedAlbum;
+            const matchesSearch = (s.title && s.title.toLowerCase().includes(query)) || 
+                                  (s.artist && s.artist.toLowerCase().includes(query)) ||
+                                  (s.tag && s.tag.toLowerCase().includes(query));
+            
+            let matchesAlbum = true;
+            if (currentSelectedAlbum === 'FAV') {
+                matchesAlbum = favoritesList.includes(s.id);
+            } else if (currentSelectedAlbum !== 'ALL') {
+                matchesAlbum = (s.album || 'ទូទៅ') === currentSelectedAlbum;
+            }
             return matchesSearch && matchesAlbum;
         });
 
         if (filtered.length === 0 && songsList.length === 0) {
-            grid.innerHTML = `<div class="empty-state" id="loadingState">📂 មិនទាន់មានបទចម្រៀងក្នុងម៉ាស៊ីន សូមចុចប៊ូតុង **"ទាញយកបទចម្រៀងទាំងអស់"** នៅខាងលើ។</div>`;
+            grid.innerHTML = `<div class="empty-state">📂 មិនទាន់មានទិន្នន័យ សូមចុចប៊ូតុង **"ទាញយកបទចម្រៀងទាំងអស់"**។</div>`;
             return;
         }
 
         if (filtered.length === 0) {
-            grid.innerHTML = `<div class="empty-state">❌ រកមិនឃើញបទចម្រៀងដែលត្រូវនឹងការស្វែងរករបស់អ្នកឡើយ។</div>`;
+            grid.innerHTML = `<div class="empty-state">❌ រកមិនឃើញបទចម្រៀងដែលត្រូវស្វែងរកទេ។</div>`;
             return;
         }
 
         let html = filtered.map((song, index) => {
             const safeTitle = (song.title || '').replace(/'/g, "\\'").replace(/"/g, '&quot;');
+            const isFav = favoritesList.includes(song.id);
             
             let dateText = '';
             if (song.updatedAt && song.updatedAt.seconds) {
-                const dateObj = new Date(song.updatedAt.seconds * 1000);
-                dateText = `កែប្រែ៖ ${dateObj.toLocaleDateString('km-KH')}`;
+                dateText = `កែប្រែ៖ ${new Date(song.updatedAt.seconds * 1000).toLocaleDateString('km-KH')}`;
             } else if (song.createdAt && song.createdAt.seconds) {
-                const dateObj = new Date(song.createdAt.seconds * 1000);
-                dateText = `បញ្ចូល៖ ${dateObj.toLocaleDateString('km-KH')}`;
+                dateText = `បញ្ចូល៖ ${new Date(song.createdAt.seconds * 1000).toLocaleDateString('km-KH')}`;
             }
 
             const editorInfo = song.updatedBy ? `កែដោយ៖ ${song.updatedBy}` : (song.createdBy ? `បញ្ចូលដោយ៖ ${song.createdBy}` : '');
@@ -724,6 +791,8 @@
             return `
             <div class="song-card">
                 <div class="song-index-badge">#${index + 1}</div>
+                <button class="fav-btn" onclick="toggleFavorite('${song.id}', event)" title="ដាក់ចូលចិត្ត">${isFav ? '❤️' : '🤍'}</button>
+                
                 <div class="song-img-container" onclick="openFullScreen('${song.imageUrl}', '${safeTitle}')">
                     <img src="${song.imageUrl || 'https://via.placeholder.com/300x200'}" class="song-img" loading="lazy">
                 </div>
@@ -731,7 +800,9 @@
                     <div>
                         <div class="song-title">${song.title}</div>
                         <div class="song-artist">${song.artist || 'មិនស្គាល់អ្នកចម្រៀង'}</div>
+                        ${song.tag ? `<span class="song-tag-badge">🏷️ ${song.tag}</span>` : ''}
                         <div class="song-meta-info">
+                            ${song.audioUrl ? `<button style="background:var(--primary); color:white; border:none; padding:4px 8px; border-radius:6px; font-size:0.75rem; font-weight:600; cursor:pointer; margin:4px 0; width:fit-content;" onclick="playAudio('${song.audioUrl}', '${safeTitle}', event)">▶ ចាក់ភ្លេងអម</button>` : ''}
                             ${dateText ? `<span>📅 ${dateText}</span>` : ''}
                             ${editorInfo ? `<span>👤 ${editorInfo}</span>` : ''}
                         </div>
@@ -757,13 +828,11 @@
                 const blob = await response.blob();
                 const file = new File([blob], `${title}.jpg`, { type: blob.type });
                 if (navigator.canShare && navigator.canShare({ files: [file] })) {
-                    await navigator.share({ title: title, text: `បទចម្រៀង៖ ${title}`, files: [file] });
+                    await navigator.share({ title: title, text: `បទ៖ ${title}`, files: [file] });
                     return;
                 }
             } catch (error) {}
-            try {
-                await navigator.share({ title: title, text: `បទចម្រៀង៖ ${title}`, url: imgUrl });
-            } catch (err) {}
+            try { await navigator.share({ title: title, text: `បទ៖ ${title}`, url: imgUrl }); } catch (err) {}
         } else {
             navigator.clipboard.writeText(imgUrl);
             alert("📋 បានចម្លងតំណភ្ជាប់រូបភាពរួចរាល់!");
@@ -834,17 +903,19 @@
 
         const title = document.getElementById('songTitle').value.trim();
         const artist = document.getElementById('songArtist').value.trim();
+        const tag = document.getElementById('songTag').value.trim();
+        const audioUrl = document.getElementById('songAudioUrl').value.trim();
         const album = document.getElementById('songAlbumSelect').value;
 
         if (!selectedImageBase64) return alert("⚠️ សូមជ្រើសរើសរូបភាពបទចម្រៀង!");
 
         const saveBtn = document.getElementById('saveBtn');
-        saveBtn.innerText = '⏳ កំពុងរក្សាទុក...'; 
+        saveBtn.innerText = '⏳ រក្សាទុក...'; 
         saveBtn.disabled = true;
 
         try {
             const docRef = await db.collection("songs").add({
-                title, artist, album,
+                title, artist, tag, audioUrl, album,
                 imageUrl: selectedImageBase64,
                 createdBy: currentUser.displayName || currentUser.email,
                 createdAt: firebase.firestore.FieldValue.serverTimestamp()
@@ -852,7 +923,7 @@
             
             songsList.unshift({
                 id: docRef.id,
-                title, artist, album,
+                title, artist, tag, audioUrl, album,
                 imageUrl: selectedImageBase64,
                 createdBy: currentUser.displayName || currentUser.email,
                 createdAt: { seconds: Math.floor(Date.now() / 1000) }
@@ -880,6 +951,8 @@
         document.getElementById('editSongId').value = song.id;
         document.getElementById('editSongTitle').value = song.title || '';
         document.getElementById('editSongArtist').value = song.artist || '';
+        document.getElementById('editSongTag').value = song.tag || '';
+        document.getElementById('editSongAudioUrl').value = song.audioUrl || '';
 
         const select = document.getElementById('editSongAlbumSelect');
         select.innerHTML = customAlbums.map(a => `<option value="${a}" ${a === song.album ? 'selected' : ''}>${a}</option>`).join('');
@@ -895,6 +968,8 @@
         const updateData = {
             title: document.getElementById('editSongTitle').value.trim(),
             artist: document.getElementById('editSongArtist').value.trim(),
+            tag: document.getElementById('editSongTag').value.trim(),
+            audioUrl: document.getElementById('editSongAudioUrl').value.trim(),
             album: document.getElementById('editSongAlbumSelect').value,
             updatedBy: currentUser.displayName || currentUser.email,
             updatedAt: firebase.firestore.FieldValue.serverTimestamp()
@@ -919,11 +994,9 @@
         if (!isEditor) return;
         if (confirm(`⚠️ លុបបទ «${title}»?`)) {
             await db.collection("songs").doc(id).delete();
-            
             songsList = songsList.filter(s => s.id !== id);
             saveSongsToCache();
             renderSongs();
-
             alert(`✅ បានលុបរួចរាល់!`);
         }
     }
