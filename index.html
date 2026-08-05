@@ -1161,8 +1161,8 @@
             slideFullScreen(-1);
         }
     }
-</script>
-    if ('serviceWorker' in navigator) {
+<script>
+if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
         navigator.serviceWorker.register('./sw.js')
             .then((reg) => {
@@ -1173,5 +1173,6 @@
             });
     });
 }
+</script>
 </body>
 </html>
