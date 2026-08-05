@@ -456,6 +456,7 @@
         listenToAuth();
         listenToAlbums();
         
+        // ពិនិត្យទិន្នន័យពី Local Storage Caching មុនគេបង្អស់
         const cachedSongs = localStorage.getItem('cached_songs_list');
         if (cachedSongs) {
             try {
@@ -512,6 +513,7 @@
         }
     }
 
+    // មុខងារទាញយកទិន្នន័យដោយស្ងៀមស្ងាត់
     async function fetchAllSongsSilently() {
         const cachedSongs = localStorage.getItem('cached_songs_list');
         if (cachedSongs) {
