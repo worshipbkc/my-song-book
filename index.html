@@ -71,13 +71,16 @@
         .dropdown-arrow { font-size: 0.7rem; color: var(--text-muted); transition: transform 0.3s ease; padding-left: 8px; }
         .user-profile-card.active .dropdown-arrow { transform: rotate(180deg); }
 
-        .profile-dropdown-menu { display: none; background: var(--card-bg); border-top: 1px solid var(--border); padding: 6px; box-shadow: inset 0 2px 4px rgba(0,0,0,0.02); }
+        .profile-dropdown-menu { display: none; background: var(--card-bg); border-top: 1px solid var(--border); padding: 8px; box-shadow: inset 0 2px 4px rgba(0,0,0,0.02); max-height: 350px; overflow-y: auto; }
         .profile-dropdown-menu.open { display: flex; flex-direction: column; gap: 4px; }
 
         .dropdown-item { display: flex; align-items: center; gap: 10px; width: 100%; padding: 10px 12px; border: none; background: transparent; border-radius: 8px; font-size: 0.88rem; font-weight: 600; cursor: pointer; text-align: left; color: var(--text); transition: background 0.2s; }
         .dropdown-item:hover { background: var(--border); }
+        .dropdown-item.active-sub { background: var(--primary); color: white; }
         .dropdown-item.danger { color: var(--danger); }
         .dropdown-item.danger:hover { background: #fee2e2; }
+        .dropdown-divider { height: 1px; background: var(--border); margin: 4px 0; }
+        .dropdown-section-title { font-size: 0.75rem; color: var(--text-muted); font-weight: 700; padding: 4px 12px; text-transform: uppercase; }
 
         .btn-auth { padding: 10px 14px; border-radius: 8px; border: none; font-size: 0.85rem; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 8px; justify-content: center; width: 100%; }
         .btn-google { background: white; border: 1px solid var(--border); color: #333; margin: 12px 14px; width: calc(100% - 28px); }
@@ -426,7 +429,9 @@
     let songsList = [];          
     
     let customAlbums = ['ទំនុកដំកើង', 'ទំនុកខ្មែរបរិសុទ្ធ'];
-    let currentSelectedAlbum = 'ALL';
+    let currentFilterType = 'ALL';      // 'ALL', 'FAV', 'ALBUM', ឬ 'TAG'
+    let currentFilterValue = 'ALL';     // ឈ្មោះ Album ឬ Tag ដែលត្រូវ filter
+    
     let favoritesList = JSON.parse(localStorage.getItem('user_favorites') || '[]');
 
     let selectedImageBase64 = '';
@@ -440,7 +445,6 @@
         setupGlobalPasteListener();
     };
 
-    // 4. Auto Dark/Light Mode (Sync with System Theme + manual override)
     function checkSystemDarkMode() {
         const savedMode = localStorage.getItem('theme_mode');
         if (savedMode) {
@@ -452,7 +456,6 @@
                 updateDarkModeIcon('🌙');
             }
         } else {
-            // Check system preference
             if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
                 document.body.classList.add('dark-mode');
                 updateDarkModeIcon('☀️');
@@ -598,6 +601,36 @@
     function logout() { auth.signOut(); }
 
     function renderUserProfile(user) {
+        // Get all unique tags from songsList
+        let tagsSet = new Set();
+        songsList.forEach(s => {
+            if (s.tag) {
+                s.tag.split(',').forEach(t => {
+                    let clean = t.trim();
+                    if(clean) tagsSet.add(clean);
+                });
+            }
+        });
+        let uniqueTags = Array.from(tagsSet);
+
+        let tagsHtml = '';
+        if (uniqueTags.length > 0) {
+            tagsHtml = `
+                <div class="dropdown-divider"></div>
+                <div class="dropdown-section-title">🏷️ ប្រភេទបទ (Tags)</div>
+            `;
+            uniqueTags.forEach(tag => {
+                let isActive = (currentFilterType === 'TAG' && currentFilterValue === tag);
+                tagsHtml += `
+                    <button class="dropdown-item ${isActive ? 'active-sub' : ''}" onclick="filterByTag('${tag}')">
+                        <span>🏷️</span> <span>${tag}</span>
+                    </button>
+                `;
+            });
+        }
+
+        let isFavActive = (currentFilterType === 'FAV');
+
         document.getElementById('userProfileArea').innerHTML = `
             <div class="user-profile-card" id="profileToggleBtn" onclick="toggleProfileDropdown()">
                 <div class="user-info">
@@ -610,6 +643,11 @@
                 <div class="dropdown-arrow">▼</div>
             </div>
             <div class="profile-dropdown-menu" id="profileDropdownMenu">
+                <button class="dropdown-item ${isFavActive ? 'active-sub' : ''}" onclick="filterByFavorites()">
+                    <span style="font-size:1.1rem;">❤️</span> <span>បទសំណព្វចិត្តខ្ញុំ</span>
+                </button>
+                ${tagsHtml}
+                <div class="dropdown-divider"></div>
                 ${isAdmin ? `
                     <button class="dropdown-item" onclick="handleInvite()"><span style="font-size:1.1rem;">✉️</span> <span>Invite</span></button>
                     <button class="dropdown-item danger" onclick="handleDeleteAlbum()"><span style="font-size:1.1rem;">🗑️</span> <span>លុប Album</span></button>
@@ -638,7 +676,9 @@
                 let albumToDelete = customAlbums[index];
                 if (confirm(`⚠️ លុប Album «${albumToDelete}»?`)) {
                     await db.collection("albums").doc(albumToDelete).delete();
-                    if (currentSelectedAlbum === albumToDelete) currentSelectedAlbum = 'ALL';
+                    if (currentFilterType === 'ALBUM' && currentFilterValue === albumToDelete) {
+                        selectAlbum('ALL');
+                    }
                     alert(`✅ បានលុប Album រួចរាល់!`);
                 }
             }
@@ -657,7 +697,7 @@
     async function handleJoin() {
         if (confirm(`ស្នើសុំសិទ្ធិកែប្រែដោយប្រើអ៊ីមែល ${currentUser.email}?`)) {
             await db.collection("join_requests").doc(currentUser.email.toLowerCase()).set({ email: currentUser.email, name: currentUser.displayName });
-            alert("✅ បានផ្ញើសំណើជូន Admin រួចរាល់!");
+            alert("✅ បានផ្ើសំណើជូន Admin រួចរាល់!");
         }
     }
 
@@ -673,32 +713,52 @@
     function renderSidebarMenu() {
         const menu = document.getElementById('sidebarMenu');
         let html = `
-            <div class="menu-item ${currentSelectedAlbum === 'ALL' ? 'active' : ''}" onclick="selectAlbum('ALL')">
+            <div class="menu-item ${(currentFilterType === 'ALL') ? 'active' : ''}" onclick="selectAlbum('ALL')">
                 <div class="menu-item-left">🎵 <span>បទចម្រៀងទាំងអស់</span></div>
-            </div>
-            <div class="menu-item ${currentSelectedAlbum === 'FAV' ? 'active' : ''}" onclick="selectAlbum('FAV')">
-                <div class="menu-item-left">❤️ <span>បទសំណព្វចិត្តខ្ញុំ</span></div>
             </div>
         `;
         customAlbums.forEach(album => {
+            let isActive = (currentFilterType === 'ALBUM' && currentFilterValue === album);
             html += `
-                <div class="menu-item ${currentSelectedAlbum === album ? 'active' : ''}" onclick="selectAlbum('${album}')">
+                <div class="menu-item ${isActive ? 'active' : ''}" onclick="selectAlbum('${album}')">
                     <div class="menu-item-left">📁 <span>${album}</span></div>
                 </div>
             `;
         });
         menu.innerHTML = html;
+        
+        // Re-render user profile to update tag lists if profile exists
+        if(currentUser) renderUserProfile(currentUser);
     }
 
     function selectAlbum(albumName) {
-        currentSelectedAlbum = albumName;
         if (albumName === 'ALL') {
+            currentFilterType = 'ALL';
+            currentFilterValue = 'ALL';
             document.getElementById('currentAlbumSubtitle').innerHTML = `ចូរឱ្យជីវិតទាំងឡាយដែលមានដង្ហើម បានសរសើរដល់ព្រះយ៉េហូវ៉ាចុះ<br><span style="color: var(--primary); font-weight: 700;">ទំនុកដំកើង ១៥០៖៦</span>`;
-        } else if (albumName === 'FAV') {
-            document.getElementById('currentAlbumSubtitle').innerHTML = `❤️ Album បទចម្រៀងសំណព្វចិត្តដែលបានរក្សាទុក`;
         } else {
+            currentFilterType = 'ALBUM';
+            currentFilterValue = albumName;
             document.getElementById('currentAlbumSubtitle').innerHTML = `📁 Album៖ <span style="color: var(--primary); font-weight: 700;">${albumName}</span>`;
         }
+        renderSidebarMenu();
+        renderSongs();
+        closeMobileSidebar();
+    }
+
+    function filterByFavorites() {
+        currentFilterType = 'FAV';
+        currentFilterValue = 'FAV';
+        document.getElementById('currentAlbumSubtitle').innerHTML = `❤️ Album បទចម្រៀងសំណព្វចិត្តដែលបានរក្សាទុក`;
+        renderSidebarMenu();
+        renderSongs();
+        closeMobileSidebar();
+    }
+
+    function filterByTag(tagName) {
+        currentFilterType = 'TAG';
+        currentFilterValue = tagName;
+        document.getElementById('currentAlbumSubtitle').innerHTML = `🏷️ ប្រភេទបទ (Tag)៖ <span style="color: var(--primary); font-weight: 700;">${tagName}</span>`;
         renderSidebarMenu();
         renderSongs();
         closeMobileSidebar();
@@ -715,7 +775,6 @@
 
     function handleSearchInput() { renderSongs(); }
 
-    // 2. Toggle Favorite
     function toggleFavorite(songId, event) {
         if(event) event.stopPropagation();
         const index = favoritesList.indexOf(songId);
@@ -728,7 +787,6 @@
         renderSongs();
     }
 
-    // 1. Play Background Audio
     function playAudio(audioUrl, songTitle, event) {
         if(event) event.stopPropagation();
         if(!audioUrl) return alert("⚠️ បទចម្រៀងនេះមិនទាន់មានតំណភ្ជាប់ភ្លេងអូឌីយ៉ូឡើយ!");
@@ -756,13 +814,16 @@
                                   (s.artist && s.artist.toLowerCase().includes(query)) ||
                                   (s.tag && s.tag.toLowerCase().includes(query));
             
-            let matchesAlbum = true;
-            if (currentSelectedAlbum === 'FAV') {
-                matchesAlbum = favoritesList.includes(s.id);
-            } else if (currentSelectedAlbum !== 'ALL') {
-                matchesAlbum = (s.album || 'ទូទៅ') === currentSelectedAlbum;
+            let matchesFilter = true;
+            if (currentFilterType === 'FAV') {
+                matchesFilter = favoritesList.includes(s.id);
+            } else if (currentFilterType === 'ALBUM') {
+                matchesFilter = (s.album || 'ទូទៅ') === currentFilterValue;
+            } else if (currentFilterType === 'TAG') {
+                matchesFilter = s.tag && s.tag.split(',').map(t => t.trim().toLowerCase()).includes(currentFilterValue.toLowerCase());
             }
-            return matchesSearch && matchesAlbum;
+
+            return matchesSearch && matchesFilter;
         });
 
         if (filtered.length === 0 && songsList.length === 0) {
@@ -930,6 +991,7 @@
             });
             saveSongsToCache();
             renderSongs();
+            if(currentUser) renderUserProfile(currentUser);
 
             closeModal('addSongModal');
             document.getElementById('addSongForm').reset();
@@ -984,6 +1046,7 @@
             if (selectedEditImageBase64) songsList[index].imageUrl = selectedEditImageBase64;
             saveSongsToCache();
             renderSongs();
+            if(currentUser) renderUserProfile(currentUser);
         }
 
         closeModal('editSongModal');
@@ -997,6 +1060,7 @@
             songsList = songsList.filter(s => s.id !== id);
             saveSongsToCache();
             renderSongs();
+            if(currentUser) renderUserProfile(currentUser);
             alert(`✅ បានលុបរួចរាល់!`);
         }
     }
