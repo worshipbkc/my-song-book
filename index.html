@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ចម្រៀងសរសើរតម្កើងព្រះ</title>
+    <title>ចម្រៀងសរសើរដំកើងព្រះ</title>
     
     <!-- FontAwesome for Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -113,6 +113,10 @@
         .fetch-all-container { display: flex; flex-direction: column; align-items: flex-end; gap: 6px; }
         .fetch-all-btn { background: var(--card-bg); border: 1px solid var(--primary); color: var(--primary); padding: 10px 16px; border-radius: 10px; font-weight: 600; font-size: 0.9rem; cursor: pointer; display: flex; align-items: center; gap: 8px; box-shadow: 0 2px 5px rgba(37,99,235,0.1); }
         .fetch-all-btn:hover { background: var(--primary); color: white; }
+        
+        .install-pwa-btn { background: #16a34a; border: none; color: white; padding: 10px 16px; border-radius: 10px; font-weight: 600; font-size: 0.9rem; cursor: pointer; display: none; align-items: center; gap: 8px; box-shadow: 0 2px 5px rgba(22,163,74,0.2); margin-top: 6px; }
+        .install-pwa-btn:hover { background: #15803d; }
+
         .progress-wrapper { width: 180px; background: var(--border); border-radius: 8px; overflow: hidden; height: 8px; display: none; }
         .progress-bar { width: 0%; height: 100%; background: var(--primary); transition: width 0.2s ease; }
         .progress-text { font-size: 0.75rem; color: var(--text-muted); font-weight: 600; display: none; }
@@ -125,54 +129,20 @@
         .theme-toggle-btn { background: var(--card-bg); border: 1px solid var(--border); color: var(--text); padding: 12px 16px; border-radius: 10px; font-size: 1.1rem; cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 5px rgba(0,0,0,0.02); }
         .theme-toggle-btn:hover { background: var(--border); }
 
-        /* 🔥 រៀបចំប៊ូតុង 4 (Share, Save, កែ, លុប) ឱ្យនៅជួរតែមួយ (4 ຖັນ) */
-        .song-actions {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 4px;
-            margin-top: 8px;
-        }
+        .song-actions { display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px; margin-top: 8px; }
 
         .song-action-btn {
-            padding: 7px 2px;
-            border-radius: 6px;
-            font-size: 0.7rem;
-            font-weight: 600;
-            border: 1px solid var(--border);
-            cursor: pointer;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            gap: 2px;
-            text-decoration: none;
-            text-align: center;
-            width: 100%;
-            background-color: var(--card-bg);
-            color: var(--text);
-            white-space: nowrap;
+            padding: 7px 2px; border-radius: 6px; font-size: 0.7rem; font-weight: 600; border: 1px solid var(--border);
+            cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 2px;
+            text-decoration: none; text-align: center; width: 100%; background-color: var(--card-bg); color: var(--text); white-space: nowrap;
         }
         .song-action-btn:hover { opacity: 0.85; }
 
-        /* 🔥 ប៊ូតុង Playlist សម្រាប់ជំនួសកន្លែង Icon ត្រង់ជួរចំណងជើង */
         .btn-playlist-inline {
-            background-color: #e0f2fe;
-            color: #0284c7;
-            border: 1px solid #bae6fd;
-            padding: 4px 8px;
-            border-radius: 6px;
-            font-size: 0.75rem;
-            font-weight: 600;
-            cursor: pointer;
-            display: inline-flex;
-            align-items: center;
-            gap: 4px;
-            white-space: nowrap;
+            background-color: #e0f2fe; color: #0284c7; border: 1px solid #bae6fd; padding: 4px 8px; border-radius: 6px;
+            font-size: 0.75rem; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: 4px; white-space: nowrap;
         }
-        body.dark-mode .btn-playlist-inline {
-            background-color: #0369a1;
-            color: #e0f2fe;
-            border-color: #0284c7;
-        }
+        body.dark-mode .btn-playlist-inline { background-color: #0369a1; color: #e0f2fe; border-color: #0284c7; }
 
         .btn-share-custom { background-color: #d1fae5; color: #047857; border-color: #a7f3d0; }
         body.dark-mode .btn-share-custom { background-color: #065f46; color: #d1fae5; border-color: #047857; }
@@ -198,7 +168,6 @@
         .song-img { width: 100%; height: 100%; max-height: 380px; object-fit: contain; display: block; }
         .song-info { padding: 14px; flex: 1; display: flex; flex-direction: column; justify-content: space-between; }
         
-        /* 🔥 ជួរចំណងជើង និងប៊ូតុង Playlist នៅកន្លែង Icon ចាស់ */
         .song-title-row { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 4px; }
         .song-title { font-size: 1rem; font-weight: 700; color: var(--text); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; flex: 1; }
 
@@ -206,7 +175,6 @@
         .song-tag-badge { display: inline-block; font-size: 0.7rem; background: var(--border); color: var(--text-muted); padding: 2px 6px; border-radius: 4px; margin-top: 4px; font-weight: 600; }
         .song-meta-info { font-size: 0.72rem; color: var(--text-muted); margin-top: 6px; display: flex; flex-direction: column; gap: 2px; }
 
-        /* Audio Player Bar Footer */
         .audio-player-bar { position: fixed; bottom: 0; left: 0; right: 0; background: var(--card-bg); border-top: 1px solid var(--border); padding: 10px 20px; display: none; align-items: center; justify-content: space-between; z-index: 1500; box-shadow: 0 -4px 10px rgba(0,0,0,0.05); gap: 15px; }
         .audio-player-bar.active { display: flex; }
         .audio-info { font-size: 0.85rem; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 250px; color: var(--text); }
@@ -230,7 +198,6 @@
         .preview-container img { width: 100%; max-height: 140px; object-fit: contain; }
         .remove-img-btn { position: absolute; top: 4px; right: 4px; background: rgba(239, 68, 68, 0.9); color: white; border: none; border-radius: 50%; width: 24px; height: 24px; font-size: 0.8rem; cursor: pointer; display: flex; align-items: center; justify-content: center; }
 
-        /* Fullscreen Modal & Slide Styles */
         .fullscreen-modal { display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0, 0, 0, 0.94); z-index: 2000; flex-direction: column; align-items: center; justify-content: center; user-select: none; }
         .fullscreen-modal.active { display: flex; }
         .fullscreen-header { position: absolute; top: 15px; left: 20px; right: 20px; display: flex; justify-content: space-between; align-items: center; color: white; z-index: 2010; }
@@ -255,7 +222,7 @@
             .mobile-header { display: flex; }
             header { flex-direction: column; align-items: stretch; }
             .fetch-all-container { align-items: stretch; width: 100%; }
-            .fetch-all-btn { width: 100%; justify-content: center; }
+            .fetch-all-btn, .install-pwa-btn { width: 100%; justify-content: center; }
             .progress-wrapper { width: 100%; }
             .audio-player-bar { flex-direction: column; align-items: stretch; gap: 8px; padding: 10px; }
             .audio-controls { max-width: 100%; }
@@ -304,7 +271,7 @@
 
     <header>
         <div class="header-text">
-            <h1>🎼 ចម្រៀងសរសើរតម្កើងព្រះ</h1>
+            <h1>🎼 ចម្រៀងសរសើរដំកើងព្រះ</h1>
             <p id="currentAlbumSubtitle">
                 ចូរឱ្យជីវិតទាំងឡាយដែលមានដង្ហើម បានសរសើរដល់ព្រះយ៉េហូវ៉ាចុះ<br>
                 <span style="color: var(--primary); font-weight: 700;">ទំនុកដំកើង ១៥០៖៦</span>
@@ -313,6 +280,9 @@
         <div class="fetch-all-container">
             <button class="fetch-all-btn" id="fetchAllBtn" onclick="fetchAllSongsWithProgress()">
                 📥 <span>ទាញយកទិន្នន័យ (Offline)</span>
+            </button>
+            <button class="install-pwa-btn" id="installPwaBtn" onclick="installPwaApp()">
+                📲 <span>Install App ទុកប្រើប្រាស់</span>
             </button>
             <div class="progress-wrapper" id="progressWrapper">
                 <div class="progress-bar" id="progressBar"></div>
@@ -323,7 +293,7 @@
 
     <div class="controls">
         <div class="search-box">
-            <input type="text" id="searchInput" placeholder="ស្វែងរកចំណងជើង អ្នកចម្រៀង ឬ Tag..." oninput="handleSearchInput()">
+            <input type="text" id="searchInput" placeholder="ស្វែងរកឆ្លាតវៃ (Smart Fuzzy Search)..." oninput="handleSearchInput()">
             <button class="search-btn" onclick="renderSongs()">🔍</button>
         </div>
         <button class="theme-toggle-btn" id="themeToggleBtn" onclick="toggleDarkMode()" title="ប្តូររបៀបភ្លឺ/ងងឹត">🌙</button>
@@ -356,6 +326,7 @@
     <button class="fullscreen-nav-btn fullscreen-next" onclick="slideFullScreen(1, event)">❯</button>
 </div>
 
+<!-- Add Song Modal -->
 <div class="modal" id="addSongModal">
     <div class="modal-content">
         <h2>➕ បញ្ចូលបទចម្រៀងថ្មី</h2>
@@ -399,6 +370,7 @@
     </div>
 </div>
 
+<!-- Edit Song Modal -->
 <div class="modal" id="editSongModal">
     <div class="modal-content">
         <h2>✏️ កែប្រែបទចម្រៀង</h2>
@@ -443,7 +415,7 @@
     </div>
 </div>
 
-<!-- Playlist Creation Modal -->
+<!-- Playlist Modal -->
 <div class="modal" id="playlistModal">
     <div class="modal-content">
         <h2>📂 បង្កើត Playlist ថ្មី</h2>
@@ -481,7 +453,6 @@
     let songsList = [];          
     let customAlbums = ['ទំនុកដំកើង', 'ទំនុកខ្មែរបរិសុទ្ធ'];
     
-    // Playlist System State
     let playlists = JSON.parse(localStorage.getItem('user_playlists') || '{}');
 
     let currentFilterType = 'ALL';      
@@ -492,8 +463,38 @@
     let selectedEditImageBase64 = '';
     let currentFilteredSongs = [];
     let currentFullscreenIndex = 0;
+    
+    let deferredPrompt = null;
 
-    // IndexedDB Setup for Offline Caching
+    // Register Service Worker for PWA & Offline Support
+    if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+            navigator.serviceWorker.register('sw.js')
+                .then(reg => console.log('ServiceWorker registered! Scope: ', reg.scope))
+                .catch(err => console.log('ServiceWorker registration failed: ', err));
+        });
+    }
+
+    window.addEventListener('beforeinstallprompt', (e) => {
+        e.preventDefault();
+        deferredPrompt = e;
+        const installBtn = document.getElementById('installPwaBtn');
+        if (installBtn) installBtn.style.display = 'flex';
+    });
+
+    function installPwaApp() {
+        if (deferredPrompt) {
+            deferredPrompt.prompt();
+            deferredPrompt.userChoice.then((choiceResult) => {
+                if (choiceResult.outcome === 'accepted') {
+                    console.log('User accepted the install prompt');
+                }
+                deferredPrompt = null;
+                document.getElementById('installPwaBtn').style.display = 'none';
+            });
+        }
+    }
+
     let dbIndexed = null;
     function initIndexedDB() {
         return new Promise((resolve, reject) => {
@@ -536,7 +537,6 @@
         setupTouchSwipeListeners();
     };
 
-    // Dark / Light Mode Handlers
     function applyStoredTheme() {
         const isDark = localStorage.getItem('dark_mode_enabled') === 'true';
         const themeBtn = document.getElementById('themeToggleBtn');
@@ -557,7 +557,6 @@
         if(themeBtn) themeBtn.innerText = isDark ? '☀️' : '🌙';
     }
 
-    // IndexedDB helper functions
     function saveSongsToIndexedDB(songs) {
         return new Promise((resolve, reject) => {
             if (!dbIndexed) return resolve();
@@ -990,12 +989,54 @@
         document.getElementById('audioPlayerBar').classList.remove('active');
     }
 
+    // 🔥 SMART FUZZY SEARCH IMPLEMENTATION
+    // Clean Khmer vowels/sub-scripts for flexible accentless & spelling-tolerant matching
+    function cleanKhmerQuery(str) {
+        if (!str) return '';
+        return str.toLowerCase()
+            .replace(/[\u17B6-\u17C5\u17C7\u17C8]/g, '') // Remove Khmer vowels/modifiers
+            .replace(/[\u17D2]/g, '')                   // Remove coeng (sub-script sign)
+            .replace(/[\s\-_]/g, '');                    // Remove spaces & hyphens
+    }
+
+    function fuzzyMatch(text, query) {
+        if (!text || !query) return false;
+        const cleanText = cleanKhmerQuery(text);
+        const cleanQ = cleanKhmerQuery(query);
+        
+        if (cleanText.includes(cleanQ)) return true;
+
+        // Levenshtein distance fallback for mild character typos
+        let words = text.toLowerCase().split(/\s+/);
+        for (let w of words) {
+            if (levenshteinDistance(w, query.toLowerCase()) <= 2) return true;
+        }
+        return false;
+    }
+
+    function levenshteinDistance(a, b) {
+        const matrix = [];
+        for (let i = 0; i <= b.length; i++) { matrix[i] = [i]; }
+        for (let j = 0; j <= a.length; j++) { matrix[0][j] = j; }
+        for (let i = 1; i <= b.length; i++) {
+            for (let j = 1; j <= a.length; j++) {
+                if (b.charAt(i - 1) == a.charAt(j - 1)) {
+                    matrix[i][j] = matrix[i - 1][j - 1];
+                } else {
+                    matrix[i][j] = Math.min(matrix[i - 1][j - 1] + 1, Math.min(matrix[i][j - 1] + 1, matrix[i - 1][j] + 1));
+                }
+            }
+        }
+        return matrix[b.length][a.length];
+    }
+
     function getFilteredSongs() {
-        const query = document.getElementById('searchInput').value.toLowerCase().trim();
+        const query = document.getElementById('searchInput').value.trim();
         return songsList.filter(s => {
-            const matchesSearch = (s.title && s.title.toLowerCase().includes(query)) || 
-                                  (s.artist && s.artist.toLowerCase().includes(query)) ||
-                                  (s.tag && s.tag.toLowerCase().includes(query));
+            const matchesSearch = !query || 
+                                  fuzzyMatch(s.title || '', query) || 
+                                  fuzzyMatch(s.artist || '', query) || 
+                                  fuzzyMatch(s.tag || '', query);
             
             let matchesFilter = true;
             if (currentFilterType === 'FAV') {
@@ -1062,7 +1103,6 @@
                 </div>
                 <div class="song-info">
                     <div>
-                        <!-- 🔥 ដាក់ប៊ូតុង Playlist ស្មើរនឹងចំណងជើងបទចម្រៀង (ជំនួស Icon ចាស់) -->
                         <div class="song-title-row">
                             <div class="song-title" title="${song.title}">${song.title}</div>
                             ${playlistButtonHtml}
@@ -1076,7 +1116,6 @@
                         </div>
                     </div>
                     <div>
-                        <!-- 🔥 ប៊ូតុង Share, Save, កែ និងលុប នៅជួរដដែល (៤ ប៊ូតុង) -->
                         <div class="song-actions">
                             <button class="song-action-btn btn-share-custom" onclick="shareSongImage('${song.imageUrl}', '${safeTitle}')"><i class="fa-solid fa-share-nodes"></i> Share</button>
                             <a href="${song.imageUrl}" download="${song.title}.jpg" class="song-action-btn btn-save-custom"><i class="fa-solid fa-download"></i> Save</a>
