@@ -3,8 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ចម្រៀងសរសើរដំកើងព្រះ</title>
+    <title>ចម្រៀងសរសើរតម្កើងព្រះ</title>
     
+    <!-- FontAwesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
     <!-- 🔥 PWA & Mobile Home Screen Meta & Icons -->
     <link rel="manifest" href="manifest.json">
     <link rel="apple-touch-icon" href="icon.jpg">
@@ -122,21 +125,22 @@
         .theme-toggle-btn { background: var(--card-bg); border: 1px solid var(--border); color: var(--text); padding: 12px 16px; border-radius: 10px; font-size: 1.1rem; cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 5px rgba(0,0,0,0.02); }
         .theme-toggle-btn:hover { background: var(--border); }
 
+        /* 🔥 កែសម្រួលឱ្យប៊ូតុងទាំងអស់នៅជួរតែមួយ (One Row) */
         .song-actions {
             display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 6px;
-            margin-top: 12px;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 4px;
+            margin-top: 8px;
         }
         .editor-authorized .song-actions {
-            grid-template-columns: repeat(4, 1fr);
+            grid-template-columns: repeat(5, 1fr);
             gap: 4px;
         }
 
         .song-action-btn {
-            padding: 7px 4px;
-            border-radius: 8px;
-            font-size: 0.75rem;
+            padding: 7px 2px;
+            border-radius: 6px;
+            font-size: 0.7rem;
             font-weight: 600;
             border: 1px solid var(--border);
             cursor: pointer;
@@ -153,8 +157,11 @@
         }
         .song-action-btn:hover { opacity: 0.85; }
 
-        .btn-share-custom { background-color: #e0f2fe; color: #0284c7; border-color: #bae6fd; }
-        body.dark-mode .btn-share-custom { background-color: #0369a1; color: #e0f2fe; border-color: #0284c7; }
+        .btn-playlist-custom { background-color: #e0f2fe; color: #0284c7; border-color: #bae6fd; }
+        body.dark-mode .btn-playlist-custom { background-color: #0369a1; color: #e0f2fe; border-color: #0284c7; }
+
+        .btn-share-custom { background-color: #d1fae5; color: #047857; border-color: #a7f3d0; }
+        body.dark-mode .btn-share-custom { background-color: #065f46; color: #d1fae5; border-color: #047857; }
 
         .btn-save-custom { background-color: #f1f5f9; color: var(--text); border-color: var(--border); }
         body.dark-mode .btn-save-custom { background-color: #334155; color: #f8fafc; border-color: #475569; }
@@ -176,11 +183,15 @@
         .song-img-container { width: 100%; min-height: 220px; background: var(--border); display: flex; align-items: center; justify-content: center; overflow: hidden; cursor: pointer; position: relative; }
         .song-img { width: 100%; height: 100%; max-height: 380px; object-fit: contain; display: block; }
         .song-info { padding: 14px; flex: 1; display: flex; flex-direction: column; justify-content: space-between; }
-        .song-title { font-size: 1rem; font-weight: 700; margin-bottom: 4px; color: var(--text); }
+        
+        /* 🔥 តម្រឹមចំណងជើង និង Playlist Icon ឱ្យនៅជួរតែមួយ */
+        .song-title-row { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 4px; }
+        .song-title { font-size: 1rem; font-weight: 700; color: var(--text); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; flex: 1; }
+        .song-playlist-icon-btn { background: var(--border); border: none; color: var(--primary); width: 28px; height: 28px; border-radius: 6px; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 0.85rem; flex-shrink: 0; }
+        .song-playlist-icon-btn:hover { background: var(--primary); color: white; }
+
         .song-artist { font-size: 0.85rem; color: var(--text-muted); }
-        
         .song-tag-badge { display: inline-block; font-size: 0.7rem; background: var(--border); color: var(--text-muted); padding: 2px 6px; border-radius: 4px; margin-top: 4px; font-weight: 600; }
-        
         .song-meta-info { font-size: 0.72rem; color: var(--text-muted); margin-top: 6px; display: flex; flex-direction: column; gap: 2px; }
 
         /* Audio Player Bar Footer */
@@ -281,7 +292,7 @@
 
     <header>
         <div class="header-text">
-            <h1>🎼 ចម្រៀងសរសើរដំកើងព្រះ</h1>
+            <h1>🎼 ចម្រៀងសរសើរតម្កើងព្រះ</h1>
             <p id="currentAlbumSubtitle">
                 ចូរឱ្យជីវិតទាំងឡាយដែលមានដង្ហើម បានសរសើរដល់ព្រះយ៉េហូវ៉ាចុះ<br>
                 <span style="color: var(--primary); font-weight: 700;">ទំនុកដំកើង ១៥០៖៦</span>
@@ -1019,13 +1030,13 @@
 
             let extraPlaylistBtn = '';
             if (currentFilterType === 'PLAYLIST') {
-                extraPlaylistBtn = `<button class="song-action-btn" style="background:#fee2e2; color:#ef4444; border-color:#fecaca;" onclick="removeSongFromPlaylist('${currentFilterValue}', '${song.id}', event)">❌ ដកចេញ</button>`;
+                extraPlaylistBtn = `<button class="song-action-btn btn-delete-custom" onclick="removeSongFromPlaylist('${currentFilterValue}', '${song.id}', event)"><i class="fa-solid fa-xmark"></i> ដកចេញ</button>`;
             } else {
-                extraPlaylistBtn = `<button class="song-action-btn" style="background:#e0f2fe; color:#0284c7; border-color:#bae6fd;" onclick="addSongToPlaylistPrompt('${song.id}', event)">📂 ដាក់ Playlist</button>`;
+                extraPlaylistBtn = `<button class="song-action-btn btn-playlist-custom" onclick="addSongToPlaylistPrompt('${song.id}', event)"><i class="fa-solid fa-folder-plus"></i> Playlist</button>`;
             }
 
             let tagBadgeHtml = song.tag ? `<span class="song-tag-badge">🏷️ ${song.tag}</span>` : '';
-            let audioButtonHtml = song.audioUrl ? `<button style="background:var(--primary); color:white; border:none; padding:4px 8px; border-radius:6px; font-size:0.75rem; font-weight:600; cursor:pointer; margin:4px 0; width:fit-content;" onclick="playAudio('${song.audioUrl}', '${safeTitle}', event)">▶ ចាក់ភ្លេងអម</button>` : '';
+            let audioButtonHtml = song.audioUrl ? `<button style="background:var(--primary); color:white; border:none; padding:4px 8px; border-radius:6px; font-size:0.75rem; font-weight:600; cursor:pointer; margin:4px 0; width:fit-content;" onclick="playAudio('${song.audioUrl}', '${safeTitle}', event)"><i class="fa-solid fa-play"></i> ចាក់ភ្លេងអម</button>` : '';
             let dateSpanHtml = dateText ? `<span>📅 ${dateText}</span>` : '';
             let editorSpanHtml = editorInfo ? `<span>👤 ${editorInfo}</span>` : '';
 
@@ -1039,7 +1050,12 @@
                 </div>
                 <div class="song-info">
                     <div>
-                        <div class="song-title">${song.title}</div>
+                        <div class="song-title-row">
+                            <div class="song-title" title="${song.title}">${song.title}</div>
+                            <button class="song-playlist-icon-btn" onclick="addSongToPlaylistPrompt('${song.id}', event)" title="ដាក់ចូល Playlist">
+                                <i class="fa-solid fa-folder"></i>
+                            </button>
+                        </div>
                         <div class="song-artist">${song.artist || 'មិនស្គាល់អ្នកចម្រៀង'}</div>
                         ${tagBadgeHtml}
                         <div class="song-meta-info">
@@ -1049,14 +1065,12 @@
                         </div>
                     </div>
                     <div>
-                        <div class="song-actions" style="margin-top:8px;">
+                        <div class="song-actions">
                             ${extraPlaylistBtn}
-                            <button class="song-action-btn btn-share-custom" onclick="shareSongImage('${song.imageUrl}', '${safeTitle}')">📤 Share</button>
-                        </div>
-                        <div class="song-actions" style="margin-top:4px;">
-                            <a href="${song.imageUrl}" download="${song.title}.jpg" class="song-action-btn btn-save-custom">💾 Save</a>
-                            <button class="song-action-btn btn-edit-custom editor-only" onclick="openEditSongModal('${song.id}')">✏️ កែប្រែ</button>
-                            <button class="song-action-btn btn-delete-custom editor-only" onclick="deleteSong('${song.id}', '${safeTitle}')">🗑️ លុប</button>
+                            <button class="song-action-btn btn-share-custom" onclick="shareSongImage('${song.imageUrl}', '${safeTitle}')"><i class="fa-solid fa-share-nodes"></i> Share</button>
+                            <a href="${song.imageUrl}" download="${song.title}.jpg" class="song-action-btn btn-save-custom"><i class="fa-solid fa-download"></i> Save</a>
+                            <button class="song-action-btn btn-edit-custom editor-only" onclick="openEditSongModal('${song.id}')"><i class="fa-solid fa-pen"></i> កែ</button>
+                            <button class="song-action-btn btn-delete-custom editor-only" onclick="deleteSong('${song.id}', '${safeTitle}')"><i class="fa-solid fa-trash"></i> លុប</button>
                         </div>
                     </div>
                 </div>
@@ -1314,7 +1328,7 @@
             touchStartX = e.changedTouches[0].screenX;
         }, {passive: true});
 
-        container.addEventListener('touched', (e) => {
+        container.addEventListener('touchend', (e) => {
             touchEndX = e.changedTouches[0].screenX;
             handleSwipeGesture();
         }, {passive: true});
