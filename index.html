@@ -420,11 +420,15 @@
 <div class="modal" id="batchAddModal">
     <div class="modal-content" style="max-width: 500px;">
         <h2>📚 បញ្ចូលរូបភាពច្រើនក្នុងពេលតែមួយ</h2>
-        <p style="font-size: 0.85rem; color: var(--text-muted); margin-top: 4px;">ជ្រើសរើសរូបភាពច្រើនសន្លឹកដើម្បីបង្កើតជាបទចម្រៀងរួចចាំកែប្រែចំណងជើងពេលក្រោយ។</p>
+        <p style="font-size: 0.85rem; color: var(--text-muted); margin-top: 4px;">ជ្រើសរើសរូបភាពច្រើនសន្លឹកដើម្បីបង្កើតជាបទចម្រៀងរួចកំណត់ឈ្មោះអ្នកចម្រៀងរួមគ្នាប្រសិនបើមាន។</p>
         <div style="margin-top: 15px;">
             <div class="form-group">
                 <label>ជ្រើសរើស Album សម្រាប់គ្រប់បទទាំងអស់ *</label>
                 <select id="batchAlbumSelect" required></select>
+            </div>
+            <div class="form-group">
+                <label>ឈ្មោះអ្នកចម្រៀង (សម្រាប់គ្រប់បទទាំងអស់)</label>
+                <input type="text" id="batchArtist" placeholder="ឧទាហរណ៍៖ ក្រុមច្រៀងសរសើរដំកើង">
             </div>
             <div class="form-group">
                 <label>ជ្រើសរើសរូបភាពច្រើនសន្លឹក (Multi-Select) *</label>
@@ -1322,9 +1326,9 @@
         }
     }
 
-    // 🔥 Batch Add Functions (បទថ្មីជាអាល់ប៊ុម)
     function openBatchAddModal() {
         document.getElementById('batchAlbumSelect').innerHTML = customAlbums.map(a => `<option value="${a}">${a}</option>`).join('');
+        document.getElementById('batchArtist').value = '';
         batchImagesArray = [];
         document.getElementById('batchImageFiles').value = '';
         document.getElementById('batchPreviewInfo').innerText = '';
@@ -1362,6 +1366,7 @@
     async function handleBatchSaveSongs() {
         if (batchImagesArray.length === 0) return alert('⚠️ សូមជ្រើសរើសរូបភាពសិន!');
         const album = document.getElementById('batchAlbumSelect').value;
+        const artist = document.getElementById('batchArtist').value.trim();
         const batchSaveBtn = document.getElementById('batchSaveBtn');
         batchSaveBtn.innerText = `⏳ កំពុងបញ្ចូល (0/${batchImagesArray.length})...`;
         batchSaveBtn.disabled = true;
@@ -1371,7 +1376,7 @@
             for (let item of batchImagesArray) {
                 const docRef = await db.collection("songs").add({
                     title: item.defaultTitle,
-                    artist: '',
+                    artist: artist,
                     tag: '',
                     audioUrl: '',
                     album: album,
@@ -1383,7 +1388,7 @@
                 const newSongObj = {
                     id: docRef.id,
                     title: item.defaultTitle,
-                    artist: '',
+                    artist: artist,
                     tag: '',
                     audioUrl: '',
                     album: album,
@@ -1401,7 +1406,7 @@
             if(currentUser) renderUserProfile(currentUser);
 
             closeModal('batchAddModal');
-            alert(`✅ បានបញ្ចូលបទចម្រៀងសរុបចំនួន ${count} បទចូល Album «${album}» ជោគជ័យ! សូមចុចកែប្រែ (✏️) លើបទនីមួយៗដើម្បីប្តូរឈ្មោះតាមក្រោយ។`);
+            alert(`✅ បានបញ្ចូលបទចម្រៀងសរុបចំនួន ${count} បទចូល Album «${album}» ជោគជ័យ!`);
         } catch (error) {
             alert('❌ មានបញ្ហា៖ ' + error.message);
         } finally {
