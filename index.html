@@ -214,7 +214,6 @@
         .editor-authorized .editor-only { display: flex !important; }
         .editor-authorized button.editor-only { display: inline-block !important; }
 
-        /* 🔥 Smart Offline & Sync Status Indicator */
         .offline-sync-badge {
             position: fixed;
             bottom: 20px;
@@ -272,7 +271,7 @@
 
 <div class="sidebar" id="sidebar">
     <div class="sidebar-header">
-        <div class="sidebar-title">Album ចម្រៀង</div>
+        <div class="sidebar-title">ចម្រៀង</div>
         <button class="close-sidebar-btn" onclick="closeMobileSidebar()">✖</button>
     </div>
 
@@ -307,7 +306,7 @@
 
     <header>
         <div class="header-text">
-            <h1>🎼 ចម្រៀងសរសើរកើងព្រះ</h1>
+            <h1>🎼 ចម្រៀងសរសើរដំកើងព្រះ</h1>
             <p id="currentAlbumSubtitle">
                 ចូរឱ្យជីវិតទាំងឡាយដែលមានដង្ហើម បានសរសើរដល់ព្រះយ៉េហូវ៉ាចុះ<br>
                 <span style="color: var(--primary); font-weight: 700;">ទំនុកដំកើង ១៥០៖៦</span>
@@ -329,7 +328,7 @@
 
     <div class="controls">
         <div class="search-box">
-            <input type="text" id="searchInput" placeholder="ស្វែងរកបទចម្រៀង" oninput="handleSearchInput()">
+            <input type="text" id="searchInput" placeholder="ស្វែងរកឆ្លាតវៃ (Smart Fuzzy Search)..." oninput="handleSearchInput()">
             <button class="search-btn" onclick="renderSongs()">🔍</button>
         </div>
         <button class="theme-toggle-btn" id="themeToggleBtn" onclick="toggleDarkMode()" title="ប្តូររបៀបភ្លឺ/ងងឹត">🌙</button>
@@ -378,8 +377,8 @@
                 <select id="songAlbumSelect" required></select>
             </div>
             <div class="form-group">
-                <label>ចំណងជើងបទចម្រៀង *</label>
-                <input type="text" id="songTitle" required placeholder="ឧទាហរណ៍៖ ព្រះគុណព្រះអង្គ">
+                <label>ចំណងជើងបទចម្រៀង (អាចទុកទំនេរបាន)</label>
+                <input type="text" id="songTitle" placeholder="ឧទាហរណ៍៖ ព្រះគុណព្រះអង្គ (មិនបាច់ដាក់ក៏បាន)">
             </div>
             <div class="form-group">
                 <label>ឈ្មោះអ្នកចម្រៀង</label>
@@ -508,7 +507,6 @@
     
     let deferredPrompt = null;
 
-    // Register Service Worker for PWA & Offline Support
     if ('serviceWorker' in navigator) {
         window.addEventListener('load', () => {
             navigator.serviceWorker.register('sw.js')
@@ -1031,7 +1029,6 @@
         document.getElementById('audioPlayerBar').classList.remove('active');
     }
 
-    // 🔥 SMART FUZZY SEARCH IMPLEMENTATION
     function cleanKhmerQuery(str) {
         if (!str) return '';
         return str.toLowerCase()
@@ -1251,11 +1248,16 @@
         e.preventDefault();
         if (!isEditor) return alert("❌ គ្មានសិទ្ធិ!");
 
-        const title = document.getElementById('songTitle').value.trim();
+        // យកតម្លៃចំណងជើង បើអត់មាន (ទុកទំនេរ) ដាក់ឈ្មោះស្វ័យប្រវត្តិបណ្តោះអាសន្នតាម Album
+        let title = document.getElementById('songTitle').value.trim();
         const artist = document.getElementById('songArtist').value.trim();
         const tag = document.getElementById('songTag').value.trim();
         const audioUrl = document.getElementById('songAudioUrl').value.trim();
         const album = document.getElementById('songAlbumSelect').value;
+
+        if (!title) {
+            title = `បទថ្មី (${album})`; 
+        }
 
         if (!selectedImageBase64) return alert("⚠️ សូមជ្រើសរើសរូបភាពបទចម្រៀង!");
 
@@ -1287,7 +1289,7 @@
             closeModal('addSongModal');
             document.getElementById('addSongForm').reset();
             removeSelectedImage({stopPropagation:()=>{}});
-            alert('✅ បញ្ចូលបទចម្រៀងបានជោគជ័យ!');
+            alert('✅ បានបញ្ចូលរូបភាពចូលអាល់ប៊ុមជោគជ័យ! អ្នកអាចចុចកែប្រែឈ្មោះតាមក្រោយបាន។');
         } catch (error) {
             alert('❌ មានបញ្ហា៖ ' + error.message);
         } finally {
@@ -1433,7 +1435,6 @@
         }
     }
 
-    // 🔥 Smart Offline & Sync Status Controller
     window.addEventListener('online', () => {
         updateOnlineStatus();
         triggerBackgroundSync();
