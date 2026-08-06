@@ -214,6 +214,42 @@
         .editor-authorized .editor-only { display: flex !important; }
         .editor-authorized button.editor-only { display: inline-block !important; }
 
+        /* 🔥 Smart Offline & Sync Status Indicator */
+        .offline-sync-badge {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            padding: 8px 14px;
+            border-radius: 30px;
+            font-size: 0.82rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            z-index: 1400;
+            transition: all 0.3s ease;
+        }
+
+        .status-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            display: inline-block;
+        }
+
+        .status-online { background-color: #10b981; box-shadow: 0 0 8px #10b981; }
+        .status-offline { background-color: #ef4444; box-shadow: 0 0 8px #ef4444; }
+        .status-syncing { background-color: #f59e0b; animation: pulse 1.2s infinite; }
+
+        @keyframes pulse {
+            0% { transform: scale(0.95); opacity: 0.8; }
+            50% { transform: scale(1.2); opacity: 1; }
+            100% { transform: scale(0.95); opacity: 0.8; }
+        }
+
         @media (max-width: 768px) {
             .sidebar { transform: translateX(-100%); width: 80%; max-width: 300px; }
             .sidebar.mobile-open { transform: translateX(0); }
@@ -271,7 +307,7 @@
 
     <header>
         <div class="header-text">
-            <h1>🎼 ចម្រៀងសរសើរដំកើងព្រះ</h1>
+            <h1>🎼 ចម្រៀងសរសើរកើងព្រះ</h1>
             <p id="currentAlbumSubtitle">
                 ចូរឱ្យជីវិតទាំងឡាយដែលមានដង្ហើម បានសរសើរដល់ព្រះយ៉េហូវ៉ាចុះ<br>
                 <span style="color: var(--primary); font-weight: 700;">ទំនុកដំកើង ១៥០៖៦</span>
@@ -293,7 +329,7 @@
 
     <div class="controls">
         <div class="search-box">
-            <input type="text" id="searchInput" placeholder="ស្វែងរកឆ្លាតវៃ (Smart Fuzzy Search)..." oninput="handleSearchInput()">
+            <input type="text" id="searchInput" placeholder="ស្វែងរកបទចម្រៀង" oninput="handleSearchInput()">
             <button class="search-btn" onclick="renderSongs()">🔍</button>
         </div>
         <button class="theme-toggle-btn" id="themeToggleBtn" onclick="toggleDarkMode()" title="ប្តូររបៀបភ្លឺ/ងងឹត">🌙</button>
@@ -311,6 +347,12 @@
         <audio id="globalAudio" controls></audio>
     </div>
     <button class="close-audio-btn" onclick="stopGlobalAudio()" title="បិទ Player">✖</button>
+</div>
+
+<!-- Smart Offline & Sync Indicator Floating Badge -->
+<div class="offline-sync-badge" id="offlineSyncBadge">
+    <span class="status-dot status-online" id="statusDot"></span>
+    <span id="statusText">កំពុងពិនិត្យ...</span>
 </div>
 
 <!-- Fullscreen Modal with Slide & Swipe Support -->
@@ -990,13 +1032,12 @@
     }
 
     // 🔥 SMART FUZZY SEARCH IMPLEMENTATION
-    // Clean Khmer vowels/sub-scripts for flexible accentless & spelling-tolerant matching
     function cleanKhmerQuery(str) {
         if (!str) return '';
         return str.toLowerCase()
-            .replace(/[\u17B6-\u17C5\u17C7\u17C8]/g, '') // Remove Khmer vowels/modifiers
-            .replace(/[\u17D2]/g, '')                   // Remove coeng (sub-script sign)
-            .replace(/[\s\-_]/g, '');                    // Remove spaces & hyphens
+            .replace(/[\u17B6-\u17C5\u17C7\u17C8]/g, '') 
+            .replace(/[\u17D2]/g, '')                   
+            .replace(/[\s\-_]/g, '');                    
     }
 
     function fuzzyMatch(text, query) {
@@ -1006,7 +1047,6 @@
         
         if (cleanText.includes(cleanQ)) return true;
 
-        // Levenshtein distance fallback for mild character typos
         let words = text.toLowerCase().split(/\s+/);
         for (let w of words) {
             if (levenshteinDistance(w, query.toLowerCase()) <= 2) return true;
@@ -1392,6 +1432,72 @@
             slideFullScreen(-1);
         }
     }
+
+    // 🔥 Smart Offline & Sync Status Controller
+    window.addEventListener('online', () => {
+        updateOnlineStatus();
+        triggerBackgroundSync();
+    });
+
+    window.addEventListener('offline', () => {
+        updateOnlineStatus();
+    });
+
+    function updateOnlineStatus() {
+        const dot = document.getElementById('statusDot');
+        const text = document.getElementById('statusText');
+        
+        if (navigator.onLine) {
+            dot.className = 'status-dot status-online';
+            text.innerText = 'អនឡាញ (Online)';
+            setTimeout(() => {
+                const badge = document.getElementById('offlineSyncBadge');
+                if (badge && navigator.onLine) badge.style.opacity = '0.8';
+            }, 4000);
+        } else {
+            const badge = document.getElementById('offlineSyncBadge');
+            if(badge) badge.style.opacity = '1';
+            dot.className = 'status-dot status-offline';
+            text.innerText = 'កំពុងប្រើប្រាស់ក្រៅបណ្តាញ (Offline)';
+        }
+    }
+
+    async function triggerBackgroundSync() {
+        const dot = document.getElementById('statusDot');
+        const text = document.getElementById('statusText');
+        
+        if (!navigator.onLine) return;
+
+        dot.className = 'status-dot status-syncing';
+        text.innerText = 'កំពុងធ្វើសមកាលកម្ម (Syncing)...';
+
+        try {
+            const snapshot = await db.collection("songs").orderBy("createdAt", "desc").get();
+            songsList = snapshot.docs.map(doc => ({ 
+                id: doc.id, 
+                ...doc.data(),
+                createdAt: doc.data().createdAt ? { seconds: doc.data().createdAt.seconds } : null,
+                updatedAt: doc.data().updatedAt ? { seconds: doc.data().updatedAt.seconds } : null
+            }));
+            
+            await saveSongsToIndexedDB(songsList);
+            renderSongs();
+
+            dot.className = 'status-dot status-online';
+            text.innerText = 'ធ្វើសមកាលកម្មរួចរាល់ (Synced)';
+            
+            setTimeout(() => {
+                text.innerText = 'អនឡាញ (Online)';
+            }, 3000);
+        } catch (error) {
+            dot.className = 'status-dot status-online';
+            text.innerText = 'អនឡាញ (Online)';
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        updateOnlineStatus();
+    });
 </script>
 </body>
 </html>
