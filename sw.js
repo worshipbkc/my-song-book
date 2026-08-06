@@ -1,4 +1,4 @@
-const CACHE_NAME = 'worship-songs-v1';
+const CACHE_NAME = 'worship-songs-v2';
 const ASSETS_TO_CACHE = [
     './',
     './index.html',
@@ -36,14 +36,24 @@ self.addEventListener('activate', (event) => {
     self.clients.claim();
 });
 
-// ទាញយកទិន្នន័យពី Cache មកវិញពេលប្រើប្រាស់
+// ទាញយកទិន្នន័យពី Cache និង Network
 self.addEventListener('fetch', (event) => {
+    const url = new URL(event.request.url);
+
+    // ១. មិនបាច់ Cache សំណើទៅកាន់ Firebase Backend ឬ API ខាងក្រៅ (ទុកចិត្តឱ្យ Firebase SDK စီမံផ្ដាច់មុខ)
+    if (url.origin.includes('firestore.googleapis.com') || url.origin.includes('firebase')) {
+        return;
+    }
+
+    // ២. សម្រាប់ Static Assets និងឯកសារทั่วไป (Cache-first, falling back to network)
     event.respondWith(
         caches.match(event.request).then((cachedResponse) => {
             if (cachedResponse) {
                 return cachedResponse;
             }
-            return fetch(event.request).catch(() => {
+            return fetch(event.request).then((networkResponse) => {
+                return networkResponse;
+            }).catch(() => {
                 // ករណីគ្មានអ៊ិនធឺណិត ហើយសំណើគឺចូលទំព័រ HTML
                 if (event.request.mode === 'navigate') {
                     return caches.match('./index.html');
