@@ -88,9 +88,10 @@
         .btn-auth { padding: 10px 14px; border-radius: 8px; border: none; font-size: 0.85rem; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 8px; justify-content: center; width: 100%; }
         .btn-google { background: white; border: 1px solid var(--border); color: #333; margin: 12px 14px; width: calc(100% - 28px); }
 
-        .sidebar-action-container { padding: 12px 14px 4px 14px; display: flex; gap: 8px; }
-        .add-song-sidebar-btn { flex: 1; padding: 12px 10px; background: var(--primary); color: white; border: none; border-radius: 10px; cursor: pointer; font-weight: 600; font-size: 0.9rem; display: flex; align-items: center; justify-content: center; gap: 6px; box-shadow: 0 2px 4px rgba(37, 99, 235, 0.2); }
-        .add-playlist-sidebar-btn { padding: 12px 12px; background: var(--card-bg); color: var(--primary); border: 1px solid var(--primary); border-radius: 10px; cursor: pointer; font-weight: 600; font-size: 0.9rem; display: flex; align-items: center; justify-content: center; }
+        .sidebar-action-container { padding: 12px 14px 4px 14px; display: flex; gap: 6px; flex-wrap: wrap; }
+        .add-song-sidebar-btn { flex: 1; padding: 10px 6px; background: var(--primary); color: white; border: none; border-radius: 10px; cursor: pointer; font-weight: 600; font-size: 0.8rem; display: flex; align-items: center; justify-content: center; gap: 4px; box-shadow: 0 2px 4px rgba(37, 99, 235, 0.2); }
+        .add-album-batch-sidebar-btn { flex: 1; padding: 10px 6px; background: #059669; color: white; border: none; border-radius: 10px; cursor: pointer; font-weight: 600; font-size: 0.8rem; display: flex; align-items: center; justify-content: center; gap: 4px; box-shadow: 0 2px 4px rgba(5, 150, 105, 0.2); }
+        .add-playlist-sidebar-btn { padding: 10px 10px; background: var(--card-bg); color: var(--primary); border: 1px solid var(--primary); border-radius: 10px; cursor: pointer; font-weight: 600; font-size: 0.9rem; display: flex; align-items: center; justify-content: center; }
 
         .sidebar-menu { flex: 1; padding: 10px 14px; overflow-y: auto; }
         .menu-section-title { font-size: 0.75rem; color: var(--text-muted); font-weight: 700; padding: 8px 12px 4px 12px; text-transform: uppercase; margin-top: 6px; }
@@ -214,6 +215,7 @@
         .editor-authorized .editor-only { display: flex !important; }
         .editor-authorized button.editor-only { display: inline-block !important; }
 
+        /* 🔥 Smart Offline & Sync Status Indicator */
         .offline-sync-badge {
             position: fixed;
             bottom: 20px;
@@ -271,7 +273,7 @@
 
 <div class="sidebar" id="sidebar">
     <div class="sidebar-header">
-        <div class="sidebar-title">ចម្រៀង</div>
+        <div class="sidebar-title">Album ចម្រៀង</div>
         <button class="close-sidebar-btn" onclick="closeMobileSidebar()">✖</button>
     </div>
 
@@ -285,6 +287,9 @@
     <div class="sidebar-action-container editor-only">
         <button class="add-song-sidebar-btn" onclick="openAddSongModal(); closeMobileSidebar();">
             ➕ <span>បទថ្មី</span>
+        </button>
+        <button class="add-album-batch-sidebar-btn" onclick="openBatchAddModal(); closeMobileSidebar();" title="បញ្ចូលបទច្រើនក្នុងពេលតែមួយ">
+            📚 <span>បទថ្មីជាអាល់ប៊ុម</span>
         </button>
         <button class="add-playlist-sidebar-btn" onclick="openCreatePlaylistModal(); closeMobileSidebar();" title="បង្កើត Playlist ផ្ទាល់ខ្លួន">
             📂+
@@ -328,7 +333,7 @@
 
     <div class="controls">
         <div class="search-box">
-            <input type="text" id="searchInput" placeholder="ស្វែងរកឆ្លាតវៃ (Smart Fuzzy Search)..." oninput="handleSearchInput()">
+            <input type="text" id="searchInput" placeholder="ស្វែងរកឆ្លាបទចម្រៀង..." oninput="handleSearchInput()">
             <button class="search-btn" onclick="renderSongs()">🔍</button>
         </div>
         <button class="theme-toggle-btn" id="themeToggleBtn" onclick="toggleDarkMode()" title="ប្តូររបៀបភ្លឺ/ងងឹត">🌙</button>
@@ -348,7 +353,7 @@
     <button class="close-audio-btn" onclick="stopGlobalAudio()" title="បិទ Player">✖</button>
 </div>
 
-<!-- Smart Offline & Sync Indicator Floating Badge -->
+<!-- Smart Offline & Sync Status Indicator Floating Badge -->
 <div class="offline-sync-badge" id="offlineSyncBadge">
     <span class="status-dot status-online" id="statusDot"></span>
     <span id="statusText">កំពុងពិនិត្យ...</span>
@@ -377,8 +382,8 @@
                 <select id="songAlbumSelect" required></select>
             </div>
             <div class="form-group">
-                <label>ចំណងជើងបទចម្រៀង (អាចទុកទំនេរបាន)</label>
-                <input type="text" id="songTitle" placeholder="ឧទាហរណ៍៖ ព្រះគុណព្រះអង្គ (មិនបាច់ដាក់ក៏បាន)">
+                <label>ចំណងជើងបទចម្រៀង *</label>
+                <input type="text" id="songTitle" required placeholder="ឧទាហរណ៍៖ ព្រះគុណព្រះអង្គ">
             </div>
             <div class="form-group">
                 <label>ឈ្មោះអ្នកចម្រៀង</label>
@@ -408,6 +413,29 @@
                 <button type="submit" id="saveBtn" class="btn btn-primary" style="padding: 10px 16px; border-radius: 8px; border: none; font-weight: 600; background: var(--primary); color: white; cursor: pointer;">រក្សាទុក</button>
             </div>
         </form>
+    </div>
+</div>
+
+<!-- 🔥 Batch Add Modal (បទថ្មីជាអាល់ប៊ុម) -->
+<div class="modal" id="batchAddModal">
+    <div class="modal-content" style="max-width: 500px;">
+        <h2>📚 បញ្ចូលរូបភាពច្រើនក្នុងពេលតែមួយ</h2>
+        <p style="font-size: 0.85rem; color: var(--text-muted); margin-top: 4px;">ជ្រើសរើសរូបភាពច្រើនសន្លឹកដើម្បីបង្កើតជាបទចម្រៀងរួចចាំកែប្រែចំណងជើងពេលក្រោយ។</p>
+        <div style="margin-top: 15px;">
+            <div class="form-group">
+                <label>ជ្រើសរើស Album សម្រាប់គ្រប់បទទាំងអស់ *</label>
+                <select id="batchAlbumSelect" required></select>
+            </div>
+            <div class="form-group">
+                <label>ជ្រើសរើសរូបភាពច្រើនសន្លឹក (Multi-Select) *</label>
+                <input type="file" id="batchImageFiles" accept="image/*" multiple onchange="handleBatchFilesSelect(event)" style="width:100%; padding:10px; background:var(--bg); border:1px solid var(--border); border-radius:8px;">
+            </div>
+            <div id="batchPreviewInfo" style="font-size: 0.85rem; font-weight: 600; color: var(--primary); margin-bottom: 10px;"></div>
+            <div style="text-align: right; margin-top: 20px; display: flex; gap: 10px; justify-content: flex-end;">
+                <button type="button" class="btn" onclick="closeModal('batchAddModal')" style="background: var(--border); color: var(--text);">បោះបង់</button>
+                <button type="button" id="batchSaveBtn" onclick="handleBatchSaveSongs()" class="btn btn-primary" style="padding: 10px 16px; border-radius: 8px; border: none; font-weight: 600; background: #059669; color: white; cursor: pointer;" disabled>បញ្ជូនចូលទាំងអស់</button>
+            </div>
+        </div>
     </div>
 </div>
 
@@ -502,6 +530,7 @@
 
     let selectedImageBase64 = '';
     let selectedEditImageBase64 = '';
+    let batchImagesArray = [];
     let currentFilteredSongs = [];
     let currentFullscreenIndex = 0;
     
@@ -1248,16 +1277,11 @@
         e.preventDefault();
         if (!isEditor) return alert("❌ គ្មានសិទ្ធិ!");
 
-        // យកតម្លៃចំណងជើង បើអត់មាន (ទុកទំនេរ) ដាក់ឈ្មោះស្វ័យប្រវត្តិបណ្តោះអាសន្នតាម Album
-        let title = document.getElementById('songTitle').value.trim();
+        const title = document.getElementById('songTitle').value.trim();
         const artist = document.getElementById('songArtist').value.trim();
         const tag = document.getElementById('songTag').value.trim();
         const audioUrl = document.getElementById('songAudioUrl').value.trim();
         const album = document.getElementById('songAlbumSelect').value;
-
-        if (!title) {
-            title = `បទថ្មី (${album})`; 
-        }
 
         if (!selectedImageBase64) return alert("⚠️ សូមជ្រើសរើសរូបភាពបទចម្រៀង!");
 
@@ -1289,12 +1313,100 @@
             closeModal('addSongModal');
             document.getElementById('addSongForm').reset();
             removeSelectedImage({stopPropagation:()=>{}});
-            alert('✅ បានបញ្ចូលរូបភាពចូលអាល់ប៊ុមជោគជ័យ! អ្នកអាចចុចកែប្រែឈ្មោះតាមក្រោយបាន។');
+            alert('✅ បញ្ចូលបទចម្រៀងបានជោគជ័យ!');
         } catch (error) {
             alert('❌ មានបញ្ហា៖ ' + error.message);
         } finally {
             saveBtn.innerText = 'រក្សាទុក'; 
             saveBtn.disabled = false;
+        }
+    }
+
+    // 🔥 Batch Add Functions (បទថ្មីជាអាល់ប៊ុម)
+    function openBatchAddModal() {
+        document.getElementById('batchAlbumSelect').innerHTML = customAlbums.map(a => `<option value="${a}">${a}</option>`).join('');
+        batchImagesArray = [];
+        document.getElementById('batchImageFiles').value = '';
+        document.getElementById('batchPreviewInfo').innerText = '';
+        document.getElementById('batchSaveBtn').disabled = true;
+        document.getElementById('batchAddModal').classList.add('active');
+    }
+
+    function handleBatchFilesSelect(e) {
+        const files = e.target.files;
+        if (!files || files.length === 0) return;
+        
+        batchImagesArray = [];
+        let loadedCount = 0;
+        const infoEl = document.getElementById('batchPreviewInfo');
+        infoEl.innerText = `⏳ កំពុងអានរូបភាពចំនួន ${files.length} សន្លឹក...`;
+
+        Array.from(files).forEach((file, index) => {
+            if (!file.type.startsWith('image/')) return;
+            const reader = new FileReader();
+            reader.onload = function(evt) {
+                batchImagesArray.push({
+                    base64: evt.target.result,
+                    defaultTitle: `បទថ្មី #${index + 1}`
+                });
+                loadedCount++;
+                if (loadedCount === files.length || loadedCount === batchImagesArray.length) {
+                    infoEl.innerText = `✅ បានអករូបភាពរួចរាល់ចំនួន ${batchImagesArray.length} សន្លឹក។ រួចចុចបញ្ជូនចូល។`;
+                    document.getElementById('batchSaveBtn').disabled = false;
+                }
+            };
+            reader.readAsDataURL(file);
+        });
+    }
+
+    async function handleBatchSaveSongs() {
+        if (batchImagesArray.length === 0) return alert('⚠️ សូមជ្រើសរើសរូបភាពសិន!');
+        const album = document.getElementById('batchAlbumSelect').value;
+        const batchSaveBtn = document.getElementById('batchSaveBtn');
+        batchSaveBtn.innerText = `⏳ កំពុងបញ្ចូល (0/${batchImagesArray.length})...`;
+        batchSaveBtn.disabled = true;
+
+        try {
+            let count = 0;
+            for (let item of batchImagesArray) {
+                const docRef = await db.collection("songs").add({
+                    title: item.defaultTitle,
+                    artist: '',
+                    tag: '',
+                    audioUrl: '',
+                    album: album,
+                    imageUrl: item.base64,
+                    createdBy: currentUser.displayName || currentUser.email,
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                });
+
+                const newSongObj = {
+                    id: docRef.id,
+                    title: item.defaultTitle,
+                    artist: '',
+                    tag: '',
+                    audioUrl: '',
+                    album: album,
+                    imageUrl: item.base64,
+                    createdBy: currentUser.displayName || currentUser.email,
+                    createdAt: { seconds: Math.floor(Date.now() / 1000) }
+                };
+                songsList.unshift(newSongObj);
+                count++;
+                batchSaveBtn.innerText = `⏳ កំពុងបញ្ចូល (${count}/${batchImagesArray.length})...`;
+            }
+
+            await saveSongsToIndexedDB(songsList);
+            renderSongs();
+            if(currentUser) renderUserProfile(currentUser);
+
+            closeModal('batchAddModal');
+            alert(`✅ បានបញ្ចូលបទចម្រៀងសរុបចំនួន ${count} បទចូល Album «${album}» ជោគជ័យ! សូមចុចកែប្រែ (✏️) លើបទនីមួយៗដើម្បីប្តូរឈ្មោះតាមក្រោយ។`);
+        } catch (error) {
+            alert('❌ មានបញ្ហា៖ ' + error.message);
+        } finally {
+            batchSaveBtn.innerText = 'បញ្ជូនចូលទាំងអស់';
+            batchSaveBtn.disabled = false;
         }
     }
 
@@ -1430,7 +1542,7 @@
         const threshold = 50; 
         if (touchEndX < touchStartX - threshold) {
             slideFullScreen(1);
-        } else if (touchEndX > touchStartX + threshold) {
+        } else if (touchEndX > touchStartX - threshold) {
             slideFullScreen(-1);
         }
     }
