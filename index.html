@@ -42,12 +42,6 @@
             --border: #334155;
         }
 
-        /* Dynamic Theme Colors */
-        body.theme-emerald { --primary: #059669; --primary-hover: #047857; }
-        body.theme-purple { --primary: #7c3aed; --primary-hover: #6d28d9; }
-        body.theme-rose { --primary: #e11d48; --primary-hover: #be123c; }
-        body.theme-amber { --primary: #d97706; --primary-hover: #b45309; }
-
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Kantumruy Pro', sans-serif; transition: background-color 0.2s, color 0.2s; }
         body { background-color: var(--bg); color: var(--text); display: flex; min-height: 100vh; position: relative; padding-bottom: 70px; }
 
@@ -77,7 +71,7 @@
         .dropdown-arrow { font-size: 0.7rem; color: var(--text-muted); transition: transform 0.3s ease; padding-left: 8px; }
         .user-profile-card.active .dropdown-arrow { transform: rotate(180deg); }
 
-        .profile-dropdown-menu { display: none; background: var(--card-bg); border-top: 1px solid var(--border); padding: 8px; box-shadow: inset 0 2px 4px rgba(0,0,0,0.02); max-height: 350px; overflow-y: auto; }
+        .profile-dropdown-menu { display: none; background: var(--card-bg); border-top: 1px solid var(--border); padding: 8px; box-shadow: inset 0 2px 4px rgba(0,0,0,0.02); max-height: 380px; overflow-y: auto; }
         .profile-dropdown-menu.open { display: flex; flex-direction: column; gap: 4px; }
 
         .dropdown-item { display: flex; align-items: center; gap: 10px; width: 100%; padding: 10px 12px; border: none; background: transparent; border-radius: 8px; font-size: 0.88rem; font-weight: 600; cursor: pointer; text-align: left; color: var(--text); transition: background 0.2s; }
@@ -125,17 +119,8 @@
         .search-box input { width: 100%; padding: 12px 45px 12px 18px; font-size: 0.95rem; border: 1px solid var(--border); border-radius: 10px; outline: none; background: var(--card-bg); color: var(--text); box-shadow: 0 2px 5px rgba(0,0,0,0.02); }
         .search-btn { position: absolute; right: 6px; background: none; border: none; font-size: 1.1rem; cursor: pointer; padding: 8px; border-radius: 8px; }
 
-        .theme-dropdown-wrapper { position: relative; }
         .dark-mode-btn { background: var(--card-bg); border: 1px solid var(--border); color: var(--text); width: 46px; height: 46px; border-radius: 10px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; flex-shrink: 0; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
         .dark-mode-btn:hover { background: var(--border); }
-        
-        .theme-settings-menu { display: none; position: absolute; right: 0; top: 55px; background: var(--card-bg); border: 1px solid var(--border); border-radius: 12px; padding: 12px; width: 220px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); z-index: 999; }
-        .theme-settings-menu.open { display: block; }
-        .theme-option-group { margin-bottom: 10px; }
-        .theme-option-group label { font-size: 0.8rem; font-weight: 700; color: var(--text-muted); display: block; margin-bottom: 6px; text-transform: uppercase; }
-        .color-palette-row { display: flex; gap: 6px; }
-        .color-dot { width: 28px; height: 28px; border-radius: 50%; border: 2px solid transparent; cursor: pointer; }
-        .color-dot.active { border-color: var(--text); }
 
         .song-actions {
             display: grid;
@@ -296,7 +281,7 @@
 
     <header>
         <div class="header-text">
-            <h1>🎼 ចម្រៀងសរសើរតម្កើងព្រះ</h1>
+            <h1>🎼 ចម្រៀងសរសើរដំកើងព្រះ</h1>
             <p id="currentAlbumSubtitle">
                 ចូរឱ្យជីវិតទាំងឡាយដែលមានដង្ហើម បានសរសើរដល់ព្រះយ៉េហូវ៉ាចុះ<br>
                 <span style="color: var(--primary); font-weight: 700;">ទំនុកដំកើង ១៥០៖៦</span>
@@ -319,29 +304,7 @@
             <button class="search-btn" onclick="renderSongs()">🔍</button>
         </div>
         
-        <div class="theme-dropdown-wrapper">
-            <button class="dark-mode-btn" id="darkModeBtn" onclick="toggleThemeMenu()" title="ការកំណត់ពណ៌និង Theme">⚙️</button>
-            <div class="theme-settings-menu" id="themeSettingsMenu">
-                <div class="theme-option-group">
-                    <label>របៀបបង្ហាញ (Mode)</label>
-                    <select id="themeModeSelect" onchange="changeThemeMode(this.value)" style="width:100%; padding:6px; border-radius:6px; border:1px solid var(--border); background:var(--bg); color:var(--text); font-size:0.85rem;">
-                        <option value="system">🖥️ តាមប្រព័ន្ធ (System)</option>
-                        <option value="light">☀️ ភ្លឺ (Light)</option>
-                        <option value="dark">🌙 ងងឹត (Dark)</option>
-                    </select>
-                </div>
-                <div class="theme-option-group">
-                    <label>ពណ៌ចម្បង (Primary Color)</label>
-                    <div class="color-palette-row">
-                        <div class="color-dot active" style="background: #2563eb;" onclick="changePrimaryColor('blue', '#2563eb')"></div>
-                        <div class="color-dot" style="background: #059669;" onclick="changePrimaryColor('emerald', '#059669')"></div>
-                        <div class="color-dot" style="background: #7c3aed;" onclick="changePrimaryColor('purple', '#7c3aed')"></div>
-                        <div class="color-dot" style="background: #e11d48;" onclick="changePrimaryColor('rose', '#e11d48')"></div>
-                        <div class="color-dot" style="background: #d97706;" onclick="changePrimaryColor('amber', '#d97706')"></div>
-                    </div>
-                </div>
-            </div>
-        </div>
+        <button class="dark-mode-btn" id="darkModeBtn" onclick="toggleDarkMode()" title="ប្ដូរ Dark/Light Mode">🌙</button>
     </div>
 
     <div class="song-grid" id="songGrid">
@@ -497,7 +460,7 @@
     let customAlbums = ['ទំនុកដំកើង', 'ទំនុកខ្មែរបរិសុទ្ធ'];
     
     // Playlist System State
-    let playlists = JSON.parse(localStorage.getItem('user_playlists') || '{}'); // { playlistName: [songId1, songId2] }
+    let playlists = JSON.parse(localStorage.getItem('user_playlists') || '{}');
 
     let currentFilterType = 'ALL';      
     let currentFilterValue = 'ALL';     
@@ -528,7 +491,7 @@
     }
 
     window.onload = async function() {
-        applyStoredThemeSettings();
+        applyStoredTheme();
         listenToAuth();
         listenToAlbums();
         
@@ -551,49 +514,24 @@
         setupTouchSwipeListeners();
     };
 
-    // Theme & Settings Handlers
-    function applyStoredThemeSettings() {
-        const mode = localStorage.getItem('theme_mode_setting') || 'system';
-        const color = localStorage.getItem('theme_color_name') || 'blue';
-        
-        document.getElementById('themeModeSelect').value = mode;
-        applyThemeModeVisual(mode);
-        applyPrimaryColorVisual(color);
-    }
-
-    function toggleThemeMenu() {
-        document.getElementById('themeSettingsMenu').classList.toggle('open');
-    }
-
-    function changeThemeMode(mode) {
-        localStorage.setItem('theme_mode_setting', mode);
-        applyThemeModeVisual(mode);
-    }
-
-    function applyThemeModeVisual(mode) {
-        document.body.classList.remove('dark-mode');
-        if (mode === 'dark') {
+    // Dark / Light Mode Handlers (Restored & Moved to Profile Dropdown)
+    function applyStoredTheme() {
+        const isDark = localStorage.getItem('dark_mode_enabled') === 'true';
+        if (isDark) {
             document.body.classList.add('dark-mode');
-        } else if (mode === 'system') {
-            if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-                document.body.classList.add('dark-mode');
-            }
+            document.getElementById('darkModeBtn').innerText = '☀️';
+        } else {
+            document.body.classList.remove('dark-mode');
+            document.getElementById('darkModeBtn').innerText = '🌙';
         }
     }
 
-    function changePrimaryColor(colorName, hexCode) {
-        localStorage.setItem('theme_color_name', colorName);
-        applyPrimaryColorVisual(colorName);
-        
-        document.querySelectorAll('.color-dot').forEach(dot => dot.classList.remove('active'));
-        event.target.classList.add('active');
-    }
-
-    function applyPrimaryColorVisual(colorName) {
-        document.body.classList.remove('theme-emerald', 'theme-purple', 'theme-rose', 'theme-amber');
-        if (colorName !== 'blue') {
-            document.body.classList.add(`theme-${colorName}`);
-        }
+    function toggleDarkMode() {
+        document.body.classList.toggle('dark-mode');
+        const isDark = document.body.classList.contains('dark-mode');
+        localStorage.setItem('dark_mode_enabled', isDark);
+        document.getElementById('darkModeBtn').innerText = isDark ? '☀️' : '🌙';
+        if (currentUser) renderUserProfile(currentUser);
     }
 
     // IndexedDB helper functions
@@ -760,6 +698,7 @@
         }
 
         let isFavActive = (currentFilterType === 'FAV');
+        const isDark = document.body.classList.contains('dark-mode');
 
         document.getElementById('userProfileArea').innerHTML = `
             <div class="user-profile-card" id="profileToggleBtn" onclick="toggleProfileDropdown()">
@@ -773,6 +712,10 @@
                 <div class="dropdown-arrow">▼</div>
             </div>
             <div class="profile-dropdown-menu" id="profileDropdownMenu">
+                <button class="dropdown-item" onclick="toggleDarkMode()">
+                    <span style="font-size:1.1rem;">${isDark ? '☀️' : '🌙'}</span> <span>${isDark ? 'របៀបភ្លឺ (Light Mode)' : 'របៀបងងឹត (Dark Mode)'}</span>
+                </button>
+                <div class="dropdown-divider"></div>
                 <button class="dropdown-item ${isFavActive ? 'active-sub' : ''}" onclick="filterByFavorites()">
                     <span style="font-size:1.1rem;">❤️</span> <span>បទសំណព្វចិត្តខ្ញុំ</span>
                 </button>
@@ -838,7 +781,6 @@
             customAlbums = albums;
             renderSidebarMenu();
         }, (error) => {
-            // Offline fallback for albums
             renderSidebarMenu();
         });
     }
@@ -922,7 +864,6 @@
             `;
         });
 
-        // Render Playlists in Sidebar
         const playlistKeys = Object.keys(playlists);
         if (playlistKeys.length > 0) {
             html += `<div class="menu-section-title">📂 Playlists ផ្ទាល់ខ្លួន</div>`;
