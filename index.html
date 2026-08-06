@@ -118,6 +118,9 @@
         .search-box { position: relative; display: flex; align-items: center; flex: 1; }
         .search-box input { width: 100%; padding: 12px 45px 12px 18px; font-size: 0.95rem; border: 1px solid var(--border); border-radius: 10px; outline: none; background: var(--card-bg); color: var(--text); box-shadow: 0 2px 5px rgba(0,0,0,0.02); }
         .search-btn { position: absolute; right: 6px; background: none; border: none; font-size: 1.1rem; cursor: pointer; padding: 8px; border-radius: 8px; }
+        
+        .theme-toggle-btn { background: var(--card-bg); border: 1px solid var(--border); color: var(--text); padding: 12px 16px; border-radius: 10px; font-size: 1.1rem; cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 5px rgba(0,0,0,0.02); }
+        .theme-toggle-btn:hover { background: var(--border); }
 
         .song-actions {
             display: grid;
@@ -300,6 +303,7 @@
             <input type="text" id="searchInput" placeholder="ស្វែងរកចំណងជើង អ្នកចម្រៀង ឬ Tag..." oninput="handleSearchInput()">
             <button class="search-btn" onclick="renderSongs()">🔍</button>
         </div>
+        <button class="theme-toggle-btn" id="themeToggleBtn" onclick="toggleDarkMode()" title="ប្តូររបៀបភ្លឺ/ងងឹត">🌙</button>
     </div>
 
     <div class="song-grid" id="songGrid">
@@ -512,10 +516,13 @@
     // Dark / Light Mode Handlers
     function applyStoredTheme() {
         const isDark = localStorage.getItem('dark_mode_enabled') === 'true';
+        const themeBtn = document.getElementById('themeToggleBtn');
         if (isDark) {
             document.body.classList.add('dark-mode');
+            if(themeBtn) themeBtn.innerText = '☀️';
         } else {
             document.body.classList.remove('dark-mode');
+            if(themeBtn) themeBtn.innerText = '🌙';
         }
     }
 
@@ -523,7 +530,8 @@
         document.body.classList.toggle('dark-mode');
         const isDark = document.body.classList.contains('dark-mode');
         localStorage.setItem('dark_mode_enabled', isDark);
-        if (currentUser) renderUserProfile(currentUser);
+        const themeBtn = document.getElementById('themeToggleBtn');
+        if(themeBtn) themeBtn.innerText = isDark ? '☀️' : '🌙';
     }
 
     // IndexedDB helper functions
@@ -690,7 +698,6 @@
         }
 
         let isFavActive = (currentFilterType === 'FAV');
-        const isDark = document.body.classList.contains('dark-mode');
 
         let adminInviteButtons = '';
         if (isAdmin) {
@@ -716,10 +723,6 @@
                 <div class="dropdown-arrow">▼</div>
             </div>
             <div class="profile-dropdown-menu" id="profileDropdownMenu">
-                <button class="dropdown-item" onclick="toggleDarkMode()">
-                    <span style="font-size:1.1rem;">${isDark ? '☀️' : '🌙'}</span> <span>${isDark ? 'របៀបភ្លឺ (Light Mode)' : 'របៀបងងឹត (Dark Mode)'}</span>
-                </button>
-                <div class="dropdown-divider"></div>
                 <button class="dropdown-item ${isFavActive ? 'active-sub' : ''}" onclick="filterByFavorites()">
                     <span style="font-size:1.1rem;">❤️</span> <span>បទសំណព្វចិត្តខ្ញុំ</span>
                 </button>
