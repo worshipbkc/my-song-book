@@ -21,6 +21,7 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-storage.js"></script>
 
     <style>
         :root {
@@ -184,6 +185,7 @@
         .close-audio-btn { background: none; border: none; font-size: 1.1rem; cursor: pointer; color: var(--danger); padding: 4px; }
 
         .empty-state { text-align: center; padding: 40px 20px; color: var(--text-muted); grid-column: 1 / -1; }
+        .loading-more-spinner { text-align: center; padding: 20px; font-size: 0.9rem; color: var(--text-muted); grid-column: 1 / -1; font-weight: 600; }
 
         .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); align-items: center; justify-content: center; z-index: 1000; padding: 20px; }
         .modal.active { display: flex; }
@@ -398,7 +400,7 @@
                 <input type="url" id="songAudioUrl" placeholder="https://example.com/song.mp3">
             </div>
             <div class="form-group">
-                <label>រូបភាពបទចម្រៀង *</label>
+                <label>រូបភាពបទចម្រៀង (アップロード ឬ URL) *</label>
                 <div class="image-drop-zone" id="dropZone" onclick="document.getElementById('songImageFile').click()" ondragover="handleDragOver(event)" ondragleave="handleDragLeave(event)" ondrop="handleDrop(event)">
                     <p>📁 ចុចទីនេះ ឬ **ទាញទម្លាក់រូបភាព** ចូលទីនេះ<br><span style="color:var(--primary); font-weight:600;">(អាចចុច Ctrl+V ដើម្បី Paste រូបភាព)</span></p>
                     <input type="file" id="songImageFile" accept="image/*" onchange="handleFileSelect(event)" style="display: none;">
@@ -406,6 +408,9 @@
                         <img id="previewImg" src="" alt="Preview">
                         <button type="button" class="remove-img-btn" onclick="removeSelectedImage(event)">✖</button>
                     </div>
+                </div>
+                <div style="margin-top: 8px;">
+                    <input type="url" id="songImageUrlDirect" placeholder="ឬដាក់ Firebase Storage URL ផ្ទាល់នៅទីនេះ">
                 </div>
             </div>
             <div style="text-align: right; margin-top: 20px; display: flex; gap: 10px; justify-content: flex-end;">
@@ -479,6 +484,9 @@
                         <button type="button" class="remove-img-btn" onclick="removeSelectedEditImage(event)">✖</button>
                     </div>
                 </div>
+                <div style="margin-top: 8px;">
+                    <input type="url" id="editSongImageUrlDirect" placeholder="ឬដាក់ Firebase Storage URL ថ្មីផ្ទាល់នៅទីនេះ">
+                </div>
             </div>
             <div style="text-align: right; margin-top: 20px; display: flex; gap: 10px; justify-content: flex-end;">
                 <button type="button" class="btn" onclick="closeModal('editSongModal')" style="background: var(--border); color: var(--text);">បោះបង់</button>
@@ -517,6 +525,7 @@
     firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
     const auth = firebase.auth();
+    const storage = firebase.storage();
 
     auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL).catch((error) => {});
 
@@ -537,6 +546,11 @@
     let batchImagesArray = [];
     let currentFilteredSongs = [];
     let currentFullscreenIndex = 0;
+    
+    // Chunking / Lazy Loading UI state variables
+    let displayedItemCount = 20;
+    const CHUNK_SIZE = 20;
+    let isLoadingMore = false;
     
     let deferredPrompt = null;
 
@@ -608,7 +622,29 @@
 
         setupGlobalPasteListener();
         setupTouchSwipeListeners();
+        setupScrollListener();
     };
+
+    function setupScrollListener() {
+        window.addEventListener('scroll', () => {
+            if ((window.innerHeight + window.scrollY) >= document.body.offsetHeight - 300) {
+                if (!isLoadingMore) {
+                    loadMoreChunks();
+                }
+            }
+        });
+    }
+
+    function loadMoreChunks() {
+        if (displayedItemCount >= currentFilteredSongs.length) return;
+        isLoadingMore = true;
+        
+        setTimeout(() => {
+            displayedItemCount += CHUNK_SIZE;
+            renderSongsListOnly();
+            isLoadingMore = false;
+        }, 200);
+    }
 
     function applyStoredTheme() {
         const isDark = localStorage.getItem('dark_mode_enabled') === 'true';
@@ -685,7 +721,7 @@
         progressWrapper.style.display = 'block';
         progressText.style.display = 'block';
         progressText.innerText = 'កំពុងតភ្ជាប់ទាញយក... (10%)';
-        progressBar.style.width = '10%';
+        progressBar.style.width = '10%§';
 
         try {
             const snapshot = await db.collection("songs").orderBy("createdAt", "desc").get();
@@ -1100,6 +1136,7 @@
         return matrix[b.length][a.length];
     }
 
+    // 2. Global Search: Searches the entire full array of songs regardless of pagination chunk
     function getFilteredSongs() {
         const query = document.getElementById('searchInput').value.trim();
         return songsList.filter(s => {
@@ -1125,8 +1162,14 @@
     }
 
     function renderSongs() {
-        const grid = document.getElementById('songGrid');
+        displayedItemCount = CHUNK_SIZE; // Reset chunk size on new search/filter
         currentFilteredSongs = getFilteredSongs();
+        renderSongsListOnly();
+    }
+
+    // 1. Chunking / Lazy Loading UI Implementation
+    function renderSongsListOnly() {
+        const grid = document.getElementById('songGrid');
 
         if (currentFilteredSongs.length === 0 && songsList.length === 0) {
             grid.innerHTML = `<div class="empty-state">📂 មិនទាន់មានទិន្នន័យ សូមចុចប៊ូតុង **"ទាញយកទិន្នន័យ (Offline)"**។</div>`;
@@ -1138,7 +1181,9 @@
             return;
         }
 
-        let html = currentFilteredSongs.map((song, index) => {
+        const chunkedSongs = currentFilteredSongs.slice(0, displayedItemCount);
+
+        let html = chunkedSongs.map((song, index) => {
             const safeTitle = (song.title || '').replace(/'/g, "\\'").replace(/"/g, '&quot;');
             const isFav = favoritesList.includes(song.id);
             
@@ -1197,6 +1242,10 @@
             </div>
             `;
         }).join('');
+
+        if (displayedItemCount < currentFilteredSongs.length) {
+            html += `<div class="loading-more-spinner">🔄 កំពុងទាញយករូបភាពបន្ថែម...</div>`;
+        }
 
         grid.innerHTML = html;
     }
@@ -1277,6 +1326,25 @@
         });
     }
 
+    // 3. Firebase Storage Integration helper support function
+    async function uploadImageToFirebaseStorage(fileOrBase64, pathName) {
+        if (!fileOrBase64) return '';
+        // If it's already a direct URL (e.g. Firebase Storage URL), return it directly
+        if (typeof fileOrBase64 === 'string' && (fileOrBase64.startsWith('http://') || fileOrBase64.startsWith('https://'))) {
+            return fileOrBase64;
+        }
+        
+        // Convert Base64 or File to Storage upload task
+        const storageRef = storage.ref().append ? storage.ref() : firebase.storage().ref();
+        const imageRef = storageRef.child(`song_images/${Date.now()}_${pathName || 'image'}.jpg`);
+        
+        if (typeof fileOrBase64 === 'string' && fileOrBase64.startsWith('data:image')) {
+            const snapshot = await imageRef.putString(fileOrBase64, 'data_url');
+            return await snapshot.ref.getDownloadURL();
+        }
+        return fileOrBase64;
+    }
+
     async function handleAddSong(e) {
         e.preventDefault();
         if (!isEditor) return alert("❌ គ្មានសិទ្ធិ!");
@@ -1286,17 +1354,22 @@
         const tag = document.getElementById('songTag').value.trim();
         const audioUrl = document.getElementById('songAudioUrl').value.trim();
         const album = document.getElementById('songAlbumSelect').value;
+        const directUrlInput = document.getElementById('songImageUrlDirect').value.trim();
 
-        if (!selectedImageBase64) return alert("⚠️ សូមជ្រើសរើសរូបភាពបទចម្រៀង!");
+        let finalImageUrl = directUrlInput || selectedImageBase64;
+        if (!finalImageUrl) return alert("⚠️ សូមជ្រើសរើសរូបភាពបទចម្រៀង ឬដាក់ URL!");
 
         const saveBtn = document.getElementById('saveBtn');
-        saveBtn.innerText = '⏳ រក្សាទុក...'; 
+        saveBtn.innerText = '⏳ កំពុងផ្ទុកឡើង (Storage)...'; 
         saveBtn.disabled = true;
 
         try {
+            // 3. Convert or Upload image using Firebase Storage optimization helper
+            const uploadedUrl = await uploadImageToFirebaseStorage(finalImageUrl, title);
+
             const docRef = await db.collection("songs").add({
                 title, artist, tag, audioUrl, album,
-                imageUrl: selectedImageBase64,
+                imageUrl: uploadedUrl,
                 createdBy: currentUser.displayName || currentUser.email,
                 createdAt: firebase.firestore.FieldValue.serverTimestamp()
             });
@@ -1304,7 +1377,7 @@
             const newSongObj = {
                 id: docRef.id,
                 title, artist, tag, audioUrl, album,
-                imageUrl: selectedImageBase64,
+                imageUrl: uploadedUrl,
                 createdBy: currentUser.displayName || currentUser.email,
                 createdAt: { seconds: Math.floor(Date.now() / 1000) }
             };
@@ -1316,6 +1389,7 @@
 
             closeModal('addSongModal');
             document.getElementById('addSongForm').reset();
+            document.getElementById('songImageUrlDirect').value = '';
             removeSelectedImage({stopPropagation:()=>{}});
             alert('✅ បញ្ចូលបទចម្រៀងបានជោគជ័យ!');
         } catch (error) {
@@ -1374,13 +1448,15 @@
         try {
             let count = 0;
             for (let item of batchImagesArray) {
+                const uploadedUrl = await uploadImageToFirebaseStorage(item.base64, item.defaultTitle);
+
                 const docRef = await db.collection("songs").add({
                     title: item.defaultTitle,
                     artist: artist,
                     tag: '',
                     audioUrl: '',
                     album: album,
-                    imageUrl: item.base64,
+                    imageUrl: uploadedUrl,
                     createdBy: currentUser.displayName || currentUser.email,
                     createdAt: firebase.firestore.FieldValue.serverTimestamp()
                 });
@@ -1392,7 +1468,7 @@
                     tag: '',
                     audioUrl: '',
                     album: album,
-                    imageUrl: item.base64,
+                    imageUrl: uploadedUrl,
                     createdBy: currentUser.displayName || currentUser.email,
                     createdAt: { seconds: Math.floor(Date.now() / 1000) }
                 };
@@ -1425,6 +1501,7 @@
         document.getElementById('editSongArtist').value = song.artist || '';
         document.getElementById('editSongTag').value = song.tag || '';
         document.getElementById('editSongAudioUrl').value = song.audioUrl || '';
+        document.getElementById('editSongImageUrlDirect').value = '';
 
         const select = document.getElementById('editSongAlbumSelect');
         select.innerHTML = customAlbums.map(a => `<option value="${a}" ${a === song.album ? 'selected' : ''}>${a}</option>`).join('');
@@ -1437,8 +1514,11 @@
     async function handleUpdateSong(e) {
         e.preventDefault();
         const id = document.getElementById('editSongId').value;
+        const directUrlInput = document.getElementById('editSongImageUrlDirect').value.trim();
+        const title = document.getElementById('editSongTitle').value.trim();
+
         const updateData = {
-            title: document.getElementById('editSongTitle').value.trim(),
+            title: title,
             artist: document.getElementById('editSongArtist').value.trim(),
             tag: document.getElementById('editSongTag').value.trim(),
             audioUrl: document.getElementById('editSongAudioUrl').value.trim(),
@@ -1446,14 +1526,17 @@
             updatedBy: currentUser.displayName || currentUser.email,
             updatedAt: firebase.firestore.FieldValue.serverTimestamp()
         };
-        if (selectedEditImageBase64) updateData.imageUrl = selectedEditImageBase64;
+
+        let newImageSource = directUrlInput || selectedEditImageBase64;
+        if (newImageSource) {
+            updateData.imageUrl = await uploadImageToFirebaseStorage(newImageSource, title);
+        }
 
         await db.collection("songs").doc(id).update(updateData);
         
         const index = songsList.findIndex(s => s.id === id);
         if (index !== -1) {
             songsList[index] = { ...songsList[index], ...updateData };
-            if (selectedEditImageBase64) songsList[index].imageUrl = selectedEditImageBase64;
             await saveSongsToIndexedDB(songsList);
             renderSongs();
             if(currentUser) renderUserProfile(currentUser);
