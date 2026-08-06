@@ -119,9 +119,6 @@
         .search-box input { width: 100%; padding: 12px 45px 12px 18px; font-size: 0.95rem; border: 1px solid var(--border); border-radius: 10px; outline: none; background: var(--card-bg); color: var(--text); box-shadow: 0 2px 5px rgba(0,0,0,0.02); }
         .search-btn { position: absolute; right: 6px; background: none; border: none; font-size: 1.1rem; cursor: pointer; padding: 8px; border-radius: 8px; }
 
-        .dark-mode-btn { background: var(--card-bg); border: 1px solid var(--border); color: var(--text); width: 46px; height: 46px; border-radius: 10px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; flex-shrink: 0; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
-        .dark-mode-btn:hover { background: var(--border); }
-
         .song-actions {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
@@ -186,7 +183,7 @@
         /* Audio Player Bar Footer */
         .audio-player-bar { position: fixed; bottom: 0; left: 0; right: 0; background: var(--card-bg); border-top: 1px solid var(--border); padding: 10px 20px; display: none; align-items: center; justify-content: space-between; z-index: 1500; box-shadow: 0 -4px 10px rgba(0,0,0,0.05); gap: 15px; }
         .audio-player-bar.active { display: flex; }
-        .audio-info { font-size: 0.85rem; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 250px; }
+        .audio-info { font-size: 0.85rem; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 250px; color: var(--text); }
         .audio-controls { display: flex; align-items: center; gap: 10px; flex: 1; max-width: 500px; }
         .audio-controls audio { width: 100%; height: 35px; }
         .close-audio-btn { background: none; border: none; font-size: 1.1rem; cursor: pointer; color: var(--danger); padding: 4px; }
@@ -303,8 +300,6 @@
             <input type="text" id="searchInput" placeholder="ស្វែងរកចំណងជើង អ្នកចម្រៀង ឬ Tag..." oninput="handleSearchInput()">
             <button class="search-btn" onclick="renderSongs()">🔍</button>
         </div>
-        
-        <button class="dark-mode-btn" id="darkModeBtn" onclick="toggleDarkMode()" title="ប្ដូរ Dark/Light Mode">🌙</button>
     </div>
 
     <div class="song-grid" id="songGrid">
@@ -514,15 +509,13 @@
         setupTouchSwipeListeners();
     };
 
-    // Dark / Light Mode Handlers (Restored & Moved to Profile Dropdown)
+    // Dark / Light Mode Handlers
     function applyStoredTheme() {
         const isDark = localStorage.getItem('dark_mode_enabled') === 'true';
         if (isDark) {
             document.body.classList.add('dark-mode');
-            document.getElementById('darkModeBtn').innerText = '☀️';
         } else {
             document.body.classList.remove('dark-mode');
-            document.getElementById('darkModeBtn').innerText = '🌙';
         }
     }
 
@@ -530,7 +523,6 @@
         document.body.classList.toggle('dark-mode');
         const isDark = document.body.classList.contains('dark-mode');
         localStorage.setItem('dark_mode_enabled', isDark);
-        document.getElementById('darkModeBtn').innerText = isDark ? '☀️' : '🌙';
         if (currentUser) renderUserProfile(currentUser);
     }
 
@@ -700,6 +692,18 @@
         let isFavActive = (currentFilterType === 'FAV');
         const isDark = document.body.classList.contains('dark-mode');
 
+        let adminInviteButtons = '';
+        if (isAdmin) {
+            adminInviteButtons = `
+                <button class="dropdown-item" onclick="handleInvite()"><span style="font-size:1.1rem;">✉️</span> <span>Invite</span></button>
+                <button class="dropdown-item danger" onclick="handleDeleteAlbum()"><span style="font-size:1.1rem;">🗑️</span> <span>លុប Album</span></button>
+            `;
+        } else if (!isEditor) {
+            adminInviteButtons = `
+                <button class="dropdown-item" onclick="handleJoin()"><span style="font-size:1.1rem;">✉️</span> <span>សុំសិទ្ធិកែប្រែ</span></button>
+            `;
+        }
+
         document.getElementById('userProfileArea').innerHTML = `
             <div class="user-profile-card" id="profileToggleBtn" onclick="toggleProfileDropdown()">
                 <div class="user-info">
@@ -721,11 +725,7 @@
                 </button>
                 ${tagsHtml}
                 <div class="dropdown-divider"></div>
-                ${isAdmin ? `
-                    <button class="dropdown-item" onclick="handleInvite()"><span style="font-size:1.1rem;">✉️</span> <span>Invite</span></button>
-                    <button class="dropdown-item danger" onclick="handleDeleteAlbum()"><span style="font-size:1.1rem;">🗑️</span> <span>លុប Album</span></button>
-                ` : ''}
-                ${(!isAdmin && !isEditor) ? `<button class="dropdown-item" onclick="handleJoin()"><span style="font-size:1.1rem;">✉️</span> <span>សុំសិទ្ធិកែប្រែ</span></button>` : ''}
+                ${adminInviteButtons}
                 <button class="dropdown-item danger" onclick="logout()"><span style="font-size:1.1rem;">🚪</span> <span>Log Out</span></button>
             </div>
         `;
@@ -785,7 +785,6 @@
         });
     }
 
-    // Playlist Management Functions
     function openCreatePlaylistModal() {
         document.getElementById('newPlaylistName').value = '';
         document.getElementById('playlistModal').classList.add('active');
@@ -1022,6 +1021,11 @@
                 extraPlaylistBtn = `<button class="song-action-btn" style="background:#e0f2fe; color:#0284c7; border-color:#bae6fd;" onclick="addSongToPlaylistPrompt('${song.id}', event)">📂 ដាក់ Playlist</button>`;
             }
 
+            let tagBadgeHtml = song.tag ? `<span class="song-tag-badge">🏷️ ${song.tag}</span>` : '';
+            let audioButtonHtml = song.audioUrl ? `<button style="background:var(--primary); color:white; border:none; padding:4px 8px; border-radius:6px; font-size:0.75rem; font-weight:600; cursor:pointer; margin:4px 0; width:fit-content;" onclick="playAudio('${song.audioUrl}', '${safeTitle}', event)">▶ ចាក់ភ្លេងអម</button>` : '';
+            let dateSpanHtml = dateText ? `<span>📅 ${dateText}</span>` : '';
+            let editorSpanHtml = editorInfo ? `<span>👤 ${editorInfo}</span>` : '';
+
             return `
             <div class="song-card">
                 <div class="song-index-badge">#${index + 1}</div>
@@ -1034,11 +1038,11 @@
                     <div>
                         <div class="song-title">${song.title}</div>
                         <div class="song-artist">${song.artist || 'មិនស្គាល់អ្នកចម្រៀង'}</div>
-                        ${song.tag ? `<span class="song-tag-badge">🏷️ ${song.tag}</span>` : ''}
+                        ${tagBadgeHtml}
                         <div class="song-meta-info">
-                            ${song.audioUrl ? `<button style="background:var(--primary); color:white; border:none; padding:4px 8px; border-radius:6px; font-size:0.75rem; font-weight:600; cursor:pointer; margin:4px 0; width:fit-content;" onclick="playAudio('${song.audioUrl}', '${safeTitle}', event)">▶ ចាក់ភ្លេងអម</button>` : ''}
-                            ${dateText ? `<span>📅 ${dateText}</span>` : ''}
-                            ${editorInfo ? `<span>👤 ${editorInfo}</span>` : ''}
+                            ${audioButtonHtml}
+                            ${dateSpanHtml}
+                            ${editorSpanHtml}
                         </div>
                     </div>
                     <div>
@@ -1307,7 +1311,7 @@
             touchStartX = e.changedTouches[0].screenX;
         }, {passive: true});
 
-        container.addEventListener('touchend', (e) => {
+        container.addEventListener('touched', (e) => {
             touchEndX = e.changedTouches[0].screenX;
             handleSwipeGesture();
         }, {passive: true});
