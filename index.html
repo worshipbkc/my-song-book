@@ -420,7 +420,7 @@
 <div class="modal" id="batchAddModal">
     <div class="modal-content" style="max-width: 500px;">
         <h2>📚 បញ្ចូលរូបភាពច្រើនក្នុងពេលតែមួយ</h2>
-        <p style="font-size: 0.85rem; color: var(--text-muted); margin-top: 4px;">ជ្រើសរើសរូបភាពច្រើនសន្លឹកដើម្បីបង្កើតជាបទចម្រៀងរួចកំណត់ឈ្មោះអ្នកចម្រៀងរួមគ្នាប្រសិនបើមាន។</p>
+        <p style="font-size: 0.85rem; color: var(--text-muted); margin-top: 4px;">ជ្រើសរើសរូបភាពច្រើនសន្លឹកដើម្បីបង្កើតជាបទចម្រៀងរួចកំណត់ឈ្មោះអ្នកចម្រៀងរួមគ្នាប្រសិនបើមាន chart. </p>
         <div style="margin-top: 15px;">
             <div class="form-group">
                 <label>ជ្រើសរើស Album សម្រាប់គ្រប់បទទាំងអស់ *</label>
@@ -1494,7 +1494,11 @@
         if (index !== -1) {
             songsList[index] = { ...songsList[index], ...updateData };
             await saveSongsToIndexedDB(songsList);
-            renderSongs();
+
+            // 🔥 កែសម្រួល៖ រក្សាចំនួនបទដែលកំពុងបង្ហាញដដែល មិន Reset ទៅ ២០ បទវិញទេ ពេលកែប្រែបទចម្រៀង
+            currentFilteredSongs = getFilteredSongs();
+            renderSongsListOnly();
+
             if(currentUser) renderUserProfile(currentUser);
         }
 
