@@ -160,11 +160,6 @@
 
         .song-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 20px; }
         .song-card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; display: flex; flex-direction: column; position: relative; }
-        
-        .song-index-badge { position: absolute; top: 10px; left: 10px; background: rgba(0, 0, 0, 0.6); color: white; font-size: 0.75rem; font-weight: 700; padding: 2px 8px; border-radius: 20px; z-index: 2; backdrop-filter: blur(4px); }
-        
-        .fav-btn { position: absolute; top: 10px; right: 10px; background: rgba(255, 255, 255, 0.8); border: none; width: 32px; height: 32px; border-radius: 50%; font-size: 1rem; cursor: pointer; display: flex; align-items: center; justify-content: center; z-index: 2; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
-        body.dark-mode .fav-btn { background: rgba(30, 41, 59, 0.8); }
 
         .song-img-container { width: 100%; min-height: 220px; background: var(--border); display: flex; align-items: center; justify-content: center; overflow: hidden; cursor: pointer; position: relative; }
         .song-img { width: 100%; height: 100%; max-height: 380px; object-fit: contain; display: block; }
@@ -539,7 +534,6 @@
 
     let currentFilterType = 'ALL';      
     let currentFilterValue = 'ALL';     
-    let favoritesList = JSON.parse(localStorage.getItem('user_favorites') || '[]');
 
     let selectedImageBase64 = '';
     let selectedEditImageBase64 = '';
@@ -721,7 +715,7 @@
         progressWrapper.style.display = 'block';
         progressText.style.display = 'block';
         progressText.innerText = 'កំពុងតភ្ជាប់ទាញយក... (10%)';
-        progressBar.style.width = '10%§';
+        progressBar.style.width = '10%';
 
         try {
             const snapshot = await db.collection("songs").orderBy("createdAt", "desc").get();
@@ -828,8 +822,6 @@
             });
         }
 
-        let isFavActive = (currentFilterType === 'FAV');
-
         let adminInviteButtons = '';
         if (isAdmin) {
             adminInviteButtons = `
@@ -854,9 +846,6 @@
                 <div class="dropdown-arrow">▼</div>
             </div>
             <div class="profile-dropdown-menu" id="profileDropdownMenu">
-                <button class="dropdown-item ${isFavActive ? 'active-sub' : ''}" onclick="filterByFavorites()">
-                    <span style="font-size:1.1rem;">❤️</span> <span>បទសំណព្វចិត្តខ្ញុំ</span>
-                </button>
                 ${tagsHtml}
                 <div class="dropdown-divider"></div>
                 ${adminInviteButtons}
@@ -1039,15 +1028,6 @@
         closeMobileSidebar();
     }
 
-    function filterByFavorites() {
-        currentFilterType = 'FAV';
-        currentFilterValue = 'FAV';
-        document.getElementById('currentAlbumSubtitle').innerHTML = `❤️ Album បទចម្រៀងសំណព្វចិត្តដែលបានរក្សាទុក`;
-        renderSidebarMenu();
-        renderSongs();
-        closeMobileSidebar();
-    }
-
     function filterByTag(tagName) {
         currentFilterType = 'TAG';
         currentFilterValue = tagName;
@@ -1067,18 +1047,6 @@
     }
 
     function handleSearchInput() { renderSongs(); }
-
-    function toggleFavorite(songId, event) {
-        if(event) event.stopPropagation();
-        const index = favoritesList.indexOf(songId);
-        if (index > -1) {
-            favoritesList.splice(index, 1);
-        } else {
-            favoritesList.push(songId);
-        }
-        localStorage.setItem('user_favorites', JSON.stringify(favoritesList));
-        renderSongs();
-    }
 
     function playAudio(audioUrl, songTitle, event) {
         if(event) event.stopPropagation();
@@ -1136,7 +1104,6 @@
         return matrix[b.length][a.length];
     }
 
-    // 2. Global Search: Searches the entire full array of songs regardless of pagination chunk
     function getFilteredSongs() {
         const query = document.getElementById('searchInput').value.trim();
         return songsList.filter(s => {
@@ -1146,9 +1113,7 @@
                                   fuzzyMatch(s.tag || '', query);
             
             let matchesFilter = true;
-            if (currentFilterType === 'FAV') {
-                matchesFilter = favoritesList.includes(s.id);
-            } else if (currentFilterType === 'ALBUM') {
+            if (currentFilterType === 'ALBUM') {
                 matchesFilter = (s.album || 'ទូទៅ') === currentFilterValue;
             } else if (currentFilterType === 'TAG') {
                 matchesFilter = s.tag && s.tag.split(',').map(t => t.trim().toLowerCase()).includes(currentFilterValue.toLowerCase());
@@ -1162,12 +1127,11 @@
     }
 
     function renderSongs() {
-        displayedItemCount = CHUNK_SIZE; // Reset chunk size on new search/filter
+        displayedItemCount = CHUNK_SIZE; 
         currentFilteredSongs = getFilteredSongs();
         renderSongsListOnly();
     }
 
-    // 1. Chunking / Lazy Loading UI Implementation
     function renderSongsListOnly() {
         const grid = document.getElementById('songGrid');
 
@@ -1185,7 +1149,6 @@
 
         let html = chunkedSongs.map((song, index) => {
             const safeTitle = (song.title || '').replace(/'/g, "\\'").replace(/"/g, '&quot;');
-            const isFav = favoritesList.includes(song.id);
             
             let dateText = '';
             if (song.updatedAt && song.updatedAt.seconds) {
@@ -1210,9 +1173,6 @@
 
             return `
             <div class="song-card">
-                <div class="song-index-badge">#${index + 1}</div>
-                <button class="fav-btn" onclick="toggleFavorite('${song.id}', event)" title="ដាក់ចូលចិត្ត">${isFav ? '❤️' : '🤍'}</button>
-                
                 <div class="song-img-container" onclick="openFullScreenByIndex(${index})">
                     <img src="${song.imageUrl || 'https://via.placeholder.com/300x200'}" class="song-img" loading="lazy">
                 </div>
@@ -1326,15 +1286,12 @@
         });
     }
 
-    // 3. Firebase Storage Integration helper support function
     async function uploadImageToFirebaseStorage(fileOrBase64, pathName) {
         if (!fileOrBase64) return '';
-        // If it's already a direct URL (e.g. Firebase Storage URL), return it directly
         if (typeof fileOrBase64 === 'string' && (fileOrBase64.startsWith('http://') || fileOrBase64.startsWith('https://'))) {
             return fileOrBase64;
         }
         
-        // Convert Base64 or File to Storage upload task
         const storageRef = storage.ref().append ? storage.ref() : firebase.storage().ref();
         const imageRef = storageRef.child(`song_images/${Date.now()}_${pathName || 'image'}.jpg`);
         
@@ -1364,7 +1321,6 @@
         saveBtn.disabled = true;
 
         try {
-            // 3. Convert or Upload image using Firebase Storage optimization helper
             const uploadedUrl = await uploadImageToFirebaseStorage(finalImageUrl, title);
 
             const docRef = await db.collection("songs").add({
@@ -1584,7 +1540,7 @@
         
         imgEl.style.transform = 'scale(1)';
         imgEl.src = song.imageUrl || '';
-        titleEl.innerText = `${currentFullscreenIndex + 1}. ${song.title || ''} ${song.artist ? ' - ' + song.artist : ''}`;
+        titleEl.innerText = `${song.title || ''} ${song.artist ? ' - ' + song.artist : ''}`;
     }
 
     function slideFullScreen(direction, event) {
