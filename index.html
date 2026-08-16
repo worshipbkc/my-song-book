@@ -33,7 +33,6 @@
             --text: #0f172a;
             --text-muted: #64748b;
             --border: #e2e8f0;
-            --sidebar-width: 280px;
         }
 
         body.dark-mode {
@@ -47,164 +46,166 @@
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Kantumruy Pro', sans-serif; transition: background-color 0.2s, color 0.2s; }
-        body { background-color: var(--bg); color: var(--text); display: flex; min-height: 100vh; position: relative; padding-bottom: 70px; }
+        body { background-color: var(--bg); color: var(--text); min-height: 100vh; position: relative; padding-bottom: 75px; }
 
-        .sidebar-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0, 0, 0, 0.5); z-index: 99; }
-        .sidebar-overlay.active { display: block; }
-
-        .sidebar {
-            width: var(--sidebar-width); background: var(--card-bg); border-right: 1px solid var(--border);
-            display: flex; flex-direction: column; position: fixed; top: 0; bottom: 0; left: 0; z-index: 100;
-            transition: transform 0.3s ease;
-        }
-
-        .sidebar-header { padding: 18px 20px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--border); }
-        .sidebar-title { font-size: 1.1rem; font-weight: 700; color: var(--text); }
-        .close-sidebar-btn { background: none; border: none; font-size: 1.2rem; cursor: pointer; display: none; padding: 4px 8px; border-radius: 6px; color: var(--text); }
-
-        .user-profile-wrapper { border-bottom: 1px solid var(--border); background: var(--card-bg); position: relative; width: 100%; }
-        .user-profile-card { padding: 14px; display: flex; align-items: center; justify-content: space-between; cursor: pointer; user-select: none; transition: background 0.2s; width: 100%; }
-        .user-profile-card:hover { background: var(--border); }
-
-        .user-info { display: flex; align-items: center; gap: 12px; overflow: hidden; flex: 1; }
-        .user-avatar { width: 42px; height: 42px; border-radius: 50%; object-fit: cover; border: 1px solid var(--border); }
-        .user-details { font-size: 0.85rem; overflow: hidden; display: flex; flex-direction: column; gap: 2px; }
-        .user-name { font-weight: 700; text-overflow: ellipsis; white-space: nowrap; overflow: hidden; color: var(--text); }
-        .user-role { font-size: 0.75rem; color: #16a34a; font-weight: 600; display: flex; align-items: center; gap: 4px; }
-        
-        .dropdown-arrow { font-size: 0.7rem; color: var(--text-muted); transition: transform 0.3s ease; padding-left: 8px; }
-        .user-profile-card.active .dropdown-arrow { transform: rotate(180deg); }
-
-        .profile-dropdown-menu { display: none; background: var(--card-bg); border-top: 1px solid var(--border); padding: 8px; box-shadow: inset 0 2px 4px rgba(0,0,0,0.02); max-height: 380px; overflow-y: auto; }
-        .profile-dropdown-menu.open { display: flex; flex-direction: column; gap: 4px; }
-
-        .dropdown-item { display: flex; align-items: center; gap: 10px; width: 100%; padding: 10px 12px; border: none; background: transparent; border-radius: 8px; font-size: 0.88rem; font-weight: 600; cursor: pointer; text-align: left; color: var(--text); transition: background 0.2s; }
-        .dropdown-item:hover { background: var(--border); }
-        .dropdown-item.active-sub { background: var(--primary); color: white; }
-        .dropdown-item.danger { color: var(--danger); }
-        .dropdown-item.danger:hover { background: #fee2e2; }
-        .dropdown-divider { height: 1px; background: var(--border); margin: 4px 0; }
-        .dropdown-section-title { font-size: 0.75rem; color: var(--text-muted); font-weight: 700; padding: 4px 12px; text-transform: uppercase; }
-
-        .btn-auth { padding: 10px 14px; border-radius: 8px; border: none; font-size: 0.85rem; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 8px; justify-content: center; width: 100%; }
-        .btn-google { background: white; border: 1px solid var(--border); color: #333; margin: 12px 14px; width: calc(100% - 28px); }
-
-        .sidebar-action-container { padding: 12px 14px 4px 14px; display: flex; gap: 6px; flex-wrap: wrap; }
-        .add-song-sidebar-btn { flex: 1; padding: 10px 6px; background: var(--primary); color: white; border: none; border-radius: 10px; cursor: pointer; font-weight: 600; font-size: 0.8rem; display: flex; align-items: center; justify-content: center; gap: 4px; box-shadow: 0 2px 4px rgba(37, 99, 235, 0.2); }
-        .add-album-batch-sidebar-btn { flex: 1; padding: 10px 6px; background: #059669; color: white; border: none; border-radius: 10px; cursor: pointer; font-weight: 600; font-size: 0.8rem; display: flex; align-items: center; justify-content: center; gap: 4px; box-shadow: 0 2px 4px rgba(5, 150, 105, 0.2); }
-        .add-playlist-sidebar-btn { padding: 10px 10px; background: var(--card-bg); color: var(--primary); border: 1px solid var(--primary); border-radius: 10px; cursor: pointer; font-weight: 600; font-size: 0.9rem; display: flex; align-items: center; justify-content: center; }
-
-        .sidebar-menu { flex: 1; padding: 10px 14px; overflow-y: auto; }
-        .menu-section-title { font-size: 0.75rem; color: var(--text-muted); font-weight: 700; padding: 8px 12px 4px 12px; text-transform: uppercase; margin-top: 6px; }
-        .menu-item { display: flex; align-items: center; justify-content: space-between; padding: 10px 12px; border-radius: 10px; cursor: pointer; color: var(--text-muted); font-weight: 600; font-size: 0.95rem; margin-bottom: 4px; transition: all 0.2s; }
-        .menu-item-left { display: flex; align-items: center; gap: 12px; overflow: hidden; }
-        .menu-item:hover { background-color: var(--border); color: var(--primary); }
-        .menu-item.active { background-color: var(--primary); color: white; }
-
-        .add-album-btn { display: flex; align-items: center; justify-content: center; gap: 6px; width: 100%; padding: 8px; background: transparent; border: 1px dashed var(--border); border-radius: 8px; color: var(--text-muted); font-size: 0.85rem; cursor: pointer; margin-top: 10px; font-weight: 600; }
-        .add-album-btn:hover { background: var(--border); color: var(--primary); }
-
-        .main-content { margin-left: var(--sidebar-width); flex: 1; padding: 24px; width: 100%; background: var(--bg); }
-        .mobile-header { display: none; align-items: center; justify-content: space-between; margin-bottom: 16px; }
-        .mobile-menu-btn { background: var(--card-bg); color: var(--text); border: 1px solid var(--border); padding: 8px 12px; border-radius: 8px; font-size: 1.2rem; cursor: pointer; display: flex; align-items: center; gap: 6px; font-weight: 600; }
+        .main-content { padding: 20px; width: 100%; max-width: 1200px; margin: 0 auto; }
 
         header { margin-bottom: 20px; display: flex; justify-content: space-between; align-items: flex-start; gap: 15px; flex-wrap: wrap; }
-        .header-text h1 { font-size: 1.8rem; color: var(--primary); margin-bottom: 6px; }
-        .header-text p { color: var(--text-muted); font-size: 1rem; font-weight: 600; line-height: 1.6; }
+        .header-text h1 { font-size: 1.6rem; color: var(--primary); margin-bottom: 4px; }
+        .header-text p { color: var(--text-muted); font-size: 0.95rem; font-weight: 600; line-height: 1.5; }
 
         .fetch-all-container { display: flex; flex-direction: column; align-items: flex-end; gap: 6px; }
-        .fetch-all-btn { background: var(--card-bg); border: 1px solid var(--primary); color: var(--primary); padding: 10px 16px; border-radius: 10px; font-weight: 600; font-size: 0.9rem; cursor: pointer; display: flex; align-items: center; gap: 8px; box-shadow: 0 2px 5px rgba(37,99,235,0.1); }
+        .fetch-all-btn { background: var(--card-bg); border: 1px solid var(--primary); color: var(--primary); padding: 8px 14px; border-radius: 10px; font-weight: 600; font-size: 0.85rem; cursor: pointer; display: flex; align-items: center; gap: 6px; box-shadow: 0 2px 5px rgba(37,99,235,0.1); }
         .fetch-all-btn:hover { background: var(--primary); color: white; }
         
-        .install-pwa-btn { background: #16a34a; border: none; color: white; padding: 10px 16px; border-radius: 10px; font-weight: 600; font-size: 0.9rem; cursor: pointer; display: none; align-items: center; gap: 8px; box-shadow: 0 2px 5px rgba(22,163,74,0.2); margin-top: 6px; }
-        .install-pwa-btn:hover { background: #15803d; }
+        .install-pwa-btn { background: #16a34a; border: none; color: white; padding: 8px 14px; border-radius: 10px; font-weight: 600; font-size: 0.85rem; cursor: pointer; display: none; align-items: center; gap: 6px; box-shadow: 0 2px 5px rgba(22,163,74,0.2); }
 
         .progress-wrapper { width: 180px; background: var(--border); border-radius: 8px; overflow: hidden; height: 8px; display: none; }
         .progress-bar { width: 0%; height: 100%; background: var(--primary); transition: width 0.2s ease; }
         .progress-text { font-size: 0.75rem; color: var(--text-muted); font-weight: 600; display: none; }
 
-        .controls { position: sticky; top: 0; z-index: 90; background: var(--bg); padding: 10px 0 16px 0; margin-bottom: 24px; margin-top: 15px; display: flex; align-items: center; gap: 12px; }
+        /* Navigation Views System */
+        .app-view { display: none; }
+        .app-view.active { display: block; }
+
+        /* Search & Tags */
+        .controls { position: sticky; top: 0; z-index: 90; background: var(--bg); padding: 10px 0 14px 0; margin-bottom: 16px; display: flex; align-items: center; gap: 10px; }
         .search-box { position: relative; display: flex; align-items: center; flex: 1; }
-        .search-box input { width: 100%; padding: 12px 45px 12px 18px; font-size: 0.95rem; border: 1px solid var(--border); border-radius: 10px; outline: none; background: var(--card-bg); color: var(--text); box-shadow: 0 2px 5px rgba(0,0,0,0.02); }
-        .search-btn { position: absolute; right: 6px; background: none; border: none; font-size: 1.1rem; cursor: pointer; padding: 8px; border-radius: 8px; }
+        .search-box input { width: 100%; padding: 10px 40px 10px 16px; font-size: 0.9rem; border: 1px solid var(--border); border-radius: 10px; outline: none; background: var(--card-bg); color: var(--text); }
+        .search-btn { position: absolute; right: 6px; background: none; border: none; font-size: 1rem; cursor: pointer; padding: 6px; }
         
-        .theme-toggle-btn { background: var(--card-bg); border: 1px solid var(--border); color: var(--text); padding: 12px 16px; border-radius: 10px; font-size: 1.1rem; cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 5px rgba(0,0,0,0.02); }
-        .theme-toggle-btn:hover { background: var(--border); }
+        .theme-toggle-btn { background: var(--card-bg); border: 1px solid var(--border); color: var(--text); padding: 10px 14px; border-radius: 10px; font-size: 1rem; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+
+        .tag-pills-container { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 8px; margin-bottom: 14px; scrollbar-width: none; }
+        .tag-pills-container::-webkit-scrollbar { display: none; }
+        .tag-pill { background: var(--card-bg); border: 1px solid var(--border); color: var(--text-muted); padding: 6px 14px; border-radius: 20px; font-size: 0.8rem; font-weight: 600; white-space: nowrap; cursor: pointer; }
+        .tag-pill.active { background: var(--primary); color: white; border-color: var(--primary); }
+
+        /* Song Card Grid */
+        .song-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 18px; }
+        .song-card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; display: flex; flex-direction: column; position: relative; }
+
+        .song-img-container { width: 100%; min-height: 200px; background: var(--border); display: flex; align-items: center; justify-content: center; overflow: hidden; cursor: pointer; position: relative; }
+        .song-img { width: 100%; height: 100%; max-height: 350px; object-fit: contain; display: block; }
+        .song-info { padding: 12px; flex: 1; display: flex; flex-direction: column; justify-content: space-between; }
+        
+        .song-title-row { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 4px; }
+        .song-title { font-size: 0.95rem; font-weight: 700; color: var(--text); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; flex: 1; }
+
+        .song-artist { font-size: 0.82rem; color: var(--text-muted); }
+        .song-tag-badge { display: inline-block; font-size: 0.7rem; background: var(--border); color: var(--text-muted); padding: 2px 6px; border-radius: 4px; margin-top: 4px; font-weight: 600; }
+        .song-meta-info { font-size: 0.72rem; color: var(--text-muted); margin-top: 6px; display: flex; flex-direction: column; gap: 2px; }
 
         .song-actions { display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px; margin-top: 8px; }
-
         .song-action-btn {
-            padding: 7px 2px; border-radius: 6px; font-size: 0.7rem; font-weight: 600; border: 1px solid var(--border);
+            padding: 6px 2px; border-radius: 6px; font-size: 0.7rem; font-weight: 600; border: 1px solid var(--border);
             cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 2px;
             text-decoration: none; text-align: center; width: 100%; background-color: var(--card-bg); color: var(--text); white-space: nowrap;
         }
-        .song-action-btn:hover { opacity: 0.85; }
 
         .btn-playlist-inline {
             background-color: #e0f2fe; color: #0284c7; border: 1px solid #bae6fd; padding: 4px 8px; border-radius: 6px;
-            font-size: 0.75rem; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: 4px; white-space: nowrap;
+            font-size: 0.72rem; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: 4px; white-space: nowrap;
         }
         body.dark-mode .btn-playlist-inline { background-color: #0369a1; color: #e0f2fe; border-color: #0284c7; }
 
         .btn-share-custom { background-color: #d1fae5; color: #047857; border-color: #a7f3d0; }
         body.dark-mode .btn-share-custom { background-color: #065f46; color: #d1fae5; border-color: #047857; }
-
         .btn-save-custom { background-color: #f1f5f9; color: var(--text); border-color: var(--border); }
         body.dark-mode .btn-save-custom { background-color: #334155; color: #f8fafc; border-color: #475569; }
-
         .btn-edit-custom { background-color: #fef3c7; color: #b45309; border-color: #fde68a; }
         body.dark-mode .btn-edit-custom { background-color: #78350f; color: #fef3c7; border-color: #92400e; }
-
         .btn-delete-custom { background-color: #fee2e2; color: var(--danger); border-color: #fecaca; }
         body.dark-mode .btn-delete-custom { background-color: #7f1d1d; color: #fee2e2; border-color: #991b1b; }
 
-        .song-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 20px; }
-        .song-card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; display: flex; flex-direction: column; position: relative; }
+        /* Section Cards (Albums & Playlists Grid) */
+        .section-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 16px; margin-top: 10px; }
+        .folder-card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 12px; padding: 18px 14px; text-align: center; cursor: pointer; transition: transform 0.2s, box-shadow 0.2s; position: relative; }
+        .folder-card:hover { transform: translateY(-3px); box-shadow: 0 4px 12px rgba(0,0,0,0.05); border-color: var(--primary); }
+        .folder-icon { font-size: 2.2rem; color: var(--primary); margin-bottom: 8px; }
+        .folder-name { font-weight: 700; font-size: 0.95rem; color: var(--text); margin-bottom: 4px; }
+        .folder-count { font-size: 0.78rem; color: var(--text-muted); font-weight: 600; }
+        .folder-delete-btn { position: absolute; top: 8px; right: 8px; background: none; border: none; color: var(--danger); font-size: 0.85rem; cursor: pointer; padding: 4px; }
 
-        .song-img-container { width: 100%; min-height: 220px; background: var(--border); display: flex; align-items: center; justify-content: center; overflow: hidden; cursor: pointer; position: relative; }
-        .song-img { width: 100%; height: 100%; max-height: 380px; object-fit: contain; display: block; }
-        .song-info { padding: 14px; flex: 1; display: flex; flex-direction: column; justify-content: space-between; }
+        /* Profile View Styling */
+        .profile-container { max-width: 600px; margin: 0 auto; background: var(--card-bg); border: 1px solid var(--border); border-radius: 16px; padding: 24px; }
+        .profile-header { display: flex; align-items: center; gap: 16px; margin-bottom: 20px; border-bottom: 1px solid var(--border); padding-bottom: 16px; }
+        .profile-avatar { width: 64px; height: 64px; border-radius: 50%; object-fit: cover; border: 2px solid var(--primary); }
+        .profile-name { font-size: 1.2rem; font-weight: 700; color: var(--text); }
+        .profile-badge { display: inline-block; font-size: 0.75rem; color: #16a34a; font-weight: 700; margin-top: 4px; }
         
-        .song-title-row { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 4px; }
-        .song-title { font-size: 1rem; font-weight: 700; color: var(--text); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; flex: 1; }
+        .action-list { display: flex; flex-direction: column; gap: 10px; margin-top: 15px; }
+        .action-btn-item { display: flex; align-items: center; justify-content: space-between; padding: 12px 16px; background: var(--bg); border: 1px solid var(--border); border-radius: 10px; font-weight: 600; font-size: 0.9rem; cursor: pointer; color: var(--text); }
+        .action-btn-item:hover { border-color: var(--primary); color: var(--primary); }
+        .action-btn-item.danger { color: var(--danger); }
 
-        .song-artist { font-size: 0.85rem; color: var(--text-muted); }
-        .song-tag-badge { display: inline-block; font-size: 0.7rem; background: var(--border); color: var(--text-muted); padding: 2px 6px; border-radius: 4px; margin-top: 4px; font-weight: 600; }
-        .song-meta-info { font-size: 0.72rem; color: var(--text-muted); margin-top: 6px; display: flex; flex-direction: column; gap: 2px; }
-
-        .audio-player-bar { position: fixed; bottom: 0; left: 0; right: 0; background: var(--card-bg); border-top: 1px solid var(--border); padding: 10px 20px; display: none; align-items: center; justify-content: space-between; z-index: 1500; box-shadow: 0 -4px 10px rgba(0,0,0,0.05); gap: 15px; }
+        /* Audio Player Bar */
+        .audio-player-bar { position: fixed; bottom: 60px; left: 0; right: 0; background: var(--card-bg); border-top: 1px solid var(--border); padding: 8px 16px; display: none; align-items: center; justify-content: space-between; z-index: 1200; box-shadow: 0 -4px 10px rgba(0,0,0,0.05); gap: 10px; }
         .audio-player-bar.active { display: flex; }
-        .audio-info { font-size: 0.85rem; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 250px; color: var(--text); }
+        .audio-info { font-size: 0.85rem; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 200px; color: var(--text); }
         .audio-controls { display: flex; align-items: center; gap: 10px; flex: 1; max-width: 500px; }
-        .audio-controls audio { width: 100%; height: 35px; }
-        .close-audio-btn { background: none; border: none; font-size: 1.1rem; cursor: pointer; color: var(--danger); padding: 4px; }
+        .audio-controls audio { width: 100%; height: 32px; }
+        .close-audio-btn { background: none; border: none; font-size: 1rem; cursor: pointer; color: var(--danger); padding: 4px; }
 
-        .empty-state { text-align: center; padding: 40px 20px; color: var(--text-muted); grid-column: 1 / -1; }
-        .loading-more-spinner { text-align: center; padding: 20px; font-size: 0.9rem; color: var(--text-muted); grid-column: 1 / -1; font-weight: 600; }
+        /* 📱 Telegram-Style Bottom Navigation Bar */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 60px;
+            background: var(--card-bg);
+            border-top: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: space-around;
+            z-index: 1300;
+            box-shadow: 0 -2px 10px rgba(0,0,0,0.05);
+        }
 
-        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); align-items: center; justify-content: center; z-index: 1000; padding: 20px; }
+        .bottom-nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            flex: 1;
+            height: 100%;
+            color: var(--text-muted);
+            text-decoration: none;
+            font-size: 0.72rem;
+            font-weight: 600;
+            cursor: pointer;
+            border: none;
+            background: transparent;
+            gap: 4px;
+        }
+
+        .bottom-nav-item i { font-size: 1.15rem; }
+        .bottom-nav-item.active { color: var(--primary); }
+
+        .empty-state { text-align: center; padding: 40px 20px; color: var(--text-muted); grid-column: 1 / -1; font-weight: 600; }
+        .loading-more-spinner { text-align: center; padding: 16px; font-size: 0.85rem; color: var(--text-muted); grid-column: 1 / -1; font-weight: 600; }
+
+        /* Modals */
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); align-items: center; justify-content: center; z-index: 2000; padding: 20px; }
         .modal.active { display: flex; }
-        .modal-content { background: var(--card-bg); color: var(--text); padding: 24px; border-radius: 16px; width: 100%; max-width: 450px; max-height: 90vh; overflow-y: auto; border: 1px solid var(--border); }
-        .form-group { margin-bottom: 14px; }
-        .form-group label { display: block; font-size: 0.9rem; font-weight: 600; margin-bottom: 6px; color: var(--text); }
-        .form-group input, .form-group select { width: 100%; padding: 10px 14px; border: 1px solid var(--border); border-radius: 8px; outline: none; background: var(--bg); color: var(--text); }
+        .modal-content { background: var(--card-bg); color: var(--text); padding: 20px; border-radius: 16px; width: 100%; max-width: 450px; max-height: 90vh; overflow-y: auto; border: 1px solid var(--border); }
+        .form-group { margin-bottom: 12px; }
+        .form-group label { display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 4px; color: var(--text); }
+        .form-group input, .form-group select { width: 100%; padding: 10px 12px; border: 1px solid var(--border); border-radius: 8px; outline: none; background: var(--bg); color: var(--text); }
 
-        .image-drop-zone { border: 2px dashed var(--border); border-radius: 10px; padding: 16px; text-align: center; background: var(--bg); cursor: pointer; transition: all 0.2s; position: relative; }
-        .image-drop-zone:hover, .image-drop-zone.dragover { border-color: var(--primary); background: var(--border); }
-        .image-drop-zone p { font-size: 0.85rem; color: var(--text-muted); margin-bottom: 8px; }
-        .preview-container { margin-top: 10px; display: none; position: relative; max-height: 150px; overflow: hidden; border-radius: 8px; border: 1px solid var(--border); background: var(--card-bg); }
-        .preview-container img { width: 100%; max-height: 140px; object-fit: contain; }
-        .remove-img-btn { position: absolute; top: 4px; right: 4px; background: rgba(239, 68, 68, 0.9); color: white; border: none; border-radius: 50%; width: 24px; height: 24px; font-size: 0.8rem; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+        .image-drop-zone { border: 2px dashed var(--border); border-radius: 10px; padding: 14px; text-align: center; background: var(--bg); cursor: pointer; position: relative; }
+        .preview-container { margin-top: 8px; display: none; position: relative; max-height: 140px; overflow: hidden; border-radius: 8px; border: 1px solid var(--border); background: var(--card-bg); }
+        .preview-container img { width: 100%; max-height: 130px; object-fit: contain; }
+        .remove-img-btn { position: absolute; top: 4px; right: 4px; background: rgba(239, 68, 68, 0.9); color: white; border: none; border-radius: 50%; width: 22px; height: 22px; font-size: 0.75rem; cursor: pointer; }
 
-        .fullscreen-modal { display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0, 0, 0, 0.94); z-index: 2000; flex-direction: column; align-items: center; justify-content: center; user-select: none; }
+        /* Fullscreen Viewer */
+        .fullscreen-modal { display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0, 0, 0, 0.95); z-index: 3000; flex-direction: column; align-items: center; justify-content: center; }
         .fullscreen-modal.active { display: flex; }
-        .fullscreen-header { position: absolute; top: 15px; left: 20px; right: 20px; display: flex; justify-content: space-between; align-items: center; color: white; z-index: 2010; }
-        
-        .fullscreen-img-container { width: 100%; height: 82vh; display: flex; align-items: center; justify-content: center; position: relative; overflow: hidden; }
-        .fullscreen-img { max-width: 92%; max-height: 92%; object-fit: contain; transition: transform 0.15s ease-out; }
-
-        .fullscreen-nav-btn { position: absolute; top: 50%; transform: translateY(-50%); background: rgba(255, 255, 255, 0.15); color: white; border: none; font-size: 1.8rem; padding: 16px 12px; cursor: pointer; border-radius: 8px; z-index: 2010; transition: background 0.2s; backdrop-filter: blur(4px); }
-        .fullscreen-nav-btn:hover { background: rgba(255, 255, 255, 0.3); }
+        .fullscreen-header { position: absolute; top: 15px; left: 20px; right: 20px; display: flex; justify-content: space-between; align-items: center; color: white; z-index: 3010; }
+        .fullscreen-img-container { width: 100%; height: 82vh; display: flex; align-items: center; justify-content: center; position: relative; }
+        .fullscreen-img { max-width: 92%; max-height: 92%; object-fit: contain; }
+        .fullscreen-nav-btn { position: absolute; top: 50%; transform: translateY(-50%); background: rgba(255, 255, 255, 0.15); color: white; border: none; font-size: 1.6rem; padding: 14px 10px; cursor: pointer; border-radius: 8px; z-index: 3010; }
         .fullscreen-prev { left: 15px; }
         .fullscreen-next { right: 15px; }
 
@@ -212,100 +213,25 @@
         .editor-authorized .editor-only { display: flex !important; }
         .editor-authorized button.editor-only { display: inline-block !important; }
 
-        /* 🔥 Smart Offline & Sync Status Indicator */
-        .offline-sync-badge {
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            background: var(--card-bg);
-            border: 1px solid var(--border);
-            padding: 8px 14px;
-            border-radius: 30px;
-            font-size: 0.82rem;
-            font-weight: 600;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-            z-index: 1400;
-            transition: all 0.3s ease;
-        }
-
-        .status-dot {
-            width: 10px;
-            height: 10px;
-            border-radius: 50%;
-            display: inline-block;
-        }
-
-        .status-online { background-color: #10b981; box-shadow: 0 0 8px #10b981; }
-        .status-offline { background-color: #ef4444; box-shadow: 0 0 8px #ef4444; }
-        .status-syncing { background-color: #f59e0b; animation: pulse 1.2s infinite; }
-
-        @keyframes pulse {
-            0% { transform: scale(0.95); opacity: 0.8; }
-            50% { transform: scale(1.2); opacity: 1; }
-            100% { transform: scale(0.95); opacity: 0.8; }
-        }
+        /* Offline Sync Badge */
+        .offline-sync-badge { position: fixed; bottom: 70px; right: 16px; background: var(--card-bg); border: 1px solid var(--border); padding: 6px 12px; border-radius: 20px; font-size: 0.78rem; font-weight: 600; display: flex; align-items: center; gap: 6px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); z-index: 1100; }
+        .status-dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
+        .status-online { background-color: #10b981; }
+        .status-offline { background-color: #ef4444; }
 
         @media (max-width: 768px) {
-            .sidebar { transform: translateX(-100%); width: 80%; max-width: 300px; }
-            .sidebar.mobile-open { transform: translateX(0); }
-            .close-sidebar-btn { display: block; }
-            .main-content { margin-left: 0; padding: 16px; }
-            .mobile-header { display: flex; }
-            header { flex-direction: column; align-items: stretch; }
-            .fetch-all-container { align-items: stretch; width: 100%; }
-            .fetch-all-btn, .install-pwa-btn { width: 100%; justify-content: center; }
-            .progress-wrapper { width: 100%; }
-            .audio-player-bar { flex-direction: column; align-items: stretch; gap: 8px; padding: 10px; }
+            .main-content { padding: 14px; }
+            header { flex-direction: column; }
+            .fetch-all-container { width: 100%; align-items: stretch; }
+            .fetch-all-btn, .install-pwa-btn { justify-content: center; }
+            .audio-player-bar { flex-direction: column; align-items: stretch; bottom: 60px; }
             .audio-controls { max-width: 100%; }
-            .fullscreen-nav-btn { padding: 12px 8px; font-size: 1.4rem; }
         }
     </style>
 </head>
 <body id="bodyContainer">
 
-<div class="sidebar-overlay" id="sidebarOverlay" onclick="closeMobileSidebar()"></div>
-
-<div class="sidebar" id="sidebar">
-    <div class="sidebar-header">
-        <div class="sidebar-title">Album ចម្រៀង</div>
-        <button class="close-sidebar-btn" onclick="closeMobileSidebar()">✖</button>
-    </div>
-
-    <div class="user-profile-wrapper" id="userProfileArea">
-        <button class="btn-auth btn-google" onclick="loginWithGoogle()">
-            <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" width="18" alt="G">
-            <span>Login តាម Gmail</span>
-        </button>
-    </div>
-
-    <div class="sidebar-action-container editor-only">
-        <button class="add-song-sidebar-btn" onclick="openAddSongModal(); closeMobileSidebar();">
-            ➕ <span>បទថ្មី</span>
-        </button>
-        <button class="add-album-batch-sidebar-btn" onclick="openBatchAddModal(); closeMobileSidebar();" title="បញ្ចូលបទច្រើនក្នុងពេលតែមួយ">
-            📚 <span>បទថ្មីជាអាល់ប៊ុម</span>
-        </button>
-        <button class="add-playlist-sidebar-btn" onclick="openCreatePlaylistModal(); closeMobileSidebar();" title="បង្កើត Playlist ផ្ទាល់ខ្លួន">
-            📂+
-        </button>
-    </div>
-
-    <div class="sidebar-menu">
-        <div id="sidebarMenu"></div>
-        <button class="add-album-btn editor-only" onclick="addNewAlbum()">
-            ➕ <span>បង្កើត Album ថ្មី</span>
-        </button>
-    </div>
-</div>
-
 <div class="main-content">
-    <div class="mobile-header">
-        <button class="mobile-menu-btn" onclick="openMobileSidebar()">☰ <span>Album</span></button>
-    </div>
-
     <header>
         <div class="header-text">
             <h1>🎼 ចម្រៀងសរសើរដំកើងព្រះ</h1>
@@ -324,21 +250,72 @@
             <div class="progress-wrapper" id="progressWrapper">
                 <div class="progress-bar" id="progressBar"></div>
             </div>
-            <div class="progress-text" id="progressText">កំពុងរៀបចំទាញយក...</div>
+            <div class="progress-text" id="progressText">កំពុងរៀបចំ...</div>
         </div>
     </header>
 
-    <div class="controls">
-        <div class="search-box">
-            <input type="text" id="searchInput" placeholder="ស្វែងរកបទចម្រៀង..." oninput="handleSearchInput()">
-            <button class="search-btn" onclick="renderSongs()">🔍</button>
+    <!-- 1. 🎵 ទំព័រ "បទចម្រៀង" (Songs View) -->
+    <div class="app-view active" id="viewSongs">
+        <div class="controls">
+            <div class="search-box">
+                <input type="text" id="searchInput" placeholder="ស្វែងរកបទចម្រៀង..." oninput="handleSearchInput()">
+                <button class="search-btn" onclick="renderSongs()">🔍</button>
+            </div>
+            <button class="theme-toggle-btn" id="themeToggleBtn" onclick="toggleDarkMode()" title="ប្តូររបៀបភ្លឺ/ងងឹត">🌙</button>
         </div>
-        <button class="theme-toggle-btn" id="themeToggleBtn" onclick="toggleDarkMode()" title="ប្តូររបៀបភ្លឺ/ងងឹត">🌙</button>
+
+        <!-- Dynamic Tag Pills -->
+        <div class="tag-pills-container" id="tagPillsContainer"></div>
+
+        <div class="song-grid" id="songGrid">
+            <div class="empty-state" id="loadingState">📂 កំពុងផ្ទុកទិន្នន័យ...</div>
+        </div>
     </div>
 
-    <div class="song-grid" id="songGrid">
-        <div class="empty-state" id="loadingState">📂 កំពុងផ្ទុកទិន្នន័យ...</div>
+    <!-- 2. 📁 ទំព័រ "អាល់ប៊ុម" (Albums View) -->
+    <div class="app-view" id="viewAlbums">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+            <h2>📁 អាល់ប៊ុមចម្រៀង (Albums)</h2>
+            <button class="btn-playlist-inline editor-only" onclick="addNewAlbum()" style="padding: 8px 12px;"><i class="fa-solid fa-plus"></i> បង្កើត Album ថ្មី</button>
+        </div>
+        <div class="section-grid" id="albumsGrid"></div>
     </div>
+
+    <!-- 3. 📂 ទំព័រ "Playlist" (Playlists View) -->
+    <div class="app-view" id="viewPlaylists">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+            <h2>📂 Playlist ផ្ទាល់ខ្លួន</h2>
+            <button class="btn-playlist-inline" onclick="openCreatePlaylistModal()" style="padding: 8px 12px;"><i class="fa-solid fa-plus"></i> បង្កើត Playlist</button>
+        </div>
+        <div class="section-grid" id="playlistsGrid"></div>
+    </div>
+
+    <!-- 4. 👤 ទំព័រ "Profile" (Profile View) -->
+    <div class="app-view" id="viewProfile">
+        <div class="profile-container" id="profileCardContent">
+            <!-- Will render dynamically -->
+        </div>
+    </div>
+</div>
+
+<!-- 📱 Bottom Navigation Bar ( Telegram / Mobile Style ) -->
+<div class="bottom-nav">
+    <button class="bottom-nav-item active" id="navSongsBtn" onclick="switchTab('songs')">
+        <i class="fa-solid fa-music"></i>
+        <span>បទចម្រៀង</span>
+    </button>
+    <button class="bottom-nav-item" id="navAlbumsBtn" onclick="switchTab('albums')">
+        <i class="fa-solid fa-record-vinyl"></i>
+        <span>អាល់ប៊ុម</span>
+    </button>
+    <button class="bottom-nav-item" id="navPlaylistsBtn" onclick="switchTab('playlists')">
+        <i class="fa-solid fa-list-ul"></i>
+        <span>Playlist</span>
+    </button>
+    <button class="bottom-nav-item" id="navProfileBtn" onclick="switchTab('profile')">
+        <i class="fa-solid fa-user"></i>
+        <span>Profile</span>
+    </button>
 </div>
 
 <!-- Audio Player Floating Bar -->
@@ -350,17 +327,17 @@
     <button class="close-audio-btn" onclick="stopGlobalAudio()" title="បិទ Player">✖</button>
 </div>
 
-<!-- Smart Offline & Sync Status Indicator Floating Badge -->
+<!-- Offline Status Indicator Floating Badge -->
 <div class="offline-sync-badge" id="offlineSyncBadge">
     <span class="status-dot status-online" id="statusDot"></span>
-    <span id="statusText">កំពុងពិនិត្យ...</span>
+    <span id="statusText">អនឡាញ (Online)</span>
 </div>
 
-<!-- Fullscreen Modal with Slide & Swipe Support -->
+<!-- Fullscreen Image Viewer Modal -->
 <div class="fullscreen-modal" id="fullScreenModal" onclick="closeFullScreenModal(event)">
     <div class="fullscreen-header">
-        <div id="fullScreenTitle" style="font-weight: 700; font-size: 1.05rem; max-width: 80%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;"></div>
-        <button onclick="closeFullScreenModalDirect()" style="background:none; border:none; color:white; font-size:1.5rem; cursor:pointer; padding: 4px;">✖</button>
+        <div id="fullScreenTitle" style="font-weight: 700; font-size: 1rem; max-width: 80%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;"></div>
+        <button onclick="closeFullScreenModalDirect()" style="background:none; border:none; color:white; font-size:1.4rem; cursor:pointer; padding: 4px;">✖</button>
     </div>
     <button class="fullscreen-nav-btn fullscreen-prev" onclick="slideFullScreen(-1, event)">❮</button>
     <div class="fullscreen-img-container" id="fullScreenImgContainer">
@@ -369,7 +346,7 @@
     <button class="fullscreen-nav-btn fullscreen-next" onclick="slideFullScreen(1, event)">❯</button>
 </div>
 
-<!-- Add Song Modal -->
+<!-- Modals (Add, Edit, Batch, Playlist) -->
 <div class="modal" id="addSongModal">
     <div class="modal-content">
         <h2>➕ បញ្ចូលបទចម្រៀងថ្មី</h2>
@@ -388,16 +365,16 @@
             </div>
             <div class="form-group">
                 <label>ប្រភេទបទ (Tag)</label>
-                <input type="text" id="songTag" placeholder="ឧទាហរណ៍៖ Worship, Praise, Youth">
+                <input type="text" id="songTag" placeholder="ឧទាហរណ៍៖ Worship, Praise">
             </div>
             <div class="form-group">
                 <label>តំណភ្ជាប់ភ្លេងអូឌីយ៉ូ (Audio MP3 Link)</label>
                 <input type="url" id="songAudioUrl" placeholder="https://example.com/song.mp3">
             </div>
             <div class="form-group">
-                <label>រូបភាពបទចម្រៀង (アップロード ឬ URL) *</label>
+                <label>រូបភាពបទចម្រៀង (Upload ឬ URL) *</label>
                 <div class="image-drop-zone" id="dropZone" onclick="document.getElementById('songImageFile').click()" ondragover="handleDragOver(event)" ondragleave="handleDragLeave(event)" ondrop="handleDrop(event)">
-                    <p>📁 ចុចទីនេះ ឬ **ទាញទម្លាក់រូបភាព** ចូលទីនេះ<br><span style="color:var(--primary); font-weight:600;">(អាចចុច Ctrl+V ដើម្បី Paste រូបភាព)</span></p>
+                    <p>📁 ចុចទីនេះ ឬទាញទម្លាក់រូបភាពចូលទីនេះ<br><span style="color:var(--primary); font-weight:600;">(អាចចុច Ctrl+V ដើម្បី Paste)</span></p>
                     <input type="file" id="songImageFile" accept="image/*" onchange="handleFileSelect(event)" style="display: none;">
                     <div class="preview-container" id="previewContainer">
                         <img id="previewImg" src="" alt="Preview">
@@ -405,22 +382,20 @@
                     </div>
                 </div>
                 <div style="margin-top: 8px;">
-                    <input type="url" id="songImageUrlDirect" placeholder="ឬដាក់ Firebase Storage URL ផ្ទាល់នៅទីនេះ">
+                    <input type="url" id="songImageUrlDirect" placeholder="ឬដាក់ Storage URL ផ្ទាល់នៅទីនេះ">
                 </div>
             </div>
             <div style="text-align: right; margin-top: 20px; display: flex; gap: 10px; justify-content: flex-end;">
-                <button type="button" class="btn" onclick="closeModal('addSongModal')" style="background: var(--border); color: var(--text);">បោះបង់</button>
-                <button type="submit" id="saveBtn" class="btn btn-primary" style="padding: 10px 16px; border-radius: 8px; border: none; font-weight: 600; background: var(--primary); color: white; cursor: pointer;">រក្សាទុក</button>
+                <button type="button" class="btn" onclick="closeModal('addSongModal')" style="background: var(--border); color: var(--text); padding: 8px 14px; border-radius:8px; border:none;">បោះបង់</button>
+                <button type="submit" id="saveBtn" class="btn btn-primary" style="padding: 8px 16px; border-radius: 8px; border: none; font-weight: 600; background: var(--primary); color: white; cursor: pointer;">រក្សាទុក</button>
             </div>
         </form>
     </div>
 </div>
 
-<!-- 🔥 Batch Add Modal (បទថ្មីជាអាល់ប៊ុម) -->
 <div class="modal" id="batchAddModal">
-    <div class="modal-content" style="max-width: 500px;">
+    <div class="modal-content">
         <h2>📚 បញ្ចូលរូបភាពច្រើនក្នុងពេលតែមួយ</h2>
-        <p style="font-size: 0.85rem; color: var(--text-muted); margin-top: 4px;">ជ្រើសរើសរូបភាពច្រើនសន្លឹកដើម្បីបង្កើតជាបទចម្រៀងរួចកំណត់ឈ្មោះអ្នកចម្រៀងរួមគ្នាប្រសិនបើមាន chart. </p>
         <div style="margin-top: 15px;">
             <div class="form-group">
                 <label>ជ្រើសរើស Album សម្រាប់គ្រប់បទទាំងអស់ *</label>
@@ -436,14 +411,13 @@
             </div>
             <div id="batchPreviewInfo" style="font-size: 0.85rem; font-weight: 600; color: var(--primary); margin-bottom: 10px;"></div>
             <div style="text-align: right; margin-top: 20px; display: flex; gap: 10px; justify-content: flex-end;">
-                <button type="button" class="btn" onclick="closeModal('batchAddModal')" style="background: var(--border); color: var(--text);">បោះបង់</button>
-                <button type="button" id="batchSaveBtn" onclick="handleBatchSaveSongs()" class="btn btn-primary" style="padding: 10px 16px; border-radius: 8px; border: none; font-weight: 600; background: #059669; color: white; cursor: pointer;" disabled>បញ្ជូនចូលទាំងអស់</button>
+                <button type="button" onclick="closeModal('batchAddModal')" style="background: var(--border); color: var(--text); padding: 8px 14px; border-radius:8px; border:none;">បោះបង់</button>
+                <button type="button" id="batchSaveBtn" onclick="handleBatchSaveSongs()" style="padding: 8px 16px; border-radius: 8px; border: none; font-weight: 600; background: #059669; color: white; cursor: pointer;" disabled>បញ្ជូនចូលទាំងអស់</button>
             </div>
         </div>
     </div>
 </div>
 
-<!-- Edit Song Modal -->
 <div class="modal" id="editSongModal">
     <div class="modal-content">
         <h2>✏️ កែប្រែបទចម្រៀង</h2>
@@ -472,7 +446,7 @@
             <div class="form-group">
                 <label>ប្ដូររូបភាពថ្មី</label>
                 <div class="image-drop-zone" id="editDropZone" onclick="document.getElementById('editSongImageFile').click()" ondragover="handleEditDragOver(event)" ondragleave="handleEditDragLeave(event)" ondrop="handleEditDrop(event)">
-                    <p>📁 ចុចទីនេះ ឬ **ទាញទម្លាក់រូបភាពថ្មី** ចូលទីនេះ</p>
+                    <p>📁 ចុចទីនេះ ឬទាញទម្លាក់រូបភាពថ្មី</p>
                     <input type="file" id="editSongImageFile" accept="image/*" onchange="handleEditFileSelect(event)" style="display: none;">
                     <div class="preview-container" id="editPreviewContainer">
                         <img id="editPreviewImg" src="" alt="Preview">
@@ -480,18 +454,17 @@
                     </div>
                 </div>
                 <div style="margin-top: 8px;">
-                    <input type="url" id="editSongImageUrlDirect" placeholder="ឬដាក់ Firebase Storage URL ថ្មីផ្ទាល់នៅទីនេះ">
+                    <input type="url" id="editSongImageUrlDirect" placeholder="ឬដាក់ Firebase Storage URL ថ្មីផ្ទាល់">
                 </div>
             </div>
             <div style="text-align: right; margin-top: 20px; display: flex; gap: 10px; justify-content: flex-end;">
-                <button type="button" class="btn" onclick="closeModal('editSongModal')" style="background: var(--border); color: var(--text);">បោះបង់</button>
-                <button type="submit" id="updateBtn" class="btn btn-primary" style="padding: 10px 16px; border-radius: 8px; border: none; font-weight: 600; background: var(--primary); color: white; cursor: pointer;">រក្សាទុកការកែប្រែ</button>
+                <button type="button" onclick="closeModal('editSongModal')" style="background: var(--border); color: var(--text); padding: 8px 14px; border-radius:8px; border:none;">បោះបង់</button>
+                <button type="submit" id="updateBtn" style="padding: 8px 16px; border-radius: 8px; border: none; font-weight: 600; background: var(--primary); color: white; cursor: pointer;">រក្សាទុក</button>
             </div>
         </form>
     </div>
 </div>
 
-<!-- Playlist Modal -->
 <div class="modal" id="playlistModal">
     <div class="modal-content">
         <h2>📂 បង្កើត Playlist ថ្មី</h2>
@@ -500,8 +473,8 @@
             <input type="text" id="newPlaylistName" placeholder="ឧទាហរណ៍៖ ថ្វាយបង្គំថ្ងៃអាទិត្យ">
         </div>
         <div style="text-align: right; margin-top: 20px; display: flex; gap: 10px; justify-content: flex-end;">
-            <button type="button" class="btn" onclick="closeModal('playlistModal')" style="background: var(--border); color: var(--text);">បោះបង់</button>
-            <button type="button" onclick="saveNewPlaylist()" class="btn btn-primary" style="padding: 10px 16px; border-radius: 8px; border: none; font-weight: 600; background: var(--primary); color: white; cursor: pointer;">បង្កើត</button>
+            <button type="button" onclick="closeModal('playlistModal')" style="background: var(--border); color: var(--text); padding: 8px 14px; border-radius:8px; border:none;">បោះបង់</button>
+            <button type="button" onclick="saveNewPlaylist()" style="padding: 8px 16px; border-radius: 8px; border: none; font-weight: 600; background: var(--primary); color: white; cursor: pointer;">បង្កើត</button>
         </div>
     </div>
 </div>
@@ -529,7 +502,6 @@
     let isAdmin = false;
     let songsList = [];          
     let customAlbums = ['ទំនុកដំកើង', 'ទំនុកខ្មែរបរិសុទ្ធ'];
-    
     let playlists = JSON.parse(localStorage.getItem('user_playlists') || '{}');
 
     let currentFilterType = 'ALL';      
@@ -541,18 +513,14 @@
     let currentFilteredSongs = [];
     let currentFullscreenIndex = 0;
     
-    // Chunking / Lazy Loading UI state variables
     let displayedItemCount = 20;
     const CHUNK_SIZE = 20;
     let isLoadingMore = false;
-    
     let deferredPrompt = null;
 
     if ('serviceWorker' in navigator) {
         window.addEventListener('load', () => {
-            navigator.serviceWorker.register('sw.js')
-                .then(reg => console.log('ServiceWorker registered! Scope: ', reg.scope))
-                .catch(err => console.log('ServiceWorker registration failed: ', err));
+            navigator.serviceWorker.register('sw.js').catch(err => console.log('SW error:', err));
         });
     }
 
@@ -567,9 +535,6 @@
         if (deferredPrompt) {
             deferredPrompt.prompt();
             deferredPrompt.userChoice.then((choiceResult) => {
-                if (choiceResult.outcome === 'accepted') {
-                    console.log('User accepted the install prompt');
-                }
                 deferredPrompt = null;
                 document.getElementById('installPwaBtn').style.display = 'none';
             });
@@ -605,6 +570,7 @@
             if (offlineSongs && offlineSongs.length > 0) {
                 songsList = offlineSongs;
                 renderSongs();
+                renderTagsList();
                 const btn = document.getElementById('fetchAllBtn');
                 if(btn) btn.innerHTML = '📥 <span>ទាញយកទិន្នន័យ (Offline រួចរាល់)</span>';
             } else {
@@ -619,12 +585,33 @@
         setupScrollListener();
     };
 
+    /* 📱 Navigation Switcher System (Tab Views) */
+    function switchTab(tabName) {
+        document.querySelectorAll('.app-view').forEach(el => el.classList.remove('active'));
+        document.querySelectorAll('.bottom-nav-item').forEach(el => el.classList.remove('active'));
+
+        if (tabName === 'songs') {
+            document.getElementById('viewSongs').classList.add('active');
+            document.getElementById('navSongsBtn').classList.add('active');
+        } else if (tabName === 'albums') {
+            document.getElementById('viewAlbums').classList.add('active');
+            document.getElementById('navAlbumsBtn').classList.add('active');
+            renderAlbumsView();
+        } else if (tabName === 'playlists') {
+            document.getElementById('viewPlaylists').classList.add('active');
+            document.getElementById('navPlaylistsBtn').classList.add('active');
+            renderPlaylistsView();
+        } else if (tabName === 'profile') {
+            document.getElementById('viewProfile').classList.add('active');
+            document.getElementById('navProfileBtn').classList.add('active');
+            renderProfileView();
+        }
+    }
+
     function setupScrollListener() {
         window.addEventListener('scroll', () => {
             if ((window.innerHeight + window.scrollY) >= document.body.offsetHeight - 300) {
-                if (!isLoadingMore) {
-                    loadMoreChunks();
-                }
+                if (!isLoadingMore) loadMoreChunks();
             }
         });
     }
@@ -632,7 +619,6 @@
     function loadMoreChunks() {
         if (displayedItemCount >= currentFilteredSongs.length) return;
         isLoadingMore = true;
-        
         setTimeout(() => {
             displayedItemCount += CHUNK_SIZE;
             renderSongsListOnly();
@@ -694,13 +680,13 @@
             }));
             await saveSongsToIndexedDB(songsList);
             renderSongs();
+            renderTagsList();
         } catch (error) {
             const cached = await loadSongsFromIndexedDB();
             if (cached.length > 0) {
                 songsList = cached;
                 renderSongs();
-            } else {
-                document.getElementById('songGrid').innerHTML = `<div class="empty-state">❌ គ្មានអ៊ីនធឺណិត និងមិនទាន់មានទិន្នន័យក្នុង IndexedDB ទេ។</div>`;
+                renderTagsList();
             }
         }
     }
@@ -719,7 +705,7 @@
 
         try {
             const snapshot = await db.collection("songs").orderBy("createdAt", "desc").get();
-            progressText.innerText = 'កំពុងរក្សាទុកក្នុងទូរស័ព្ទ (Offline)... (60%)';
+            progressText.innerText = 'កំពុងរក្សាទុកក្នុងទូរស័ព្ទ... (60%)';
             progressBar.style.width = '60%';
 
             songsList = snapshot.docs.map(doc => ({ 
@@ -730,10 +716,10 @@
             }));
 
             await saveSongsToIndexedDB(songsList);
-
             progressBar.style.width = '100%';
-            progressText.innerText = '✅ រក្សាទុកសម្រាប់ប្រើពេល Offline រួចរាល់!';
+            progressText.innerText = '✅ ទាញយករួចរាល់!';
             renderSongs();
+            renderTagsList();
 
             setTimeout(() => {
                 progressWrapper.style.display = 'none';
@@ -741,7 +727,6 @@
                 btn.style.display = 'flex';
                 btn.innerHTML = '📥 <span>ទាញយកទិន្នន័យ (Offline រួចរាល់)</span>';
             }, 2000);
-
         } catch (error) {
             progressText.innerText = '❌ មានបញ្ហា!';
             setTimeout(() => {
@@ -771,92 +756,71 @@
                     isEditor = false;
                     isAdmin = false;
                 }
-                renderUserProfile(user);
             } else {
                 isEditor = false;
                 isAdmin = false;
                 document.getElementById('bodyContainer').classList.remove('editor-authorized');
-                document.getElementById('userProfileArea').innerHTML = `
-                    <button class="btn-auth btn-google" onclick="loginWithGoogle()">
-                        <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" width="18" alt="G">
-                        <span>Login តាម Gmail</span>
-                    </button>`;
             }
+            renderProfileView();
         });
     }
 
     function loginWithGoogle() {
         const provider = new firebase.auth.GoogleAuthProvider();
-        auth.signInWithPopup(provider).catch((error) => {
-            alert("❌ Login ខកខាន៖ " + error.message);
-        });
+        auth.signInWithPopup(provider).catch((error) => alert("❌ Login ខកខាន៖ " + error.message));
     }
 
     function logout() { auth.signOut(); }
 
-    function renderUserProfile(user) {
-        let tagsSet = new Set();
-        songsList.forEach(s => {
-            if (s.tag) {
-                s.tag.split(',').forEach(t => {
-                    let clean = t.trim();
-                    if(clean) tagsSet.add(clean);
-                });
-            }
-        });
-        let uniqueTags = Array.from(tagsSet);
-
-        let tagsHtml = '';
-        if (uniqueTags.length > 0) {
-            tagsHtml = `
-                <div class="dropdown-divider"></div>
-                <div class="dropdown-section-title">🏷️ ប្រភេទបទ (Tags)</div>
-            `;
-            uniqueTags.forEach(tag => {
-                let isActive = (currentFilterType === 'TAG' && currentFilterValue === tag);
-                tagsHtml += `
-                    <button class="dropdown-item ${isActive ? 'active-sub' : ''}" onclick="filterByTag('${tag}')">
-                        <span>🏷️</span> <span>${tag}</span>
+    function renderProfileView() {
+        const container = document.getElementById('profileCardContent');
+        if (!currentUser) {
+            container.innerHTML = `
+                <div style="text-align:center; padding: 20px 0;">
+                    <i class="fa-solid fa-circle-user" style="font-size: 3.5rem; color: var(--text-muted); margin-bottom: 12px;"></i>
+                    <h3 style="margin-bottom:6px;">មិនទាន់បានចូលប្រើប្រាស់ (Log In)</h3>
+                    <p style="font-size:0.85rem; color:var(--text-muted); margin-bottom: 20px;">ចូលដើម្បីទទួលបានសិទ្ធិបន្ថែមក្នុងការកែប្រែ និងបន្ថែមបទចម្រៀង</p>
+                    <button class="action-btn-item" onclick="loginWithGoogle()" style="justify-content:center; gap:10px; background:var(--primary); color:white; border:none;">
+                        <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" width="18" alt="G">
+                        <span>Login តាម Gmail</span>
                     </button>
-                `;
-            });
-        }
-
-        let adminInviteButtons = '';
-        if (isAdmin) {
-            adminInviteButtons = `
-                <button class="dropdown-item" onclick="handleInvite()"><span style="font-size:1.1rem;">✉️</span> <span>Invite</span></button>
-                <button class="dropdown-item danger" onclick="handleDeleteAlbum()"><span style="font-size:1.1rem;">🗑️</span> <span>លុប Album</span></button>
-            `;
-        } else if (!isEditor) {
-            adminInviteButtons = `
-                <button class="dropdown-item" onclick="handleJoin()"><span style="font-size:1.1rem;">✉️</span> <span>សុំសិទ្ធិកែប្រែ</span></button>
-            `;
-        }
-
-        document.getElementById('userProfileArea').innerHTML = `
-            <div class="user-profile-card" id="profileToggleBtn" onclick="toggleProfileDropdown()">
-                <div class="user-info">
-                    <img src="${user.photoURL || 'https://via.placeholder.com/42'}" class="user-avatar">
-                    <div class="user-details">
-                        <div class="user-name">${user.displayName || 'អ្នកប្រើប្រាស់'}</div>
-                        <div class="user-role">${isAdmin ? '👑 Admin' : (isEditor ? '✏️ Editor' : '👁️ មើលប៉ុណ្ណោះ')}</div>
-                    </div>
                 </div>
-                <div class="dropdown-arrow">▼</div>
+            `;
+            return;
+        }
+
+        let adminButtons = '';
+        if (isAdmin) {
+            adminButtons = `
+                <button class="action-btn-item" onclick="openAddSongModal()"><i class="fa-solid fa-plus"></i> <span>បញ្ចូលបទថ្មី</span></button>
+                <button class="action-btn-item" onclick="openBatchAddModal()"><i class="fa-solid fa-layer-group"></i> <span>បញ្ចូលបទថ្មីជាអាល់ប៊ុម</span></button>
+                <button class="action-btn-item" onclick="handleInvite()"><i class="fa-solid fa-user-plus"></i> <span>Invite អ្នកកែប្រែ (Editor)</span></button>
+                <button class="action-btn-item danger" onclick="handleDeleteAlbum()"><i class="fa-solid fa-trash"></i> <span>លុប Album</span></button>
+            `;
+        } else if (isEditor) {
+            adminButtons = `
+                <button class="action-btn-item" onclick="openAddSongModal()"><i class="fa-solid fa-plus"></i> <span>បញ្ចូលបទថ្មី</span></button>
+                <button class="action-btn-item" onclick="openBatchAddModal()"><i class="fa-solid fa-layer-group"></i> <span>បញ្ចូលបទថ្មីជាអាល់ប៊ុម</span></button>
+            `;
+        } else {
+            adminButtons = `
+                <button class="action-btn-item" onclick="handleJoin()"><i class="fa-solid fa-paper-plane"></i> <span>សុំសិទ្ធិកែប្រែ (Request Editor Role)</span></button>
+            `;
+        }
+
+        container.innerHTML = `
+            <div class="profile-header">
+                <img src="${currentUser.photoURL || 'https://via.placeholder.com/64'}" class="profile-avatar">
+                <div>
+                    <div class="profile-name">${currentUser.displayName || 'អ្នកប្រើប្រាស់'}</div>
+                    <div class="profile-badge">${isAdmin ? '👑 Admin' : (isEditor ? '✏️ Editor' : '👁️ មើលប៉ុណ្ណោះ')}</div>
+                </div>
             </div>
-            <div class="profile-dropdown-menu" id="profileDropdownMenu">
-                ${tagsHtml}
-                <div class="dropdown-divider"></div>
-                ${adminInviteButtons}
-                <button class="dropdown-item danger" onclick="logout()"><span style="font-size:1.1rem;">🚪</span> <span>Log Out</span></button>
+            <div class="action-list">
+                ${adminButtons}
+                <button class="action-btn-item danger" onclick="logout()"><i class="fa-solid fa-right-from-bracket"></i> <span>ចាកចេញ (Log Out)</span></button>
             </div>
         `;
-    }
-
-    function toggleProfileDropdown() {
-        document.getElementById('profileDropdownMenu').classList.toggle('open');
-        document.getElementById('profileToggleBtn').classList.toggle('active');
     }
 
     async function handleDeleteAlbum() {
@@ -872,9 +836,7 @@
                 let albumToDelete = customAlbums[index];
                 if (confirm(`⚠️ លុប Album «${albumToDelete}»?`)) {
                     await db.collection("albums").doc(albumToDelete).delete();
-                    if (currentFilterType === 'ALBUM' && currentFilterValue === albumToDelete) {
-                        selectAlbum('ALL');
-                    }
+                    selectAlbum('ALL');
                     alert(`✅ បានលុប Album រួចរាល់!`);
                 }
             }
@@ -893,7 +855,7 @@
     async function handleJoin() {
         if (confirm(`ស្នើសុំសិទ្ធិកែប្រែដោយប្រើអ៊ីមែល ${currentUser.email}?`)) {
             await db.collection("join_requests").doc(currentUser.email.toLowerCase()).set({ email: currentUser.email, name: currentUser.displayName });
-            alert("✅ បានផ្ើសំណើជូន Admin រួចរាល់!");
+            alert("✅ បានផ្ញើសំណើជូន Admin រួចរាល់!");
         }
     }
 
@@ -902,10 +864,74 @@
             let albums = [];
             snapshot.forEach(doc => albums.push(doc.data().name));
             customAlbums = albums;
-            renderSidebarMenu();
+            renderAlbumsView();
         }, (error) => {
-            renderSidebarMenu();
+            renderAlbumsView();
         });
+    }
+
+    function renderAlbumsView() {
+        const grid = document.getElementById('albumsGrid');
+        let html = `
+            <div class="folder-card" onclick="selectAlbum('ALL')">
+                <div class="folder-icon"><i class="fa-solid fa-music"></i></div>
+                <div class="folder-name">បទចម្រៀងទាំងអស់</div>
+                <div class="folder-count">${songsList.length} បទ</div>
+            </div>
+        `;
+        customAlbums.forEach(album => {
+            const count = songsList.filter(s => s.album === album).length;
+            html += `
+                <div class="folder-card" onclick="selectAlbum('${album}')">
+                    <div class="folder-icon"><i class="fa-solid fa-folder-closed"></i></div>
+                    <div class="folder-name">${album}</div>
+                    <div class="folder-count">${count} បទ</div>
+                </div>
+            `;
+        });
+        grid.innerHTML = html;
+    }
+
+    function renderPlaylistsView() {
+        const grid = document.getElementById('playlistsGrid');
+        const keys = Object.keys(playlists);
+        if (keys.length === 0) {
+            grid.innerHTML = `<div class="empty-state">📂 មិនទាន់មាន Playlist ផ្ទាល់ខ្លួននៅឡើយទេ។ ចុចប៊ូតុងខាងលើដើម្បីបង្កើត!</div>`;
+            return;
+        }
+
+        let html = '';
+        keys.forEach(plName => {
+            const count = playlists[plName] ? playlists[plName].length : 0;
+            html += `
+                <div class="folder-card" onclick="selectPlaylist('${plName}')">
+                    <button class="folder-delete-btn" onclick="deletePlaylist('${plName}', event)"><i class="fa-solid fa-trash"></i></button>
+                    <div class="folder-icon" style="color:#0284c7;"><i class="fa-solid fa-list-check"></i></div>
+                    <div class="folder-name">${plName}</div>
+                    <div class="folder-count">${count} បទ</div>
+                </div>
+            `;
+        });
+        grid.innerHTML = html;
+    }
+
+    function renderTagsList() {
+        let tagsSet = new Set();
+        songsList.forEach(s => {
+            if (s.tag) {
+                s.tag.split(',').forEach(t => {
+                    let clean = t.trim();
+                    if(clean) tagsSet.add(clean);
+                });
+            }
+        });
+        const container = document.getElementById('tagPillsContainer');
+        let html = `<div class="tag-pill ${(currentFilterType==='ALL')?'active':''}" onclick="selectAlbum('ALL')">ទាំងអស់</div>`;
+        tagsSet.forEach(tag => {
+            let isActive = (currentFilterType === 'TAG' && currentFilterValue === tag);
+            html += `<div class="tag-pill ${isActive?'active':''}" onclick="filterByTag('${tag}')">🏷️ ${tag}</div>`;
+        });
+        container.innerHTML = html;
     }
 
     function openCreatePlaylistModal() {
@@ -921,7 +947,7 @@
         playlists[name] = [];
         localStorage.setItem('user_playlists', JSON.stringify(playlists));
         closeModal('playlistModal');
-        renderSidebarMenu();
+        renderPlaylistsView();
         alert(`✅ បានបង្កើត Playlist «${name}» រួចរាល់!`);
     }
 
@@ -930,11 +956,7 @@
         if(confirm(`⚠️ លុប Playlist «${playlistName}» នេះចេញពីបញ្ជី?`)) {
             delete playlists[playlistName];
             localStorage.setItem('user_playlists', JSON.stringify(playlists));
-            if (currentFilterType === 'PLAYLIST' && currentFilterValue === playlistName) {
-                selectAlbum('ALL');
-            } else {
-                renderSidebarMenu();
-            }
+            renderPlaylistsView();
         }
     }
 
@@ -942,7 +964,7 @@
         if(event) event.stopPropagation();
         const playlistNames = Object.keys(playlists);
         if (playlistNames.length === 0) {
-            return alert('⚠️ អ្នកមិនទាន់បានបង្កើត Playlist ណាមួយនៅឡើយទេ! សូមបង្កើត Playlist សិន។');
+            return alert('⚠️ អ្នកមិនទាន់បានបង្កើត Playlist ណាមួយនៅឡើយទេ! សូមចូលទៅទំព័រ Playlist ដើម្បីបង្កើតជាមុន។');
         }
 
         let optionsStr = playlistNames.map((p, i) => `${i + 1}. ${p}`).join('\n');
@@ -969,42 +991,8 @@
         renderSongs();
     }
 
-    function renderSidebarMenu() {
-        const menu = document.getElementById('sidebarMenu');
-        let html = `
-            <div class="menu-item ${(currentFilterType === 'ALL') ? 'active' : ''}" onclick="selectAlbum('ALL')">
-                <div class="menu-item-left">🎵 <span>បទចម្រៀងទាំងអស់</span></div>
-            </div>
-            <div class="menu-section-title">📁 Albums</div>
-        `;
-        customAlbums.forEach(album => {
-            let isActive = (currentFilterType === 'ALBUM' && currentFilterValue === album);
-            html += `
-                <div class="menu-item ${isActive ? 'active' : ''}" onclick="selectAlbum('${album}')">
-                    <div class="menu-item-left">📁 <span>${album}</span></div>
-                </div>
-            `;
-        });
-
-        const playlistKeys = Object.keys(playlists);
-        if (playlistKeys.length > 0) {
-            html += `<div class="menu-section-title">📂 Playlists ផ្ទាល់ខ្លួន</div>`;
-            playlistKeys.forEach(plName => {
-                let isActive = (currentFilterType === 'PLAYLIST' && currentFilterValue === plName);
-                html += `
-                    <div class="menu-item ${isActive ? 'active' : ''}" onclick="selectPlaylist('${plName}')">
-                        <div class="menu-item-left">🎵 <span>${plName}</span></div>
-                        <button style="background:none; border:none; color:inherit; font-size:0.8rem; cursor:pointer; padding:4px;" onclick="deletePlaylist('${plName}', event)" title="លុប Playlist">🗑️</button>
-                    </div>
-                `;
-            });
-        }
-
-        menu.innerHTML = html;
-        if(currentUser) renderUserProfile(currentUser);
-    }
-
     function selectAlbum(albumName) {
+        switchTab('songs');
         if (albumName === 'ALL') {
             currentFilterType = 'ALL';
             currentFilterValue = 'ALL';
@@ -1014,27 +1002,26 @@
             currentFilterValue = albumName;
             document.getElementById('currentAlbumSubtitle').innerHTML = `📁 Album៖ <span style="color: var(--primary); font-weight: 700;">${albumName}</span>`;
         }
-        renderSidebarMenu();
+        renderTagsList();
         renderSongs();
-        closeMobileSidebar();
     }
 
     function selectPlaylist(playlistName) {
+        switchTab('songs');
         currentFilterType = 'PLAYLIST';
         currentFilterValue = playlistName;
         document.getElementById('currentAlbumSubtitle').innerHTML = `📂 Playlist: <span style="color: var(--primary); font-weight: 700;">${playlistName}</span> (${playlists[playlistName].length} បទ)`;
-        renderSidebarMenu();
+        renderTagsList();
         renderSongs();
-        closeMobileSidebar();
     }
 
     function filterByTag(tagName) {
+        switchTab('songs');
         currentFilterType = 'TAG';
         currentFilterValue = tagName;
         document.getElementById('currentAlbumSubtitle').innerHTML = `🏷️ ប្រភេទបទ (Tag)៖ <span style="color: var(--primary); font-weight: 700;">${tagName}</span>`;
-        renderSidebarMenu();
+        renderTagsList();
         renderSongs();
-        closeMobileSidebar();
     }
 
     async function addNewAlbum() {
@@ -1068,40 +1055,14 @@
 
     function cleanKhmerQuery(str) {
         if (!str) return '';
-        return str.toLowerCase()
-            .replace(/[\u17B6-\u17C5\u17C7\u17C8]/g, '') 
-            .replace(/[\u17D2]/g, '')                   
-            .replace(/[\s\-_]/g, '');                    
+        return str.toLowerCase().replace(/[\u17B6-\u17C5\u17C7\u17C8]/g, '').replace(/[\u17D2]/g, '').replace(/[\s\-_]/g, '');
     }
 
     function fuzzyMatch(text, query) {
         if (!text || !query) return false;
         const cleanText = cleanKhmerQuery(text);
         const cleanQ = cleanKhmerQuery(query);
-        
-        if (cleanText.includes(cleanQ)) return true;
-
-        let words = text.toLowerCase().split(/\s+/);
-        for (let w of words) {
-            if (levenshteinDistance(w, query.toLowerCase()) <= 2) return true;
-        }
-        return false;
-    }
-
-    function levenshteinDistance(a, b) {
-        const matrix = [];
-        for (let i = 0; i <= b.length; i++) { matrix[i] = [i]; }
-        for (let j = 0; j <= a.length; j++) { matrix[0][j] = j; }
-        for (let i = 1; i <= b.length; i++) {
-            for (let j = 1; j <= a.length; j++) {
-                if (b.charAt(i - 1) == a.charAt(j - 1)) {
-                    matrix[i][j] = matrix[i - 1][j - 1];
-                } else {
-                    matrix[i][j] = Math.min(matrix[i - 1][j - 1] + 1, Math.min(matrix[i][j - 1] + 1, matrix[i - 1][j] + 1));
-                }
-            }
-        }
-        return matrix[b.length][a.length];
+        return cleanText.includes(cleanQ);
     }
 
     function getFilteredSongs() {
@@ -1150,15 +1111,6 @@
         let html = chunkedSongs.map((song, index) => {
             const safeTitle = (song.title || '').replace(/'/g, "\\'").replace(/"/g, '&quot;');
             
-            let dateText = '';
-            if (song.updatedAt && song.updatedAt.seconds) {
-                dateText = `កែប្រែ៖ ${new Date(song.updatedAt.seconds * 1000).toLocaleDateString('km-KH')}`;
-            } else if (song.createdAt && song.createdAt.seconds) {
-                dateText = `បញ្ចូល៖ ${new Date(song.createdAt.seconds * 1000).toLocaleDateString('km-KH')}`;
-            }
-
-            const editorInfo = song.updatedBy ? `កែដោយ៖ ${song.updatedBy}` : (song.createdBy ? `បញ្ចូលដោយ៖ ${song.createdBy}` : '');
-
             let playlistButtonHtml = '';
             if (currentFilterType === 'PLAYLIST') {
                 playlistButtonHtml = `<button class="btn-playlist-inline" onclick="removeSongFromPlaylist('${currentFilterValue}', '${song.id}', event)"><i class="fa-solid fa-xmark"></i> ដកចេញ</button>`;
@@ -1167,9 +1119,7 @@
             }
 
             let tagBadgeHtml = song.tag ? `<span class="song-tag-badge">🏷️ ${song.tag}</span>` : '';
-            let audioButtonHtml = song.audioUrl ? `<button style="background:var(--primary); color:white; border:none; padding:4px 8px; border-radius:6px; font-size:0.75rem; font-weight:600; cursor:pointer; margin:4px 0; width:fit-content;" onclick="playAudio('${song.audioUrl}', '${safeTitle}', event)"><i class="fa-solid fa-play"></i> ចាក់ភ្លេងអម</button>` : '';
-            let dateSpanHtml = dateText ? `<span>📅 ${dateText}</span>` : '';
-            let editorSpanHtml = editorInfo ? `<span>👤 ${editorInfo}</span>` : '';
+            let audioButtonHtml = song.audioUrl ? `<button style="background:var(--primary); color:white; border:none; padding:4px 8px; border-radius:6px; font-size:0.75rem; font-weight:600; cursor:pointer; margin:4px 0; width:fit-content;" onclick="playAudio('${song.audioUrl}', '${safeTitle}', event)"><i class="fa-solid fa-play"></i> ចាក់ភ្លេង</button>` : '';
 
             return `
             <div class="song-card">
@@ -1186,8 +1136,6 @@
                         ${tagBadgeHtml}
                         <div class="song-meta-info">
                             ${audioButtonHtml}
-                            ${dateSpanHtml}
-                            ${editorSpanHtml}
                         </div>
                     </div>
                     <div>
@@ -1255,14 +1203,14 @@
     function handleEditDrop(e) { e.preventDefault(); e.stopPropagation(); if (e.dataTransfer.files[0]) processImageFile(e.dataTransfer.files[0], true); }
 
     function removeSelectedImage(e) {
-        e.stopPropagation();
+        if(e) e.stopPropagation();
         selectedImageBase64 = '';
         document.getElementById('songImageFile').value = '';
         document.getElementById('previewContainer').style.display = 'none';
     }
 
     function removeSelectedEditImage(e) {
-        e.stopPropagation();
+        if(e) e.stopPropagation();
         selectedEditImageBase64 = '';
         document.getElementById('editSongImageFile').value = '';
         document.getElementById('editPreviewContainer').style.display = 'none';
@@ -1317,7 +1265,7 @@
         if (!finalImageUrl) return alert("⚠️ សូមជ្រើសរើសរូបភាពបទចម្រៀង ឬដាក់ URL!");
 
         const saveBtn = document.getElementById('saveBtn');
-        saveBtn.innerText = '⏳ កំពុងផ្ទុកឡើង (Storage)...'; 
+        saveBtn.innerText = '⏳ កំពុងផ្ទុកឡើង...'; 
         saveBtn.disabled = true;
 
         try {
@@ -1341,12 +1289,11 @@
             songsList.unshift(newSongObj);
             await saveSongsToIndexedDB(songsList);
             renderSongs();
-            if(currentUser) renderUserProfile(currentUser);
+            renderTagsList();
 
             closeModal('addSongModal');
             document.getElementById('addSongForm').reset();
-            document.getElementById('songImageUrlDirect').value = '';
-            removeSelectedImage({stopPropagation:()=>{}});
+            removeSelectedImage(null);
             alert('✅ បញ្ចូលបទចម្រៀងបានជោគជ័យ!');
         } catch (error) {
             alert('❌ មានបញ្ហា៖ ' + error.message);
@@ -1385,7 +1332,7 @@
                 });
                 loadedCount++;
                 if (loadedCount === files.length || loadedCount === batchImagesArray.length) {
-                    infoEl.innerText = `✅ បានអករូបភាពរួចរាល់ចំនួន ${batchImagesArray.length} សន្លឹក។ រួចចុចបញ្ជូនចូល។`;
+                    infoEl.innerText = `✅ បានអានរូបភាពរួចរាល់ចំនួន ${batchImagesArray.length} សន្លឹក។`;
                     document.getElementById('batchSaveBtn').disabled = false;
                 }
             };
@@ -1398,47 +1345,32 @@
         const album = document.getElementById('batchAlbumSelect').value;
         const artist = document.getElementById('batchArtist').value.trim();
         const batchSaveBtn = document.getElementById('batchSaveBtn');
-        batchSaveBtn.innerText = `⏳ កំពុងបញ្ចូល (0/${batchImagesArray.length})...`;
+        batchSaveBtn.innerText = `⏳ កំពុងបញ្ចូល...`;
         batchSaveBtn.disabled = true;
 
         try {
             let count = 0;
             for (let item of batchImagesArray) {
                 const uploadedUrl = await uploadImageToFirebaseStorage(item.base64, item.defaultTitle);
-
                 const docRef = await db.collection("songs").add({
                     title: item.defaultTitle,
                     artist: artist,
-                    tag: '',
-                    audioUrl: '',
-                    album: album,
+                    tag: '', audioUrl: '', album: album,
                     imageUrl: uploadedUrl,
                     createdBy: currentUser.displayName || currentUser.email,
                     createdAt: firebase.firestore.FieldValue.serverTimestamp()
                 });
-
-                const newSongObj = {
-                    id: docRef.id,
-                    title: item.defaultTitle,
-                    artist: artist,
-                    tag: '',
-                    audioUrl: '',
-                    album: album,
-                    imageUrl: uploadedUrl,
-                    createdBy: currentUser.displayName || currentUser.email,
-                    createdAt: { seconds: Math.floor(Date.now() / 1000) }
-                };
-                songsList.unshift(newSongObj);
+                songsList.unshift({
+                    id: docRef.id, title: item.defaultTitle, artist: artist, tag: '', audioUrl: '', album: album, imageUrl: uploadedUrl,
+                    createdBy: currentUser.displayName || currentUser.email, createdAt: { seconds: Math.floor(Date.now() / 1000) }
+                });
                 count++;
-                batchSaveBtn.innerText = `⏳ កំពុងបញ្ចូល (${count}/${batchImagesArray.length})...`;
             }
 
             await saveSongsToIndexedDB(songsList);
             renderSongs();
-            if(currentUser) renderUserProfile(currentUser);
-
             closeModal('batchAddModal');
-            alert(`✅ បានបញ្ចូលបទចម្រៀងសរុបចំនួន ${count} បទចូល Album «${album}» ជោគជ័យ!`);
+            alert(`✅ បានបញ្ចូលចំនួន ${count} បទជោគជ័យ!`);
         } catch (error) {
             alert('❌ មានបញ្ហា៖ ' + error.message);
         } finally {
@@ -1494,12 +1426,7 @@
         if (index !== -1) {
             songsList[index] = { ...songsList[index], ...updateData };
             await saveSongsToIndexedDB(songsList);
-
-            // 🔥 កែសម្រួល៖ រក្សាចំនួនបទដែលកំពុងបង្ហាញដដែល មិន Reset ទៅ ២០ បទវិញទេ ពេលកែប្រែបទចម្រៀង
-            currentFilteredSongs = getFilteredSongs();
-            renderSongsListOnly();
-
-            if(currentUser) renderUserProfile(currentUser);
+            renderSongs();
         }
 
         closeModal('editSongModal');
@@ -1513,13 +1440,10 @@
             songsList = songsList.filter(s => s.id !== id);
             await saveSongsToIndexedDB(songsList);
             renderSongs();
-            if(currentUser) renderUserProfile(currentUser);
             alert(`✅ បានលុបរួចរាល់!`);
         }
     }
 
-    function openMobileSidebar() { document.getElementById('sidebar').classList.add('mobile-open'); document.getElementById('sidebarOverlay').classList.add('active'); }
-    function closeMobileSidebar() { document.getElementById('sidebar').classList.remove('mobile-open'); document.getElementById('sidebarOverlay').classList.remove('active'); }
     function openAddSongModal() { 
         document.getElementById('songAlbumSelect').innerHTML = customAlbums.map(a => `<option value="${a}">${a}</option>`).join('');
         selectedImageBase64 = '';
@@ -1541,8 +1465,6 @@
         if (!song) return;
         const imgEl = document.getElementById('fullScreenImg');
         const titleEl = document.getElementById('fullScreenTitle');
-        
-        imgEl.style.transform = 'scale(1)';
         imgEl.src = song.imageUrl || '';
         titleEl.innerText = `${song.title || ''} ${song.artist ? ' - ' + song.artist : ''}`;
     }
@@ -1550,13 +1472,9 @@
     function slideFullScreen(direction, event) {
         if (event) event.stopPropagation();
         if (currentFilteredSongs.length === 0) return;
-        
         currentFullscreenIndex += direction;
-        if (currentFullscreenIndex < 0) {
-            currentFullscreenIndex = currentFilteredSongs.length - 1; 
-        } else if (currentFullscreenIndex >= currentFilteredSongs.length) {
-            currentFullscreenIndex = 0; 
-        }
+        if (currentFullscreenIndex < 0) currentFullscreenIndex = currentFilteredSongs.length - 1; 
+        else if (currentFullscreenIndex >= currentFilteredSongs.length) currentFullscreenIndex = 0; 
         updateFullScreenContent();
     }
 
@@ -1565,9 +1483,7 @@
             closeFullScreenModalDirect();
         } 
     }
-    function closeFullScreenModalDirect() { 
-        document.getElementById('fullScreenModal').classList.remove('active'); 
-    }
+    function closeFullScreenModalDirect() { document.getElementById('fullScreenModal').classList.remove('active'); }
 
     let touchStartX = 0;
     let touchEndX = 0;
@@ -1575,90 +1491,30 @@
     function setupTouchSwipeListeners() {
         const container = document.getElementById('fullScreenImgContainer');
         if (!container) return;
-
-        container.addEventListener('touchstart', (e) => {
-            touchStartX = e.changedTouches[0].screenX;
-        }, {passive: true});
-
-        container.addEventListener('touchend', (e) => {
-            touchEndX = e.changedTouches[0].screenX;
-            handleSwipeGesture();
-        }, {passive: true});
+        container.addEventListener('touchstart', (e) => { touchStartX = e.changedTouches[0].screenX; }, {passive: true});
+        container.addEventListener('touchend', (e) => { touchEndX = e.changedTouches[0].screenX; handleSwipeGesture(); }, {passive: true});
     }
 
     function handleSwipeGesture() {
         const threshold = 50; 
-        if (touchEndX < touchStartX - threshold) {
-            slideFullScreen(1);
-        } else if (touchEndX > touchStartX - threshold) {
-            slideFullScreen(-1);
-        }
+        if (touchEndX < touchStartX - threshold) slideFullScreen(1);
+        else if (touchEndX > touchStartX + threshold) slideFullScreen(-1);
     }
 
-    window.addEventListener('online', () => {
-        updateOnlineStatus();
-        triggerBackgroundSync();
-    });
-
-    window.addEventListener('offline', () => {
-        updateOnlineStatus();
-    });
+    window.addEventListener('online', () => updateOnlineStatus());
+    window.addEventListener('offline', () => updateOnlineStatus());
 
     function updateOnlineStatus() {
         const dot = document.getElementById('statusDot');
         const text = document.getElementById('statusText');
-        
         if (navigator.onLine) {
             dot.className = 'status-dot status-online';
             text.innerText = 'អនឡាញ (Online)';
-            setTimeout(() => {
-                const badge = document.getElementById('offlineSyncBadge');
-                if (badge && navigator.onLine) badge.style.opacity = '0.8';
-            }, 4000);
         } else {
-            const badge = document.getElementById('offlineSyncBadge');
-            if(badge) badge.style.opacity = '1';
             dot.className = 'status-dot status-offline';
-            text.innerText = 'កំពុងប្រើប្រាស់ក្រៅបណ្តាញ (Offline)';
+            text.innerText = 'ក្រៅបណ្តាញ (Offline)';
         }
     }
-
-    async function triggerBackgroundSync() {
-        const dot = document.getElementById('statusDot');
-        const text = document.getElementById('statusText');
-        
-        if (!navigator.onLine) return;
-
-        dot.className = 'status-dot status-syncing';
-        text.innerText = 'កំពុងធ្វើសមកាលកម្ម (Syncing)...';
-
-        try {
-            const snapshot = await db.collection("songs").orderBy("createdAt", "desc").get();
-            songsList = snapshot.docs.map(doc => ({ 
-                id: doc.id, 
-                ...doc.data(),
-                createdAt: doc.data().createdAt ? { seconds: doc.data().createdAt.seconds } : null,
-                updatedAt: doc.data().updatedAt ? { seconds: doc.data().updatedAt.seconds } : null
-            }));
-            
-            await saveSongsToIndexedDB(songsList);
-            renderSongs();
-
-            dot.className = 'status-dot status-online';
-            text.innerText = 'ធ្វើសមកាលកម្មរួចរាល់ (Synced)';
-            
-            setTimeout(() => {
-                text.innerText = 'អនឡាញ (Online)';
-            }, 3000);
-        } catch (error) {
-            dot.className = 'status-dot status-online';
-            text.innerText = 'អនឡាញ (Online)';
-        }
-    }
-
-    document.addEventListener('DOMContentLoaded', () => {
-        updateOnlineStatus();
-    });
 </script>
 </body>
 </html>
