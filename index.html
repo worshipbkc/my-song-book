@@ -18,7 +18,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Kantumruy+Pro:wght@400;500;600;700&display=swap" rel="stylesheet">
     
-    <!-- 🔥 Firebase SDKs (v8) - មិនប្រើ Firebase Storage ទៀតទេ -->
+    <!-- 🔥 Firebase SDKs (v8) -->
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
@@ -469,6 +469,16 @@
     };
 
     firebase.initializeApp(firebaseConfig);
+
+    // ⚡ 1. បើក Firestore Offline Persistence ភ្លាមៗបន្ទាប់ពី initializeApp
+    firebase.firestore().enablePersistence({ synchronizeTabs: true }).catch((err) => {
+        if (err.code === 'failed-precondition') {
+            console.warn('Firestore persistence failed: Multiple tabs open');
+        } else if (err.code === 'unimplemented') {
+            console.warn('Firestore persistence is not supported by this browser');
+        }
+    });
+
     const db = firebase.firestore();
     const auth = firebase.auth();
 
@@ -671,9 +681,19 @@
         });
     }
 
+    // ⚡ 2. ប្រើប្រាស់ Cache-First Data Fetching (មិនអស់លុយ Reads និងទាញយកបានលឿនបំផុត)
     async function fetchAllSongsSilently() {
         try {
-            const snapshot = await db.collection("songs").get();
+            let snapshot;
+            try {
+                // ១. ព្យាយាមទាញយកពី Cache មុនគេបង្អស់
+                snapshot = await db.collection("songs").get({ source: 'cache' });
+                if (snapshot.empty) throw new Error("Cache Empty");
+            } catch (cacheErr) {
+                // ២. បើ Cache គ្មានទិន្នន័យ ទើបទាញពី Server
+                snapshot = await db.collection("songs").get({ source: 'server' });
+            }
+
             songsList = snapshot.docs.map(doc => ({ 
                 id: doc.id, 
                 ...doc.data(),
@@ -699,7 +719,7 @@
         }
     }
 
-    /* ទាញយកទិន្នន័យ + គណនា % ពិតប្រាកដ (Real Progress Tracking 0% -> 100%) */
+    /* ទាញយកទិន្នន័យ + គណនា % ពិតប្រាកដ (Real Progress Tracking 0% -> 100%) - Cache First */
     async function fetchAllSongsWithProgress() {
         const btn = document.getElementById('fetchAllBtn');
         const percentEl = document.getElementById('progressPercent');
@@ -711,12 +731,17 @@
         percentEl.innerText = '0%';
 
         try {
-            // ដំណាក់កាលទី ១ (0% -> 40%)៖ ទាញយកទិន្នន័យពី Firebase
             percentEl.innerText = '15%';
-            const snapshot = await db.collection("songs").get();
+            let snapshot;
+            try {
+                // Cache-First សម្រាប់ទាញយក
+                snapshot = await db.collection("songs").get({ source: 'cache' });
+                if (snapshot.empty) throw new Error("Cache Empty");
+            } catch (e) {
+                snapshot = await db.collection("songs").get({ source: 'server' });
+            }
             percentEl.innerText = '40%';
 
-            // ដំណាក់កាលទី ២ (40% -> 70%)៖ រៀបចំ និង Sort ទិន្នន័យ
             await new Promise(r => setTimeout(r, 20)); // Unblock UI Thread
             
             const docs = snapshot.docs;
@@ -748,7 +773,6 @@
             songsList = processedSongs;
             percentEl.innerText = '70%';
 
-            // ដំណាក់កាលទី ៣ (70% -> 100%)៖ រក្សាទុកក្នុង IndexedDB
             await saveSongsToIndexedDB(songsList, (dbProgressPercent) => {
                 percentEl.innerText = `${dbProgressPercent}%`;
             });
@@ -1197,22 +1221,55 @@
         }
     }
 
-    /* ⚡ មុខងារបំប្លែងរូបភាពទៅជា Base64 ⚡ */
-    function processImageFile(file, isEdit = false) {
+    // ⚡ 3. បង្រួមទំហំរូបភាព Base64 ឱ្យតូច (ទំហំអតិបរមា 600px, គុណភាព 0.5) ដើម្បីកាត់បន្ថយ Network Payload និង Save លឿនបំផុត
+    function compressImage(file, maxWidth = 600, quality = 0.5) {
+        return new Promise((resolve, reject) => {
+            if (!file || !file.type.startsWith('image/')) return reject(new Error('ប្រភេទဖိုင်មិនត្រឹមត្រូវ'));
+            const reader = new FileReader();
+            reader.readAsDataURL(file);
+            reader.onload = (event) => {
+                const img = new Image();
+                img.src = event.target.result;
+                img.onload = () => {
+                    const canvas = document.createElement('canvas');
+                    let width = img.width;
+                    let height = img.height;
+
+                    if (width > maxWidth) {
+                        height = Math.round((height * maxWidth) / width);
+                        width = maxWidth;
+                    }
+
+                    canvas.width = width;
+                    canvas.height = height;
+                    const ctx = canvas.getContext('2d');
+                    ctx.drawImage(img, 0, 0, width, height);
+
+                    resolve(canvas.toDataURL('image/jpeg', quality));
+                };
+                img.onerror = (err) => reject(err);
+            };
+            reader.onerror = (err) => reject(err);
+        });
+    }
+
+    /* ⚡ មុខងារបំប្លែង និងបង្រួមរូបភាពទៅជា Base64 ⚡ */
+    async function processImageFile(file, isEdit = false) {
         if (!file || !file.type.startsWith('image/')) return alert('⚠️ សូមបញ្ចូលរូបភាព!');
-        const reader = new FileReader();
-        reader.onload = function(e) {
+        try {
+            const compressedBase64 = await compressImage(file, 600, 0.5);
             if (!isEdit) {
-                selectedImageBase64 = e.target.result;
+                selectedImageBase64 = compressedBase64;
                 document.getElementById('previewImg').src = selectedImageBase64;
                 document.getElementById('previewContainer').style.display = 'block';
             } else {
-                selectedEditImageBase64 = e.target.result;
+                selectedEditImageBase64 = compressedBase64;
                 document.getElementById('editPreviewImg').src = selectedEditImageBase64;
                 document.getElementById('editPreviewContainer').style.display = 'block';
             }
-        };
-        reader.readAsDataURL(file);
+        } catch (err) {
+            alert('❌ មានបញ្ហាក្នុងការបង្រួមរូបភាព៖ ' + err.message);
+        }
     }
 
     function handleFileSelect(e) { if (e.target.files[0]) processImageFile(e.target.files[0], false); }
@@ -1315,31 +1372,31 @@
         document.getElementById('batchAddModal').classList.add('active');
     }
 
-    function handleBatchFilesSelect(e) {
+    async function handleBatchFilesSelect(e) {
         const files = e.target.files;
         if (!files || files.length === 0) return;
         
         batchImagesArray = [];
-        let loadedCount = 0;
         const infoEl = document.getElementById('batchPreviewInfo');
-        infoEl.innerText = `⏳ កំពុងអានរូបភាពចំនួន ${files.length} សន្លឹក...`;
+        infoEl.innerText = `⏳ កំពុងបង្រួម និងអានរូបភាពចំនួន ${files.length} សន្លឹក...`;
 
-        Array.from(files).forEach((file, index) => {
-            if (!file.type.startsWith('image/')) return;
-            const reader = new FileReader();
-            reader.onload = function(evt) {
-                batchImagesArray.push({
-                    base64: evt.target.result,
-                    defaultTitle: `បទថ្មី #${index + 1}`
-                });
-                loadedCount++;
-                if (loadedCount === files.length || loadedCount === batchImagesArray.length) {
-                    infoEl.innerText = `✅ បានអានរូបភាពរួចរាល់ចំនួន ${batchImagesArray.length} សន្លឹក។`;
-                    document.getElementById('batchSaveBtn').disabled = false;
+        for (let index = 0; index < files.length; index++) {
+            const file = files[index];
+            if (file.type.startsWith('image/')) {
+                try {
+                    const compressedBase64 = await compressImage(file, 600, 0.5);
+                    batchImagesArray.push({
+                        base64: compressedBase64,
+                        defaultTitle: `បទថ្មី #${index + 1}`
+                    });
+                } catch (err) {
+                    console.error("Compression error:", err);
                 }
-            };
-            reader.readAsDataURL(file);
-        });
+            }
+        }
+
+        infoEl.innerText = `✅ បានអាន និងបង្រួមរូបភាពរួចរាល់ចំនួន ${batchImagesArray.length} សន្លឹក។`;
+        document.getElementById('batchSaveBtn').disabled = false;
     }
 
     /* 💾 បញ្ចូលរូបភាពច្រើនជា Base64 ចូល Firestore ដោយផ្ទាល់ */
