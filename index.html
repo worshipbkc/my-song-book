@@ -55,7 +55,7 @@
         .header-text h1 { font-size: 1.5rem; color: var(--primary); margin-bottom: 4px; }
         .header-text p { color: var(--text-muted); font-size: 0.9rem; font-weight: 600; line-height: 1.5; }
 
-        /* 3. Icon ទាញយកទិន្នន័យ (Offline) នៅជ្រុងខាងស្តាំលើ + % */
+        /* Icon ទាញយកទិន្នន័យ (Offline) នៅជ្រុងខាងស្តាំលើ + % */
         .fetch-icon-btn {
             position: absolute;
             top: 20px;
@@ -63,8 +63,8 @@
             background: var(--card-bg);
             border: 1.5px solid var(--primary);
             color: var(--primary);
-            width: 44px;
-            height: 44px;
+            width: 35px;
+            height: 35px;
             border-radius: 50%;
             display: flex;
             flex-direction: column;
@@ -81,20 +81,42 @@
             font-weight: 700;
             line-height: 1;
             margin-top: 2px;
+            display: none;
+        }
+
+        /* Notification Dot */
+        .notification-dot {
+            position: absolute;
+            top: 2px;
+            right: 2px;
+            width: 12px;
+            height: 12px;
+            background-color: var(--danger);
+            border-radius: 50%;
+            border: 2px solid var(--card-bg);
+            display: none;
+            z-index: 105;
+        }
+        .notification-dot.active {
+            display: block;
+            animation: pulse-dot 1.5s infinite;
+        }
+
+        @keyframes pulse-dot {
+            0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); }
+            70% { transform: scale(1.1); box-shadow: 0 0 0 6px rgba(239, 68, 68, 0); }
+            100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
         }
 
         .install-pwa-btn { background: #16a34a; border: none; color: white; padding: 6px 12px; border-radius: 8px; font-weight: 600; font-size: 0.8rem; cursor: pointer; display: none; align-items: center; gap: 6px; margin-top: 8px; }
 
-        /* Navigation Views System */
         .app-view { display: none; }
         .app-view.active { display: block; }
 
-        /* 1. ការពារការ Zoom ពេលវាយបញ្ចូលអក្សរ (Font size >= 16px) */
         input[type="text"], input[type="url"], select, textarea {
             font-size: 16px !important;
         }
 
-        /* Search & Tags */
         .controls { position: sticky; top: 0; z-index: 90; background: var(--bg); padding: 10px 0 14px 0; margin-bottom: 16px; display: flex; align-items: center; gap: 10px; }
         .search-box { position: relative; display: flex; align-items: center; flex: 1; }
         .search-box input { width: 100%; padding: 10px 40px 10px 16px; border: 1px solid var(--border); border-radius: 10px; outline: none; background: var(--card-bg); color: var(--text); }
@@ -107,7 +129,6 @@
         .tag-pill { background: var(--card-bg); border: 1px solid var(--border); color: var(--text-muted); padding: 6px 14px; border-radius: 20px; font-size: 0.8rem; font-weight: 600; white-space: nowrap; cursor: pointer; }
         .tag-pill.active { background: var(--primary); color: white; border-color: var(--primary); }
 
-        /* Song Card Grid */
         .song-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 18px; }
         .song-card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; display: flex; flex-direction: column; position: relative; }
 
@@ -144,7 +165,6 @@
         .btn-delete-custom { background-color: #fee2e2; color: var(--danger); border-color: #fecaca; }
         body.dark-mode .btn-delete-custom { background-color: #7f1d1d; color: #fee2e2; border-color: #991b1b; }
 
-        /* Section Cards (Albums & Playlists Grid) */
         .section-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 16px; margin-top: 10px; }
         .folder-card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 12px; padding: 18px 14px; text-align: center; cursor: pointer; transition: transform 0.2s, box-shadow 0.2s; position: relative; }
         .folder-card:hover { transform: translateY(-3px); box-shadow: 0 4px 12px rgba(0,0,0,0.05); border-color: var(--primary); }
@@ -154,7 +174,6 @@
         .folder-delete-btn { position: absolute; top: 8px; right: 8px; background: none; border: none; color: var(--danger); font-size: 0.85rem; cursor: pointer; padding: 4px; }
         .folder-share-btn { position: absolute; top: 8px; left: 8px; background: none; border: none; color: var(--primary); font-size: 0.9rem; cursor: pointer; padding: 4px; }
 
-        /* Profile View Styling */
         .profile-container { max-width: 600px; margin: 0 auto; background: var(--card-bg); border: 1px solid var(--border); border-radius: 16px; padding: 24px; }
         .profile-header { display: flex; align-items: center; gap: 16px; margin-bottom: 20px; border-bottom: 1px solid var(--border); padding-bottom: 16px; }
         .profile-avatar { width: 64px; height: 64px; border-radius: 50%; object-fit: cover; border: 2px solid var(--primary); }
@@ -166,7 +185,6 @@
         .action-btn-item:hover { border-color: var(--primary); color: var(--primary); }
         .action-btn-item.danger { color: var(--danger); }
 
-        /* Audio Player Bar */
         .audio-player-bar { position: fixed; bottom: 60px; left: 0; right: 0; background: var(--card-bg); border-top: 1px solid var(--border); padding: 8px 16px; display: none; align-items: center; justify-content: space-between; z-index: 1200; box-shadow: 0 -4px 10px rgba(0,0,0,0.05); gap: 10px; }
         .audio-player-bar.active { display: flex; }
         .audio-info { font-size: 0.85rem; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 200px; color: var(--text); }
@@ -174,7 +192,6 @@
         .audio-controls audio { width: 100%; height: 32px; }
         .close-audio-btn { background: none; border: none; font-size: 1rem; cursor: pointer; color: var(--danger); padding: 4px; }
 
-        /* 📱 Bottom Navigation Bar */
         .bottom-nav {
             position: fixed;
             bottom: 0;
@@ -213,7 +230,6 @@
         .empty-state { text-align: center; padding: 40px 20px; color: var(--text-muted); grid-column: 1 / -1; font-weight: 600; }
         .loading-more-spinner { text-align: center; padding: 16px; font-size: 0.85rem; color: var(--text-muted); grid-column: 1 / -1; font-weight: 600; }
 
-        /* Modals */
         .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); align-items: center; justify-content: center; z-index: 2000; padding: 20px; }
         .modal.active { display: flex; }
         .modal-content { background: var(--card-bg); color: var(--text); padding: 20px; border-radius: 16px; width: 100%; max-width: 450px; max-height: 90vh; overflow-y: auto; border: 1px solid var(--border); }
@@ -226,7 +242,6 @@
         .preview-container img { width: 100%; max-height: 130px; object-fit: contain; }
         .remove-img-btn { position: absolute; top: 4px; right: 4px; background: rgba(239, 68, 68, 0.9); color: white; border: none; border-radius: 50%; width: 22px; height: 22px; font-size: 0.75rem; cursor: pointer; }
 
-        /* Fullscreen Viewer */
         .fullscreen-modal { display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0, 0, 0, 0.95); z-index: 3000; flex-direction: column; align-items: center; justify-content: center; }
         .fullscreen-modal.active { display: flex; }
         .fullscreen-header { position: absolute; top: 15px; left: 20px; right: 20px; display: flex; justify-content: space-between; align-items: center; color: white; z-index: 3010; }
@@ -240,7 +255,6 @@
         .editor-authorized .editor-only { display: flex !important; }
         .editor-authorized button.editor-only { display: inline-block !important; }
 
-        /* Offline Sync Badge */
         .offline-sync-badge { position: fixed; bottom: 70px; right: 16px; background: var(--card-bg); border: 1px solid var(--border); padding: 6px 12px; border-radius: 20px; font-size: 0.78rem; font-weight: 600; display: flex; align-items: center; gap: 6px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); z-index: 1100; }
         .status-dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
         .status-online { background-color: #10b981; }
@@ -269,14 +283,13 @@
             </button>
         </div>
 
-        <!-- 3. Icon ទាញយកទិន្នន័យ តូចនៅខាងលើផ្នែកខាងស្តាំ + % -->
         <button class="fetch-icon-btn" id="fetchAllBtn" onclick="fetchAllSongsWithProgress()" title="ទាញយកទិន្នន័យ (Offline)">
+            <span class="notification-dot" id="updateNotificationDot" title="មានបទថ្មី! ចុចដើម្បីទាញយក"></span>
             <i class="fa-solid fa-cloud-arrow-down" id="fetchIcon"></i>
             <span class="percent-label" id="progressPercent"></span>
         </button>
     </header>
 
-    <!-- 1. 🎵 ទំព័រ "បទចម្រៀង" (Songs View) -->
     <div class="app-view active" id="viewSongs">
         <div class="controls">
             <div class="search-box">
@@ -286,7 +299,6 @@
             <button class="theme-toggle-btn" id="themeToggleBtn" onclick="toggleDarkMode()" title="ប្តូររបៀបភ្លឺ/ងងឹត">🌙</button>
         </div>
 
-        <!-- Dynamic Tag Pills -->
         <div class="tag-pills-container" id="tagPillsContainer"></div>
 
         <div class="song-grid" id="songGrid">
@@ -294,7 +306,6 @@
         </div>
     </div>
 
-    <!-- 2. 📁 ទំព័រ "អាល់ប៊ុម" (Albums View) -->
     <div class="app-view" id="viewAlbums">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
             <h2>📁 អាល់ប៊ុមចម្រៀង (Albums)</h2>
@@ -303,7 +314,6 @@
         <div class="section-grid" id="albumsGrid"></div>
     </div>
 
-    <!-- 3. 📂 ទំព័រ "Playlist" (Playlists View) -->
     <div class="app-view" id="viewPlaylists">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
             <h2>📂 Playlist ផ្ទាល់ខ្លួន</h2>
@@ -312,15 +322,11 @@
         <div class="section-grid" id="playlistsGrid"></div>
     </div>
 
-    <!-- 4. 👤 ទំព័រ "Profile" (Profile View) -->
     <div class="app-view" id="viewProfile">
-        <div class="profile-container" id="profileCardContent">
-            <!-- Will render dynamically -->
-        </div>
+        <div class="profile-container" id="profileCardContent"></div>
     </div>
 </div>
 
-<!-- 📱 Bottom Navigation Bar -->
 <div class="bottom-nav">
     <button class="bottom-nav-item active" id="navSongsBtn" onclick="switchTab('songs')">
         <i class="fa-solid fa-music"></i>
@@ -340,7 +346,6 @@
     </button>
 </div>
 
-<!-- Audio Player Floating Bar -->
 <div class="audio-player-bar" id="audioPlayerBar">
     <div class="audio-info" id="audioPlayerTitle">🎧 កំពុងចាក់បទចម្រៀង</div>
     <div class="audio-controls">
@@ -349,13 +354,11 @@
     <button class="close-audio-btn" onclick="stopGlobalAudio()" title="បិទ Player">✖</button>
 </div>
 
-<!-- Offline Status Indicator Floating Badge -->
 <div class="offline-sync-badge" id="offlineSyncBadge">
     <span class="status-dot status-online" id="statusDot"></span>
     <span id="statusText">អនឡាញ (Online)</span>
 </div>
 
-<!-- Fullscreen Image Viewer Modal -->
 <div class="fullscreen-modal" id="fullScreenModal" onclick="closeFullScreenModal(event)">
     <div class="fullscreen-header">
         <div id="fullScreenTitle" style="font-weight: 700; font-size: 1rem; max-width: 80%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;"></div>
@@ -368,7 +371,6 @@
     <button class="fullscreen-nav-btn fullscreen-next" onclick="slideFullScreen(1, event)">❯</button>
 </div>
 
-<!-- Modals -->
 <div class="modal" id="addSongModal">
     <div class="modal-content">
         <h2>➕ បញ្ចូលបទចម្រៀងថ្មី</h2>
@@ -513,7 +515,11 @@
     };
 
     firebase.initializeApp(firebaseConfig);
+    
+    // 🛠️ កែសម្រួល Firestore ឱ្យដំណើរការ Offline Persistence និងខ្លាំងជាងមុន
     const db = firebase.firestore();
+    db.settings({ experimentalForceLongPolling: true });
+
     const auth = firebase.auth();
     const storage = firebase.storage();
 
@@ -602,12 +608,39 @@
             fetchAllSongsSilently();
         }
 
+        listenForNewUpdates();
         setupGlobalPasteListener();
         setupTouchSwipeListeners();
         setupScrollListener();
     };
 
-    /* 📱 Navigation Switcher System */
+    function listenForNewUpdates() {
+        db.collection("songs").onSnapshot((snapshot) => {
+            const remoteCount = snapshot.size;
+            const dot = document.getElementById('updateNotificationDot');
+            
+            if (remoteCount > songsList.length) {
+                if (dot) dot.classList.add('active');
+            } else {
+                const localIds = new Set(songsList.map(s => s.id));
+                let hasNewDoc = false;
+                snapshot.forEach(doc => {
+                    if (!localIds.has(doc.id)) {
+                        hasNewDoc = true;
+                    }
+                });
+
+                if (hasNewDoc) {
+                    if (dot) dot.classList.add('active');
+                } else {
+                    if (dot) dot.classList.remove('active');
+                }
+            }
+        }, (error) => {
+            console.log("Realtime notification check error:", error);
+        });
+    }
+
     function switchTab(tabName) {
         document.querySelectorAll('.app-view').forEach(el => el.classList.remove('active'));
         document.querySelectorAll('.bottom-nav-item').forEach(el => el.classList.remove('active'));
@@ -721,65 +754,87 @@
         }
     }
 
-    /* 3. ទាញយកទិន្នន័យ + រត់ភាគរយ 1% -> 100% លើ Icon តូចខាងស្តាំលើ */
+    /* 🛠️ មុខងារ Fetch ទិន្នន័យដែលបានជួសជុល៖ ការពារការគាំងត្រឹម ៩០% */
     async function fetchAllSongsWithProgress() {
         const btn = document.getElementById('fetchAllBtn');
         const percentEl = document.getElementById('progressPercent');
         const iconEl = document.getElementById('fetchIcon');
+        const dotEl = document.getElementById('updateNotificationDot');
 
         btn.disabled = true;
         iconEl.style.display = 'none';
+        if (dotEl) dotEl.style.display = 'none'; 
         percentEl.style.display = 'block';
-        
-        let currentPercent = 0;
-        let progressInterval = setInterval(() => {
-            if (currentPercent < 90) {
-                currentPercent += 1;
-                percentEl.innerText = `${currentPercent}%`;
-            }
-        }, 35);
+        percentEl.innerText = '0%';
+
+        // ការពារការកកស្ទះលើ Firestore ដោយកំណត់ទំហំ TimeOut 10 វិនាទី
+        const timeoutPromise = new Promise((_, reject) =>
+            setTimeout(() => reject(new Error("Timeout: អ៊ីនធឺណិតយឺត ឬមានបញ្ហា Network")), 10000)
+        );
 
         try {
-            const snapshot = await db.collection("songs").get();
+            percentEl.innerText = '30%';
 
-            songsList = snapshot.docs.map(doc => ({ 
-                id: doc.id, 
-                ...doc.data(),
-                createdAt: doc.data().createdAt ? { seconds: doc.data().createdAt.seconds } : null,
-                updatedAt: doc.data().updatedAt ? { seconds: doc.data().updatedAt.seconds } : null
-            }));
+            // ទាញយកទិន្នន័យជាមួយ Security TimeOut
+            const snapshot = await Promise.race([
+                db.collection("songs").get(),
+                timeoutPromise
+            ]);
 
-            songsList.sort((a, b) => {
+            percentEl.innerText = '70%';
+
+            let tempSongs = [];
+            let totalDocs = snapshot.size;
+            let loaded = 0;
+
+            snapshot.forEach(doc => {
+                const data = doc.data();
+                tempSongs.push({
+                    id: doc.id,
+                    ...data,
+                    createdAt: data.createdAt ? { seconds: data.createdAt.seconds } : null,
+                    updatedAt: data.updatedAt ? { seconds: data.updatedAt.seconds } : null
+                });
+                loaded++;
+                // រត់ Progress Percent ជាក់ស្តែងតាមចំនួនឯកសារ
+                let currentPct = 70 + Math.floor((loaded / totalDocs) * 25);
+                percentEl.innerText = `${currentPct}%`;
+            });
+
+            tempSongs.sort((a, b) => {
                 const timeA = a.createdAt ? a.createdAt.seconds : 0;
                 const timeB = b.createdAt ? b.createdAt.seconds : 0;
                 return timeB - timeA;
             });
 
+            songsList = tempSongs;
             await saveSongsToIndexedDB(songsList);
 
-            clearInterval(progressInterval);
-            
-            let finishInterval = setInterval(() => {
-                currentPercent += 1;
-                percentEl.innerText = `${currentPercent}%`;
-                if (currentPercent >= 100) {
-                    clearInterval(finishInterval);
-                    renderSongs();
-                    renderTagsList();
-                    setTimeout(() => {
-                        percentEl.style.display = 'none';
-                        iconEl.style.display = 'block';
-                        iconEl.className = 'fa-solid fa-check';
-                        btn.disabled = false;
-                    }, 500);
-                }
-            }, 15);
+            percentEl.innerText = '100%';
+
+            renderSongs();
+            renderTagsList();
+
+            if (dotEl) dotEl.classList.remove('active');
+
+            setTimeout(() => {
+                percentEl.style.display = 'none';
+                iconEl.style.display = 'block';
+                iconEl.className = 'fa-solid fa-check';
+                btn.disabled = false;
+            }, 600);
 
         } catch (error) {
-            clearInterval(progressInterval);
             console.error("Fetch progress error:", error);
             percentEl.innerText = '❌';
-            btn.disabled = false;
+            alert("⚠️ ការទាញយកទិន្នន័យបរាជ័យ៖ " + error.message);
+            
+            setTimeout(() => {
+                percentEl.style.display = 'none';
+                iconEl.style.display = 'block';
+                iconEl.className = 'fa-solid fa-cloud-arrow-down';
+                btn.disabled = false;
+            }, 1500);
         }
     }
 
@@ -938,7 +993,6 @@
         grid.innerHTML = html;
     }
 
-    /* 2. បង្ហាញ Playlist រួមទាំងប៊ូតុង Share ទាំងអស់ក្នុងពេលតែមួយ */
     function renderPlaylistsView() {
         const grid = document.getElementById('playlistsGrid');
         const keys = Object.keys(playlists);
@@ -963,7 +1017,6 @@
         grid.innerHTML = html;
     }
 
-    /* 2. មុខងារបង្កើតកាលបរិច្ឆេទជាភាសាខ្មែរតាមថ្ងៃដែលផ្ញើ (ឧ. ថ្ងៃអាទិត្យ 16/08/2026) */
     function getFormattedKhmerDate() {
         const now = new Date();
         const days = ['អាទិត្យ', 'ច័ន្ទ', 'អង្គារ', 'ពុធ', 'ព្រហស្បតិ៍', 'សុក្រ', 'សៅរ៍'];
@@ -974,7 +1027,6 @@
         return `ថ្ងៃ${dayName} ${dd}/${mm}/${yyyy}`;
     }
 
-    /* 2. មុខងារ Share ចម្រៀងក្នុង Playlist ទាំងអស់ក្នុងពេលតែមួយ */
     async function sharePlaylist(plName, event) {
         if (event) event.stopPropagation();
         const songIds = playlists[plName] || [];
