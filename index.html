@@ -94,18 +94,13 @@
             font-size: 16px !important;
         }
 
-        /* Search & Tags */
+        /* Search */
         .controls { position: sticky; top: 0; z-index: 90; background: var(--bg); padding: 10px 0 14px 0; margin-bottom: 16px; display: flex; align-items: center; gap: 10px; }
         .search-box { position: relative; display: flex; align-items: center; flex: 1; }
         .search-box input { width: 100%; padding: 10px 40px 10px 16px; border: 1px solid var(--border); border-radius: 10px; outline: none; background: var(--card-bg); color: var(--text); }
         .search-btn { position: absolute; right: 6px; background: none; border: none; font-size: 1rem; cursor: pointer; padding: 6px; }
         
         .theme-toggle-btn { background: var(--card-bg); border: 1px solid var(--border); color: var(--text); padding: 10px 14px; border-radius: 10px; font-size: 1rem; cursor: pointer; display: flex; align-items: center; justify-content: center; }
-
-        .tag-pills-container { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 8px; margin-bottom: 14px; scrollbar-width: none; }
-        .tag-pills-container::-webkit-scrollbar { display: none; }
-        .tag-pill { background: var(--card-bg); border: 1px solid var(--border); color: var(--text-muted); padding: 6px 14px; border-radius: 20px; font-size: 0.8rem; font-weight: 600; white-space: nowrap; cursor: pointer; }
-        .tag-pill.active { background: var(--primary); color: white; border-color: var(--primary); }
 
         /* Song Card Grid */
         .song-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 18px; }
@@ -119,7 +114,6 @@
         .song-title { font-size: 0.95rem; font-weight: 700; color: var(--text); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; flex: 1; }
 
         .song-artist { font-size: 0.82rem; color: var(--text-muted); }
-        .song-tag-badge { display: inline-block; font-size: 0.7rem; background: var(--border); color: var(--text-muted); padding: 2px 6px; border-radius: 4px; margin-top: 4px; font-weight: 600; }
         .song-meta-info { font-size: 0.72rem; color: var(--text-muted); margin-top: 6px; display: flex; flex-direction: column; gap: 2px; }
 
         .song-actions { display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px; margin-top: 8px; }
@@ -165,14 +159,6 @@
         .action-btn-item { display: flex; align-items: center; justify-content: space-between; padding: 12px 16px; background: var(--bg); border: 1px solid var(--border); border-radius: 10px; font-weight: 600; font-size: 0.9rem; cursor: pointer; color: var(--text); }
         .action-btn-item:hover { border-color: var(--primary); color: var(--primary); }
         .action-btn-item.danger { color: var(--danger); }
-
-        /* Audio Player Bar */
-        .audio-player-bar { position: fixed; bottom: 60px; left: 0; right: 0; background: var(--card-bg); border-top: 1px solid var(--border); padding: 8px 16px; display: none; align-items: center; justify-content: space-between; z-index: 1200; box-shadow: 0 -4px 10px rgba(0,0,0,0.05); gap: 10px; }
-        .audio-player-bar.active { display: flex; }
-        .audio-info { font-size: 0.85rem; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 200px; color: var(--text); }
-        .audio-controls { display: flex; align-items: center; gap: 10px; flex: 1; max-width: 500px; }
-        .audio-controls audio { width: 100%; height: 32px; }
-        .close-audio-btn { background: none; border: none; font-size: 1rem; cursor: pointer; color: var(--danger); padding: 4px; }
 
         /* 📱 Bottom Navigation Bar */
         .bottom-nav {
@@ -249,8 +235,6 @@
         @media (max-width: 768px) {
             .main-content { padding: 14px; }
             header { flex-direction: column; }
-            .audio-player-bar { flex-direction: column; align-items: stretch; bottom: 60px; }
-            .audio-controls { max-width: 100%; }
         }
     </style>
 </head>
@@ -285,9 +269,6 @@
             </div>
             <button class="theme-toggle-btn" id="themeToggleBtn" onclick="toggleDarkMode()" title="ប្តូររបៀបភ្លឺ/ងងឹត">🌙</button>
         </div>
-
-        <!-- Dynamic Tag Pills -->
-        <div class="tag-pills-container" id="tagPillsContainer"></div>
 
         <div class="song-grid" id="songGrid">
             <div class="empty-state" id="loadingState">📂 កំពុងផ្ទុកទិន្នន័យ...</div>
@@ -340,15 +321,6 @@
     </button>
 </div>
 
-<!-- Audio Player Floating Bar -->
-<div class="audio-player-bar" id="audioPlayerBar">
-    <div class="audio-info" id="audioPlayerTitle">🎧 កំពុងចាក់បទចម្រៀង</div>
-    <div class="audio-controls">
-        <audio id="globalAudio" controls></audio>
-    </div>
-    <button class="close-audio-btn" onclick="stopGlobalAudio()" title="បិទ Player">✖</button>
-</div>
-
 <!-- Offline Status Indicator Floating Badge -->
 <div class="offline-sync-badge" id="offlineSyncBadge">
     <span class="status-dot status-online" id="statusDot"></span>
@@ -384,14 +356,6 @@
             <div class="form-group">
                 <label>ឈ្មោះអ្នកចម្រៀង</label>
                 <input type="text" id="songArtist" placeholder="ឈ្មោះអ្នកចម្រៀង">
-            </div>
-            <div class="form-group">
-                <label>ប្រភេទបទ (Tag)</label>
-                <input type="text" id="songTag" placeholder="ឧទាហរណ៍៖ Worship, Praise">
-            </div>
-            <div class="form-group">
-                <label>តំណភ្ជាប់ភ្លេងអូឌីយ៉ូ (Audio MP3 Link)</label>
-                <input type="url" id="songAudioUrl" placeholder="https://example.com/song.mp3">
             </div>
             <div class="form-group">
                 <label>រូបភាពបទចម្រៀង (Upload ឬ URL) *</label>
@@ -456,14 +420,6 @@
             <div class="form-group">
                 <label>ឈ្មោះអ្នកចម្រៀង</label>
                 <input type="text" id="editSongArtist">
-            </div>
-            <div class="form-group">
-                <label>ប្រភេទបទ (Tag)</label>
-                <input type="text" id="editSongTag">
-            </div>
-            <div class="form-group">
-                <label>តំណភ្ជាប់ភ្លេងអូឌីយ៉ូ (Audio MP3 Link)</label>
-                <input type="url" id="editSongAudioUrl">
             </div>
             <div class="form-group">
                 <label>ប្ដូររូបភាពថ្មី</label>
@@ -591,7 +547,6 @@
             if (offlineSongs && offlineSongs.length > 0) {
                 songsList = offlineSongs;
                 renderSongs();
-                renderTagsList();
                 const icon = document.getElementById('fetchIcon');
                 if(icon) icon.className = 'fa-solid fa-cloud-check';
             } else {
@@ -734,14 +689,12 @@
 
             await saveSongsToIndexedDB(songsList);
             renderSongs();
-            renderTagsList();
         } catch (error) {
             console.error("Fetch error:", error);
             const cached = await loadSongsFromIndexedDB();
             if (cached.length > 0) {
                 songsList = cached;
                 renderSongs();
-                renderTagsList();
             }
         }
     }
@@ -802,7 +755,6 @@
 
             percentEl.innerText = '100%';
             renderSongs();
-            renderTagsList();
 
             setTimeout(() => {
                 percentEl.style.display = 'none';
@@ -1039,25 +991,6 @@
         alert(`📋 បានចម្លងបញ្ជីចម្រៀងនៃ Playlist «${plName}» រួចរាល់!\n\n` + textToSend);
     }
 
-    function renderTagsList() {
-        let tagsSet = new Set();
-        songsList.forEach(s => {
-            if (s.tag) {
-                s.tag.split(',').forEach(t => {
-                    let clean = t.trim();
-                    if(clean) tagsSet.add(clean);
-                });
-            }
-        });
-        const container = document.getElementById('tagPillsContainer');
-        let html = `<div class="tag-pill ${(currentFilterType==='ALL')?'active':''}" onclick="selectAlbum('ALL')">ទាំងអស់</div>`;
-        tagsSet.forEach(tag => {
-            let isActive = (currentFilterType === 'TAG' && currentFilterValue === tag);
-            html += `<div class="tag-pill ${isActive?'active':''}" onclick="filterByTag('${tag}')">🏷️ ${tag}</div>`;
-        });
-        container.innerHTML = html;
-    }
-
     function openCreatePlaylistModal() {
         document.getElementById('newPlaylistName').value = '';
         document.getElementById('playlistModal').classList.add('active');
@@ -1126,7 +1059,6 @@
             currentFilterValue = albumName;
             document.getElementById('currentAlbumSubtitle').innerHTML = `📁 Album៖ <span style="color: var(--primary); font-weight: 700;">${albumName}</span>`;
         }
-        renderTagsList();
         renderSongs();
     }
 
@@ -1138,16 +1070,6 @@
             📂 Playlist: <span style="color: var(--primary); font-weight: 700;">${playlistName}</span> (${playlists[playlistName].length} បទ)
             <button onclick="sharePlaylist('${playlistName}')" style="margin-left: 8px; background: #10b981; color: white; border: none; padding: 2px 8px; border-radius: 6px; font-size: 0.75rem; cursor: pointer;"><i class="fa-solid fa-share-nodes"></i> Share ទាំងអស់</button>
         `;
-        renderTagsList();
-        renderSongs();
-    }
-
-    function filterByTag(tagName) {
-        switchTab('songs');
-        currentFilterType = 'TAG';
-        currentFilterValue = tagName;
-        document.getElementById('currentAlbumSubtitle').innerHTML = `🏷️ ប្រភេទបទ (Tag)៖ <span style="color: var(--primary); font-weight: 700;">${tagName}</span>`;
-        renderTagsList();
         renderSongs();
     }
 
@@ -1161,24 +1083,6 @@
     }
 
     function handleSearchInput() { renderSongs(); }
-
-    function playAudio(audioUrl, songTitle, event) {
-        if(event) event.stopPropagation();
-        if(!audioUrl) return alert("⚠️ បទចម្រៀងនេះមិនទាន់មានតំណភ្ជាប់ភ្លេងអូឌីយ៉ូឡើយ!");
-        const bar = document.getElementById('audioPlayerBar');
-        const audio = document.getElementById('globalAudio');
-        document.getElementById('audioPlayerTitle').innerText = `🎧 ${songTitle}`;
-        audio.src = audioUrl;
-        bar.classList.add('active');
-        audio.play().catch(e => alert("❌ មិនអាចលេងភ្លេងបាន៖ " + e.message));
-    }
-
-    function stopGlobalAudio() {
-        const audio = document.getElementById('globalAudio');
-        audio.pause();
-        audio.src = '';
-        document.getElementById('audioPlayerBar').classList.remove('active');
-    }
 
     function cleanKhmerQuery(str) {
         if (!str) return '';
@@ -1197,14 +1101,11 @@
         return songsList.filter(s => {
             const matchesSearch = !query || 
                                   fuzzyMatch(s.title || '', query) || 
-                                  fuzzyMatch(s.artist || '', query) || 
-                                  fuzzyMatch(s.tag || '', query);
+                                  fuzzyMatch(s.artist || '', query);
             
             let matchesFilter = true;
             if (currentFilterType === 'ALBUM') {
                 matchesFilter = (s.album || 'ទូទៅ') === currentFilterValue;
-            } else if (currentFilterType === 'TAG') {
-                matchesFilter = s.tag && s.tag.split(',').map(t => t.trim().toLowerCase()).includes(currentFilterValue.toLowerCase());
             } else if (currentFilterType === 'PLAYLIST') {
                 let songIdsInPlaylist = playlists[currentFilterValue] || [];
                 matchesFilter = songIdsInPlaylist.includes(s.id);
@@ -1245,9 +1146,6 @@
                 playlistButtonHtml = `<button class="btn-playlist-inline" onclick="addSongToPlaylistPrompt('${song.id}', event)"><i class="fa-solid fa-folder-plus"></i> Playlist</button>`;
             }
 
-            let tagBadgeHtml = song.tag ? `<span class="song-tag-badge">🏷️ ${song.tag}</span>` : '';
-            let audioButtonHtml = song.audioUrl ? `<button style="background:var(--primary); color:white; border:none; padding:4px 8px; border-radius:6px; font-size:0.75rem; font-weight:600; cursor:pointer; margin:4px 0; width:fit-content;" onclick="playAudio('${song.audioUrl}', '${safeTitle}', event)"><i class="fa-solid fa-play"></i> ចាក់ភ្លេង</button>` : '';
-
             return `
             <div class="song-card">
                 <div class="song-img-container" onclick="openFullScreenByIndex(${index})">
@@ -1260,10 +1158,6 @@
                             ${playlistButtonHtml}
                         </div>
                         <div class="song-artist">${song.artist || 'មិនស្គាល់អ្នកចម្រៀង'}</div>
-                        ${tagBadgeHtml}
-                        <div class="song-meta-info">
-                            ${audioButtonHtml}
-                        </div>
                     </div>
                     <div>
                         <div class="song-actions">
@@ -1369,8 +1263,6 @@
 
         const title = document.getElementById('songTitle').value.trim();
         const artist = document.getElementById('songArtist').value.trim();
-        const tag = document.getElementById('songTag').value.trim();
-        const audioUrl = document.getElementById('songAudioUrl').value.trim();
         const album = document.getElementById('songAlbumSelect').value;
         const directUrlInput = document.getElementById('songImageUrlDirect').value.trim();
 
@@ -1383,7 +1275,7 @@
 
         try {
             const docRef = await db.collection("songs").add({
-                title, artist, tag, audioUrl, album,
+                title, artist, album,
                 imageUrl: finalImageUrl,
                 createdBy: currentUser.displayName || currentUser.email,
                 createdAt: firebase.firestore.FieldValue.serverTimestamp()
@@ -1391,7 +1283,7 @@
             
             const newSongObj = {
                 id: docRef.id,
-                title, artist, tag, audioUrl, album,
+                title, artist, album,
                 imageUrl: finalImageUrl,
                 createdBy: currentUser.displayName || currentUser.email,
                 createdAt: { seconds: Math.floor(Date.now() / 1000) }
@@ -1400,7 +1292,6 @@
             songsList.unshift(newSongObj);
             await saveSongsToIndexedDB(songsList);
             renderSongs();
-            renderTagsList();
 
             closeModal('addSongModal');
             document.getElementById('addSongForm').reset();
@@ -1466,13 +1357,13 @@
                 const docRef = await db.collection("songs").add({
                     title: item.defaultTitle,
                     artist: artist,
-                    tag: '', audioUrl: '', album: album,
+                    album: album,
                     imageUrl: item.base64,
                     createdBy: currentUser.displayName || currentUser.email,
                     createdAt: firebase.firestore.FieldValue.serverTimestamp()
                 });
                 songsList.unshift({
-                    id: docRef.id, title: item.defaultTitle, artist: artist, tag: '', audioUrl: '', album: album, imageUrl: item.base64,
+                    id: docRef.id, title: item.defaultTitle, artist: artist, album: album, imageUrl: item.base64,
                     createdBy: currentUser.displayName || currentUser.email, createdAt: { seconds: Math.floor(Date.now() / 1000) }
                 });
                 count++;
@@ -1498,8 +1389,6 @@
         document.getElementById('editSongId').value = song.id;
         document.getElementById('editSongTitle').value = song.title || '';
         document.getElementById('editSongArtist').value = song.artist || '';
-        document.getElementById('editSongTag').value = song.tag || '';
-        document.getElementById('editSongAudioUrl').value = song.audioUrl || '';
         document.getElementById('editSongImageUrlDirect').value = '';
 
         const select = document.getElementById('editSongAlbumSelect');
@@ -1520,8 +1409,6 @@
         const updateData = {
             title: title,
             artist: document.getElementById('editSongArtist').value.trim(),
-            tag: document.getElementById('editSongTag').value.trim(),
-            audioUrl: document.getElementById('editSongAudioUrl').value.trim(),
             album: document.getElementById('editSongAlbumSelect').value,
             updatedBy: currentUser.displayName || currentUser.email,
             updatedAt: firebase.firestore.FieldValue.serverTimestamp()
