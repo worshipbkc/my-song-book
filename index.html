@@ -63,8 +63,8 @@
             background: var(--card-bg);
             border: 1.5px solid var(--primary);
             color: var(--primary);
-            width: 35px;
-            height: 35px;
+            width: 44px;
+            height: 44px;
             border-radius: 50%;
             display: flex;
             flex-direction: column;
@@ -81,30 +81,6 @@
             font-weight: 700;
             line-height: 1;
             margin-top: 2px;
-        }
-
-        /* 🔴 Notification Dot លោតសញ្ញាសម្គាល់ពេលមានបទថ្មី */
-        .notification-dot {
-            position: absolute;
-            top: 2px;
-            right: 2px;
-            width: 12px;
-            height: 12px;
-            background-color: var(--danger);
-            border-radius: 50%;
-            border: 2px solid var(--card-bg);
-            display: none;
-            z-index: 105;
-        }
-        .notification-dot.active {
-            display: block;
-            animation: pulse-dot 1.5s infinite;
-        }
-
-        @keyframes pulse-dot {
-            0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); }
-            70% { transform: scale(1.1); box-shadow: 0 0 0 6px rgba(239, 68, 68, 0); }
-            100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
         }
 
         .install-pwa-btn { background: #16a34a; border: none; color: white; padding: 6px 12px; border-radius: 8px; font-weight: 600; font-size: 0.8rem; cursor: pointer; display: none; align-items: center; gap: 6px; margin-top: 8px; }
@@ -293,9 +269,8 @@
             </button>
         </div>
 
-        <!-- 3. Icon ទាញយកទិន្នន័យ តូចនៅខាងលើផ្នែកខាងស្តាំ + % + 🔴 Notification Dot -->
+        <!-- 3. Icon ទាញយកទិន្នន័យ តូចនៅខាងលើផ្នែកខាងស្តាំ + % -->
         <button class="fetch-icon-btn" id="fetchAllBtn" onclick="fetchAllSongsWithProgress()" title="ទាញយកទិន្នន័យ (Offline)">
-            <span class="notification-dot" id="updateNotificationDot" title="មានបទថ្មី! ចុចដើម្បីទាញយក"></span>
             <i class="fa-solid fa-cloud-arrow-down" id="fetchIcon"></i>
             <span class="percent-label" id="progressPercent"></span>
         </button>
@@ -627,43 +602,10 @@
             fetchAllSongsSilently();
         }
 
-        // 🔔 តាមដាន Firestore ក្នុង Realtime ដើម្បីបង្ហាញ Notification Dot ពេលមានបទ Upload ថ្មី
-        listenForNewUpdates();
-
         setupGlobalPasteListener();
         setupTouchSwipeListeners();
         setupScrollListener();
     };
-
-    /* 🔔 មុខងារ Realtime Listener សម្រាប់ឆែកមើលបទថ្មីលើ Firestore ធៀបនឹង Offline DB */
-    function listenForNewUpdates() {
-        db.collection("songs").onSnapshot((snapshot) => {
-            const remoteCount = snapshot.size;
-            const dot = document.getElementById('updateNotificationDot');
-            
-            // ប្រសិនបើចំនួនបទចម្រៀងលើ Online Firestore ច្រើនជាង Offline DB Local
-            if (remoteCount > songsList.length) {
-                if (dot) dot.classList.add('active');
-            } else {
-                // ប្រសិនបើមាន ID ណាដែលមិនទាន់មានក្នុង Local DB 
-                const localIds = new Set(songsList.map(s => s.id));
-                let hasNewDoc = false;
-                snapshot.forEach(doc => {
-                    if (!localIds.has(doc.id)) {
-                        hasNewDoc = true;
-                    }
-                });
-
-                if (hasNewDoc) {
-                    if (dot) dot.classList.add('active');
-                } else {
-                    if (dot) dot.classList.remove('active');
-                }
-            }
-        }, (error) => {
-            console.log("Realtime notification check error:", error);
-        });
-    }
 
     /* 📱 Navigation Switcher System */
     function switchTab(tabName) {
@@ -779,16 +721,14 @@
         }
     }
 
-    /* 3. ទាញយកទិន្នន័យ + រត់ភាគរយ 1% -> 100% លើ Icon តូចខាងស្តាំលើ + បាត់ Notification Dot */
+    /* 3. ទាញយកទិន្នន័យ + រត់ភាគរយ 1% -> 100% លើ Icon តូចខាងស្តាំលើ */
     async function fetchAllSongsWithProgress() {
         const btn = document.getElementById('fetchAllBtn');
         const percentEl = document.getElementById('progressPercent');
         const iconEl = document.getElementById('fetchIcon');
-        const dotEl = document.getElementById('updateNotificationDot');
 
         btn.disabled = true;
         iconEl.style.display = 'none';
-        if (dotEl) dotEl.style.display = 'none'; // បិទ Dot ពេលកំពុងទាញយក
         percentEl.style.display = 'block';
         
         let currentPercent = 0;
@@ -826,10 +766,6 @@
                     clearInterval(finishInterval);
                     renderSongs();
                     renderTagsList();
-
-                    // ដក Notification Dot ចេញពីព្រោះទិន្នន័យបាន Update ថ្មីបំផុតហើយ
-                    if (dotEl) dotEl.classList.remove('active');
-
                     setTimeout(() => {
                         percentEl.style.display = 'none';
                         iconEl.style.display = 'block';
