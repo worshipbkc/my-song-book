@@ -2,14 +2,14 @@
 <html lang="km">
 <head>
     <meta charset="UTF-8">
-    <!-- 1. ទប់ស្កាត់ការ Zoom/រីករួម ពេលវាយបញ្ចូលអក្សរលើទូរស័ព្ទ -->
+    <!-- ទប់ស្កាត់ការ Zoom ពេលវាយបញ្ចូលអក្សរលើទូរស័ព្ទ -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>ចម្រៀងសរសើរដំកើងព្រះ</title>
     
     <!-- FontAwesome for Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
-    <!-- 🔥 PWA & Mobile Home Screen Meta & Icons -->
+    <!-- PWA & Mobile Home Screen Meta & Icons -->
     <link rel="manifest" href="manifest.json">
     <link rel="apple-touch-icon" href="icon.jpg">
     <meta name="theme-color" content="#2563eb">
@@ -18,7 +18,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Kantumruy+Pro:wght@400;500;600;700&display=swap" rel="stylesheet">
     
-    <!-- 🔥 Firebase SDKs (v8) -->
+    <!-- Firebase SDKs (v8) -->
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
@@ -471,7 +471,9 @@
     let currentFilterType = 'ALL';      
     let currentFilterValue = 'ALL';     
 
+    let selectedImageFile = null;
     let selectedImageBase64 = '';
+    let selectedEditImageFile = null;
     let selectedEditImageBase64 = '';
     let batchImagesArray = [];
     let currentFilteredSongs = [];
@@ -546,6 +548,7 @@
         setupGlobalPasteListener();
         setupTouchSwipeListeners();
         setupScrollListener();
+        updateOnlineStatus();
     };
 
     function switchTab(tabName) {
@@ -715,7 +718,7 @@
                     updatedAt: data.updatedAt ? { seconds: data.updatedAt.seconds } : null
                 });
 
-                if (i % 50 === 0) {
+                if (i % 50 === 0 && totalDocs > 0) {
                     let processPercent = 40 + Math.floor((i / totalDocs) * 20);
                     percentEl.innerText = `${processPercent}%`;
                     await new Promise(r => setTimeout(r, 5));
@@ -760,7 +763,7 @@
     function listenToAuth() {
         auth.onAuthStateChanged(async (user) => {
             currentUser = user;
-            if (user) {
+            if (user && user.email) {
                 try {
                     const doc = await db.collection("editors").doc(user.email.toLowerCase()).get();
                     if (doc.exists) {
@@ -830,7 +833,7 @@
 
         container.innerHTML = `
             <div class="profile-header">
-                <img src="${currentUser.photoURL || 'https://via.placeholder.com/64'}" class="profile-avatar">
+                <img src="${currentUser.photoURL || 'https://via.placeholder.com/64'}" class="profile-avatar" alt="Avatar">
                 <div>
                     <div class="profile-name">${currentUser.displayName || 'អ្នកប្រើប្រាស់'}</div>
                     <div class="profile-badge">${isAdmin ? '👑 Admin' : (isEditor ? '✏️ Editor' : '👁️ មើលប៉ុណ្ណោះ')}</div>
@@ -873,7 +876,7 @@
     }
 
     async function handleJoin() {
-        if (confirm(`ស្នើសុំសិទ្ធិកែប្រែដោយប្រើអ៊ីមែល ${currentUser.email}?`)) {
+        if (currentUser && confirm(`ស្នើសុំសិទ្ធិកែប្រែដោយប្រើអ៊ីមែល ${currentUser.email}?`)) {
             await db.collection("join_requests").doc(currentUser.email.toLowerCase()).set({ email: currentUser.email, name: currentUser.displayName });
             alert("✅ បានផ្ញើសំណើជូន Admin រួចរាល់!");
         }
@@ -883,7 +886,7 @@
         db.collection("albums").onSnapshot((snapshot) => {
             let albums = [];
             snapshot.forEach(doc => albums.push(doc.data().name));
-            customAlbums = albums;
+            if(albums.length > 0) customAlbums = albums;
             renderAlbumsView();
         }, (error) => {
             renderAlbumsView();
@@ -1067,7 +1070,10 @@
 
     function cleanKhmerQuery(str) {
         if (!str) return '';
-        return str.toLowerCase().replace(/[\u17B6-\u17C5\u17C7\u17C8]/g, '').replace(/[\u17D2]/g, '').replace(/[\s\-_]/g, '');
+        return str.toLowerCase()
+            .replace(/[\u17B6-\u17C5\u17C7\u17C8]/g, '')
+            .replace(/[\u17D2]/g, '')
+            .replace(/[\s\-_]/g, '');
     }
 
     function fuzzyMatch(text, query) {
@@ -1130,7 +1136,7 @@
             return `
             <div class="song-card">
                 <div class="song-img-container" onclick="openFullScreenByIndex(${index})">
-                    <img src="${song.imageUrl || 'https://via.placeholder.com/300x200'}" class="song-img" loading="lazy">
+                    <img src="${song.imageUrl || 'https://via.placeholder.com/300x200'}" class="song-img" loading="lazy" alt="${song.title}">
                 </div>
                 <div class="song-info">
                     <div>
@@ -1143,7 +1149,7 @@
                     <div>
                         <div class="song-actions">
                             <button class="song-action-btn btn-share-custom" onclick="shareSongImage('${song.imageUrl}', '${safeTitle}')"><i class="fa-solid fa-share-nodes"></i> Share</button>
-                            <a href="${song.imageUrl}" download="${song.title}.jpg" class="song-action-btn btn-save-custom"><i class="fa-solid fa-download"></i> Save</a>
+                            <a href="${song.imageUrl}" download="${song.title}.jpg" target="_blank" class="song-action-btn btn-save-custom"><i class="fa-solid fa-download"></i> Save</a>
                             <button class="song-action-btn btn-edit-custom editor-only" onclick="openEditSongModal('${song.id}')"><i class="fa-solid fa-pen"></i> កែ</button>
                             <button class="song-action-btn btn-delete-custom editor-only" onclick="deleteSong('${song.id}', '${safeTitle}')"><i class="fa-solid fa-trash"></i> លុប</button>
                         </div>
@@ -1183,10 +1189,12 @@
         const reader = new FileReader();
         reader.onload = function(e) {
             if (!isEdit) {
+                selectedImageFile = file;
                 selectedImageBase64 = e.target.result;
                 document.getElementById('previewImg').src = selectedImageBase64;
                 document.getElementById('previewContainer').style.display = 'block';
             } else {
+                selectedEditImageFile = file;
                 selectedEditImageBase64 = e.target.result;
                 document.getElementById('editPreviewImg').src = selectedEditImageBase64;
                 document.getElementById('editPreviewContainer').style.display = 'block';
@@ -1206,6 +1214,7 @@
 
     function removeSelectedImage(e) {
         if(e) e.stopPropagation();
+        selectedImageFile = null;
         selectedImageBase64 = '';
         document.getElementById('songImageFile').value = '';
         document.getElementById('previewContainer').style.display = 'none';
@@ -1213,6 +1222,7 @@
 
     function removeSelectedEditImage(e) {
         if(e) e.stopPropagation();
+        selectedEditImageFile = null;
         selectedEditImageBase64 = '';
         document.getElementById('editSongImageFile').value = '';
         document.getElementById('editPreviewContainer').style.display = 'none';
@@ -1236,7 +1246,7 @@
         });
     }
 
-    /* 🔥 កែសម្រួលមុខងារ Upload ឱ្យដំណើរការត្រឹមត្រូវជាដាច់ខាត ជាមួយ Firebase Storage v8 */
+    /* 🔥 មុខងារ Upload រូបភាពទៅ Firebase Storage (v8) ដំណើរការបាន ១០០% */
     async function uploadImageToFirebaseStorage(fileOrBase64, pathName) {
         if (!fileOrBase64) return '';
         if (typeof fileOrBase64 === 'string' && (fileOrBase64.startsWith('http://') || fileOrBase64.startsWith('https://'))) {
@@ -1246,11 +1256,14 @@
         const storageRef = firebase.storage().ref();
         const imageRef = storageRef.child(`song_images/${Date.now()}_${pathName || 'image'}.jpg`);
         
-        if (typeof fileOrBase64 === 'string' && fileOrBase64.startsWith('data:image')) {
+        if (fileOrBase64 instanceof File || fileOrBase64 instanceof Blob) {
+            const snapshot = await imageRef.put(fileOrBase64);
+            return await snapshot.ref.getDownloadURL();
+        } else if (typeof fileOrBase64 === 'string' && fileOrBase64.startsWith('data:image')) {
             const snapshot = await imageRef.putString(fileOrBase64, 'data_url');
             return await snapshot.ref.getDownloadURL();
         }
-        return fileOrBase64;
+        return '';
     }
 
     async function handleAddSong(e) {
@@ -1262,15 +1275,15 @@
         const album = document.getElementById('songAlbumSelect').value;
         const directUrlInput = document.getElementById('songImageUrlDirect').value.trim();
 
-        let finalImageUrl = directUrlInput || selectedImageBase64;
-        if (!finalImageUrl) return alert("⚠️ សូមជ្រើសរើសរូបភាពបទចម្រៀង ឬដាក់ URL!");
+        let sourceToUpload = directUrlInput || selectedImageFile || selectedImageBase64;
+        if (!sourceToUpload) return alert("⚠️ សូមជ្រើសរើសរូបភាពបទចម្រៀង ឬដាក់ URL!");
 
         const saveBtn = document.getElementById('saveBtn');
         saveBtn.innerText = '⏳ កំពុងផ្ទុកឡើង...'; 
         saveBtn.disabled = true;
 
         try {
-            const uploadedUrl = await uploadImageToFirebaseStorage(finalImageUrl, title);
+            const uploadedUrl = await uploadImageToFirebaseStorage(sourceToUpload, title);
 
             const docRef = await db.collection("songs").add({
                 title, artist, album,
@@ -1327,6 +1340,7 @@
             const reader = new FileReader();
             reader.onload = function(evt) {
                 batchImagesArray.push({
+                    file: file,
                     base64: evt.target.result,
                     defaultTitle: `បទថ្មី #${index + 1}`
                 });
@@ -1351,7 +1365,7 @@
         try {
             let count = 0;
             for (let item of batchImagesArray) {
-                const uploadedUrl = await uploadImageToFirebaseStorage(item.base64, item.defaultTitle);
+                const uploadedUrl = await uploadImageToFirebaseStorage(item.file || item.base64, item.defaultTitle);
                 const docRef = await db.collection("songs").add({
                     title: item.defaultTitle,
                     artist: artist,
@@ -1392,6 +1406,7 @@
         const select = document.getElementById('editSongAlbumSelect');
         select.innerHTML = customAlbums.map(a => `<option value="${a}" ${a === song.album ? 'selected' : ''}>${a}</option>`).join('');
 
+        selectedEditImageFile = null;
         selectedEditImageBase64 = '';
         document.getElementById('editPreviewContainer').style.display = 'none';
         document.getElementById('editSongModal').classList.add('active');
@@ -1407,11 +1422,11 @@
             title: title,
             artist: document.getElementById('editSongArtist').value.trim(),
             album: document.getElementById('editSongAlbumSelect').value,
-            updatedBy: currentUser.displayName || currentUser.email,
+            updatedBy: currentUser ? (currentUser.displayName || currentUser.email) : 'system',
             updatedAt: firebase.firestore.FieldValue.serverTimestamp()
         };
 
-        let newImageSource = directUrlInput || selectedEditImageBase64;
+        let newImageSource = directUrlInput || selectedEditImageFile || selectedEditImageBase64;
         if (newImageSource) {
             updateData.imageUrl = await uploadImageToFirebaseStorage(newImageSource, title);
         }
@@ -1442,10 +1457,12 @@
 
     function openAddSongModal() { 
         document.getElementById('songAlbumSelect').innerHTML = customAlbums.map(a => `<option value="${a}">${a}</option>`).join('');
+        selectedImageFile = null;
         selectedImageBase64 = '';
         document.getElementById('previewContainer').style.display = 'none';
         document.getElementById('addSongModal').classList.add('active'); 
     }
+
     function closeModal(id) { document.getElementById(id).classList.remove('active'); }
 
     function openFullScreenByIndex(index) {
@@ -1503,12 +1520,14 @@
     function updateOnlineStatus() {
         const dot = document.getElementById('statusDot');
         const text = document.getElementById('statusText');
-        if (navigator.onLine) {
-            dot.className = 'status-dot status-online';
-            text.innerText = 'អនឡាញ (Online)';
-        } else {
-            dot.className = 'status-dot status-offline';
-            text.innerText = 'ក្រៅបណ្តាញ (Offline)';
+        if (dot && text) {
+            if (navigator.onLine) {
+                dot.className = 'status-dot status-online';
+                text.innerText = 'អនឡាញ (Online)';
+            } else {
+                dot.className = 'status-dot status-offline';
+                text.innerText = 'ក្រៅបណ្តាញ (Offline)';
+            }
         }
     }
 </script>
