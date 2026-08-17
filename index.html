@@ -81,6 +81,7 @@
             font-weight: 700;
             line-height: 1;
             margin-top: 2px;
+            display: none;
         }
 
         .install-pwa-btn { background: #16a34a; border: none; color: white; padding: 6px 12px; border-radius: 8px; font-weight: 600; font-size: 0.8rem; cursor: pointer; display: none; align-items: center; gap: 6px; margin-top: 8px; }
@@ -272,7 +273,7 @@
         <!-- 3. Icon ទាញយកទិន្នន័យ តូចនៅខាងលើផ្នែកខាងស្តាំ + % -->
         <button class="fetch-icon-btn" id="fetchAllBtn" onclick="fetchAllSongsWithProgress()" title="ទាញយកទិន្នន័យ (Offline)">
             <i class="fa-solid fa-cloud-arrow-down" id="fetchIcon"></i>
-            <span class="percent-label" id="progressPercent"></span>
+            <span class="percent-label" id="progressPercent">0%</span>
         </button>
     </header>
 
@@ -668,15 +669,41 @@
         if(themeBtn) themeBtn.innerText = isDark ? '☀️' : '🌙';
     }
 
-    function saveSongsToIndexedDB(songs) {
+    /* 🚀 រក្សាទុកក្នុង IndexedDB ដោយបែងចែកជា Batch ដើម្បីការពារ Memory Lock */
+    async function saveSongsToIndexedDB(songs, onProgress) {
+        if (!dbIndexed) return;
         return new Promise((resolve, reject) => {
-            if (!dbIndexed) return resolve();
-            const transaction = dbIndexed.transaction(['offlineSongs'], 'readwrite');
-            const store = transaction.objectStore('offlineSongs');
-            store.clear();
-            songs.forEach(song => store.put(song));
-            transaction.oncomplete = () => resolve();
-            transaction.onerror = (e) => reject(e);
+            try {
+                const clearTrans = dbIndexed.transaction(['offlineSongs'], 'readwrite');
+                const store = clearTrans.objectStore('offlineSongs');
+                store.clear();
+                
+                clearTrans.oncomplete = async () => {
+                    if (songs.length === 0) return resolve();
+                    
+                    const batchSize = 30; 
+                    for (let i = 0; i < songs.length; i += batchSize) {
+                        const batch = songs.slice(i, i + batchSize);
+                        await new Promise((resBatch, rejBatch) => {
+                            const tx = dbIndexed.transaction(['offlineSongs'], 'readwrite');
+                            const bStore = tx.objectStore('offlineSongs');
+                            batch.forEach(song => bStore.put(song));
+                            tx.oncomplete = () => resBatch();
+                            tx.onerror = (err) => rejBatch(err);
+                        });
+
+                        if (onProgress) {
+                            const batchPercent = 70 + Math.floor(((i + batch.length) / songs.length) * 30);
+                            onProgress(batchPercent);
+                        }
+                        await new Promise(r => setTimeout(r, 10)); // អនុញ្ញាតឱ្យ UI Thread រត់បានរលូន
+                    }
+                    resolve();
+                };
+                clearTrans.onerror = (e) => reject(e);
+            } catch (err) {
+                reject(err);
+            }
         });
     }
 
@@ -721,7 +748,7 @@
         }
     }
 
-    /* 3. ទាញយកទិន្នន័យ + រត់ភាគរយ 1% -> 100% លើ Icon តូចខាងស្តាំលើ */
+    /* 3. 🔥 ទាញយកទិន្នន័យ + គណនា % ពិតប្រាកដ (Real Progress Tracking 0% -> 100%) */
     async function fetchAllSongsWithProgress() {
         const btn = document.getElementById('fetchAllBtn');
         const percentEl = document.getElementById('progressPercent');
@@ -730,56 +757,72 @@
         btn.disabled = true;
         iconEl.style.display = 'none';
         percentEl.style.display = 'block';
-        
-        let currentPercent = 0;
-        let progressInterval = setInterval(() => {
-            if (currentPercent < 90) {
-                currentPercent += 1;
-                percentEl.innerText = `${currentPercent}%`;
-            }
-        }, 35);
+        percentEl.innerText = '0%';
 
         try {
+            // ដំណាក់កាលទី ១ (0% -> 40%)៖ ទាញយកទិន្នន័យពី Firebase
+            percentEl.innerText = '15%';
             const snapshot = await db.collection("songs").get();
+            percentEl.innerText = '40%';
 
-            songsList = snapshot.docs.map(doc => ({ 
-                id: doc.id, 
-                ...doc.data(),
-                createdAt: doc.data().createdAt ? { seconds: doc.data().createdAt.seconds } : null,
-                updatedAt: doc.data().updatedAt ? { seconds: doc.data().updatedAt.seconds } : null
-            }));
+            // ដំណាក់កាលទី ២ (40% -> 70%)៖ រៀបចំ និង Sort ទិន្នន័យ
+            await new Promise(r => setTimeout(r, 20)); // Unblock UI Thread
+            
+            const docs = snapshot.docs;
+            const totalDocs = docs.length;
+            let processedSongs = [];
 
-            songsList.sort((a, b) => {
+            for (let i = 0; i < totalDocs; i++) {
+                const doc = docs[i];
+                const data = doc.data();
+                processedSongs.push({
+                    id: doc.id,
+                    ...data,
+                    createdAt: data.createdAt ? { seconds: data.createdAt.seconds } : null,
+                    updatedAt: data.updatedAt ? { seconds: data.updatedAt.seconds } : null
+                });
+
+                if (i % 50 === 0) {
+                    let processPercent = 40 + Math.floor((i / totalDocs) * 20);
+                    percentEl.innerText = `${processPercent}%`;
+                    await new Promise(r => setTimeout(r, 5));
+                }
+            }
+
+            processedSongs.sort((a, b) => {
                 const timeA = a.createdAt ? a.createdAt.seconds : 0;
                 const timeB = b.createdAt ? b.createdAt.seconds : 0;
                 return timeB - timeA;
             });
+            songsList = processedSongs;
+            percentEl.innerText = '70%';
 
-            await saveSongsToIndexedDB(songsList);
+            // ដំណាក់កាលទី ៣ (70% -> 100%)៖ រក្សាទុកក្នុង IndexedDB
+            await saveSongsToIndexedDB(songsList, (dbProgressPercent) => {
+                percentEl.innerText = `${dbProgressPercent}%`;
+            });
 
-            clearInterval(progressInterval);
-            
-            let finishInterval = setInterval(() => {
-                currentPercent += 1;
-                percentEl.innerText = `${currentPercent}%`;
-                if (currentPercent >= 100) {
-                    clearInterval(finishInterval);
-                    renderSongs();
-                    renderTagsList();
-                    setTimeout(() => {
-                        percentEl.style.display = 'none';
-                        iconEl.style.display = 'block';
-                        iconEl.className = 'fa-solid fa-check';
-                        btn.disabled = false;
-                    }, 500);
-                }
-            }, 15);
+            percentEl.innerText = '100%';
+            renderSongs();
+            renderTagsList();
+
+            setTimeout(() => {
+                percentEl.style.display = 'none';
+                iconEl.style.display = 'block';
+                iconEl.className = 'fa-solid fa-check';
+                btn.disabled = false;
+            }, 600);
 
         } catch (error) {
-            clearInterval(progressInterval);
             console.error("Fetch progress error:", error);
             percentEl.innerText = '❌';
-            btn.disabled = false;
+            setTimeout(() => {
+                percentEl.style.display = 'none';
+                iconEl.style.display = 'block';
+                iconEl.className = 'fa-solid fa-cloud-arrow-down';
+                btn.disabled = false;
+            }, 2000);
+            alert("❌ មានបញ្ហាក្នុងការទាញយក៖ " + error.message);
         }
     }
 
