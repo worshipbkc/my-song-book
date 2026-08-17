@@ -2,7 +2,8 @@
 <html lang="km">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- 1. ទប់ស្កាត់ការ Zoom/រីករួម ពេលវាយបញ្ចូលអក្សរលើទូរស័ព្ទ -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>ចម្រៀងសរសើរដំកើងព្រះ</title>
     
     <!-- FontAwesome for Icons -->
@@ -45,33 +46,82 @@
             --border: #334155;
         }
 
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Kantumruy Pro', sans-serif; transition: background-color 0.2s, color 0.2s; }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Kantumruy Pro', sans-serif; transition: background-color 0.2s, color 0.2s; touch-action: manipulation; }
         body { background-color: var(--bg); color: var(--text); min-height: 100vh; position: relative; padding-bottom: 75px; }
 
-        .main-content { padding: 20px; width: 100%; max-width: 1200px; margin: 0 auto; }
+        .main-content { padding: 20px; width: 100%; max-width: 1200px; margin: 0 auto; position: relative; }
 
-        header { margin-bottom: 20px; display: flex; justify-content: space-between; align-items: flex-start; gap: 15px; flex-wrap: wrap; }
-        .header-text h1 { font-size: 1.6rem; color: var(--primary); margin-bottom: 4px; }
-        .header-text p { color: var(--text-muted); font-size: 0.95rem; font-weight: 600; line-height: 1.5; }
+        header { margin-bottom: 20px; display: flex; justify-content: space-between; align-items: flex-start; gap: 15px; padding-right: 50px; }
+        .header-text h1 { font-size: 1.5rem; color: var(--primary); margin-bottom: 4px; }
+        .header-text p { color: var(--text-muted); font-size: 0.9rem; font-weight: 600; line-height: 1.5; }
 
-        .fetch-all-container { display: flex; flex-direction: column; align-items: flex-end; gap: 6px; }
-        .fetch-all-btn { background: var(--card-bg); border: 1px solid var(--primary); color: var(--primary); padding: 8px 14px; border-radius: 10px; font-weight: 600; font-size: 0.85rem; cursor: pointer; display: flex; align-items: center; gap: 6px; box-shadow: 0 2px 5px rgba(37,99,235,0.1); }
-        .fetch-all-btn:hover { background: var(--primary); color: white; }
-        
-        .install-pwa-btn { background: #16a34a; border: none; color: white; padding: 8px 14px; border-radius: 10px; font-weight: 600; font-size: 0.85rem; cursor: pointer; display: none; align-items: center; gap: 6px; box-shadow: 0 2px 5px rgba(22,163,74,0.2); }
+        /* 3. Icon ទាញយកទិន្នន័យ (Offline) នៅជ្រុងខាងស្តាំលើ + % */
+        .fetch-icon-btn {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: var(--card-bg);
+            border: 1.5px solid var(--primary);
+            color: var(--primary);
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 3px 10px rgba(37,99,235,0.15);
+            font-size: 1.1rem;
+            z-index: 100;
+        }
+        .fetch-icon-btn:active { transform: scale(0.92); }
+        .fetch-icon-btn .percent-label {
+            font-size: 0.62rem;
+            font-weight: 700;
+            line-height: 1;
+            margin-top: 2px;
+        }
 
-        .progress-wrapper { width: 180px; background: var(--border); border-radius: 8px; overflow: hidden; height: 8px; display: none; }
-        .progress-bar { width: 0%; height: 100%; background: var(--primary); transition: width 0.2s ease; }
-        .progress-text { font-size: 0.75rem; color: var(--text-muted); font-weight: 600; display: none; }
+        /* 🔴 Notification Dot លោតសញ្ញាសម្គាល់ពេលមានបទថ្មី */
+        .notification-dot {
+            position: absolute;
+            top: 2px;
+            right: 2px;
+            width: 12px;
+            height: 12px;
+            background-color: var(--danger);
+            border-radius: 50%;
+            border: 2px solid var(--card-bg);
+            display: none;
+            z-index: 105;
+        }
+        .notification-dot.active {
+            display: block;
+            animation: pulse-dot 1.5s infinite;
+        }
+
+        @keyframes pulse-dot {
+            0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); }
+            70% { transform: scale(1.1); box-shadow: 0 0 0 6px rgba(239, 68, 68, 0); }
+            100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+        }
+
+        .install-pwa-btn { background: #16a34a; border: none; color: white; padding: 6px 12px; border-radius: 8px; font-weight: 600; font-size: 0.8rem; cursor: pointer; display: none; align-items: center; gap: 6px; margin-top: 8px; }
 
         /* Navigation Views System */
         .app-view { display: none; }
         .app-view.active { display: block; }
 
+        /* 1. ការពារការ Zoom ពេលវាយបញ្ចូលអក្សរ (Font size >= 16px) */
+        input[type="text"], input[type="url"], select, textarea {
+            font-size: 16px !important;
+        }
+
         /* Search & Tags */
         .controls { position: sticky; top: 0; z-index: 90; background: var(--bg); padding: 10px 0 14px 0; margin-bottom: 16px; display: flex; align-items: center; gap: 10px; }
         .search-box { position: relative; display: flex; align-items: center; flex: 1; }
-        .search-box input { width: 100%; padding: 10px 40px 10px 16px; font-size: 0.9rem; border: 1px solid var(--border); border-radius: 10px; outline: none; background: var(--card-bg); color: var(--text); }
+        .search-box input { width: 100%; padding: 10px 40px 10px 16px; border: 1px solid var(--border); border-radius: 10px; outline: none; background: var(--card-bg); color: var(--text); }
         .search-btn { position: absolute; right: 6px; background: none; border: none; font-size: 1rem; cursor: pointer; padding: 6px; }
         
         .theme-toggle-btn { background: var(--card-bg); border: 1px solid var(--border); color: var(--text); padding: 10px 14px; border-radius: 10px; font-size: 1rem; cursor: pointer; display: flex; align-items: center; justify-content: center; }
@@ -126,6 +176,7 @@
         .folder-name { font-weight: 700; font-size: 0.95rem; color: var(--text); margin-bottom: 4px; }
         .folder-count { font-size: 0.78rem; color: var(--text-muted); font-weight: 600; }
         .folder-delete-btn { position: absolute; top: 8px; right: 8px; background: none; border: none; color: var(--danger); font-size: 0.85rem; cursor: pointer; padding: 4px; }
+        .folder-share-btn { position: absolute; top: 8px; left: 8px; background: none; border: none; color: var(--primary); font-size: 0.9rem; cursor: pointer; padding: 4px; }
 
         /* Profile View Styling */
         .profile-container { max-width: 600px; margin: 0 auto; background: var(--card-bg); border: 1px solid var(--border); border-radius: 16px; padding: 24px; }
@@ -147,7 +198,7 @@
         .audio-controls audio { width: 100%; height: 32px; }
         .close-audio-btn { background: none; border: none; font-size: 1rem; cursor: pointer; color: var(--danger); padding: 4px; }
 
-        /* 📱 Telegram-Style Bottom Navigation Bar */
+        /* 📱 Bottom Navigation Bar */
         .bottom-nav {
             position: fixed;
             bottom: 0;
@@ -222,8 +273,6 @@
         @media (max-width: 768px) {
             .main-content { padding: 14px; }
             header { flex-direction: column; }
-            .fetch-all-container { width: 100%; align-items: stretch; }
-            .fetch-all-btn, .install-pwa-btn { justify-content: center; }
             .audio-player-bar { flex-direction: column; align-items: stretch; bottom: 60px; }
             .audio-controls { max-width: 100%; }
         }
@@ -239,19 +288,17 @@
                 ចូរឱ្យជីវិតទាំងឡាយដែលមានដង្ហើម បានសរសើរដល់ព្រះយ៉េហូវ៉ាចុះ<br>
                 <span style="color: var(--primary); font-weight: 700;">ទំនុកដំកើង ១៥០៖៦</span>
             </p>
-        </div>
-        <div class="fetch-all-container">
-            <button class="fetch-all-btn" id="fetchAllBtn" onclick="fetchAllSongsWithProgress()">
-                📥 <span>ទាញយកទិន្នន័យ (Offline)</span>
-            </button>
             <button class="install-pwa-btn" id="installPwaBtn" onclick="installPwaApp()">
                 📲 <span>Install App ទុកប្រើប្រាស់</span>
             </button>
-            <div class="progress-wrapper" id="progressWrapper">
-                <div class="progress-bar" id="progressBar"></div>
-            </div>
-            <div class="progress-text" id="progressText">កំពុងរៀបចំ...</div>
         </div>
+
+        <!-- 3. Icon ទាញយកទិន្នន័យ តូចនៅខាងលើផ្នែកខាងស្តាំ + % + 🔴 Notification Dot -->
+        <button class="fetch-icon-btn" id="fetchAllBtn" onclick="fetchAllSongsWithProgress()" title="ទាញយកទិន្នន័យ (Offline)">
+            <span class="notification-dot" id="updateNotificationDot" title="មានបទថ្មី! ចុចដើម្បីទាញយក"></span>
+            <i class="fa-solid fa-cloud-arrow-down" id="fetchIcon"></i>
+            <span class="percent-label" id="progressPercent"></span>
+        </button>
     </header>
 
     <!-- 1. 🎵 ទំព័រ "បទចម្រៀង" (Songs View) -->
@@ -298,7 +345,7 @@
     </div>
 </div>
 
-<!-- 📱 Bottom Navigation Bar ( Telegram / Mobile Style ) -->
+<!-- 📱 Bottom Navigation Bar -->
 <div class="bottom-nav">
     <button class="bottom-nav-item active" id="navSongsBtn" onclick="switchTab('songs')">
         <i class="fa-solid fa-music"></i>
@@ -346,7 +393,7 @@
     <button class="fullscreen-nav-btn fullscreen-next" onclick="slideFullScreen(1, event)">❯</button>
 </div>
 
-<!-- Modals (Add, Edit, Batch, Playlist) -->
+<!-- Modals -->
 <div class="modal" id="addSongModal">
     <div class="modal-content">
         <h2>➕ បញ្ចូលបទចម្រៀងថ្មី</h2>
@@ -571,8 +618,8 @@
                 songsList = offlineSongs;
                 renderSongs();
                 renderTagsList();
-                const btn = document.getElementById('fetchAllBtn');
-                if(btn) btn.innerHTML = '📥 <span>ទាញយកទិន្នន័យ (Offline រួចរាល់)</span>';
+                const icon = document.getElementById('fetchIcon');
+                if(icon) icon.className = 'fa-solid fa-cloud-check';
             } else {
                 fetchAllSongsSilently();
             }
@@ -580,12 +627,45 @@
             fetchAllSongsSilently();
         }
 
+        // 🔔 តាមដាន Firestore ក្នុង Realtime ដើម្បីបង្ហាញ Notification Dot ពេលមានបទ Upload ថ្មី
+        listenForNewUpdates();
+
         setupGlobalPasteListener();
         setupTouchSwipeListeners();
         setupScrollListener();
     };
 
-    /* 📱 Navigation Switcher System (Tab Views) */
+    /* 🔔 មុខងារ Realtime Listener សម្រាប់ឆែកមើលបទថ្មីលើ Firestore ធៀបនឹង Offline DB */
+    function listenForNewUpdates() {
+        db.collection("songs").onSnapshot((snapshot) => {
+            const remoteCount = snapshot.size;
+            const dot = document.getElementById('updateNotificationDot');
+            
+            // ប្រសិនបើចំនួនបទចម្រៀងលើ Online Firestore ច្រើនជាង Offline DB Local
+            if (remoteCount > songsList.length) {
+                if (dot) dot.classList.add('active');
+            } else {
+                // ប្រសិនបើមាន ID ណាដែលមិនទាន់មានក្នុង Local DB 
+                const localIds = new Set(songsList.map(s => s.id));
+                let hasNewDoc = false;
+                snapshot.forEach(doc => {
+                    if (!localIds.has(doc.id)) {
+                        hasNewDoc = true;
+                    }
+                });
+
+                if (hasNewDoc) {
+                    if (dot) dot.classList.add('active');
+                } else {
+                    if (dot) dot.classList.remove('active');
+                }
+            }
+        }, (error) => {
+            console.log("Realtime notification check error:", error);
+        });
+    }
+
+    /* 📱 Navigation Switcher System */
     function switchTab(tabName) {
         document.querySelectorAll('.app-view').forEach(el => el.classList.remove('active'));
         document.querySelectorAll('.bottom-nav-item').forEach(el => el.classList.remove('active'));
@@ -669,7 +749,6 @@
         });
     }
 
-    /* 🛠️ កែប្រែ៖ ដក .orderBy("createdAt", "desc") ចេញកុំឱ្យទាមទារ Firestore Index លើទូរស័ព្ទ */
     async function fetchAllSongsSilently() {
         try {
             const snapshot = await db.collection("songs").get();
@@ -680,7 +759,6 @@
                 updatedAt: doc.data().updatedAt ? { seconds: doc.data().updatedAt.seconds } : null
             }));
 
-            // តម្រៀបតាមថ្ងៃបង្កើត (createdAt) ចុងក្រោយបង្អស់នៅលើ Client
             songsList.sort((a, b) => {
                 const timeA = a.createdAt ? a.createdAt.seconds : 0;
                 const timeB = b.createdAt ? b.createdAt.seconds : 0;
@@ -701,23 +779,28 @@
         }
     }
 
-    /* 🛠️ កែប្រែ៖ ដក .orderBy("createdAt", "desc") ចេញដូចគ្នា */
+    /* 3. ទាញយកទិន្នន័យ + រត់ភាគរយ 1% -> 100% លើ Icon តូចខាងស្តាំលើ + បាត់ Notification Dot */
     async function fetchAllSongsWithProgress() {
         const btn = document.getElementById('fetchAllBtn');
-        const progressWrapper = document.getElementById('progressWrapper');
-        const progressBar = document.getElementById('progressBar');
-        const progressText = document.getElementById('progressText');
+        const percentEl = document.getElementById('progressPercent');
+        const iconEl = document.getElementById('fetchIcon');
+        const dotEl = document.getElementById('updateNotificationDot');
 
-        btn.style.display = 'none';
-        progressWrapper.style.display = 'block';
-        progressText.style.display = 'block';
-        progressText.innerText = 'កំពុងតភ្ជាប់ទាញយក... (10%)';
-        progressBar.style.width = '10%';
+        btn.disabled = true;
+        iconEl.style.display = 'none';
+        if (dotEl) dotEl.style.display = 'none'; // បិទ Dot ពេលកំពុងទាញយក
+        percentEl.style.display = 'block';
+        
+        let currentPercent = 0;
+        let progressInterval = setInterval(() => {
+            if (currentPercent < 90) {
+                currentPercent += 1;
+                percentEl.innerText = `${currentPercent}%`;
+            }
+        }, 35);
 
         try {
             const snapshot = await db.collection("songs").get();
-            progressText.innerText = 'កំពុងរក្សាទុកក្នុងទូរស័ព្ទ... (60%)';
-            progressBar.style.width = '60%';
 
             songsList = snapshot.docs.map(doc => ({ 
                 id: doc.id, 
@@ -726,7 +809,6 @@
                 updatedAt: doc.data().updatedAt ? { seconds: doc.data().updatedAt.seconds } : null
             }));
 
-            // តម្រៀបតាមថ្ងៃបង្កើត (createdAt) ចុងក្រោយបង្អស់នៅលើ Client
             songsList.sort((a, b) => {
                 const timeA = a.createdAt ? a.createdAt.seconds : 0;
                 const timeB = b.createdAt ? b.createdAt.seconds : 0;
@@ -734,25 +816,34 @@
             });
 
             await saveSongsToIndexedDB(songsList);
-            progressBar.style.width = '100%';
-            progressText.innerText = '✅ ទាញយករួចរាល់!';
-            renderSongs();
-            renderTagsList();
 
-            setTimeout(() => {
-                progressWrapper.style.display = 'none';
-                progressText.style.display = 'none';
-                btn.style.display = 'flex';
-                btn.innerHTML = '📥 <span>ទាញយកទិន្នន័យ (Offline រួចរាល់)</span>';
-            }, 2000);
+            clearInterval(progressInterval);
+            
+            let finishInterval = setInterval(() => {
+                currentPercent += 1;
+                percentEl.innerText = `${currentPercent}%`;
+                if (currentPercent >= 100) {
+                    clearInterval(finishInterval);
+                    renderSongs();
+                    renderTagsList();
+
+                    // ដក Notification Dot ចេញពីព្រោះទិន្នន័យបាន Update ថ្មីបំផុតហើយ
+                    if (dotEl) dotEl.classList.remove('active');
+
+                    setTimeout(() => {
+                        percentEl.style.display = 'none';
+                        iconEl.style.display = 'block';
+                        iconEl.className = 'fa-solid fa-check';
+                        btn.disabled = false;
+                    }, 500);
+                }
+            }, 15);
+
         } catch (error) {
+            clearInterval(progressInterval);
             console.error("Fetch progress error:", error);
-            progressText.innerText = '❌ មានបញ្ហា!';
-            setTimeout(() => {
-                progressWrapper.style.display = 'none';
-                progressText.style.display = 'none';
-                btn.style.display = 'flex';
-            }, 3000);
+            percentEl.innerText = '❌';
+            btn.disabled = false;
         }
     }
 
@@ -911,6 +1002,7 @@
         grid.innerHTML = html;
     }
 
+    /* 2. បង្ហាញ Playlist រួមទាំងប៊ូតុង Share ទាំងអស់ក្នុងពេលតែមួយ */
     function renderPlaylistsView() {
         const grid = document.getElementById('playlistsGrid');
         const keys = Object.keys(playlists);
@@ -924,7 +1016,8 @@
             const count = playlists[plName] ? playlists[plName].length : 0;
             html += `
                 <div class="folder-card" onclick="selectPlaylist('${plName}')">
-                    <button class="folder-delete-btn" onclick="deletePlaylist('${plName}', event)"><i class="fa-solid fa-trash"></i></button>
+                    <button class="folder-share-btn" onclick="sharePlaylist('${plName}', event)" title="Share Playlist ទាំងអស់"><i class="fa-solid fa-share-nodes"></i></button>
+                    <button class="folder-delete-btn" onclick="deletePlaylist('${plName}', event)" title="លុប Playlist"><i class="fa-solid fa-trash"></i></button>
                     <div class="folder-icon" style="color:#0284c7;"><i class="fa-solid fa-list-check"></i></div>
                     <div class="folder-name">${plName}</div>
                     <div class="folder-count">${count} បទ</div>
@@ -932,6 +1025,44 @@
             `;
         });
         grid.innerHTML = html;
+    }
+
+    /* 2. មុខងារបង្កើតកាលបរិច្ឆេទជាភាសាខ្មែរតាមថ្ងៃដែលផ្ញើ (ឧ. ថ្ងៃអាទិត្យ 16/08/2026) */
+    function getFormattedKhmerDate() {
+        const now = new Date();
+        const days = ['អាទិត្យ', 'ច័ន្ទ', 'អង្គារ', 'ពុធ', 'ព្រហស្បតិ៍', 'សុក្រ', 'សៅរ៍'];
+        const dayName = days[now.getDay()];
+        const dd = String(now.getDate()).padStart(2, '0');
+        const mm = String(now.getMonth() + 1).padStart(2, '0');
+        const yyyy = now.getFullYear();
+        return `ថ្ងៃ${dayName} ${dd}/${mm}/${yyyy}`;
+    }
+
+    /* 2. មុខងារ Share ចម្រៀងក្នុង Playlist ទាំងអស់ក្នុងពេលតែមួយ */
+    async function sharePlaylist(plName, event) {
+        if (event) event.stopPropagation();
+        const songIds = playlists[plName] || [];
+        if (songIds.length === 0) return alert('⚠️ Playlist នេះគ្មានបទចម្រៀងនៅឡើយទេ!');
+        
+        const playlistSongs = songsList.filter(s => songIds.includes(s.id));
+        
+        let textToSend = `ចម្រៀងសរសើរដំកើងព្រះ\n${getFormattedKhmerDate()}\n\n`;
+        playlistSongs.forEach((song, i) => {
+            textToSend += `${i + 1}. ${song.title}${song.artist ? ' - ' + song.artist : ''}\n`;
+        });
+
+        if (navigator.share) {
+            try {
+                await navigator.share({
+                    title: `ចម្រៀងសរសើរដំកើងព្រះ - ${plName}`,
+                    text: textToSend
+                });
+                return;
+            } catch (error) {}
+        }
+
+        navigator.clipboard.writeText(textToSend);
+        alert(`📋 បានចម្លងបញ្ជីចម្រៀងនៃ Playlist «${plName}» រួចរាល់!\n\n` + textToSend);
     }
 
     function renderTagsList() {
@@ -983,7 +1114,7 @@
         if(event) event.stopPropagation();
         const playlistNames = Object.keys(playlists);
         if (playlistNames.length === 0) {
-            return alert('⚠️ អ្នកមិនទាន់បានបង្កើត Playlist ណាមួយនៅឡើយទេ! សូមចូលទៅទំព័រ Playlist ដើម្បីបង្កើតជាមុន skill-updater');
+            return alert('⚠️ អ្នកមិនទាន់បានបង្កើត Playlist ណាមួយនៅឡើយទេ! សូមចូលទៅទំព័រ Playlist ដើម្បីបង្កើតជាមុន');
         }
 
         let optionsStr = playlistNames.map((p, i) => `${i + 1}. ${p}`).join('\n');
@@ -1029,7 +1160,10 @@
         switchTab('songs');
         currentFilterType = 'PLAYLIST';
         currentFilterValue = playlistName;
-        document.getElementById('currentAlbumSubtitle').innerHTML = `📂 Playlist: <span style="color: var(--primary); font-weight: 700;">${playlistName}</span> (${playlists[playlistName].length} បទ)`;
+        document.getElementById('currentAlbumSubtitle').innerHTML = `
+            📂 Playlist: <span style="color: var(--primary); font-weight: 700;">${playlistName}</span> (${playlists[playlistName].length} បទ)
+            <button onclick="sharePlaylist('${playlistName}')" style="margin-left: 8px; background: #10b981; color: white; border: none; padding: 2px 8px; border-radius: 6px; font-size: 0.75rem; cursor: pointer;"><i class="fa-solid fa-share-nodes"></i> Share ទាំងអស់</button>
+        `;
         renderTagsList();
         renderSongs();
     }
@@ -1116,7 +1250,7 @@
         const grid = document.getElementById('songGrid');
 
         if (currentFilteredSongs.length === 0 && songsList.length === 0) {
-            grid.innerHTML = `<div class="empty-state">📂 មិនទាន់មានទិន្នន័យ សូមចុចប៊ូតុង **"ទាញយកទិន្នន័យ (Offline)"**។</div>`;
+            grid.innerHTML = `<div class="empty-state">📂 មិនទាន់មានទិន្នន័យ សូមចុច Icon **"ទាញយក"** នៅខាងលើផ្នែកខាងស្តាំ។</div>`;
             return;
         }
 
