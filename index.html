@@ -1169,38 +1169,19 @@
         document.body.removeChild(a);
     }
 
-    // 🔄 🔥 កែប្រែ Share Playlist៖ បង្ហាញចំណងជើងជាលេខរៀងរួច ហើយប្រមូលរូបភាពទាំងអស់មកដាក់នៅខាងក្រោមបង្អស់
+    // 🔄 🔥 កែប្រែត្រង់នេះ៖ Share Playlist ដោយរក្សាចំណងជើងដូចដើម និងបន្ថែម URL រូបភាពនៅពីក្រោមចំណងជើង
     async function sharePlaylist(plName, event) {
         if(event) event.stopPropagation();
         const songIds = playlists[plName] || [];
         if (songIds.length === 0) return alert('⚠️ Playlist នេះមិនទាន់មានបទចម្រៀងនៅឡើយទេ!');
 
-        // 1. បង្កើតកាលបរិច្ឆេទ (ឧទាហរណ៍៖ ថ្ងៃអង្គារ 18/08/2026)
-        const now = new Date();
-        const days = ['ថ្ងៃអាទិត្យ', 'ថ្ងៃច័ន្ទ', 'ថ្ងៃអង្គារ', 'ថ្ងៃពុធ', 'ថ្ងៃព្រហស្បតិ៍', 'ថ្ងៃសុក្រ', 'ថ្ងៃសៅរ៍'];
-        const dayName = days[now.getDay()];
-        const dd = String(now.getDate()).padStart(2, '0');
-        const mm = String(now.getMonth() + 1).padStart(2, '0');
-        const yyyy = now.getFullYear();
-        const formattedDate = `${dayName} ${dd}/${mm}/${yyyy}`;
-
-        let textToSend = `ចម្រៀងសរសើរដំកើងព្រះ\n${formattedDate}\n\n`;
-        let imageUrlsText = `\nរូបភាព៖\n`;
-
+        let textToSend = `📂 Playlist: ${plName}\n\n`;
         songIds.forEach((id, index) => {
             const song = songsList.find(s => s.id === id);
             if (song) {
-                // បន្ថែមចំណងជើងបទចម្រៀងតាមលេខរៀង
-                textToSend += `${index + 1}. ${song.title}${song.artist ? ' - ' + song.artist : ''}\n`;
-                // រៀបចំ URL រូបភាពដើម្បីប្រមូលទៅដាក់ផ្នែកខាងក្រោម
-                if (song.imageUrl) {
-                    imageUrlsText += `${index + 1}. ${song.imageUrl}\n`;
-                }
+                textToSend += `${index + 1}. ${song.title}${song.artist ? ' - ' + song.artist : ''}\n🖼️ រូបភាព៖ ${song.imageUrl || 'គ្មាន'}\n\n`;
             }
         });
-
-        // ភ្ជាប់បញ្ជីរូបភាពទៅខាងក្រោមបង្អស់
-        textToSend += imageUrlsText;
 
         if (navigator.share) {
             try {
