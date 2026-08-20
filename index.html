@@ -460,7 +460,7 @@
 
     firebase.initializeApp(firebaseConfig);
 
-    // ⚡ 1. បើក Firestore Offline Persistence ភ្លាមៗបន្ទាប់ពី initializeApp
+    // ⚡ 1. បើក Firestore Offline Persistence ភ្លាមៗ
     firebase.firestore().enablePersistence({ synchronizeTabs: true }).catch((err) => {
         if (err.code === 'failed-precondition') {
             console.warn('Firestore persistence failed: Multiple tabs open');
@@ -540,7 +540,8 @@
         applyStoredTheme();
         listenToAuth();
         listenToAlbums();
-        
+        updateOnlineStatus();
+
         try {
             await initIndexedDB();
             const offlineSongs = await loadSongsFromIndexedDB();
@@ -621,7 +622,7 @@
         if(themeBtn) themeBtn.innerText = isDark ? '☀️' : '🌙';
     }
 
-    /* 🚀 រក្សាទុកក្នុង IndexedDB ដោយបែងចែកជា Batch ដើម្បីការពារ Memory Lock */
+    /* 🚀 រក្សាទុកក្នុង IndexedDB */
     async function saveSongsToIndexedDB(songs, onProgress) {
         if (!dbIndexed) return;
         return new Promise((resolve, reject) => {
@@ -669,7 +670,6 @@
         });
     }
 
-    // បង្ហាញសញ្ញាគ្រីសលើ Icon
     function markFetchCompleted() {
         const btn = document.getElementById('fetchAllBtn');
         const iconEl = document.getElementById('fetchIcon');
@@ -682,18 +682,10 @@
         if (btn) btn.classList.add('completed');
     }
 
-    // ⚡ 2. ប្រើប្រាស់ Cache-First Data Fetching (មិនអស់លុយ Reads និងទាញយកបានលឿនបំផុត)
+    // 🛠️ កែសម្រួល៖ ប្រើ get() ធម្មតាដើម្បីកុំឱ្យ Error ពេលបាត់ Internet
     async function fetchAllSongsSilently() {
         try {
-            let snapshot;
-            try {
-                // ១. ព្យាយាមទាញយកពី Cache មុនគេបង្អស់
-                snapshot = await db.collection("songs").get({ source: 'cache' });
-                if (snapshot.empty) throw new Error("Cache Empty");
-            } catch (cacheErr) {
-                // ២. បើ Cache គ្មានទិន្នន័យ ទើបទាញពី Server
-                snapshot = await db.collection("songs").get({ source: 'server' });
-            }
+            const snapshot = await db.collection("songs").get();
 
             songsList = snapshot.docs.map(doc => ({
                 id: doc.id,
@@ -712,7 +704,7 @@
             renderSongs();
             markFetchCompleted();
         } catch (error) {
-            console.error("Fetch error:", error);
+            console.warn("Fetch error, switching to IndexedDB cache:", error);
             const cached = await loadSongsFromIndexedDB();
             if (cached.length > 0) {
                 songsList = cached;
@@ -722,7 +714,7 @@
         }
     }
 
-    /* ទាញយកទិន្នន័យ + គណនា % ពិតប្រាកដ និងបង្ហាញសញ្ញាគ្រីសនៅពេលរួចរាល់ 100% */
+    // 🛠️ កែសម្រួល៖ ទាញយកតាមវិធីសុវត្ថិភាព មិនឱ្យគាំង Error
     async function fetchAllSongsWithProgress() {
         const btn = document.getElementById('fetchAllBtn');
         const percentEl = document.getElementById('progressPercent');
@@ -735,19 +727,11 @@
         percentEl.innerText = '0%';
 
         try {
-            let snapshot;
-            try {
-                snapshot = await db.collection("songs").get({ source: 'cache' });
-                if (snapshot.empty) throw new Error("Cache Empty");
-            } catch (e) {
-                snapshot = await db.collection("songs").get({ source: 'server' });
-            }
+            const snapshot = await db.collection("songs").get();
 
             const docs = snapshot.docs;
             const totalDocs = docs.length;
             let processedSongs = [];
-
-            songsList = []; // Reset រៀបចំ Streaming
 
             for (let i = 0; i < totalDocs; i++) {
                 const doc = docs[i];
@@ -761,19 +745,16 @@
 
                 processedSongs.push(songItem);
 
-                // បច្ចុប្បន្នភាពគណនាភាគរយ (%) ជាក់ស្តែងពេលទាញ (0% -> 70%)
                 const fetchPercent = Math.floor(((i + 1) / totalDocs) * 70);
                 percentEl.innerText = `${fetchPercent}%`;
 
-                // បង្ហាញចេញលើអេក្រង់ភ្លាមៗជាបន្តបន្ទាប់
                 if (i % 10 === 0 || i === totalDocs - 1) {
                     songsList = [...processedSongs];
                     renderSongs(); 
-                    await new Promise(r => setTimeout(r, 0)); // Unblock UI Thread
+                    await new Promise(r => setTimeout(r, 0));
                 }
             }
 
-            // តម្រៀបតាមពេលវេលា
             processedSongs.sort((a, b) => {
                 const timeA = a.createdAt ? a.createdAt.seconds : 0;
                 const timeB = b.createdAt ? b.createdAt.seconds : 0;
@@ -783,14 +764,12 @@
             songsList = processedSongs;
             renderSongs();
 
-            // ភាគរយរក្សាទុកចូល Offline DB (70% -> 100%)
             await saveSongsToIndexedDB(songsList, (dbPercent) => {
                 percentEl.innerText = `${dbPercent}%`;
             });
 
             percentEl.innerText = '100%';
             
-            // 🎯 បង្ហាញសញ្ញាគ្រីសរៀបរយ
             setTimeout(() => {
                 markFetchCompleted();
                 btn.disabled = false;
@@ -798,7 +777,14 @@
 
         } catch (error) {
             console.error("Error fetching all songs:", error);
-            alert("មិនអាចទាញយកទិន្នន័យបានទេ សូមពិនិត្យមើលអ៊ីនធឺណិត!");
+            const cached = await loadSongsFromIndexedDB();
+            if (cached && cached.length > 0) {
+                songsList = cached;
+                renderSongs();
+                markFetchCompleted();
+            } else {
+                alert("មិនអាចទាញយកទិន្នន័យបានទេ សូមពិនិត្យមើលសេវាអ៊ីនធឺណិត!");
+            }
             percentEl.style.display = 'none';
             iconEl.className = 'fa-solid fa-cloud-arrow-down';
             iconEl.style.display = 'block';
@@ -1130,7 +1116,7 @@
         }
     }
 
-    /* Image Upload & Drag/Drop Handlers */
+    /* Image Upload Handlers */
     function handleFileSelect(e) {
         const file = e.target.files[0];
         if (file) convertFileToBase64(file, (res) => {
