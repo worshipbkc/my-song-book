@@ -147,6 +147,7 @@
         .folder-name { font-weight: 700; font-size: 0.95rem; color: var(--text); margin-bottom: 4px; }
         .folder-count { font-size: 0.78rem; color: var(--text-muted); font-weight: 600; }
         .folder-delete-btn { position: absolute; top: 8px; right: 8px; background: none; border: none; color: var(--danger); font-size: 0.85rem; cursor: pointer; padding: 4px; }
+        .folder-share-btn { position: absolute; top: 8px; left: 8px; background: none; border: none; color: var(--primary); font-size: 0.9rem; cursor: pointer; padding: 4px; }
 
         /* Profile View Styling */
         .profile-container { max-width: 600px; margin: 0 auto; background: var(--card-bg); border: 1px solid var(--border); border-radius: 16px; padding: 24px; }
@@ -291,7 +292,7 @@
 
     <div class="app-view" id="viewProfile">
         <div class="profile-container" id="profileCardContent">
-        </div>
+            </div>
     </div>
 </div>
 
@@ -460,7 +461,7 @@
 
     firebase.initializeApp(firebaseConfig);
 
-    // ⚡ 1. បើក Firestore Offline Persistence ភ្លាមៗ
+    // ⚡ 1. បើក Firestore Offline Persistence ភ្លាមៗបន្ទាប់ពី initializeApp
     firebase.firestore().enablePersistence({ synchronizeTabs: true }).catch((err) => {
         if (err.code === 'failed-precondition') {
             console.warn('Firestore persistence failed: Multiple tabs open');
@@ -540,8 +541,7 @@
         applyStoredTheme();
         listenToAuth();
         listenToAlbums();
-        updateOnlineStatus();
-
+        
         try {
             await initIndexedDB();
             const offlineSongs = await loadSongsFromIndexedDB();
@@ -622,7 +622,7 @@
         if(themeBtn) themeBtn.innerText = isDark ? '☀️' : '🌙';
     }
 
-    /* 🚀 រក្សាទុកក្នុង IndexedDB */
+    /* 🚀 រក្សាទុកក្នុង IndexedDB ដោយបែងចែកជា Batch ដើម្បីការពារ Memory Lock */
     async function saveSongsToIndexedDB(songs, onProgress) {
         if (!dbIndexed) return;
         return new Promise((resolve, reject) => {
@@ -670,6 +670,7 @@
         });
     }
 
+    // បង្ហាញសញ្ញាគ្រីសលើ Icon
     function markFetchCompleted() {
         const btn = document.getElementById('fetchAllBtn');
         const iconEl = document.getElementById('fetchIcon');
@@ -682,10 +683,18 @@
         if (btn) btn.classList.add('completed');
     }
 
-    // 🛠️ កែសម្រួល៖ ប្រើ get() ធម្មតាដើម្បីកុំឱ្យ Error ពេលបាត់ Internet
+    // ⚡ 2. ប្រើប្រាស់ Cache-First Data Fetching (មិនអស់លុយ Reads និងទាញយកបានលឿនបំផុត)
     async function fetchAllSongsSilently() {
         try {
-            const snapshot = await db.collection("songs").get();
+            let snapshot;
+            try {
+                // ១. ព្យាយាមទាញយកពី Cache មុនគេបង្អស់
+                snapshot = await db.collection("songs").get({ source: 'cache' });
+                if (snapshot.empty) throw new Error("Cache Empty");
+            } catch (cacheErr) {
+                // ២. បើ Cache គ្មានទិន្នន័យ ទើបទាញពី Server
+                snapshot = await db.collection("songs").get({ source: 'server' });
+            }
 
             songsList = snapshot.docs.map(doc => ({
                 id: doc.id,
@@ -704,7 +713,7 @@
             renderSongs();
             markFetchCompleted();
         } catch (error) {
-            console.warn("Fetch error, switching to IndexedDB cache:", error);
+            console.error("Fetch error:", error);
             const cached = await loadSongsFromIndexedDB();
             if (cached.length > 0) {
                 songsList = cached;
@@ -714,7 +723,7 @@
         }
     }
 
-    // 🛠️ កែសម្រួល៖ ទាញយកតាមវិធីសុវត្ថិភាព មិនឱ្យគាំង Error
+    /* ទាញយកទិន្នន័យ + គណនា % ពិតប្រាកដ និងបង្ហាញសញ្ញាគ្រីសនៅពេលរួចរាល់ 100% */
     async function fetchAllSongsWithProgress() {
         const btn = document.getElementById('fetchAllBtn');
         const percentEl = document.getElementById('progressPercent');
@@ -727,11 +736,19 @@
         percentEl.innerText = '0%';
 
         try {
-            const snapshot = await db.collection("songs").get();
+            let snapshot;
+            try {
+                snapshot = await db.collection("songs").get({ source: 'cache' });
+                if (snapshot.empty) throw new Error("Cache Empty");
+            } catch (e) {
+                snapshot = await db.collection("songs").get({ source: 'server' });
+            }
 
             const docs = snapshot.docs;
             const totalDocs = docs.length;
             let processedSongs = [];
+
+            songsList = []; // Reset រៀបចំ Streaming
 
             for (let i = 0; i < totalDocs; i++) {
                 const doc = docs[i];
@@ -745,16 +762,19 @@
 
                 processedSongs.push(songItem);
 
+                // បច្ចុប្បន្នភាពគណនាភាគរយ (%) ជាក់ស្តែងពេលទាញ (0% -> 70%)
                 const fetchPercent = Math.floor(((i + 1) / totalDocs) * 70);
                 percentEl.innerText = `${fetchPercent}%`;
 
+                // បង្ហាញចេញលើអេក្រង់ភ្លាមៗជាបន្តបន្ទាប់
                 if (i % 10 === 0 || i === totalDocs - 1) {
                     songsList = [...processedSongs];
                     renderSongs(); 
-                    await new Promise(r => setTimeout(r, 0));
+                    await new Promise(r => setTimeout(r, 0)); // Unblock UI Thread
                 }
             }
 
+            // តម្រៀបតាមពេលវេលា
             processedSongs.sort((a, b) => {
                 const timeA = a.createdAt ? a.createdAt.seconds : 0;
                 const timeB = b.createdAt ? b.createdAt.seconds : 0;
@@ -764,12 +784,14 @@
             songsList = processedSongs;
             renderSongs();
 
+            // ភាគរយរក្សាទុកចូល Offline DB (70% -> 100%)
             await saveSongsToIndexedDB(songsList, (dbPercent) => {
                 percentEl.innerText = `${dbPercent}%`;
             });
 
             percentEl.innerText = '100%';
             
+            // 🎯 បង្ហាញសញ្ញាគ្រីសរៀបរយ
             setTimeout(() => {
                 markFetchCompleted();
                 btn.disabled = false;
@@ -777,14 +799,7 @@
 
         } catch (error) {
             console.error("Error fetching all songs:", error);
-            const cached = await loadSongsFromIndexedDB();
-            if (cached && cached.length > 0) {
-                songsList = cached;
-                renderSongs();
-                markFetchCompleted();
-            } else {
-                alert("មិនអាចទាញយកទិន្នន័យបានទេ សូមពិនិត្យមើលសេវាអ៊ីនធឺណិត!");
-            }
+            alert("មិនអាចទាញយកទិន្នន័យបានទេ សូមពិនិត្យមើលអ៊ីនធឺណិត!");
             percentEl.style.display = 'none';
             iconEl.className = 'fa-solid fa-cloud-arrow-down';
             iconEl.style.display = 'block';
@@ -1046,7 +1061,7 @@
                     <i class="fa-solid fa-user-circle" style="font-size:4rem; color:var(--text-muted); margin-bottom:12px;"></i>
                     <h2>ចូលប្រើប្រាស់ប្រព័ន្ធ</h2>
                     <p style="color:var(--text-muted); margin-top:6px; font-size:0.9rem;">ចូលប្រើប្រាស់ដើម្បីទទួលបានមុខងារបន្ថែមក្នុងការគ្រប់គ្រងបទចម្រៀង</p>
-                    <button onclick="handleGoogleLogin()" style="margin-top:20px; width:100%; padding:12px; border-radius:10px; border:none; background:var(--primary); color:white; font-weight:700; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:8px;">
+                    <button onclick="handleGoogleLogin()" style="margin-top:20px; width:100%; padding:12px; border-radius:10px; border:none; background:var(--primary); color:white; font-weight:700; cursor:pointer; display:flex; align-items:center; justify-center; gap:8px;">
                         <i class="fa-brands fa-google"></i> ចូលប្រើជាមួយ Google
                     </button>
                 </div>
@@ -1116,7 +1131,7 @@
         }
     }
 
-    /* Image Upload Handlers */
+    /* Image Upload & Drag/Drop Handlers */
     function handleFileSelect(e) {
         const file = e.target.files[0];
         if (file) convertFileToBase64(file, (res) => {
