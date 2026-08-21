@@ -50,7 +50,6 @@
         .header-text h1 { font-size: 1.5rem; color: var(--primary); margin-bottom: 4px; }
         .header-text p { color: var(--text-muted); font-size: 0.9rem; font-weight: 600; line-height: 1.5; }
 
-        /* Icon ទាញយកទិន្នន័យ (Offline) នៅជ្រុងខាងស្តាំលើ + % */
         .fetch-icon-btn {
             position: absolute;
             top: 20px;
@@ -78,7 +77,6 @@
             margin-top: 2px;
             display: none;
         }
-        /* Style សញ្ញាគ្រីស ពណ៌បៃតង */
         .fetch-icon-btn.completed {
             border-color: #10b981;
             color: #10b981;
@@ -86,16 +84,13 @@
 
         .install-pwa-btn { background: #16a34a; border: none; color: white; padding: 6px 12px; border-radius: 8px; font-weight: 600; font-size: 0.8rem; cursor: pointer; display: none; align-items: center; gap: 6px; margin-top: 8px; }
 
-        /* Navigation Views System */
         .app-view { display: none; }
         .app-view.active { display: block; }
 
-        /* ការពារការ Zoom ពេលវាយបញ្ចូលអក្សរ (Font size >= 16px) */
-        input[type="text"], input[type="url"], select, textarea {
+        input[type="text"], input[type="url"], input[type="email"], input[type="password"], select, textarea {
             font-size: 16px !important;
         }
 
-        /* Search */
         .controls { position: sticky; top: 0; z-index: 90; background: var(--bg); padding: 10px 0 14px 0; margin-bottom: 16px; display: flex; align-items: center; gap: 10px; }
         .search-box { position: relative; display: flex; align-items: center; flex: 1; }
         .search-box input { width: 100%; padding: 10px 40px 10px 16px; border: 1px solid var(--border); border-radius: 10px; outline: none; background: var(--card-bg); color: var(--text); }
@@ -103,7 +98,6 @@
         
         .theme-toggle-btn { background: var(--card-bg); border: 1px solid var(--border); color: var(--text); padding: 10px 14px; border-radius: 10px; font-size: 1rem; cursor: pointer; display: flex; align-items: center; justify-content: center; }
 
-        /* Song Card Grid */
         .song-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 18px; }
         .song-card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; display: flex; flex-direction: column; position: relative; }
 
@@ -139,7 +133,6 @@
         .btn-delete-custom { background-color: #fee2e2; color: var(--danger); border-color: #fecaca; }
         body.dark-mode .btn-delete-custom { background-color: #7f1d1d; color: #fee2e2; border-color: #991b1b; }
 
-        /* Section Cards (Albums & Playlists Grid) */
         .section-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 16px; margin-top: 10px; }
         .folder-card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 12px; padding: 18px 14px; text-align: center; cursor: pointer; transition: transform 0.2s, box-shadow 0.2s; position: relative; }
         .folder-card:hover { transform: translateY(-3px); box-shadow: 0 4px 12px rgba(0,0,0,0.05); border-color: var(--primary); }
@@ -147,10 +140,8 @@
         .folder-name { font-weight: 700; font-size: 0.95rem; color: var(--text); margin-bottom: 4px; }
         .folder-count { font-size: 0.78rem; color: var(--text-muted); font-weight: 600; }
         .folder-delete-btn { position: absolute; top: 8px; right: 8px; background: none; border: none; color: var(--danger); font-size: 0.85rem; cursor: pointer; padding: 4px; }
-        .folder-share-btn { position: absolute; top: 8px; left: 8px; background: none; border: none; color: var(--primary); font-size: 0.9rem; cursor: pointer; padding: 4px; }
 
-        /* Profile View Styling */
-        .profile-container { max-width: 600px; margin: 0 auto; background: var(--card-bg); border: 1px solid var(--border); border-radius: 16px; padding: 24px; }
+        .profile-container { max-width: 500px; margin: 0 auto; background: var(--card-bg); border: 1px solid var(--border); border-radius: 16px; padding: 24px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
         .profile-header { display: flex; align-items: center; gap: 16px; margin-bottom: 20px; border-bottom: 1px solid var(--border); padding-bottom: 16px; }
         .profile-avatar { width: 64px; height: 64px; border-radius: 50%; object-fit: cover; border: 2px solid var(--primary); }
         .profile-name { font-size: 1.2rem; font-weight: 700; color: var(--text); }
@@ -161,7 +152,6 @@
         .action-btn-item:hover { border-color: var(--primary); color: var(--primary); }
         .action-btn-item.danger { color: var(--danger); }
 
-        /* 📱 Bottom Navigation Bar */
         .bottom-nav {
             position: fixed;
             bottom: 0;
@@ -200,7 +190,6 @@
         .empty-state { text-align: center; padding: 40px 20px; color: var(--text-muted); grid-column: 1 / -1; font-weight: 600; }
         .loading-more-spinner { text-align: center; padding: 16px; font-size: 0.85rem; color: var(--text-muted); grid-column: 1 / -1; font-weight: 600; }
 
-        /* Modals */
         .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); align-items: center; justify-content: center; z-index: 2000; padding: 20px; }
         .modal.active { display: flex; }
         .modal-content { background: var(--card-bg); color: var(--text); padding: 20px; border-radius: 16px; width: 100%; max-width: 450px; max-height: 90vh; overflow-y: auto; border: 1px solid var(--border); }
@@ -213,7 +202,6 @@
         .preview-container img { width: 100%; max-height: 130px; object-fit: contain; }
         .remove-img-btn { position: absolute; top: 4px; right: 4px; background: rgba(239, 68, 68, 0.9); color: white; border: none; border-radius: 50%; width: 22px; height: 22px; font-size: 0.75rem; cursor: pointer; }
 
-        /* Fullscreen Viewer */
         .fullscreen-modal { display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0, 0, 0, 0.95); z-index: 3000; flex-direction: column; align-items: center; justify-content: center; }
         .fullscreen-modal.active { display: flex; }
         .fullscreen-header { position: absolute; top: 15px; left: 20px; right: 20px; display: flex; justify-content: space-between; align-items: center; color: white; z-index: 3010; }
@@ -227,7 +215,6 @@
         .editor-authorized .editor-only { display: flex !important; }
         .editor-authorized button.editor-only { display: inline-block !important; }
 
-        /* Offline Sync Badge */
         .offline-sync-badge { position: fixed; bottom: 70px; right: 16px; background: var(--card-bg); border: 1px solid var(--border); padding: 6px 12px; border-radius: 20px; font-size: 0.78rem; font-weight: 600; display: flex; align-items: center; gap: 6px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); z-index: 1100; }
         .status-dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
         .status-online { background-color: #10b981; }
@@ -290,9 +277,59 @@
         <div class="section-grid" id="playlistsGrid"></div>
     </div>
 
+    <!-- 🎯 TAB PROFILE៖ មាន FORM LOGIN បង្ហាញផ្ទាល់តែម្តង -->
     <div class="app-view" id="viewProfile">
-        <div class="profile-container" id="profileCardContent">
+        <div class="profile-container">
+            <!-- ផ្នែក Login (បង្ហាញពេលមិនទាន់ Login) -->
+            <div id="loginSection" style="display: block;">
+                <div style="text-align:center; margin-bottom: 20px;">
+                    <i class="fa-solid fa-user-lock" style="font-size:3rem; color:var(--primary); margin-bottom:10px;"></i>
+                    <h2 style="font-size:1.3rem;">ចូលប្រើប្រាស់ប្រព័ន្ធ (Login)</h2>
+                    <p style="color:var(--text-muted); font-size:0.85rem; margin-top:4px;">សូមចូលប្រព័ន្ធដើម្បីទទួលបានសិទ្ធិបន្ថែម បញ្ចូល ឬកែប្រែបទចម្រៀង</p>
+                </div>
+
+                <form onsubmit="handleEmailLogin(event)">
+                    <div class="form-group">
+                        <label><i class="fa-solid fa-envelope"></i> អ៊ីមែល (Email)</label>
+                        <input type="email" id="authEmail" required placeholder="ឧទាហរណ៍៖ admin@gmail.com">
+                    </div>
+                    <div class="form-group">
+                        <label><i class="fa-solid fa-key"></i> ពាក្យសម្ងាត់ (Password)</label>
+                        <input type="password" id="authPassword" required placeholder="••••••••">
+                    </div>
+                    <button type="submit" id="btnLoginSubmit" style="width:100%; padding:12px; border-radius:8px; border:none; background:var(--primary); color:white; font-weight:700; cursor:pointer; font-size:0.95rem; margin-top:10px;">
+                        🔑 ចូលប្រើប្រាស់ (Login)
+                    </button>
+                </form>
+
+                <div style="margin: 20px 0; text-align:center; color:var(--text-muted); font-size:0.8rem; position:relative;">
+                    <span style="background:var(--card-bg); padding:0 10px; position:relative; z-index:1;">ឬចូលតាមរយៈ</span>
+                    <hr style="position:absolute; top:50%; width:100%; border:0; border-top:1px solid var(--border); margin:0;">
+                </div>
+
+                <button onclick="handleGoogleLogin()" style="width:100%; padding:10px; border-radius:8px; border:1px solid var(--border); background:var(--card-bg); color:var(--text); font-weight:700; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:10px;">
+                    <i class="fa-brands fa-google" style="color:#ea4335; font-size:1.1rem;"></i> ចូលប្រើជាមួយ Google
+                </button>
             </div>
+
+            <!-- ផ្នែក Profile (បង្ហាញពេល Login រួច) -->
+            <div id="userProfileSection" style="display: none;">
+                <div class="profile-header">
+                    <img id="userAvatar" src="https://via.placeholder.com/64" class="profile-avatar" alt="User">
+                    <div>
+                        <div id="userName" class="profile-name">...</div>
+                        <div id="userRoleBadge" class="profile-badge">...</div>
+                    </div>
+                </div>
+                <div class="action-list">
+                    <div class="editor-only" style="display:flex; flex-direction:column; gap:10px; width:100%;">
+                        <button class="action-btn-item" onclick="openAddSongModal()"><i class="fa-solid fa-plus"></i> បញ្ចូលបទចម្រៀងថ្មី</button>
+                        <button class="action-btn-item" onclick="openBatchAddModal()"><i class="fa-solid fa-images"></i> បញ្ចូលរូបភាពច្រើនក្នុងពេលតែមួយ</button>
+                    </div>
+                    <button class="action-btn-item danger" onclick="handleLogout()"><i class="fa-solid fa-right-from-bracket"></i> ចាកចេញពីគណនី (Logout)</button>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
 
@@ -311,7 +348,7 @@
     </button>
     <button class="bottom-nav-item" id="navProfileBtn" onclick="switchTab('profile')">
         <i class="fa-solid fa-user"></i>
-        <span>Profile</span>
+        <span>Profile / Login</span>
     </button>
 </div>
 
@@ -449,28 +486,21 @@
 </div>
 
 <script>
-    // 🔑 កំណត់រចនាសម្ព័ន្ធ Firebase ថ្មីសម្រាប់ Project: worship-bkc
+    // 🎯 Web SDK Config សម្រាប់ worship-bkc
     const firebaseConfig = {
         authDomain: "worship-bkc.firebaseapp.com",
         projectId: "worship-bkc",
-        storageBucket: "worship-bkc.firebasestorage.app"
+        storageBucket: "worship-bkc.appspot.com"
     };
 
     firebase.initializeApp(firebaseConfig);
 
-    // ⚡ 1. បើក Firestore Offline Persistence ភ្លាមៗបន្ទាប់ពី initializeApp
-    firebase.firestore().enablePersistence({ synchronizeTabs: true }).catch((err) => {
-        if (err.code === 'failed-precondition') {
-            console.warn('Firestore persistence failed: Multiple tabs open');
-        } else if (err.code === 'unimplemented') {
-            console.warn('Firestore persistence is not supported by this browser');
-        }
-    });
+    firebase.firestore().enablePersistence({ synchronizeTabs: true }).catch(() => {});
 
     const db = firebase.firestore();
     const auth = firebase.auth();
 
-    auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL).catch((error) => {});
+    auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL).catch(() => {});
 
     let currentUser = null;
     let isEditor = false;
@@ -495,7 +525,7 @@
 
     if ('serviceWorker' in navigator) {
         window.addEventListener('load', () => {
-            navigator.serviceWorker.register('sw.js').catch(err => console.log('SW error:', err));
+            navigator.serviceWorker.register('sw.js').catch(() => {});
         });
     }
 
@@ -509,7 +539,7 @@
     function installPwaApp() {
         if (deferredPrompt) {
             deferredPrompt.prompt();
-            deferredPrompt.userChoice.then((choiceResult) => {
+            deferredPrompt.userChoice.then(() => {
                 deferredPrompt = null;
                 document.getElementById('installPwaBtn').style.display = 'none';
             });
@@ -558,7 +588,6 @@
         setupScrollListener();
     };
 
-    /* 📱 Navigation Switcher System */
     function switchTab(tabName) {
         document.querySelectorAll('.app-view').forEach(el => el.classList.remove('active'));
         document.querySelectorAll('.bottom-nav-item').forEach(el => el.classList.remove('active'));
@@ -577,7 +606,6 @@
         } else if (tabName === 'profile') {
             document.getElementById('viewProfile').classList.add('active');
             document.getElementById('navProfileBtn').classList.add('active');
-            renderProfileView();
         }
     }
 
@@ -619,7 +647,6 @@
         if(themeBtn) themeBtn.innerText = isDark ? '☀️' : '🌙';
     }
 
-    /* 🚀 រក្សាទុកក្នុង IndexedDB ដោយបែងចែកជា Batch ដើម្បីការពារ Memory Lock */
     async function saveSongsToIndexedDB(songs, onProgress) {
         if (!dbIndexed) return;
         return new Promise((resolve, reject) => {
@@ -667,7 +694,6 @@
         });
     }
 
-    // បង្ហាញសញ្ញាគ្រីសលើ Icon
     function markFetchCompleted() {
         const btn = document.getElementById('fetchAllBtn');
         const iconEl = document.getElementById('fetchIcon');
@@ -680,16 +706,13 @@
         if (btn) btn.classList.add('completed');
     }
 
-    // ⚡ 2. ប្រើប្រាស់ Cache-First Data Fetching (មិនអស់លុយ Reads និងទាញយកបានលឿនបំផុត)
     async function fetchAllSongsSilently() {
         try {
             let snapshot;
             try {
-                // ១. ព្យាយាមទាញយកពី Cache មុនគេបង្អស់
                 snapshot = await db.collection("songs").get({ source: 'cache' });
                 if (snapshot.empty) throw new Error("Cache Empty");
             } catch (cacheErr) {
-                // ២. បើ Cache គ្មានទិន្នន័យ ទើបទាញពី Server
                 snapshot = await db.collection("songs").get({ source: 'server' });
             }
 
@@ -710,7 +733,6 @@
             renderSongs();
             markFetchCompleted();
         } catch (error) {
-            console.error("Fetch error:", error);
             const cached = await loadSongsFromIndexedDB();
             if (cached.length > 0) {
                 songsList = cached;
@@ -720,7 +742,6 @@
         }
     }
 
-    /* ទាញយកទិន្នន័យ + គណនា % ពិតប្រាកដ និងបង្ហាញសញ្ញាគ្រីសនៅពេលរួចរាល់ 100% */
     async function fetchAllSongsWithProgress() {
         const btn = document.getElementById('fetchAllBtn');
         const percentEl = document.getElementById('progressPercent');
@@ -745,7 +766,7 @@
             const totalDocs = docs.length;
             let processedSongs = [];
 
-            songsList = []; // Reset រៀបចំ Streaming
+            songsList = [];
 
             for (let i = 0; i < totalDocs; i++) {
                 const doc = docs[i];
@@ -759,19 +780,16 @@
 
                 processedSongs.push(songItem);
 
-                // បច្ចុប្បន្នភាពគណនាភាគរយ (%) ជាក់ស្តែងពេលទាញ (0% -> 70%)
                 const fetchPercent = Math.floor(((i + 1) / totalDocs) * 70);
                 percentEl.innerText = `${fetchPercent}%`;
 
-                // បង្ហាញចេញលើអេក្រង់ភ្លាមៗជាបន្តបន្ទាប់
                 if (i % 10 === 0 || i === totalDocs - 1) {
                     songsList = [...processedSongs];
                     renderSongs(); 
-                    await new Promise(r => setTimeout(r, 0)); // Unblock UI Thread
+                    await new Promise(r => setTimeout(r, 0));
                 }
             }
 
-            // តម្រៀបតាមពេលវេលា
             processedSongs.sort((a, b) => {
                 const timeA = a.createdAt ? a.createdAt.seconds : 0;
                 const timeB = b.createdAt ? b.createdAt.seconds : 0;
@@ -781,21 +799,18 @@
             songsList = processedSongs;
             renderSongs();
 
-            // ភាគរយរក្សាទុកចូល Offline DB (70% -> 100%)
             await saveSongsToIndexedDB(songsList, (dbPercent) => {
                 percentEl.innerText = `${dbPercent}%`;
             });
 
             percentEl.innerText = '100%';
             
-            // 🎯 បង្ហាញសញ្ញាគ្រីសរៀបរយ
             setTimeout(() => {
                 markFetchCompleted();
                 btn.disabled = false;
             }, 500);
 
         } catch (error) {
-            console.error("Error fetching all songs:", error);
             alert("មិនអាចទាញយកទិន្នន័យបានទេ សូមពិនិត្យមើលអ៊ីនធឺណិត!");
             percentEl.style.display = 'none';
             iconEl.className = 'fa-solid fa-cloud-arrow-down';
@@ -804,30 +819,43 @@
         }
     }
 
+    // 🎯 ផ្ទៀងផ្ទាត់សិទ្ធិពី Collection "editors" តាម Email
     function listenToAuth() {
-        auth.onAuthStateChanged((user) => {
+        auth.onAuthStateChanged(async (user) => {
             currentUser = user;
+            const loginSec = document.getElementById('loginSection');
+            const userSec = document.getElementById('userProfileSection');
+
             if (user) {
-                db.collection("users").doc(user.uid).get().then((doc) => {
+                loginSec.style.display = 'none';
+                userSec.style.display = 'block';
+
+                document.getElementById('userName').innerText = user.displayName || user.email;
+                document.getElementById('userAvatar').src = user.photoURL || 'https://via.placeholder.com/64';
+
+                try {
+                    const doc = await db.collection("editors").doc(user.email).get();
                     if (doc.exists) {
                         const userData = doc.data();
-                        isEditor = userData.role === 'editor' || userData.role === 'admin';
+                        isEditor = true;
                         isAdmin = userData.role === 'admin';
                     } else {
                         isEditor = false;
                         isAdmin = false;
                     }
-                    updateUIPermissions();
-                }).catch(() => {
+                } catch (e) {
                     isEditor = false;
                     isAdmin = false;
-                    updateUIPermissions();
-                });
+                }
+
+                document.getElementById('userRoleBadge').innerText = isAdmin ? '🛡️ Admin (អ្នកគ្រប់គ្រង)' : (isEditor ? '✏️ Editor (អ្នកកែប្រែ)' : '👤 Visitor (ទស្សនា)');
             } else {
+                loginSec.style.display = 'block';
+                userSec.style.display = 'none';
                 isEditor = false;
                 isAdmin = false;
-                updateUIPermissions();
             }
+            updateUIPermissions();
         });
     }
 
@@ -837,7 +865,6 @@
         } else {
             document.body.classList.remove('editor-authorized');
         }
-        renderProfileView();
     }
 
     function listenToAlbums() {
@@ -850,7 +877,7 @@
                 customAlbums = Array.from(new Set([...customAlbums, ...loadedAlbums]));
             }
             populateAlbumDropdowns();
-        }, (err) => {
+        }, () => {
             populateAlbumDropdowns();
         });
     }
@@ -1030,43 +1057,6 @@
         }).join('');
     }
 
-    function renderProfileView() {
-        const container = document.getElementById('profileCardContent');
-        if (!container) return;
-
-        if (currentUser) {
-            const roleBadge = isAdmin ? '🛡️ Admin (អ្នកគ្រប់គ្រង)' : (isEditor ? '✏️ Editor (អ្នកកែប្រែ)' : '👤 អ្នកប្រើប្រាស់ទូទៅ');
-            container.innerHTML = `
-                <div class="profile-header">
-                    <img src="${currentUser.photoURL || 'https://via.placeholder.com/64'}" class="profile-avatar" alt="User">
-                    <div>
-                        <div class="profile-name">${currentUser.displayName || currentUser.email || 'អ្នកប្រើប្រាស់'}</div>
-                        <div class="profile-badge">${roleBadge}</div>
-                    </div>
-                </div>
-                <div class="action-list">
-                    ${isEditor ? `
-                        <button class="action-btn-item" onclick="openAddSongModal()"><i class="fa-solid fa-plus"></i> បញ្ចូលបទចម្រៀងថ្មី</button>
-                        <button class="action-btn-item" onclick="openBatchAddModal()"><i class="fa-solid fa-images"></i> បញ្ចូលរូបភាពច្រើនក្នុងពេលតែមួយ</button>
-                    ` : ''}
-                    <button class="action-btn-item danger" onclick="handleLogout()"><i class="fa-solid fa-right-from-bracket"></i> ចាកចេញពីគណនី</button>
-                </div>
-            `;
-        } else {
-            container.innerHTML = `
-                <div style="text-align:center; padding: 20px 0;">
-                    <i class="fa-solid fa-user-circle" style="font-size:4rem; color:var(--text-muted); margin-bottom:12px;"></i>
-                    <h2>ចូលប្រើប្រាស់ប្រព័ន្ធ</h2>
-                    <p style="color:var(--text-muted); margin-top:6px; font-size:0.9rem;">ចូលប្រើប្រាស់ដើម្បីទទួលបានមុខងារបន្ថែមក្នុងការគ្រប់គ្រងបទចម្រៀង</p>
-                    <button onclick="handleGoogleLogin()" style="margin-top:20px; width:100%; padding:12px; border-radius:10px; border:none; background:var(--primary); color:white; font-weight:700; cursor:pointer; display:flex; align-items:center; justify-center; gap:8px;">
-                        <i class="fa-brands fa-google"></i> ចូលប្រើជាមួយ Google
-                    </button>
-                </div>
-            `;
-        }
-    }
-
-    /* Modal Controls */
     function openModal(id) { document.getElementById(id).classList.add('active'); }
     function closeModal(id) { document.getElementById(id).classList.remove('active'); }
 
@@ -1128,7 +1118,6 @@
         }
     }
 
-    /* Image Upload & Drag/Drop Handlers */
     function handleFileSelect(e) {
         const file = e.target.files[0];
         if (file) convertFileToBase64(file, (res) => {
@@ -1212,7 +1201,6 @@
         });
     }
 
-    /* Add / Edit / Delete Songs */
     async function handleAddSong(e) {
         e.preventDefault();
         const album = document.getElementById('songAlbumSelect').value;
@@ -1243,7 +1231,6 @@
             document.getElementById('previewContainer').style.display = 'none';
             fetchAllSongsSilently();
         } catch (err) {
-            console.error("Add song error:", err);
             alert('មានបញ្ហាក្នុងការបញ្ចូលបទចម្រៀង!');
         } finally {
             btn.disabled = false;
@@ -1266,14 +1253,12 @@
         info.innerText = `បានជ្រើសរើស ${files.length} រូបភាព`;
         saveBtn.disabled = false;
 
-        let loadedCount = 0;
         files.forEach(file => {
             convertFileToBase64(file, (res) => {
                 batchImagesArray.push({
                     name: file.name.replace(/\.[^/.]+$/, ""),
                     base64: res
                 });
-                loadedCount++;
             });
         });
     }
@@ -1307,7 +1292,6 @@
             document.getElementById('batchPreviewInfo').innerText = '';
             fetchAllSongsSilently();
         } catch (err) {
-            console.error("Batch save error:", err);
             alert('មានបញ្ហាក្នុងការរក្សាទុក!');
         } finally {
             btn.disabled = false;
@@ -1359,7 +1343,6 @@
             closeModal('editSongModal');
             fetchAllSongsSilently();
         } catch (err) {
-            console.error("Update error:", err);
             alert('មានបញ្ហាក្នុងការកែប្រែ!');
         } finally {
             btn.disabled = false;
@@ -1374,7 +1357,6 @@
                 alert('បានលុบบទចម្រៀងរួចរាល់!');
                 fetchAllSongsSilently();
             } catch (err) {
-                console.error("Delete error:", err);
                 alert('មិនអាចលុបបានទេ!');
             }
         }
@@ -1390,14 +1372,11 @@
                     customAlbums.push(albumName);
                     populateAlbumDropdowns();
                     renderAlbumsView();
-                } catch (e) {
-                    console.error("Add album error:", e);
-                }
+                } catch (e) {}
             }
         }
     }
 
-    /* Actions & Tools */
     function downloadImage(url, filename) {
         const a = document.createElement('a');
         a.href = url;
@@ -1420,7 +1399,6 @@
         }
     }
 
-    /* Fullscreen Modal Viewer */
     function openFullScreenModal(index) {
         currentFullscreenIndex = index;
         updateFullScreenContent();
@@ -1465,7 +1443,6 @@
         else if (touchEndX > touchStartX + threshold) slideFullScreen(-1);
     }
 
-    /* Online / Offline status */
     window.addEventListener('online', () => updateOnlineStatus());
     window.addEventListener('offline', () => updateOnlineStatus());
 
@@ -1481,7 +1458,30 @@
         }
     }
 
-    /* Auth Handlers */
+    // 🎯 មុខងារ Login ជាមួយ Email & Password
+    function handleEmailLogin(e) {
+        e.preventDefault();
+        const email = document.getElementById('authEmail').value.trim();
+        const password = document.getElementById('authPassword').value;
+
+        const btn = document.getElementById('btnLoginSubmit');
+        btn.innerText = 'កំពុងផ្ទៀងផ្ទាត់...';
+        btn.disabled = true;
+
+        auth.signInWithEmailAndPassword(email, password)
+            .then(() => {
+                alert('Login ជោគជ័យ!');
+            })
+            .catch(err => {
+                alert('ការចូលប្រព័ន្ធបរាជ័យ៖ ' + err.message);
+            })
+            .finally(() => {
+                btn.innerText = '🔑 ចូលប្រើប្រាស់ (Login)';
+                btn.disabled = false;
+            });
+    }
+
+    // 🎯 មុខងារ Login ជាមួយ Google
     function handleGoogleLogin() {
         const provider = new firebase.auth.GoogleAuthProvider();
         auth.signInWithPopup(provider).catch((error) => {
@@ -1489,6 +1489,7 @@
         });
     }
 
+    // 🎯 មុខងារ Logout
     function handleLogout() {
         auth.signOut().then(() => {
             alert('បានចាកចេញពីគណនីរួចរាល់!');
