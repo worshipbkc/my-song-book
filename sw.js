@@ -1,64 +1,65 @@
-const CACHE_NAME = 'worship-songs-v2';
+// ប្តូរលេខ Version នេះ (ឧ. v1 -> v2) រាល់ពេលអ្នកកែប្រែ UI/HTML
+const CACHE_NAME = 'worship-app-v2';
+
+// ឯកសារStatic ដែលត្រូវ Cache ទុកប្រើ Offline
 const ASSETS_TO_CACHE = [
-    './',
-    './index.html',
-    './manifest.json',
-    './icon.jpg',
-    'https://fonts.googleapis.com/css2?family=Kantumruy+Pro:wght@400;500;600;700&display=swap',
-    'https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js',
-    'https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js',
-    'https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js'
+  './',
+  './index.html',
+  './manifest.json',
+  './icon.jpg',
+  'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css',
+  'https://fonts.googleapis.com/css2?family=Kantumruy+Pro:wght@400;500;600;700&display=swap'
 ];
 
-// ពេលដំឡើង Service Worker
+// Install Event - ចុះឈ្មោះ Cache ថ្មី
 self.addEventListener('install', (event) => {
-    event.waitUntil(
-        caches.open(CACHE_NAME).then((cache) => {
-            return cache.addAll(ASSETS_TO_CACHE);
-        })
-    );
-    self.skipWaiting();
+  self.skipWaiting(); // បង្ខំឱ្យ Service Worker ថ្មីដំណើរការភ្លាមៗ
+  event.waitUntil(
+    caches.open(CACHE_NAME).then((cache) => {
+      return cache.addAll(ASSETS_TO_CACHE);
+    })
+  );
 });
 
-// សម្អាត Cache ចាស់ពេលមាន Version ថ្មី
+// Activate Event - លុប Cache ចាស់ៗចោលស្វ័យប្រវត្តិ
 self.addEventListener('activate', (event) => {
-    event.waitUntil(
-        caches.keys().then((keys) => {
-            return Promise.all(
-                keys.map((key) => {
-                    if (key !== CACHE_NAME) {
-                        return caches.delete(key);
-                    }
-                })
-            );
+  event.waitUntil(
+    caches.keys().then((cacheNames) => {
+      return Promise.all(
+        cacheNames.map((cache) => {
+          if (cache !== CACHE_NAME) {
+            return caches.delete(cache);
+          }
         })
-    );
-    self.clients.claim();
+      );
+    }).then(() => self.clients.claim())
+  );
 });
 
-// ទាញយកទិន្នន័យពី Cache និង Network
+// Fetch Event - Network-First Strategy សម្រាប់កូដ UI
+// ព្យាយាមទាញយកកូដថ្មីពី Server មុន បើគ្មានអ៊ីនធឺណិត ទើបយកកូដក្នុង Cache មកប្រើ
 self.addEventListener('fetch', (event) => {
-    const url = new URL(event.request.url);
+  // មិនធ្វើ Cache លើ Request របស់ Firebase Firestore ឡើយ (ដើម្បីកុំឱ្យជាន់គ្នា)
+  if (event.request.url.includes('firestore.googleapis.com') || 
+      event.request.url.includes('identitytoolkit.googleapis.com')) {
+    return;
+  }
 
-    // ១. មិនបាច់ Cache សំណើទៅកាន់ Firebase Backend ឬ API ខាងក្រៅ (ទុកចិត្តឱ្យ Firebase SDK စီမံផ្ដាច់មុខ)
-    if (url.origin.includes('firestore.googleapis.com') || url.origin.includes('firebase')) {
-        return;
-    }
-
-    // ២. សម្រាប់ Static Assets និងឯកសារทั่วไป (Cache-first, falling back to network)
-    event.respondWith(
-        caches.match(event.request).then((cachedResponse) => {
-            if (cachedResponse) {
-                return cachedResponse;
-            }
-            return fetch(event.request).then((networkResponse) => {
-                return networkResponse;
-            }).catch(() => {
-                // ករណីគ្មានអ៊ិនធឺណិត ហើយសំណើគឺចូលទំព័រ HTML
-                if (event.request.mode === 'navigate') {
-                    return caches.match('./index.html');
-                }
-            });
-        })
-    );
+  event.respondWith(
+    fetch(event.request)
+      .then((networkResponse) => {
+        // បើទាញយកបានជោគជ័យ យកទៅ Update ក្នុង Cache ទុកប្រើ Offline លើកក្រោយ
+        if (networkResponse && networkResponse.status === 200 && networkResponse.type === 'basic') {
+          const responseToCache = networkResponse.clone();
+          caches.open(CACHE_NAME).then((cache) => {
+            cache.put(event.request, responseToCache);
+          });
+        }
+        return networkResponse;
+      })
+      .catch(() => {
+        // បើដាច់អ៊ីនធឺណិត (Offline) ទើបយកកូដពី Cache មកបង្ហាញ
+        return caches.match(event.request);
+      })
+  );
 });
