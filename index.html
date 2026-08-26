@@ -460,7 +460,6 @@ const firebaseConfig = {
 };
     firebase.initializeApp(firebaseConfig);
 
-    // ⚡ 1. បើក Firestore Offline Persistence ភ្លាមៗបន្ទាប់ពី initializeApp
     firebase.firestore().enablePersistence({ synchronizeTabs: true }).catch((err) => {
         if (err.code === 'failed-precondition') {
             console.warn('Firestore persistence failed: Multiple tabs open');
@@ -560,7 +559,6 @@ const firebaseConfig = {
         setupScrollListener();
     };
 
-    /* 📱 Navigation Switcher System */
     function switchTab(tabName) {
         document.querySelectorAll('.app-view').forEach(el => el.classList.remove('active'));
         document.querySelectorAll('.bottom-nav-item').forEach(el => el.classList.remove('active'));
@@ -621,7 +619,6 @@ const firebaseConfig = {
         if(themeBtn) themeBtn.innerText = isDark ? '☀️' : '🌙';
     }
 
-    /* 🚀 រក្សាទុកក្នុង IndexedDB ដោយបែងចែកជា Batch ដើម្បីការពារ Memory Lock */
     async function saveSongsToIndexedDB(songs, onProgress) {
         if (!dbIndexed) return;
         return new Promise((resolve, reject) => {
@@ -669,7 +666,6 @@ const firebaseConfig = {
         });
     }
 
-    // បង្ហាញសញ្ញាគ្រីសលើ Icon
     function markFetchCompleted() {
         const btn = document.getElementById('fetchAllBtn');
         const iconEl = document.getElementById('fetchIcon');
@@ -682,16 +678,13 @@ const firebaseConfig = {
         if (btn) btn.classList.add('completed');
     }
 
-    // ⚡ 2. ប្រើប្រាស់ Cache-First Data Fetching (មិនអស់លុយ Reads និងទាញយកបានលឿនបំផុត)
     async function fetchAllSongsSilently() {
         try {
             let snapshot;
             try {
-                // ១. ព្យាយាមទាញយកពី Cache មុនគេបង្អស់
                 snapshot = await db.collection("songs").get({ source: 'cache' });
                 if (snapshot.empty) throw new Error("Cache Empty");
             } catch (cacheErr) {
-                // ២. បើ Cache គ្មានទិន្នន័យ ទើបទាញពី Server
                 snapshot = await db.collection("songs").get({ source: 'server' });
             }
 
@@ -722,7 +715,6 @@ const firebaseConfig = {
         }
     }
 
-    /* ទាញយកទិន្នន័យ + គណនា % ពិតប្រាកដ និងបង្ហាញសញ្ញាគ្រីសនៅពេលរួចរាល់ 100% */
     async function fetchAllSongsWithProgress() {
         const btn = document.getElementById('fetchAllBtn');
         const percentEl = document.getElementById('progressPercent');
@@ -747,7 +739,7 @@ const firebaseConfig = {
             const totalDocs = docs.length;
             let processedSongs = [];
 
-            songsList = []; // Reset រៀបចំ Streaming
+            songsList = [];
 
             for (let i = 0; i < totalDocs; i++) {
                 const doc = docs[i];
@@ -761,19 +753,16 @@ const firebaseConfig = {
 
                 processedSongs.push(songItem);
 
-                // បច្ចុប្បន្នភាពគណនាភាគរយ (%) ជាក់ស្តែងពេលទាញ (0% -> 70%)
                 const fetchPercent = Math.floor(((i + 1) / totalDocs) * 70);
                 percentEl.innerText = `${fetchPercent}%`;
 
-                // បង្ហាញចេញលើអេក្រង់ភ្លាមៗជាបន្តបន្ទាប់
                 if (i % 10 === 0 || i === totalDocs - 1) {
                     songsList = [...processedSongs];
                     renderSongs(); 
-                    await new Promise(r => setTimeout(r, 0)); // Unblock UI Thread
+                    await new Promise(r => setTimeout(r, 0));
                 }
             }
 
-            // តម្រៀបតាមពេលវេលា
             processedSongs.sort((a, b) => {
                 const timeA = a.createdAt ? a.createdAt.seconds : 0;
                 const timeB = b.createdAt ? b.createdAt.seconds : 0;
@@ -783,14 +772,12 @@ const firebaseConfig = {
             songsList = processedSongs;
             renderSongs();
 
-            // ភាគរយរក្សាទុកចូល Offline DB (70% -> 100%)
             await saveSongsToIndexedDB(songsList, (dbPercent) => {
                 percentEl.innerText = `${dbPercent}%`;
             });
 
             percentEl.innerText = '100%';
             
-            // 🎯 បង្ហាញសញ្ញាគ្រីសរៀបរយ
             setTimeout(() => {
                 markFetchCompleted();
                 btn.disabled = false;
@@ -1068,7 +1055,6 @@ const firebaseConfig = {
         }
     }
 
-    /* Modal Controls */
     function openModal(id) { document.getElementById(id).classList.add('active'); }
     function closeModal(id) { document.getElementById(id).classList.remove('active'); }
 
@@ -1130,7 +1116,6 @@ const firebaseConfig = {
         }
     }
 
-    /* ⚡ Image Compression & Resizing (បង្រួមរូបភាពក្រោម 1MB ដោយស្វ័យប្រវត្តិ) */
     function compressAndResizeImage(file, maxWidth = 1600, maxHeight = 1600, quality = 0.8) {
         return new Promise((resolve) => {
             const reader = new FileReader();
@@ -1160,7 +1145,6 @@ const firebaseConfig = {
 
                     let resBase64 = canvas.toDataURL('image/jpeg', quality);
                     
-                    // បើទំហំរូបភាពនៅតែធំជាង 1MB នោះវានឹងបង្រួម Quality បន្ថែមទៀត
                     let currentQuality = quality;
                     while (resBase64.length > 1000000 && currentQuality > 0.2) {
                         currentQuality -= 0.15;
@@ -1173,7 +1157,6 @@ const firebaseConfig = {
         });
     }
 
-    /* Image Upload & Drag/Drop Handlers */
     async function handleFileSelect(e) {
         const file = e.target.files[0];
         if (file) {
@@ -1254,7 +1237,7 @@ const firebaseConfig = {
         });
     }
 
-    /* Add / Edit / Delete Songs */
+    /* 🟢 មុខងារ handleAddSong ដែលបានកែសម្រួលរួចរាល់ (មិន Refresh និងមិន fetch ទាំងអស់សាថ្មី) */
     async function handleAddSong(e) {
         e.preventDefault();
         const album = document.getElementById('songAlbumSelect').value;
@@ -1270,7 +1253,8 @@ const firebaseConfig = {
         btn.innerText = 'កំពុងរក្សាទុក...';
 
         try {
-            await db.collection("songs").add({
+            // ១. បញ្ចូលទៅកាន់ Firebase Firestore
+            const docRef = await db.collection("songs").add({
                 album,
                 title,
                 artist,
@@ -1283,7 +1267,21 @@ const firebaseConfig = {
             document.getElementById('addSongForm').reset();
             selectedImageBase64 = '';
             document.getElementById('previewContainer').style.display = 'none';
-            fetchAllSongsSilently();
+
+            // ២. ➕ បន្ថែមបទថ្មីចូលក្នុង Array `songsList` ផ្ទាល់ភ្លាមៗ
+            const newSongItem = {
+                id: docRef.id,
+                album,
+                title,
+                artist,
+                imageUrl,
+                createdAt: { seconds: Math.floor(Date.now() / 1000) }
+            };
+            
+            songsList.unshift(newSongItem);       // ដាក់បញ្ចូលទៅក្បាលគេបង្អស់
+            renderSongs();                        // Render បង្ហាញលើអេក្រង់ភ្លាមៗ
+            await saveSongsToIndexedDB(songsList); // រក្សាទុកក្នុង Offline DB
+
         } catch (err) {
             console.error("Add song error:", err);
             alert('មានបញ្ហាក្នុងការបញ្ចូលបទចម្រៀង!');
@@ -1333,6 +1331,8 @@ const firebaseConfig = {
 
         try {
             const batch = db.batch();
+            let newBatchItems = [];
+            
             batchImagesArray.forEach(item => {
                 const docRef = db.collection("songs").doc();
                 batch.set(docRef, {
@@ -1342,6 +1342,15 @@ const firebaseConfig = {
                     imageUrl: item.base64,
                     createdAt: firebase.firestore.FieldValue.serverTimestamp()
                 });
+
+                newBatchItems.unshift({
+                    id: docRef.id,
+                    album,
+                    title: item.name,
+                    artist,
+                    imageUrl: item.base64,
+                    createdAt: { seconds: Math.floor(Date.now() / 1000) }
+                });
             });
 
             await batch.commit();
@@ -1349,7 +1358,12 @@ const firebaseConfig = {
             closeModal('batchAddModal');
             batchImagesArray = [];
             document.getElementById('batchPreviewInfo').innerText = '';
-            fetchAllSongsSilently();
+
+            // បន្ថែមចូល songsList ផ្ទាល់ដោយមិនបាច់ fetch ទាំងអស់
+            songsList = [...newBatchItems, ...songsList];
+            renderSongs();
+            await saveSongsToIndexedDB(songsList);
+
         } catch (err) {
             console.error("Batch save error:", err);
             alert('មានបញ្ហាក្នុងការរក្សាទុក!');
@@ -1401,7 +1415,15 @@ const firebaseConfig = {
 
             alert('បានកែប្រែបទចម្រៀងរួចរាល់!');
             closeModal('editSongModal');
-            fetchAllSongsSilently();
+            
+            // កែប្រែក្នុង Array ផ្ទាល់
+            const index = songsList.findIndex(s => s.id === id);
+            if (index !== -1) {
+                songsList[index] = { ...songsList[index], album, title, artist, imageUrl };
+            }
+            renderSongs();
+            await saveSongsToIndexedDB(songsList);
+
         } catch (err) {
             console.error("Update error:", err);
             alert('មានបញ្ហាក្នុងការកែប្រែ!');
@@ -1416,7 +1438,12 @@ const firebaseConfig = {
             try {
                 await db.collection("songs").doc(id).delete();
                 alert('បានលុบบទចម្រៀងរួចរាល់!');
-                fetchAllSongsSilently();
+                
+                // លុបចេញពី Array ផ្ទាល់
+                songsList = songsList.filter(s => s.id !== id);
+                renderSongs();
+                await saveSongsToIndexedDB(songsList);
+
             } catch (err) {
                 console.error("Delete error:", err);
                 alert('មិនអាចលុបបានទេ!');
@@ -1441,7 +1468,6 @@ const firebaseConfig = {
         }
     }
 
-    /* Actions & Tools */
     function downloadImage(url, filename) {
         const a = document.createElement('a');
         a.href = url;
@@ -1464,7 +1490,6 @@ const firebaseConfig = {
         }
     }
 
-    /* Fullscreen Modal Viewer */
     function openFullScreenModal(index) {
         currentFullscreenIndex = index;
         updateFullScreenContent();
@@ -1509,7 +1534,6 @@ const firebaseConfig = {
         else if (touchEndX > touchStartX + threshold) slideFullScreen(-1);
     }
 
-    /* Online / Offline status */
     window.addEventListener('online', () => updateOnlineStatus());
     window.addEventListener('offline', () => updateOnlineStatus());
 
@@ -1525,7 +1549,6 @@ const firebaseConfig = {
         }
     }
 
-    /* Auth Handlers */
     function handleGoogleLogin() {
         const provider = new firebase.auth.GoogleAuthProvider();
         auth.signInWithPopup(provider).catch((error) => {
