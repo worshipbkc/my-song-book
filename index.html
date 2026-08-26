@@ -292,7 +292,7 @@
 
     <div class="app-view" id="viewProfile">
         <div class="profile-container" id="profileCardContent">
-            </div>
+        </div>
     </div>
 </div>
 
@@ -540,19 +540,20 @@ const firebaseConfig = {
         listenToAuth();
         listenToAlbums();
         
+        // ១. ទាញយកទិន្នន័យពី Offline DB មកបង្ហាញភ្លាមៗ (Fast Initial Render)
         try {
             await initIndexedDB();
             const offlineSongs = await loadSongsFromIndexedDB();
             if (offlineSongs && offlineSongs.length > 0) {
                 songsList = offlineSongs;
                 renderSongs();
-                markFetchCompleted();
-            } else {
-                fetchAllSongsSilently();
             }
         } catch (e) {
-            fetchAllSongsSilently();
+            console.warn("IndexedDB load error:", e);
         }
+
+        // ២. បើក Real-time listener ភ្ជាប់ទៅកាន់ Cloud Firestore
+        fetchAllSongsSilently();
 
         setupGlobalPasteListener();
         setupTouchSwipeListeners();
@@ -678,41 +679,40 @@ const firebaseConfig = {
         if (btn) btn.classList.add('completed');
     }
 
-    async function fetchAllSongsSilently() {
-        try {
-            let snapshot;
-            try {
-                snapshot = await db.collection("songs").get({ source: 'cache' });
-                if (snapshot.empty) throw new Error("Cache Empty");
-            } catch (cacheErr) {
-                snapshot = await db.collection("songs").get({ source: 'server' });
-            }
+    /* 🟢 ប្រើប្រាស់ REAL-TIME LISTENER ដើម្បីឱ្យបទចម្រៀងថ្មីលោតឡើងគ្រប់ Device ទាំងអស់ភ្លាមៗ */
+    function fetchAllSongsSilently() {
+        db.collection("songs").onSnapshot(async (snapshot) => {
+            let updatedSongs = [];
 
-            songsList = snapshot.docs.map(doc => ({
-                id: doc.id,
-                ...doc.data(),
-                createdAt: doc.data().createdAt ? { seconds: doc.data().createdAt.seconds } : null,
-                updatedAt: doc.data().updatedAt ? { seconds: doc.data().updatedAt.seconds } : null
-            }));
+            snapshot.forEach((doc) => {
+                const data = doc.data();
+                updatedSongs.push({
+                    id: doc.id,
+                    ...data,
+                    createdAt: data.createdAt ? { seconds: data.createdAt.seconds } : null,
+                    updatedAt: data.updatedAt ? { seconds: data.updatedAt.seconds } : null
+                });
+            });
 
-            songsList.sort((a, b) => {
+            // តម្រៀបបទចម្រៀងពីថ្មីទៅចាស់
+            updatedSongs.sort((a, b) => {
                 const timeA = a.createdAt ? a.createdAt.seconds : 0;
                 const timeB = b.createdAt ? b.createdAt.seconds : 0;
                 return timeB - timeA;
             });
 
-            await saveSongsToIndexedDB(songsList);
+            songsList = updatedSongs;
             renderSongs();
-            markFetchCompleted();
-        } catch (error) {
-            console.error("Fetch error:", error);
-            const cached = await loadSongsFromIndexedDB();
-            if (cached.length > 0) {
-                songsList = cached;
-                renderSongs();
+
+            try {
+                await saveSongsToIndexedDB(songsList);
                 markFetchCompleted();
+            } catch (e) {
+                console.error("Save IndexedDB error:", e);
             }
-        }
+        }, (error) => {
+            console.error("Realtime fetch error:", error);
+        });
     }
 
     async function fetchAllSongsWithProgress() {
@@ -727,14 +727,7 @@ const firebaseConfig = {
         percentEl.innerText = '0%';
 
         try {
-            let snapshot;
-            try {
-                snapshot = await db.collection("songs").get({ source: 'cache' });
-                if (snapshot.empty) throw new Error("Cache Empty");
-            } catch (e) {
-                snapshot = await db.collection("songs").get({ source: 'server' });
-            }
-
+            let snapshot = await db.collection("songs").get();
             const docs = snapshot.docs;
             const totalDocs = docs.length;
             let processedSongs = [];
@@ -1237,7 +1230,6 @@ const firebaseConfig = {
         });
     }
 
-    /* 🟢 មុខងារ handleAddSong ដែលបានកែសម្រួលរួចរាល់ (មិន Refresh និងមិន fetch ទាំងអស់សាថ្មី) */
     async function handleAddSong(e) {
         e.preventDefault();
         const album = document.getElementById('songAlbumSelect').value;
@@ -1253,8 +1245,7 @@ const firebaseConfig = {
         btn.innerText = 'កំពុងរក្សាទុក...';
 
         try {
-            // ១. បញ្ចូលទៅកាន់ Firebase Firestore
-            const docRef = await db.collection("songs").add({
+            await db.collection("songs").add({
                 album,
                 title,
                 artist,
@@ -1267,20 +1258,6 @@ const firebaseConfig = {
             document.getElementById('addSongForm').reset();
             selectedImageBase64 = '';
             document.getElementById('previewContainer').style.display = 'none';
-
-            // ២. ➕ បន្ថែមបទថ្មីចូលក្នុង Array `songsList` ផ្ទាល់ភ្លាមៗ
-            const newSongItem = {
-                id: docRef.id,
-                album,
-                title,
-                artist,
-                imageUrl,
-                createdAt: { seconds: Math.floor(Date.now() / 1000) }
-            };
-            
-            songsList.unshift(newSongItem);       // ដាក់បញ្ចូលទៅក្បាលគេបង្អស់
-            renderSongs();                        // Render បង្ហាញលើអេក្រង់ភ្លាមៗ
-            await saveSongsToIndexedDB(songsList); // រក្សាទុកក្នុង Offline DB
 
         } catch (err) {
             console.error("Add song error:", err);
@@ -1331,7 +1308,6 @@ const firebaseConfig = {
 
         try {
             const batch = db.batch();
-            let newBatchItems = [];
             
             batchImagesArray.forEach(item => {
                 const docRef = db.collection("songs").doc();
@@ -1342,15 +1318,6 @@ const firebaseConfig = {
                     imageUrl: item.base64,
                     createdAt: firebase.firestore.FieldValue.serverTimestamp()
                 });
-
-                newBatchItems.unshift({
-                    id: docRef.id,
-                    album,
-                    title: item.name,
-                    artist,
-                    imageUrl: item.base64,
-                    createdAt: { seconds: Math.floor(Date.now() / 1000) }
-                });
             });
 
             await batch.commit();
@@ -1358,11 +1325,6 @@ const firebaseConfig = {
             closeModal('batchAddModal');
             batchImagesArray = [];
             document.getElementById('batchPreviewInfo').innerText = '';
-
-            // បន្ថែមចូល songsList ផ្ទាល់ដោយមិនបាច់ fetch ទាំងអស់
-            songsList = [...newBatchItems, ...songsList];
-            renderSongs();
-            await saveSongsToIndexedDB(songsList);
 
         } catch (err) {
             console.error("Batch save error:", err);
@@ -1415,14 +1377,6 @@ const firebaseConfig = {
 
             alert('បានកែប្រែបទចម្រៀងរួចរាល់!');
             closeModal('editSongModal');
-            
-            // កែប្រែក្នុង Array ផ្ទាល់
-            const index = songsList.findIndex(s => s.id === id);
-            if (index !== -1) {
-                songsList[index] = { ...songsList[index], album, title, artist, imageUrl };
-            }
-            renderSongs();
-            await saveSongsToIndexedDB(songsList);
 
         } catch (err) {
             console.error("Update error:", err);
@@ -1438,12 +1392,6 @@ const firebaseConfig = {
             try {
                 await db.collection("songs").doc(id).delete();
                 alert('បានលុบบទចម្រៀងរួចរាល់!');
-                
-                // លុបចេញពី Array ផ្ទាល់
-                songsList = songsList.filter(s => s.id !== id);
-                renderSongs();
-                await saveSongsToIndexedDB(songsList);
-
             } catch (err) {
                 console.error("Delete error:", err);
                 alert('មិនអាចលុបបានទេ!');
