@@ -4,9 +4,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>ចម្រៀងសរសើរដំកើងព្រះ</title>
+
+    <!-- ការពារកុំឱ្យ Browser ធ្វើ Cache លើឯកសារ HTML -->
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
     
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-
     <link rel="manifest" href="manifest.json">
     <link rel="apple-touch-icon" href="icon.jpg">
     <meta name="theme-color" content="#2563eb">
@@ -50,7 +54,6 @@
         .header-text h1 { font-size: 1.5rem; color: var(--primary); margin-bottom: 4px; }
         .header-text p { color: var(--text-muted); font-size: 0.9rem; font-weight: 600; line-height: 1.5; }
 
-        /* Icon ទាញយកទិន្នន័យ (Offline) នៅជ្រុងខាងស្តាំលើ + % */
         .fetch-icon-btn {
             position: absolute;
             top: 20px;
@@ -78,7 +81,6 @@
             margin-top: 2px;
             display: none;
         }
-        /* Style សញ្ញាគ្រីស ពណ៌បៃតង */
         .fetch-icon-btn.completed {
             border-color: #10b981;
             color: #10b981;
@@ -86,16 +88,11 @@
 
         .install-pwa-btn { background: #16a34a; border: none; color: white; padding: 6px 12px; border-radius: 8px; font-weight: 600; font-size: 0.8rem; cursor: pointer; display: none; align-items: center; gap: 6px; margin-top: 8px; }
 
-        /* Navigation Views System */
         .app-view { display: none; }
         .app-view.active { display: block; }
 
-        /* ការពារការ Zoom ពេលវាយបញ្ចូលអក្សរ (Font size >= 16px) */
-        input[type="text"], input[type="url"], select, textarea {
-            font-size: 16px !important;
-        }
+        input[type="text"], input[type="url"], select, textarea { font-size: 16px !important; }
 
-        /* Search */
         .controls { position: sticky; top: 0; z-index: 90; background: var(--bg); padding: 10px 0 14px 0; margin-bottom: 16px; display: flex; align-items: center; gap: 10px; }
         .search-box { position: relative; display: flex; align-items: center; flex: 1; }
         .search-box input { width: 100%; padding: 10px 40px 10px 16px; border: 1px solid var(--border); border-radius: 10px; outline: none; background: var(--card-bg); color: var(--text); }
@@ -103,7 +100,6 @@
         
         .theme-toggle-btn { background: var(--card-bg); border: 1px solid var(--border); color: var(--text); padding: 10px 14px; border-radius: 10px; font-size: 1rem; cursor: pointer; display: flex; align-items: center; justify-content: center; }
 
-        /* Song Card Grid */
         .song-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 18px; }
         .song-card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; display: flex; flex-direction: column; position: relative; }
 
@@ -139,7 +135,6 @@
         .btn-delete-custom { background-color: #fee2e2; color: var(--danger); border-color: #fecaca; }
         body.dark-mode .btn-delete-custom { background-color: #7f1d1d; color: #fee2e2; border-color: #991b1b; }
 
-        /* Section Cards (Albums & Playlists Grid) */
         .section-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 16px; margin-top: 10px; }
         .folder-card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 12px; padding: 18px 14px; text-align: center; cursor: pointer; transition: transform 0.2s, box-shadow 0.2s; position: relative; }
         .folder-card:hover { transform: translateY(-3px); box-shadow: 0 4px 12px rgba(0,0,0,0.05); border-color: var(--primary); }
@@ -147,9 +142,7 @@
         .folder-name { font-weight: 700; font-size: 0.95rem; color: var(--text); margin-bottom: 4px; }
         .folder-count { font-size: 0.78rem; color: var(--text-muted); font-weight: 600; }
         .folder-delete-btn { position: absolute; top: 8px; right: 8px; background: none; border: none; color: var(--danger); font-size: 0.85rem; cursor: pointer; padding: 4px; }
-        .folder-share-btn { position: absolute; top: 8px; left: 8px; background: none; border: none; color: var(--primary); font-size: 0.9rem; cursor: pointer; padding: 4px; }
 
-        /* Profile View Styling */
         .profile-container { max-width: 600px; margin: 0 auto; background: var(--card-bg); border: 1px solid var(--border); border-radius: 16px; padding: 24px; }
         .profile-header { display: flex; align-items: center; gap: 16px; margin-bottom: 20px; border-bottom: 1px solid var(--border); padding-bottom: 16px; }
         .profile-avatar { width: 64px; height: 64px; border-radius: 50%; object-fit: cover; border: 2px solid var(--primary); }
@@ -161,37 +154,17 @@
         .action-btn-item:hover { border-color: var(--primary); color: var(--primary); }
         .action-btn-item.danger { color: var(--danger); }
 
-        /* 📱 Bottom Navigation Bar */
         .bottom-nav {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            height: 60px;
-            background: var(--card-bg);
-            border-top: 1px solid var(--border);
-            display: flex;
-            align-items: center;
-            justify-content: space-around;
-            z-index: 1300;
-            box-shadow: 0 -2px 10px rgba(0,0,0,0.05);
+            position: fixed; bottom: 0; left: 0; right: 0; height: 60px;
+            background: var(--card-bg); border-top: 1px solid var(--border);
+            display: flex; align-items: center; justify-content: space-around;
+            z-index: 1300; box-shadow: 0 -2px 10px rgba(0,0,0,0.05);
         }
 
         .bottom-nav-item {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            flex: 1;
-            height: 100%;
-            color: var(--text-muted);
-            text-decoration: none;
-            font-size: 0.72rem;
-            font-weight: 600;
-            cursor: pointer;
-            border: none;
-            background: transparent;
-            gap: 4px;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            flex: 1; height: 100%; color: var(--text-muted); text-decoration: none;
+            font-size: 0.72rem; font-weight: 600; cursor: pointer; border: none; background: transparent; gap: 4px;
         }
 
         .bottom-nav-item i { font-size: 1.15rem; }
@@ -200,7 +173,6 @@
         .empty-state { text-align: center; padding: 40px 20px; color: var(--text-muted); grid-column: 1 / -1; font-weight: 600; }
         .loading-more-spinner { text-align: center; padding: 16px; font-size: 0.85rem; color: var(--text-muted); grid-column: 1 / -1; font-weight: 600; }
 
-        /* Modals */
         .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); align-items: center; justify-content: center; z-index: 2000; padding: 20px; }
         .modal.active { display: flex; }
         .modal-content { background: var(--card-bg); color: var(--text); padding: 20px; border-radius: 16px; width: 100%; max-width: 450px; max-height: 90vh; overflow-y: auto; border: 1px solid var(--border); }
@@ -213,7 +185,6 @@
         .preview-container img { width: 100%; max-height: 130px; object-fit: contain; }
         .remove-img-btn { position: absolute; top: 4px; right: 4px; background: rgba(239, 68, 68, 0.9); color: white; border: none; border-radius: 50%; width: 22px; height: 22px; font-size: 0.75rem; cursor: pointer; }
 
-        /* Fullscreen Viewer */
         .fullscreen-modal { display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0, 0, 0, 0.95); z-index: 3000; flex-direction: column; align-items: center; justify-content: center; }
         .fullscreen-modal.active { display: flex; }
         .fullscreen-header { position: absolute; top: 15px; left: 20px; right: 20px; display: flex; justify-content: space-between; align-items: center; color: white; z-index: 3010; }
@@ -227,7 +198,6 @@
         .editor-authorized .editor-only { display: flex !important; }
         .editor-authorized button.editor-only { display: inline-block !important; }
 
-        /* Offline Sync Badge */
         .offline-sync-badge { position: fixed; bottom: 70px; right: 16px; background: var(--card-bg); border: 1px solid var(--border); padding: 6px 12px; border-radius: 20px; font-size: 0.78rem; font-weight: 600; display: flex; align-items: center; gap: 6px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); z-index: 1100; }
         .status-dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
         .status-online { background-color: #10b981; }
@@ -291,8 +261,7 @@
     </div>
 
     <div class="app-view" id="viewProfile">
-        <div class="profile-container" id="profileCardContent">
-            </div>
+        <div class="profile-container" id="profileCardContent"></div>
     </div>
 </div>
 
@@ -449,24 +418,18 @@
 </div>
 
 <script>
-const firebaseConfig = {
-  apiKey: "AIzaSyA1sUfsUCsfqFYBAG7xEVhwP0Y64d5TA_8",
-  authDomain: "worship-bkc.firebaseapp.com",
-  projectId: "worship-bkc",
-  storageBucket: "worship-bkc.firebasestorage.app",
-  messagingSenderId: "585802631589",
-  appId: "1:585802631589:web:ebeaa5f89cac319309404c",
-  measurementId: "G-NRX7KRF6TY"
-};
+    const firebaseConfig = {
+      apiKey: "AIzaSyA1sUfsUCsfqFYBAG7xEVhwP0Y64d5TA_8",
+      authDomain: "worship-bkc.firebaseapp.com",
+      projectId: "worship-bkc",
+      storageBucket: "worship-bkc.firebasestorage.app",
+      messagingSenderId: "585802631589",
+      appId: "1:585802631589:web:ebeaa5f89cac319309404c",
+      measurementId: "G-NRX7KRF6TY"
+    };
     firebase.initializeApp(firebaseConfig);
 
-    firebase.firestore().enablePersistence({ synchronizeTabs: true }).catch((err) => {
-        if (err.code === 'failed-precondition') {
-            console.warn('Firestore persistence failed: Multiple tabs open');
-        } else if (err.code === 'unimplemented') {
-            console.warn('Firestore persistence is not supported by this browser');
-        }
-    });
+    firebase.firestore().enablePersistence({ synchronizeTabs: true }).catch((err) => {});
 
     const db = firebase.firestore();
     const auth = firebase.auth();
@@ -495,9 +458,23 @@ const firebaseConfig = {
     let deferredPrompt = null;
     let songsListenerUnsubscribe = null;
 
+    // 🟢 ចុះឈ្មោះ Service Worker និងទាញយក UI ថ្មីអូតូ
     if ('serviceWorker' in navigator) {
         window.addEventListener('load', () => {
-            navigator.serviceWorker.register('sw.js').catch(err => console.log('SW error:', err));
+            navigator.serviceWorker.register('sw.js').then((reg) => {
+                // ពិនិត្យមើលការ Update របស់ sw.js រាល់ពេលបើក App
+                reg.onupdatefound = () => {
+                    const installingWorker = reg.installing;
+                    installingWorker.onstatechange = () => {
+                        if (installingWorker.state === 'installed') {
+                            if (navigator.serviceWorker.controller) {
+                                // មាន Update កូដថ្មី បង្ខំឱ្យ Refresh រហ័ស
+                                window.location.reload();
+                            }
+                        }
+                    };
+                };
+            }).catch(err => console.log('SW error:', err));
         });
     }
 
@@ -511,7 +488,7 @@ const firebaseConfig = {
     function installPwaApp() {
         if (deferredPrompt) {
             deferredPrompt.prompt();
-            deferredPrompt.userChoice.then((choiceResult) => {
+            deferredPrompt.userChoice.then(() => {
                 deferredPrompt = null;
                 document.getElementById('installPwaBtn').style.display = 'none';
             });
@@ -555,15 +532,12 @@ const firebaseConfig = {
             fetchAllSongsSilently();
         }
 
-        // ចាប់ផ្តើម Real-time sync ដើម្បីទាញយកតែបទថ្មីពី Device ផ្សេងទៀត
         listenToSongsChanges();
-
         setupGlobalPasteListener();
         setupTouchSwipeListeners();
         setupScrollListener();
     };
 
-    /* 🟢 មុខងារស្តាប់ការផ្លាស់ប្តូរ និងទាញយកតែបទចម្រៀងថ្មីៗ Real-time */
     function listenToSongsChanges() {
         if (songsListenerUnsubscribe) songsListenerUnsubscribe();
 
@@ -611,9 +585,7 @@ const firebaseConfig = {
                 renderSongs();
                 saveSongsToIndexedDB(songsList);
             }
-        }, (error) => {
-            console.warn("Realtime listener error:", error);
-        });
+        }, (error) => {});
     }
 
     function switchTab(tabName) {
@@ -762,7 +734,6 @@ const firebaseConfig = {
             renderSongs();
             markFetchCompleted();
         } catch (error) {
-            console.error("Fetch error:", error);
             const cached = await loadSongsFromIndexedDB();
             if (cached.length > 0) {
                 songsList = cached;
@@ -841,7 +812,6 @@ const firebaseConfig = {
             }, 500);
 
         } catch (error) {
-            console.error("Error fetching all songs:", error);
             alert("មិនអាចទាញយកទិន្នន័យបានទេ សូមពិនិត្យមើលអ៊ីនធឺណិត!");
             percentEl.style.display = 'none';
             iconEl.className = 'fa-solid fa-cloud-arrow-down';
@@ -896,7 +866,7 @@ const firebaseConfig = {
                 customAlbums = Array.from(new Set([...customAlbums, ...loadedAlbums]));
             }
             populateAlbumDropdowns();
-        }, (err) => {
+        }, () => {
             populateAlbumDropdowns();
         });
     }
@@ -1104,7 +1074,7 @@ const firebaseConfig = {
                     <i class="fa-solid fa-user-circle" style="font-size:4rem; color:var(--text-muted); margin-bottom:12px;"></i>
                     <h2>ចូលប្រើប្រាស់ប្រព័ន្ធ</h2>
                     <p style="color:var(--text-muted); margin-top:6px; font-size:0.9rem;">ចូលប្រើប្រាស់ដើម្បីទទួលបានមុខងារបន្ថែមក្នុងការគ្រប់គ្រងបទចម្រៀង</p>
-                    <button onclick="handleGoogleLogin()" style="margin-top:20px; width:100%; padding:12px; border-radius:10px; border:none; background:var(--primary); color:white; font-weight:700; cursor:pointer; display:flex; align-items:center; justify-center; gap:8px;">
+                    <button onclick="handleGoogleLogin()" style="margin-top:20px; width:100%; padding:12px; border-radius:10px; border:none; background:var(--primary); color:white; font-weight:700; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:8px;">
                         <i class="fa-brands fa-google"></i> ចូលប្រើជាមួយ Google
                     </button>
                 </div>
@@ -1324,7 +1294,6 @@ const firebaseConfig = {
             document.getElementById('previewContainer').style.display = 'none';
 
         } catch (err) {
-            console.error("Add song error:", err);
             alert('មានបញ្ហាក្នុងការបញ្ចូលបទចម្រៀង!');
         } finally {
             btn.disabled = false;
@@ -1391,7 +1360,6 @@ const firebaseConfig = {
             document.getElementById('batchPreviewInfo').innerText = '';
 
         } catch (err) {
-            console.error("Batch save error:", err);
             alert('មានបញ្ហាក្នុងការរក្សាទុក!');
         } finally {
             btn.disabled = false;
@@ -1443,7 +1411,6 @@ const firebaseConfig = {
             closeModal('editSongModal');
 
         } catch (err) {
-            console.error("Update error:", err);
             alert('មានបញ្ហាក្នុងការកែប្រែ!');
         } finally {
             btn.disabled = false;
@@ -1457,7 +1424,6 @@ const firebaseConfig = {
                 await db.collection("songs").doc(id).delete();
                 alert('បានលុบบទចម្រៀងរួចរាល់!');
             } catch (err) {
-                console.error("Delete error:", err);
                 alert('មិនអាចលុបបានទេ!');
             }
         }
@@ -1473,9 +1439,7 @@ const firebaseConfig = {
                     customAlbums.push(albumName);
                     populateAlbumDropdowns();
                     renderAlbumsView();
-                } catch (e) {
-                    console.error("Add album error:", e);
-                }
+                } catch (e) {}
             }
         }
     }
