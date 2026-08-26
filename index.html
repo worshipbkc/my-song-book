@@ -292,7 +292,7 @@
 
     <div class="app-view" id="viewProfile">
         <div class="profile-container" id="profileCardContent">
-        </div>
+            </div>
     </div>
 </div>
 
@@ -540,20 +540,19 @@ const firebaseConfig = {
         listenToAuth();
         listenToAlbums();
         
-        // ១. ទាញយកទិន្នន័យពី Offline DB មកបង្ហាញភ្លាមៗ (Fast Initial Render)
         try {
             await initIndexedDB();
             const offlineSongs = await loadSongsFromIndexedDB();
             if (offlineSongs && offlineSongs.length > 0) {
                 songsList = offlineSongs;
                 renderSongs();
+                markFetchCompleted();
+            } else {
+                fetchAllSongsSilently();
             }
         } catch (e) {
-            console.warn("IndexedDB load error:", e);
+            fetchAllSongsSilently();
         }
-
-        // ២. បើក Real-time listener ភ្ជាប់ទៅកាន់ Cloud Firestore
-        fetchAllSongsSilently();
 
         setupGlobalPasteListener();
         setupTouchSwipeListeners();
@@ -620,36 +619,22 @@ const firebaseConfig = {
         if(themeBtn) themeBtn.innerText = isDark ? '☀️' : '🌙';
     }
 
+    /* 🟢 Save songs incrementally without clearing old items */
     async function saveSongsToIndexedDB(songs, onProgress) {
         if (!dbIndexed) return;
         return new Promise((resolve, reject) => {
             try {
-                const clearTrans = dbIndexed.transaction(['offlineSongs'], 'readwrite');
-                const store = clearTrans.objectStore('offlineSongs');
-                store.clear();
+                if (songs.length === 0) return resolve();
+                const tx = dbIndexed.transaction(['offlineSongs'], 'readwrite');
+                const store = tx.objectStore('offlineSongs');
+                
+                songs.forEach(song => store.put(song));
 
-                clearTrans.oncomplete = async () => {
-                    if (songs.length === 0) return resolve();
-                    const batchSize = 30;
-                    for (let i = 0; i < songs.length; i += batchSize) {
-                        const batch = songs.slice(i, i + batchSize);
-                        await new Promise((resBatch, rejBatch) => {
-                            const tx = dbIndexed.transaction(['offlineSongs'], 'readwrite');
-                            const bStore = tx.objectStore('offlineSongs');
-                            batch.forEach(song => bStore.put(song));
-                            tx.oncomplete = () => resBatch();
-                            tx.onerror = (err) => rejBatch(err);
-                        });
-                        
-                        if (onProgress) {
-                            const batchPercent = 70 + Math.floor(((i + batch.length) / songs.length) * 30);
-                            onProgress(batchPercent);
-                        }
-                        await new Promise(r => setTimeout(r, 10)); 
-                    }
+                tx.oncomplete = () => {
+                    if (onProgress) onProgress(100);
                     resolve();
                 };
-                clearTrans.onerror = (e) => reject(e);
+                tx.onerror = (e) => reject(e);
             } catch (err) {
                 reject(err);
             }
@@ -679,42 +664,44 @@ const firebaseConfig = {
         if (btn) btn.classList.add('completed');
     }
 
-    /* 🟢 ប្រើប្រាស់ REAL-TIME LISTENER ដើម្បីឱ្យបទចម្រៀងថ្មីលោតឡើងគ្រប់ Device ទាំងអស់ភ្លាមៗ */
-    function fetchAllSongsSilently() {
-        db.collection("songs").onSnapshot(async (snapshot) => {
-            let updatedSongs = [];
+    async function fetchAllSongsSilently() {
+        try {
+            let snapshot;
+            try {
+                snapshot = await db.collection("songs").get({ source: 'cache' });
+                if (snapshot.empty) throw new Error("Cache Empty");
+            } catch (cacheErr) {
+                snapshot = await db.collection("songs").get({ source: 'server' });
+            }
 
-            snapshot.forEach((doc) => {
-                const data = doc.data();
-                updatedSongs.push({
-                    id: doc.id,
-                    ...data,
-                    createdAt: data.createdAt ? { seconds: data.createdAt.seconds } : null,
-                    updatedAt: data.updatedAt ? { seconds: data.updatedAt.seconds } : null
-                });
-            });
+            songsList = snapshot.docs.map(doc => ({
+                id: doc.id,
+                ...doc.data(),
+                createdAt: doc.data().createdAt ? { seconds: doc.data().createdAt.seconds } : null,
+                updatedAt: doc.data().updatedAt ? { seconds: doc.data().updatedAt.seconds } : null
+            }));
 
-            // តម្រៀបបទចម្រៀងពីថ្មីទៅចាស់
-            updatedSongs.sort((a, b) => {
+            songsList.sort((a, b) => {
                 const timeA = a.createdAt ? a.createdAt.seconds : 0;
                 const timeB = b.createdAt ? b.createdAt.seconds : 0;
                 return timeB - timeA;
             });
 
-            songsList = updatedSongs;
+            await saveSongsToIndexedDB(songsList);
             renderSongs();
-
-            try {
-                await saveSongsToIndexedDB(songsList);
+            markFetchCompleted();
+        } catch (error) {
+            console.error("Fetch error:", error);
+            const cached = await loadSongsFromIndexedDB();
+            if (cached.length > 0) {
+                songsList = cached;
+                renderSongs();
                 markFetchCompleted();
-            } catch (e) {
-                console.error("Save IndexedDB error:", e);
             }
-        }, (error) => {
-            console.error("Realtime fetch error:", error);
-        });
+        }
     }
 
+    /* 🟢 មុខងារទាញយកតែបទចម្រៀងថ្មីៗ (Smart Sync) មិនលុបទិន្នន័យចាស់ឡើយ */
     async function fetchAllSongsWithProgress() {
         const btn = document.getElementById('fetchAllBtn');
         const percentEl = document.getElementById('progressPercent');
@@ -727,57 +714,67 @@ const firebaseConfig = {
         percentEl.innerText = '0%';
 
         try {
-            let snapshot = await db.collection("songs").get();
+            // ១. យកបញ្ជី ID នៃបទដែលមានក្នុង Offline DB រួចហើយ
+            const localSongs = await loadSongsFromIndexedDB();
+            const existingIds = new Set(localSongs.map(s => s.id));
+
+            // ២. ទាញយកបទចម្រៀងទាំងអស់ពី Server
+            const snapshot = await db.collection("songs").get({ source: 'server' });
             const docs = snapshot.docs;
             const totalDocs = docs.length;
-            let processedSongs = [];
-
-            songsList = [];
+            let newSongsFetched = [];
 
             for (let i = 0; i < totalDocs; i++) {
                 const doc = docs[i];
-                const data = doc.data();
-                const songItem = {
-                    id: doc.id,
-                    ...data,
-                    createdAt: data.createdAt ? { seconds: data.createdAt.seconds } : null,
-                    updatedAt: data.updatedAt ? { seconds: data.updatedAt.seconds } : null
-                };
-
-                processedSongs.push(songItem);
+                // ប្រសិនបើបទនេះមិនទាន់មានក្នុងទូរស័ព្ទ (ជាបទថ្មី) នោះទើបយក
+                if (!existingIds.has(doc.id)) {
+                    const data = doc.data();
+                    newSongsFetched.push({
+                        id: doc.id,
+                        ...data,
+                        createdAt: data.createdAt ? { seconds: data.createdAt.seconds } : null,
+                        updatedAt: data.updatedAt ? { seconds: data.updatedAt.seconds } : null
+                    });
+                }
 
                 const fetchPercent = Math.floor(((i + 1) / totalDocs) * 70);
                 percentEl.innerText = `${fetchPercent}%`;
 
-                if (i % 10 === 0 || i === totalDocs - 1) {
-                    songsList = [...processedSongs];
-                    renderSongs(); 
+                if (i % 15 === 0 || i === totalDocs - 1) {
                     await new Promise(r => setTimeout(r, 0));
                 }
             }
 
-            processedSongs.sort((a, b) => {
-                const timeA = a.createdAt ? a.createdAt.seconds : 0;
-                const timeB = b.createdAt ? b.createdAt.seconds : 0;
-                return timeB - timeA;
-            });
+            // ៣. បង្កើនទិន្នន័យថ្មីចូល Array & IndexedDB (បើមានបទថ្មី)
+            if (newSongsFetched.length > 0) {
+                songsList = [...newSongsFetched, ...songsList];
+                songsList.sort((a, b) => {
+                    const timeA = a.createdAt ? a.createdAt.seconds : 0;
+                    const timeB = b.createdAt ? b.createdAt.seconds : 0;
+                    return timeB - timeA;
+                });
+                renderSongs();
 
-            songsList = processedSongs;
-            renderSongs();
-
-            await saveSongsToIndexedDB(songsList, (dbPercent) => {
-                percentEl.innerText = `${dbPercent}%`;
-            });
+                await saveSongsToIndexedDB(newSongsFetched, (dbPercent) => {
+                    const finalPercent = 70 + Math.floor((dbPercent / 100) * 30);
+                    percentEl.innerText = `${finalPercent}%`;
+                });
+            }
 
             percentEl.innerText = '100%';
             
             setTimeout(() => {
                 markFetchCompleted();
                 btn.disabled = false;
+                if (newSongsFetched.length > 0) {
+                    alert(`បានទាញយកបទថ្មីចំនួន ${newSongsFetched.length} បទ រួចរាល់!`);
+                } else {
+                    alert("លោកអ្នកមានបទចម្រៀងថ្មីៗទាំងអស់រួចរាល់ហើយ!");
+                }
             }, 500);
 
         } catch (error) {
-            console.error("Error fetching all songs:", error);
+            console.error("Error fetching songs:", error);
             alert("មិនអាចទាញយកទិន្នន័យបានទេ សូមពិនិត្យមើលអ៊ីនធឺណិត!");
             percentEl.style.display = 'none';
             iconEl.className = 'fa-solid fa-cloud-arrow-down';
@@ -1245,7 +1242,7 @@ const firebaseConfig = {
         btn.innerText = 'កំពុងរក្សាទុក...';
 
         try {
-            await db.collection("songs").add({
+            const docRef = await db.collection("songs").add({
                 album,
                 title,
                 artist,
@@ -1258,6 +1255,19 @@ const firebaseConfig = {
             document.getElementById('addSongForm').reset();
             selectedImageBase64 = '';
             document.getElementById('previewContainer').style.display = 'none';
+
+            const newSongItem = {
+                id: docRef.id,
+                album,
+                title,
+                artist,
+                imageUrl,
+                createdAt: { seconds: Math.floor(Date.now() / 1000) }
+            };
+            
+            songsList.unshift(newSongItem);       
+            renderSongs();                        
+            await saveSongsToIndexedDB([newSongItem]); 
 
         } catch (err) {
             console.error("Add song error:", err);
@@ -1308,6 +1318,7 @@ const firebaseConfig = {
 
         try {
             const batch = db.batch();
+            let newBatchItems = [];
             
             batchImagesArray.forEach(item => {
                 const docRef = db.collection("songs").doc();
@@ -1318,6 +1329,15 @@ const firebaseConfig = {
                     imageUrl: item.base64,
                     createdAt: firebase.firestore.FieldValue.serverTimestamp()
                 });
+
+                newBatchItems.unshift({
+                    id: docRef.id,
+                    album,
+                    title: item.name,
+                    artist,
+                    imageUrl: item.base64,
+                    createdAt: { seconds: Math.floor(Date.now() / 1000) }
+                });
             });
 
             await batch.commit();
@@ -1325,6 +1345,10 @@ const firebaseConfig = {
             closeModal('batchAddModal');
             batchImagesArray = [];
             document.getElementById('batchPreviewInfo').innerText = '';
+
+            songsList = [...newBatchItems, ...songsList];
+            renderSongs();
+            await saveSongsToIndexedDB(newBatchItems);
 
         } catch (err) {
             console.error("Batch save error:", err);
@@ -1377,6 +1401,13 @@ const firebaseConfig = {
 
             alert('បានកែប្រែបទចម្រៀងរួចរាល់!');
             closeModal('editSongModal');
+            
+            const index = songsList.findIndex(s => s.id === id);
+            if (index !== -1) {
+                songsList[index] = { ...songsList[index], album, title, artist, imageUrl };
+                await saveSongsToIndexedDB([songsList[index]]);
+            }
+            renderSongs();
 
         } catch (err) {
             console.error("Update error:", err);
@@ -1392,6 +1423,15 @@ const firebaseConfig = {
             try {
                 await db.collection("songs").doc(id).delete();
                 alert('បានលុบบទចម្រៀងរួចរាល់!');
+                
+                songsList = songsList.filter(s => s.id !== id);
+                renderSongs();
+                
+                if (dbIndexed) {
+                    const tx = dbIndexed.transaction(['offlineSongs'], 'readwrite');
+                    tx.objectStore('offlineSongs').delete(id);
+                }
+
             } catch (err) {
                 console.error("Delete error:", err);
                 alert('មិនអាចលុបបានទេ!');
