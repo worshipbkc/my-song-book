@@ -2,7 +2,6 @@
 <html lang="km">
 <head>
     <meta charset="UTF-8">
-    <!-- 🟢 កែប្រែត្រង់នេះ៖ បន្ថែម viewport-fit=cover -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>ចម្រៀងសរសើរដំកើងព្រះ</title>
 
@@ -14,7 +13,9 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="manifest" href="manifest.json">
     <link rel="apple-touch-icon" href="icon.jpg">
-    <meta name="theme-color" content="#2563eb">
+    
+    <!-- 🟢 កែប្រែត្រង់នេះ៖ ដូរពី #2563eb ទៅជា #ffffff ដើម្បីបាត់ផ្ទាំងពណ៌ខៀវលើ Status Bar -->
+    <meta name="theme-color" content="#ffffff">
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -75,7 +76,6 @@
 
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Kantumruy Pro', sans-serif; transition: background-color 0.2s, color 0.2s; touch-action: manipulation; }
         
-        /* 🟢 កែប្រែត្រង់នេះ៖ បន្ថែម padding-top និង env(safe-area-inset-top) */
         body { 
             background-color: var(--bg); 
             color: var(--text); 
@@ -235,12 +235,11 @@
         .action-btn-item:hover { border-color: var(--primary); color: var(--primary); }
         .action-btn-item.danger { color: var(--danger); }
 
-        /* 🟢 កែប្រែត្រង់នេះ៖ បន្ថែម padding-bottom សម្រាប់ Safe Area Bottom លើ Menu ខាងក្រោម */
         .bottom-nav {
             position: fixed; bottom: 0; left: 0; right: 0; height: calc(60px + env(safe-area-inset-bottom));
             padding-bottom: env(safe-area-inset-bottom);
             background: var(--card-bg); border-top: 1px solid var(--border);
-            display: flex; align-items: center; justify-content: space-around;
+            display: flex; align-items: center; justify-around;
             z-index: 1300; box-shadow: 0 -2px 10px rgba(0,0,0,0.05);
         }
 
