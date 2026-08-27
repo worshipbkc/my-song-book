@@ -24,6 +24,33 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
 
     <style>
+        /* 🔴 Element Splash Screen */
+        #splashScreen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background-color: #ffffff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 99999;
+            transition: opacity 0.6s ease-out, visibility 0.6s ease-out;
+        }
+
+        #splashScreen img {
+            max-width: 85%;
+            max-height: 80%;
+            object-fit: contain;
+            border-radius: 16px;
+        }
+
+        #splashScreen.hide {
+            opacity: 0;
+            visibility: hidden;
+        }
+
         :root {
             --primary: #2563eb;
             --primary-hover: #1d4ed8;
@@ -50,9 +77,9 @@
 
         .main-content { padding: 20px; width: 100%; max-width: 1200px; margin: 0 auto; position: relative; }
 
-        header { margin-bottom: 20px; display: flex; justify-content: space-between; align-items: flex-start; gap: 15px; padding-right: 50px; }
+        header { margin-bottom: 16px; display: flex; justify-content: space-between; align-items: flex-start; gap: 15px; padding-right: 50px; }
         .header-text h1 { font-size: 1.5rem; color: var(--primary); margin-bottom: 4px; }
-        .header-text p { color: var(--text-muted); font-size: 0.9rem; font-weight: 600; line-height: 1.5; }
+        .header-text p { color: var(--text-muted); font-size: 0.85rem; font-weight: 600; line-height: 1.5; }
 
         .fetch-icon-btn {
             position: absolute;
@@ -88,12 +115,56 @@
 
         .install-pwa-btn { background: #16a34a; border: none; color: white; padding: 6px 12px; border-radius: 8px; font-weight: 600; font-size: 0.8rem; cursor: pointer; display: none; align-items: center; gap: 6px; margin-top: 8px; }
 
+        /* 🔴 Hero Banner & Filter Chips */
+        .hero-banner {
+            background: linear-gradient(135deg, #2563eb, #1d4ed8);
+            color: white;
+            padding: 16px;
+            border-radius: 14px;
+            margin-bottom: 16px;
+            box-shadow: 0 4px 12px rgba(37,99,235,0.2);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .hero-banner h3 { font-size: 1rem; margin-bottom: 4px; }
+        .hero-banner p { font-size: 0.78rem; opacity: 0.9; }
+        .hero-banner i { font-size: 2.2rem; opacity: 0.8; margin-left: 10px; }
+
+        .filter-chips {
+            display: flex;
+            gap: 8px;
+            overflow-x: auto;
+            padding-bottom: 8px;
+            margin-bottom: 16px;
+            scrollbar-width: none;
+        }
+        .filter-chips::-webkit-scrollbar { display: none; }
+
+        .chip-btn {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            color: var(--text);
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            white-space: nowrap;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .chip-btn.active, .chip-btn:hover {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+
         .app-view { display: none; }
         .app-view.active { display: block; }
 
         input[type="text"], input[type="url"], select, textarea { font-size: 16px !important; }
 
-        .controls { position: sticky; top: 0; z-index: 90; background: var(--bg); padding: 10px 0 14px 0; margin-bottom: 16px; display: flex; align-items: center; gap: 10px; }
+        .controls { position: sticky; top: 0; z-index: 90; background: var(--bg); padding: 6px 0 12px 0; margin-bottom: 12px; display: flex; align-items: center; gap: 10px; }
         .search-box { position: relative; display: flex; align-items: center; flex: 1; }
         .search-box input { width: 100%; padding: 10px 40px 10px 16px; border: 1px solid var(--border); border-radius: 10px; outline: none; background: var(--card-bg); color: var(--text); }
         .search-btn { position: absolute; right: 6px; background: none; border: none; font-size: 1rem; cursor: pointer; padding: 6px; }
@@ -211,6 +282,10 @@
 </head>
 <body id="bodyContainer">
 
+<div id="splashScreen">
+    <img src="https://lh3.googleusercontent.com/d/1E2J-kXOZCTkQJ7g739qDcgcqfUQOysTc" alt="Splash Screen">
+</div>
+
 <div class="main-content">
     <header>
         <div class="header-text">
@@ -231,12 +306,26 @@
     </header>
 
     <div class="app-view active" id="viewSongs">
+        <div class="hero-banner">
+            <div>
+                <h3>​​​​​​​​  ថ្វាយបង្គំដោយដួងចិត្ត និងសេចក្តីពិត</h3>
+                <p id="totalSongCountText">កំពុងទាញយកទិន្នន័យ...</p>
+            </div>
+            <i class="fa-solid fa-hands-praying"></i>
+        </div>
+
         <div class="controls">
             <div class="search-box">
                 <input type="text" id="searchInput" placeholder="ស្វែងរកបទចម្រៀង..." oninput="handleSearchInput()">
                 <button class="search-btn" onclick="renderSongs()">🔍</button>
             </div>
             <button class="theme-toggle-btn" id="themeToggleBtn" onclick="toggleDarkMode()" title="ប្តូររបៀបភ្លឺ/ងងឹត">🌙</button>
+        </div>
+
+        <div class="filter-chips">
+            <button class="chip-btn active" onclick="setQuickFilter('ALL', this)">🎵 ទាំងអស់</button>
+            <button class="chip-btn" onclick="setQuickFilter('RECENT', this)">✨ ទើបបញ្ចូលថ្មី</button>
+            <button class="chip-btn" onclick="setQuickFilter('FAV', this)">❤️ ចូលចិត្ត (Playlist)</button>
         </div>
 
         <div class="song-grid" id="songGrid">
@@ -458,17 +547,14 @@
     let deferredPrompt = null;
     let songsListenerUnsubscribe = null;
 
-    // 🟢 ចុះឈ្មោះ Service Worker និងទាញយក UI ថ្មីអូតូ
     if ('serviceWorker' in navigator) {
         window.addEventListener('load', () => {
             navigator.serviceWorker.register('sw.js').then((reg) => {
-                // ពិនិត្យមើលការ Update របស់ sw.js រាល់ពេលបើក App
                 reg.onupdatefound = () => {
                     const installingWorker = reg.installing;
                     installingWorker.onstatechange = () => {
                         if (installingWorker.state === 'installed') {
                             if (navigator.serviceWorker.controller) {
-                                // មាន Update កូដថ្មី បង្ខំឱ្យ Refresh រហ័ស
                                 window.location.reload();
                             }
                         }
@@ -514,6 +600,11 @@
     }
 
     window.onload = async function() {
+        setTimeout(() => {
+            const splash = document.getElementById('splashScreen');
+            if (splash) splash.classList.add('hide');
+        }, 2000);
+
         applyStoredTheme();
         listenToAuth();
         listenToAlbums();
@@ -524,6 +615,7 @@
             if (offlineSongs && offlineSongs.length > 0) {
                 songsList = offlineSongs;
                 renderSongs();
+                updateTotalSongCount();
                 markFetchCompleted();
             } else {
                 fetchAllSongsSilently();
@@ -537,6 +629,37 @@
         setupTouchSwipeListeners();
         setupScrollListener();
     };
+
+    function updateTotalSongCount() {
+        const countEl = document.getElementById('totalSongCountText');
+        if (countEl && songsList) {
+            countEl.innerText = `មានចម្រៀងសរុប ${songsList.length} បទ សរសើរដំកើងព្រះនៅខ្ពស់បំផុត`;
+        }
+    }
+
+    function setQuickFilter(type, btnElement) {
+        document.querySelectorAll('.chip-btn').forEach(btn => btn.classList.remove('active'));
+        if (btnElement) btnElement.classList.add('active');
+
+        if (type === 'ALL') {
+            resetFilters();
+        } else if (type === 'RECENT') {
+            currentFilteredSongs = [...songsList].sort((a, b) => {
+                const timeA = a.createdAt ? a.createdAt.seconds : 0;
+                const timeB = b.createdAt ? b.createdAt.seconds : 0;
+                return timeB - timeA;
+            });
+            displayedItemCount = 20;
+            renderSongsListOnly();
+        } else if (type === 'FAV') {
+            const firstPlaylist = Object.keys(playlists)[0];
+            if (firstPlaylist) {
+                filterByPlaylist(firstPlaylist);
+            } else {
+                alert('មិនទាន់មានបទចម្រៀងក្នុង Favorite/Playlist នៅឡើយទេ!');
+            }
+        }
+    }
 
     function listenToSongsChanges() {
         if (songsListenerUnsubscribe) songsListenerUnsubscribe();
@@ -583,6 +706,7 @@
                 });
 
                 renderSongs();
+                updateTotalSongCount();
                 saveSongsToIndexedDB(songsList);
             }
         }, (error) => {});
@@ -732,12 +856,14 @@
 
             await saveSongsToIndexedDB(songsList);
             renderSongs();
+            updateTotalSongCount();
             markFetchCompleted();
         } catch (error) {
             const cached = await loadSongsFromIndexedDB();
             if (cached.length > 0) {
                 songsList = cached;
                 renderSongs();
+                updateTotalSongCount();
                 markFetchCompleted();
             }
         }
@@ -799,6 +925,7 @@
 
             songsList = processedSongs;
             renderSongs();
+            updateTotalSongCount();
 
             await saveSongsToIndexedDB(songsList, (dbPercent) => {
                 percentEl.innerText = `${dbPercent}%`;
