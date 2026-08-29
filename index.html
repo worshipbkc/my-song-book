@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>ចម្រៀងសរសើរដំកើងព្រះ</title>
 
-    <!-- ការពារកុំឱ្យ Browser ធ្វើ Cache លើឯកសារ HTML -->
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
@@ -14,7 +13,6 @@
     <link rel="manifest" href="manifest.json">
     <link rel="apple-touch-icon" href="icon.jpg">
     
-    <!-- 🟢 កែប្រែត្រង់នេះ៖ ដូរពី #2563eb ទៅជា #ffffff ដើម្បីបាត់ផ្ទាំងពណ៌ខៀវលើ Status Bar -->
     <meta name="theme-color" content="#ffffff">
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -26,7 +24,6 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
 
     <style>
-        /* 🔴 Element Splash Screen */
         #splashScreen {
             position: fixed;
             top: 0;
@@ -57,7 +54,7 @@
             --primary: #2563eb;
             --primary-hover: #1d4ed8;
             --danger: #ef4444;
-            --bg: #f8fafc;
+            --bg: #ffffff;
             --card-bg: #ffffff;
             --text: #0f172a;
             --text-muted: #64748b;
@@ -125,7 +122,6 @@
 
         .install-pwa-btn { background: #16a34a; border: none; color: white; padding: 6px 12px; border-radius: 8px; font-weight: 600; font-size: 0.8rem; cursor: pointer; display: none; align-items: center; gap: 6px; margin-top: 8px; }
 
-        /* 🔴 Hero Banner & Filter Chips */
         .hero-banner {
             background: linear-gradient(135deg, #2563eb, #1d4ed8);
             color: white;
@@ -267,11 +263,31 @@
         .preview-container img { width: 100%; max-height: 130px; object-fit: contain; }
         .remove-img-btn { position: absolute; top: 4px; right: 4px; background: rgba(239, 68, 68, 0.9); color: white; border: none; border-radius: 50%; width: 22px; height: 22px; font-size: 0.75rem; cursor: pointer; }
 
+        /* 🔴 កែប្រែ Fullscreen Modal & Zoom Styling */
         .fullscreen-modal { display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0, 0, 0, 0.95); z-index: 3000; flex-direction: column; align-items: center; justify-content: center; }
         .fullscreen-modal.active { display: flex; }
         .fullscreen-header { position: absolute; top: calc(15px + env(safe-area-inset-top)); left: 20px; right: 20px; display: flex; justify-content: space-between; align-items: center; color: white; z-index: 3010; }
-        .fullscreen-img-container { width: 100%; height: 82vh; display: flex; align-items: center; justify-content: center; position: relative; }
-        .fullscreen-img { max-width: 92%; max-height: 92%; object-fit: contain; }
+        
+        .fullscreen-img-container { 
+            width: 100%; 
+            height: 82vh; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            position: relative; 
+            overflow: hidden; 
+            touch-action: none; 
+        }
+        
+        .fullscreen-img { 
+            max-width: 92%; 
+            max-height: 92%; 
+            object-fit: contain; 
+            transform-origin: center center;
+            transition: transform 0.1s ease-out;
+            cursor: grab;
+        }
+
         .fullscreen-nav-btn { position: absolute; top: 50%; transform: translateY(-50%); background: rgba(255, 255, 255, 0.15); color: white; border: none; font-size: 1.6rem; padding: 14px 10px; cursor: pointer; border-radius: 8px; z-index: 3010; }
         .fullscreen-prev { left: 15px; }
         .fullscreen-next { right: 15px; }
@@ -389,10 +405,10 @@
     <span id="statusText">អនឡាញ (Online)</span>
 </div>
 
-<div class="fullscreen-modal" id="fullScreenModal" onclick="closeFullScreenModal(event)">
+<div class="fullscreen-modal" id="fullScreenModal">
     <div class="fullscreen-header">
         <div id="fullScreenTitle" style="font-weight: 700; font-size: 1rem; max-width: 80%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;"></div>
-        <button onclick="closeFullScreenModalDirect()" style="background:none; border:none; color:white; font-size:1.4rem; cursor:pointer; padding: 4px;">✖</button>
+        <button onclick="closeFullScreenModalDirect()" style="background:none; border:none; color:white; font-size:1.6rem; cursor:pointer; padding: 4px 8px;">✖</button>
     </div>
     <button class="fullscreen-nav-btn fullscreen-prev" onclick="slideFullScreen(-1, event)">❮</button>
     <div class="fullscreen-img-container" id="fullScreenImgContainer">
@@ -639,6 +655,7 @@
         setupGlobalPasteListener();
         setupTouchSwipeListeners();
         setupScrollListener();
+        initImageZoomAndPan(); // 🟢 ហៅមុខងារ Zoom ឱ្យដំណើរការ
     };
 
     function updateTotalSongCount() {
@@ -1606,6 +1623,7 @@
 
     function openFullScreenModal(index) {
         currentFullscreenIndex = index;
+        resetZoomState(); // Reset Zoom ពេលបើកmodal
         updateFullScreenContent();
         document.getElementById('fullScreenModal').classList.add('active');
     }
@@ -1615,6 +1633,7 @@
         if (!song) return;
         document.getElementById('fullScreenTitle').innerText = `${song.title} - ${song.artist}`;
         document.getElementById('fullScreenImg').src = song.imageUrl;
+        resetZoomState();
     }
 
     function slideFullScreen(dir, e) {
@@ -1625,12 +1644,84 @@
         updateFullScreenContent();
     }
 
-    function closeFullScreenModal(e) {
-        if (e.target.classList.contains('fullscreen-modal') || e.target.classList.contains('fullscreen-img-container')) {
-            closeFullScreenModalDirect();
+    function closeFullScreenModalDirect() { 
+        document.getElementById('fullScreenModal').classList.remove('active'); 
+        resetZoomState();
+    }
+
+    /* 🟢 មុខងារ Zoom, Drag និង Swipe កែប្រែថ្មី */
+    let imgScale = 1;
+    let imgPanX = 0;
+    let imgPanY = 0;
+    let isDragging = false;
+    let startX = 0, startY = 0;
+    let initialPinchDistance = null;
+
+    function resetZoomState() {
+        imgScale = 1;
+        imgPanX = 0;
+        imgPanY = 0;
+        applyImageTransform();
+    }
+
+    function applyImageTransform() {
+        const img = document.getElementById('fullScreenImg');
+        if (img) {
+            img.style.transform = `translate(${imgPanX}px, ${imgPanY}px) scale(${imgScale})`;
         }
     }
-    function closeFullScreenModalDirect() { document.getElementById('fullScreenModal').classList.remove('active'); }
+
+    function initImageZoomAndPan() {
+        const container = document.getElementById('fullScreenImgContainer');
+        const img = document.getElementById('fullScreenImg');
+
+        if (!container || !img) return;
+
+        // Mouse Scroll (Zoom លើ PC)
+        container.addEventListener('wheel', (e) => {
+            e.preventDefault();
+            const delta = e.deltaY < 0 ? 0.25 : -0.25;
+            imgScale = Math.min(Math.max(1, imgScale + delta), 4);
+            if (imgScale === 1) { imgPanX = 0; imgPanY = 0; }
+            applyImageTransform();
+        }, { passive: false });
+
+        // Touch & Drag Handling (Mobile Pinch Zoom)
+        container.addEventListener('touchstart', (e) => {
+            if (e.touches.length === 2) {
+                initialPinchDistance = Math.hypot(
+                    e.touches[0].clientX - e.touches[1].clientX,
+                    e.touches[0].clientY - e.touches[1].clientY
+                );
+            } else if (e.touches.length === 1) {
+                isDragging = true;
+                startX = e.touches[0].clientX - imgPanX;
+                startY = e.touches[0].clientY - imgPanY;
+            }
+        }, { passive: true });
+
+        container.addEventListener('touchmove', (e) => {
+            if (e.touches.length === 2 && initialPinchDistance) {
+                const currentDist = Math.hypot(
+                    e.touches[0].clientX - e.touches[1].clientX,
+                    e.touches[0].clientY - e.touches[1].clientY
+                );
+                const factor = currentDist / initialPinchDistance;
+                imgScale = Math.min(Math.max(1, imgScale * factor), 4);
+                initialPinchDistance = currentDist;
+                applyImageTransform();
+            } else if (e.touches.length === 1 && isDragging && imgScale > 1) {
+                imgPanX = e.touches[0].clientX - startX;
+                imgPanY = e.touches[0].clientY - startY;
+                applyImageTransform();
+            }
+        }, { passive: true });
+
+        container.addEventListener('touchend', (e) => {
+            if (e.touches.length < 2) initialPinchDistance = null;
+            if (e.touches.length === 0) isDragging = false;
+        });
+    }
 
     let touchStartX = 0;
     let touchEndX = 0;
@@ -1638,11 +1729,20 @@
     function setupTouchSwipeListeners() {
         const container = document.getElementById('fullScreenImgContainer');
         if (!container) return;
-        container.addEventListener('touchstart', (e) => { touchStartX = e.changedTouches[0].screenX; }, {passive: true});
-        container.addEventListener('touchend', (e) => { touchEndX = e.changedTouches[0].screenX; handleSwipeGesture(); }, {passive: true});
+        container.addEventListener('touchstart', (e) => { 
+            if (e.touches.length === 1) touchStartX = e.changedTouches[0].screenX; 
+        }, {passive: true});
+        
+        container.addEventListener('touchend', (e) => { 
+            if (e.changedTouches.length === 1) {
+                touchEndX = e.changedTouches[0].screenX; 
+                handleSwipeGesture(); 
+            }
+        }, {passive: true});
     }
 
     function handleSwipeGesture() {
+        if (imgScale > 1) return; // បើកំពុង Zoom មិនឱ្យលោតផ្លាស់ប្តូរបទចម្រៀងឡើយ
         const threshold = 50;
         if (touchEndX < touchStartX - threshold) slideFullScreen(1);
         else if (touchEndX > touchStartX + threshold) slideFullScreen(-1);
