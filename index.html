@@ -133,7 +133,7 @@
         .install-pwa-btn { background: #16a34a; border: none; color: white; padding: 6px 12px; border-radius: 8px; font-weight: 600; font-size: 0.8rem; cursor: pointer; display: none; align-items: center; gap: 6px; margin-top: 8px; }
 
         .hero-banner {
-            background: linear-gradient(135deg, #2563eb, #1d4ed8);
+            background: linear-gradient(135deg, #031d05, #bfd60f);
             color: white;
             padding: 16px;
             border-radius: 14px;
@@ -344,7 +344,7 @@
     <div class="app-view active" id="viewSongs">
         <div class="hero-banner">
             <div>
-                <h3>​​​​​​​​  ថ្វាយបង្គំដោយដួងចិត្ត និងសេចក្តីពិត</h3>
+                <h3>​​​​​​​​  ថ្វាយបង្គំដោយវិញ្ញាណ និងសេចក្តីពិត</h3>
                 <p id="totalSongCountText">កំពុងទាញយកទិន្នន័យ...</p>
             </div>
             <i class="fa-solid fa-hands-praying"></i>
@@ -670,7 +670,7 @@
     function updateTotalSongCount() {
         const countEl = document.getElementById('totalSongCountText');
         if (countEl && songsList) {
-            countEl.innerText = `មានចម្រៀងសរុប ${songsList.length} បទ សរសើរដំកើងព្រះនៅខ្ពស់បំផុត`;
+            countEl.innerText = `🎵មានចម្រៀងសរសើរដំកើងព្រះសរុប ${songsList.length} បទ🎵`;
         }
     }
 
@@ -1586,7 +1586,7 @@
         if (confirm('តើអ្នកពិតជាចង់លុบบទចម្រៀងនេះមែនទេ?')) {
             try {
                 await db.collection("songs").doc(id).delete();
-                alert('បានលុបបទចម្រៀងរួចរាល់!');
+                alert('បានលុบบទចម្រៀងរួចរាល់!');
             } catch (err) {
                 alert('មិនអាចលុបបានទេ!');
             }
