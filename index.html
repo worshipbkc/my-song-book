@@ -1179,7 +1179,7 @@
         });
     }
 
-    // 🔴 មុខងារ SHARE ជាំរូបភាពដោយផ្ទាល់ និងមិនគាំងទូរស័ព្ទ (Optimized Native Image Share)
+    // 🔴 មុខងារ SHARE រូបភាពផ្ទាល់ដោយបង្ហាញតែចំណងជើងបទចម្រៀង
     async function shareSongImage(songId) {
         const song = songsList.find(s => s.id === songId);
         if (!song || !song.imageUrl) {
@@ -1188,10 +1188,10 @@
         }
 
         const shareTitle = song.title || 'ចម្រៀងសរសើរដំកើង';
-        const shareText = `🎵 ${song.title || ''} ${song.artist ? '- ' + song.artist : ''}`;
+        // ផ្ញើតែចំណងជើងបទចម្រៀងប៉ុណ្ណោះ
+        const shareText = `បទ៖ ${song.title || ''}`🎵;
 
         try {
-            // បំផ្លែង Base64 ឬ URL ទៅជា File Object ដោយមិនស៊ី Memory ច្រើន
             let fileObj = null;
 
             if (song.imageUrl.startsWith('data:image')) {
@@ -1212,7 +1212,6 @@
                 fileObj = new File([blob], `${shareTitle.replace(/[^a-zA-Z0-9]/g, "_")}.jpg`, { type: blob.type || 'image/jpeg' });
             }
 
-            // ពិនិត្យការ Support Share File របស់ Browser/Phone
             if (navigator.canShare && navigator.canShare({ files: [fileObj] })) {
                 await navigator.share({
                     title: shareTitle,
@@ -1226,14 +1225,12 @@
                     url: song.imageUrl
                 });
             } else {
-                // Fallback ប្រសិនបើ Browser ចាស់ពេក
                 await navigator.clipboard.writeText(song.imageUrl);
                 alert('បាន Copy Link រូបភាពរួចរាល់!');
             }
         } catch (err) {
             if (err.name !== 'AbortError') {
                 console.error("Share failed:", err);
-                // Fallback ករណីមាន Error
                 try {
                     await navigator.clipboard.writeText(song.imageUrl);
                     alert('បាន Copy Link រូបភាពចម្រៀងរួចរាល់!');
