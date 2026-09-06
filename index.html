@@ -288,6 +288,8 @@
             <button class="chip-btn active" onclick="setQuickFilter('ALL', this)">🎵 ទាំងអស់</button>
             <button class="chip-btn" onclick="setQuickFilter('RECENT', this)">✨ ទើបបញ្ចូលថ្មី</button>
             <button class="chip-btn" onclick="setQuickFilter('FAV', this)">❤️ ចូលចិត្ត (Favorite)</button>
+           <button onclick="startAutoFixAllImages()" style="background: rgb(246, 244, 244); padding: 10px; font-weight: bold; border-radius: 15px; margin: 0px; cursor: pointer; font-size: 20px;">📝</button>
+           
         </div>
 
         <div class="song-grid" id="songGrid">
@@ -1722,6 +1724,55 @@
                   .replace(/"/g, "&quot;")
                   .replace(/'/g, "&#039;");
     }
+    // Function បង្រួមរូបភាពចាស់ៗ
+async function startAutoFixAllImages() {
+    if (!confirm("តើអ្នកចង់ចាប់ផ្តើមបង្រួមរូបភាពទាំងអស់មែនទេ?")) return;
+    
+    alert("សូមរង់ចាំ! ប្រព័ន្ធកំពុងចាប់ផ្តើមបង្រួមទិន្នន័យ...");
+    console.log("🚀 កំពុងដំណើរការ...");
+
+    try {
+        // ទាញយកដោយបិទ Cache (Source: Server) ដើម្បីការពារការស្ទះ
+        const snapshot = await db.collection("songs").get({ source: 'server' });
+        const docs = snapshot.docs;
+        const total = docs.length;
+        let count = 0;
+
+        for (let doc of docs) {
+            count++;
+            const data = doc.data();
+
+            if (data.imageUrl && data.imageUrl.startsWith("data:image")) {
+                // បង្រួមរូបភាព
+                const compressed = await new Promise((resolve) => {
+                    const img = new Image();
+                    img.src = data.imageUrl;
+                    img.onload = () => {
+                        const canvas = document.createElement('canvas');
+                        let w = img.width > 500 ? 500 : img.width;
+                        let h = Math.round((img.height * w) / img.width);
+                        canvas.width = w;
+                        canvas.height = h;
+                        const ctx = canvas.getContext('2d');
+                        ctx.drawImage(img, 0, 0, w, h);
+                        resolve(canvas.toDataURL('image/jpeg', 0.4)); // បង្រួមយកទំហំ ៤០%
+                    };
+                    img.onerror = () => resolve(data.imageUrl);
+                });
+
+                // Update ទៅ Firestore វិញ
+                await db.collection("songs").doc(doc.id).update({ imageUrl: compressed });
+                console.log(`✅ [${count}/${total}] បានបង្រួម៖ ${data.title || ''}`);
+            }
+        }
+
+        alert("🎉 រួចរាល់ ១០០%! បានបង្រួមរូបភាពចម្រៀងទាំងអស់ជោគជ័យ។");
+        window.location.reload();
+
+    } catch (err) {
+        alert("❌ កំហុស៖ " + err.message);
+    }
+}
 </script>
 </body>
 </html>
