@@ -739,11 +739,23 @@
     }
 
     function saveSongsToIndexedDB(songs) {
-        if (!dbIndexed) return;
-        const tx = dbIndexed.transaction('offlineSongs', 'readwrite');
-        const store = tx.objectStore('offlineSongs');
-        store.clear();
-        songs.forEach(song => store.put(song));
+        return new Promise((resolve) => {
+            if (!dbIndexed) return resolve();
+            try {
+                const tx = dbIndexed.transaction('offlineSongs', 'readwrite');
+                const store = tx.objectStore('offlineSongs');
+                store.clear();
+                songs.forEach(song => store.put(song));
+                tx.oncomplete = () => resolve();
+                tx.onerror = (e) => {
+                    console.warn("IndexedDB Warning:", e);
+                    resolve();
+                };
+            } catch (err) {
+                console.warn("IndexedDB Exception:", err);
+                resolve();
+            }
+        });
     }
 
     function loadSongsFromIndexedDB() {
@@ -780,6 +792,7 @@
         });
     }
 
+    // អនុគមន៍កែសម្រួលដោះស្រាយបញ្ហាកកស្ទះត្រឹម 90%
     function fetchAllSongsWithProgress() {
         const fetchBtn = document.getElementById('fetchAllBtn');
         const fetchIcon = document.getElementById('fetchIcon');
@@ -787,19 +800,11 @@
 
         fetchBtn.disabled = true;
         percentLabel.style.display = 'block';
-        percentLabel.innerText = '0%';
+        percentLabel.innerText = '10%';
         fetchIcon.className = 'fa-solid fa-spinner fa-spin';
 
-        let progress = 0;
-        const interval = setInterval(() => {
-            progress += 15;
-            if (progress > 90) progress = 90;
-            percentLabel.innerText = progress + '%';
-        }, 150);
-
-        db.collection("songs").orderBy("createdAt", "desc").get().then((snapshot) => {
-            clearInterval(interval);
-            percentLabel.innerText = '100%';
+        db.collection("songs").orderBy("createdAt", "desc").get().then(async (snapshot) => {
+            percentLabel.innerText = '70%';
             songsList = [];
             snapshot.forEach((doc) => {
                 const data = doc.data();
@@ -810,16 +815,19 @@
                     updatedAt: data.updatedAt ? { seconds: data.updatedAt.seconds } : null
                 });
             });
+
+            percentLabel.innerText = '90%';
             renderSongs();
             updateTotalSongCount();
-            saveSongsToIndexedDB(songsList);
+            
+            await saveSongsToIndexedDB(songsList);
 
+            percentLabel.innerText = '100%';
             setTimeout(() => {
                 markFetchCompleted();
-                alert('បានទាញយកទិន្នន័យចម្រៀងទាំងអស់ទុក Offline រួចរាល់!');
-            }, 400);
+                alert(`បានទាញយកទិន្នន័យចម្រៀងសរុប ${songsList.length} បទទុក Offline រួចរាល់!`);
+            }, 300);
         }).catch(err => {
-            clearInterval(interval);
             fetchBtn.disabled = false;
             percentLabel.style.display = 'none';
             fetchIcon.className = 'fa-solid fa-cloud-arrow-down';
