@@ -114,7 +114,6 @@
         .song-img-container { width: 100%; min-height: 200px; background: var(--border); display: flex; align-items: center; justify-content: center; overflow: hidden; cursor: pointer; position: relative; }
         .song-img { width: 100%; height: 100%; max-height: 350px; object-fit: contain; display: block; }
         
-        /* បន្ថែម Badge បង្ហាញលេខលំដាប់លំដោយសម្រាប់ Playlist */
         .playlist-index-badge {
             position: absolute; top: 10px; left: 10px;
             background: var(--primary); color: white;
@@ -171,7 +170,6 @@
         .folder-count { font-size: 0.78rem; color: var(--text-muted); font-weight: 600; margin-bottom: 8px; }
         .folder-delete-btn { position: absolute; top: 8px; right: 8px; background: none; border: none; color: var(--danger); font-size: 0.85rem; cursor: pointer; padding: 4px; }
 
-        /* ប៊ូតុង Share Playlist ក្នុង Folder */
         .btn-share-folder {
             background-color: #d1fae5; color: #047857; border: 1px solid #a7f3d0;
             padding: 4px 10px; border-radius: 6px; font-size: 0.75rem; font-weight: 600;
@@ -922,7 +920,6 @@
         const searchVal = document.getElementById('searchInput').value.trim().toLowerCase();
         
         if (currentFilterType === 'PLAYLIST') {
-            // តម្រៀបតាម order លេខរៀងនៃការចុចថែម (First-In-First-Out: បទចុចមុននៅលើ បទចុចក្រោយនៅក្រោម)
             const songIds = playlists[currentFilterValue] || [];
             currentFilteredSongs = [];
             songIds.forEach(id => {
@@ -1096,7 +1093,7 @@
         }).join('');
     }
 
-    // មុខងារចែករំលែក (Share) Playlist ទាំងមូល ជារូបភាពសន្លឹកៗ តាមលេខរៀង
+    // មុខងារចែករំលែក (Share) Playlist ទាំងមូល ជារូបភាពសន្លឹកៗ តាមលេខរៀង (គ្មានសំណេរ/អត្ថបទ)
     async function shareEntirePlaylist(event, pName) {
         if (event) event.stopPropagation();
 
@@ -1146,9 +1143,8 @@
 
         try {
             if (navigator.canShare && navigator.canShare({ files: filesArray })) {
+                // ដក title និង text ចេញ ដើម្បីផ្ញើបានតែរូបភាពសុទ្ធ
                 await navigator.share({
-                    title: `Playlist: ${pName}`,
-                    text: `បញ្ជីបទចម្រៀងក្នុង Playlist ${pName}`,
                     files: filesArray
                 });
             } else {
