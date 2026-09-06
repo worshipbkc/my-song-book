@@ -114,14 +114,6 @@
         .song-img-container { width: 100%; min-height: 200px; background: var(--border); display: flex; align-items: center; justify-content: center; overflow: hidden; cursor: pointer; position: relative; }
         .song-img { width: 100%; height: 100%; max-height: 350px; object-fit: contain; display: block; }
         
-        .playlist-index-badge {
-            position: absolute; top: 10px; left: 10px;
-            background: var(--primary); color: white;
-            padding: 4px 10px; border-radius: 20px;
-            font-size: 0.85rem; font-weight: 700;
-            box-shadow: 0 2px 6px rgba(0,0,0,0.2); z-index: 10;
-        }
-
         .heart-badge-btn {
             position: absolute; top: 10px; right: 10px;
             background: rgba(255, 255, 255, 0.85); border: none;
@@ -167,15 +159,8 @@
         .folder-card:hover { transform: translateY(-3px); box-shadow: 0 4px 12px rgba(0,0,0,0.05); border-color: var(--primary); }
         .folder-icon { font-size: 2.2rem; color: var(--primary); margin-bottom: 8px; }
         .folder-name { font-weight: 700; font-size: 0.95rem; color: var(--text); margin-bottom: 4px; }
-        .folder-count { font-size: 0.78rem; color: var(--text-muted); font-weight: 600; margin-bottom: 8px; }
+        .folder-count { font-size: 0.78rem; color: var(--text-muted); font-weight: 600; }
         .folder-delete-btn { position: absolute; top: 8px; right: 8px; background: none; border: none; color: var(--danger); font-size: 0.85rem; cursor: pointer; padding: 4px; }
-
-        .btn-share-folder {
-            background-color: #d1fae5; color: #047857; border: 1px solid #a7f3d0;
-            padding: 4px 10px; border-radius: 6px; font-size: 0.75rem; font-weight: 600;
-            cursor: pointer; display: inline-flex; align-items: center; gap: 4px;
-        }
-        body.dark-mode .btn-share-folder { background-color: #065f46; color: #d1fae5; border-color: #047857; }
 
         .profile-container { max-width: 600px; margin: 0 auto; background: var(--card-bg); border: 1px solid var(--border); border-radius: 16px; padding: 24px; }
         .profile-header { display: flex; align-items: center; gap: 16px; margin-bottom: 20px; border-bottom: 1px solid var(--border); padding-bottom: 16px; }
@@ -919,36 +904,22 @@
     function renderSongs() {
         const searchVal = document.getElementById('searchInput').value.trim().toLowerCase();
         
-        if (currentFilterType === 'PLAYLIST') {
-            const songIds = playlists[currentFilterValue] || [];
-            currentFilteredSongs = [];
-            songIds.forEach(id => {
-                const s = songsList.find(item => item.id === id);
-                if (s) {
-                    const matchSearch = !searchVal || 
-                        (s.title && s.title.toLowerCase().includes(searchVal)) ||
-                        (s.artist && s.artist.toLowerCase().includes(searchVal)) ||
-                        (s.album && s.album.toLowerCase().includes(searchVal));
-                    if (matchSearch) {
-                        currentFilteredSongs.push(s);
-                    }
-                }
-            });
-        } else {
-            currentFilteredSongs = songsList.filter(song => {
-                const matchSearch = !searchVal || 
-                    (song.title && song.title.toLowerCase().includes(searchVal)) ||
-                    (song.artist && song.artist.toLowerCase().includes(searchVal)) ||
-                    (song.album && song.album.toLowerCase().includes(searchVal));
+        currentFilteredSongs = songsList.filter(song => {
+            const matchSearch = !searchVal || 
+                (song.title && song.title.toLowerCase().includes(searchVal)) ||
+                (song.artist && song.artist.toLowerCase().includes(searchVal)) ||
+                (song.album && song.album.toLowerCase().includes(searchVal));
 
-                let matchFilter = true;
-                if (currentFilterType === 'ALBUM') {
-                    matchFilter = song.album === currentFilterValue;
-                }
+            let matchFilter = true;
+            if (currentFilterType === 'ALBUM') {
+                matchFilter = song.album === currentFilterValue;
+            } else if (currentFilterType === 'PLAYLIST') {
+                const songIds = playlists[currentFilterValue] || [];
+                matchFilter = songIds.includes(song.id);
+            }
 
-                return matchSearch && matchFilter;
-            });
-        }
+            return matchSearch && matchFilter;
+        });
 
         displayedItemCount = 20;
         renderSongsListOnly();
@@ -965,15 +936,13 @@
 
         const itemsToDisplay = currentFilteredSongs.slice(0, displayedItemCount);
 
-        grid.innerHTML = itemsToDisplay.map((song, idx) => {
+        grid.innerHTML = itemsToDisplay.map((song) => {
             const imgUrl = song.imageUrl || 'https://via.placeholder.com/300x400?text=No+Image';
             const inFav = (playlists['Favorite'] || []).includes(song.id);
-            const isPlaylistView = currentFilterType === 'PLAYLIST';
 
             return `
                 <div class="song-card" id="song-card-${song.id}">
                     <div class="song-img-container">
-                        ${isPlaylistView ? `<div class="playlist-index-badge">បទទី #${idx + 1}</div>` : ''}
                         <img src="${imgUrl}" class="song-img" alt="${escapeHtml(song.title)}" loading="lazy" onclick="openFullScreenModal('${song.id}')">
                         <button class="heart-badge-btn" onclick="toggleFavorite(event, '${song.id}')" title="ចូលចិត្ត">
                             <i class="${inFav ? 'fa-solid' : 'fa-regular'} fa-heart" style="${inFav ? 'color:#ef4444;' : 'color:#64748b;'}"></i>
@@ -1085,76 +1054,9 @@
                     <div class="folder-icon"><i class="fa-solid fa-list-check"></i></div>
                     <div class="folder-name">${escapeHtml(pName)}</div>
                     <div class="folder-count">${count} បទ</div>
-                    <button class="btn-share-folder" onclick="shareEntirePlaylist(event, '${escapeHtml(pName)}')">
-                        <i class="fa-solid fa-share-nodes"></i> ចែករំលែក
-                    </button>
                 </div>
             `;
         }).join('');
-    }
-
-    // មុខងារចែករំលែក (Share) Playlist ទាំងមូល ជារូបភាពសន្លឹកៗ តាមលេខរៀង (គ្មានសំណេរ/អត្ថបទ)
-    async function shareEntirePlaylist(event, pName) {
-        if (event) event.stopPropagation();
-
-        const songIds = playlists[pName] || [];
-        if (songIds.length === 0) {
-            alert('Playlist នេះពុំទាន់មានបទចម្រៀងឡើយ!');
-            return;
-        }
-
-        const filesArray = [];
-
-        for (let i = 0; i < songIds.length; i++) {
-            const song = songsList.find(s => s.id === songIds[i]);
-            if (!song || !song.imageUrl) continue;
-
-            try {
-                let fileObj = null;
-                const safeTitle = `${i + 1}_${(song.title || 'song').replace(/[^a-zA-Z0-9]/g, "_")}`;
-
-                if (song.imageUrl.startsWith('data:image')) {
-                    const arr = song.imageUrl.split(',');
-                    const mimeMatch = arr[0].match(/:(.*?);/);
-                    const mime = mimeMatch ? mimeMatch[1] : 'image/jpeg';
-                    const bstr = atob(arr[1]);
-                    let n = bstr.length;
-                    const u8arr = new Uint8Array(n);
-                    while (n--) {
-                        u8arr[n] = bstr.charCodeAt(n);
-                    }
-                    const blob = new Blob([u8arr], { type: mime });
-                    fileObj = new File([blob], `${safeTitle}.jpg`, { type: mime });
-                } else {
-                    const response = await fetch(song.imageUrl);
-                    const blob = await response.blob();
-                    fileObj = new File([blob], `${safeTitle}.jpg`, { type: blob.type || 'image/jpeg' });
-                }
-                filesArray.push(fileObj);
-            } catch (err) {
-                console.error(" Error loading image for share:", err);
-            }
-        }
-
-        if (filesArray.length === 0) {
-            alert('ពុំមានរូបភាពចម្រៀងដែលអាចចែករំលែកបានឡើយ!');
-            return;
-        }
-
-        try {
-            if (navigator.canShare && navigator.canShare({ files: filesArray })) {
-                // ដក title និង text ចេញ ដើម្បីផ្ញើបានតែរូបភាពសុទ្ធ
-                await navigator.share({
-                    files: filesArray
-                });
-            } else {
-                alert('ឧបករណ៍/កម្មវិធីរុករករបស់អ្នកមិនគាំទ្រការ Share រូបភាពច្រើនសន្លឹកក្នុងពេលតែមួយឡើយ!');
-            }
-        } catch (err) {
-            if (err.name !== 'AbortError') {
-                alert('ការចែករំលែកបានបរាជ័យ ឬត្រូវបានលុបចោល។');
-            }
-        }
     }
 
     function renderProfileView() {
@@ -1421,6 +1323,7 @@
         renderSongsListOnly();
     }
 
+    // មុខងារបន្ថែមបទចម្រៀងទៅ Playlist (ប្រើ Pop-up Modal)
     function addSongToPlaylist(event, songId) {
         if (event) event.stopPropagation();
         activeAddingSongId = songId;
