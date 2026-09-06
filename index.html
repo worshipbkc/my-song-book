@@ -26,58 +26,36 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
 
     <style>
-        html {
-            background-color: #ffffff;
-        }
+        html { background-color: #ffffff; }
 
         #splashScreen {
-            position: fixed;
-            top: 0; left: 0; right: 0; bottom: 0;
-            width: 100vw; height: 100vh;
-            background-color: #ffffff;
+            position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+            width: 100vw; height: 100vh; background-color: #ffffff;
             display: flex; align-items: center; justify-content: center;
-            z-index: 99999;
-            transition: opacity 0.6s ease-out, visibility 0.6s ease-out;
+            z-index: 99999; transition: opacity 0.6s ease-out, visibility 0.6s ease-out;
         }
 
-        #splashScreen img {
-            max-width: 85%; max-height: 80%;
-            object-fit: contain; border-radius: 16px;
-        }
-
-        #splashScreen.hide {
-            opacity: 0; visibility: hidden;
-        }
+        #splashScreen img { max-width: 85%; max-height: 80%; object-fit: contain; border-radius: 16px; }
+        #splashScreen.hide { opacity: 0; visibility: hidden; }
 
         :root {
-            --primary: #2563eb;
-            --primary-hover: #1d4ed8;
-            --danger: #ef4444;
-            --bg: #ffffff;
-            --card-bg: #ffffff;
-            --text: #0f172a;
-            --text-muted: #64748b;
-            --border: #e2e8f0;
+            --primary: #2563eb; --primary-hover: #1d4ed8;
+            --danger: #ef4444; --bg: #ffffff;
+            --card-bg: #ffffff; --text: #0f172a;
+            --text-muted: #64748b; --border: #e2e8f0;
         }
 
         body.dark-mode {
-            --primary: #3b82f6;
-            --primary-hover: #2563eb;
-            --bg: #0f172a;
-            --card-bg: #1e293b;
-            --text: #f8fafc;
-            --text-muted: #94a3b8;
-            --border: #334155;
+            --primary: #3b82f6; --primary-hover: #2563eb;
+            --bg: #0f172a; --card-bg: #1e293b;
+            --text: #f8fafc; --text-muted: #94a3b8; --border: #334155;
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Kantumruy Pro', sans-serif; transition: background-color 0.2s, color 0.2s; touch-action: manipulation; }
         
         body { 
-            background-color: var(--bg); 
-            color: var(--text); 
-            min-height: 100vh; 
-            position: relative; 
-            padding-top: max(12px, env(safe-area-inset-top));
+            background-color: var(--bg); color: var(--text); min-height: 100vh; 
+            position: relative; padding-top: max(12px, env(safe-area-inset-top));
             padding-bottom: calc(75px + env(safe-area-inset-bottom));
         }
 
@@ -90,8 +68,7 @@
         .fetch-icon-btn {
             position: absolute; top: 20px; right: 20px;
             background: var(--card-bg); border: 1.5px solid var(--primary); color: var(--primary);
-            width: 44px; height: 44px; border-radius: 50%;
-            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            width: 44px; height: 44px; border-radius: 50%; display: flex; flex-direction: column; align-items: center; justify-content: center;
             cursor: pointer; box-shadow: 0 3px 10px rgba(37,99,235,0.15); font-size: 1.1rem; z-index: 100;
         }
         .fetch-icon-btn:active { transform: scale(0.92); }
@@ -136,24 +113,35 @@
 
         .song-img-container { width: 100%; min-height: 200px; background: var(--border); display: flex; align-items: center; justify-content: center; overflow: hidden; cursor: pointer; position: relative; }
         .song-img { width: 100%; height: 100%; max-height: 350px; object-fit: contain; display: block; }
-        .song-info { padding: 12px; flex: 1; display: flex; flex-direction: column; justify-content: space-between; }
         
-        .song-title-row { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 4px; }
+        .heart-badge-btn {
+            position: absolute; top: 10px; right: 10px;
+            background: rgba(255, 255, 255, 0.85); border: none;
+            width: 34px; height: 34px; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            cursor: pointer; box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+            z-index: 10; font-size: 1.1rem; transition: transform 0.2s;
+        }
+        .heart-badge-btn:active { transform: scale(0.9); }
+        body.dark-mode .heart-badge-btn { background: rgba(30, 41, 59, 0.85); }
+
+        .song-info { padding: 12px; flex: 1; display: flex; flex-direction: column; justify-content: space-between; }
+        .song-title-row { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 6px; }
         .song-title { font-size: 0.95rem; font-weight: 700; color: var(--text); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; flex: 1; }
 
-        .song-artist { font-size: 0.82rem; color: var(--text-muted); }
-        .song-meta-info { font-size: 0.72rem; color: var(--text-muted); margin-top: 6px; display: flex; flex-direction: column; gap: 2px; }
+        .song-artist { font-size: 0.82rem; color: var(--text-muted); margin-bottom: 2px; }
+        .song-meta-info { font-size: 0.78rem; color: var(--text-muted); margin-top: 4px; display: flex; flex-direction: column; gap: 2px; }
 
-        .song-actions { display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px; margin-top: 8px; }
+        .song-actions { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; margin-top: 12px; }
         .song-action-btn {
-            padding: 6px 2px; border-radius: 6px; font-size: 0.7rem; font-weight: 600; border: 1px solid var(--border);
-            cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 2px;
+            padding: 8px 4px; border-radius: 8px; font-size: 0.78rem; font-weight: 600; border: 1px solid var(--border);
+            cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 4px;
             text-decoration: none; text-align: center; width: 100%; background-color: var(--card-bg); color: var(--text); white-space: nowrap;
         }
 
         .btn-playlist-inline {
-            background-color: #e0f2fe; color: #0284c7; border: 1px solid #bae6fd; padding: 4px 8px; border-radius: 6px;
-            font-size: 0.72rem; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: 4px; white-space: nowrap;
+            background-color: #e0f2fe; color: #0284c7; border: 1px solid #bae6fd; padding: 4px 10px; border-radius: 8px;
+            font-size: 0.78rem; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: 4px; white-space: nowrap;
         }
         body.dark-mode .btn-playlist-inline { background-color: #0369a1; color: #e0f2fe; border-color: #0284c7; }
 
@@ -187,10 +175,8 @@
 
         .bottom-nav {
             position: fixed; bottom: 0; left: 0; right: 0; height: calc(60px + env(safe-area-inset-bottom));
-            padding-bottom: env(safe-area-inset-bottom);
-            background: var(--card-bg); border-top: 1px solid var(--border);
-            display: flex; align-items: center; justify-around;
-            z-index: 1300; box-shadow: 0 -2px 10px rgba(0,0,0,0.05);
+            padding-bottom: env(safe-area-inset-bottom); background: var(--card-bg); border-top: 1px solid var(--border);
+            display: flex; align-items: center; justify-around; z-index: 1300; box-shadow: 0 -2px 10px rgba(0,0,0,0.05);
         }
 
         .bottom-nav-item {
@@ -222,25 +208,13 @@
         .fullscreen-header { position: absolute; top: calc(15px + env(safe-area-inset-top)); left: 20px; right: 20px; display: flex; justify-content: space-between; align-items: center; color: white; z-index: 3010; }
         
         .fullscreen-img-container { 
-            width: 100%; 
-            height: 82vh; 
-            display: flex; 
-            align-items: center; 
-            justify-content: center; 
-            position: relative; 
-            overflow: hidden; 
-            touch-action: none; 
+            width: 100%; height: 82vh; display: flex; align-items: center; justify-content: center; 
+            position: relative; overflow: hidden; touch-action: none; 
         }
         
         .fullscreen-img { 
-            max-width: 92%; 
-            max-height: 92%; 
-            object-fit: contain; 
-            transform-origin: center center;
-            transition: transform 0.05s ease-out;
-            cursor: grab;
-            user-select: none;
-            -webkit-user-drag: none;
+            max-width: 92%; max-height: 92%; object-fit: contain; transform-origin: center center;
+            transition: transform 0.05s ease-out; cursor: grab; user-select: none; -webkit-user-drag: none;
         }
 
         .fullscreen-nav-btn { position: absolute; top: 50%; transform: translateY(-50%); background: rgba(255, 255, 255, 0.15); color: white; border: none; font-size: 1.6rem; padding: 14px 10px; cursor: pointer; border-radius: 8px; z-index: 3010; }
@@ -255,6 +229,12 @@
         .status-dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
         .status-online { background-color: #10b981; }
         .status-offline { background-color: #ef4444; }
+
+        .playlist-select-item {
+            padding: 12px 14px; border: 1px solid var(--border); border-radius: 10px; margin-bottom: 8px;
+            display: flex; justify-content: space-between; align-items: center; cursor: pointer; background: var(--bg);
+        }
+        .playlist-select-item:hover { border-color: var(--primary); background: rgba(37,99,235,0.05); }
 
         @media (max-width: 768px) {
             .main-content { padding: 14px; }
@@ -307,7 +287,7 @@
         <div class="filter-chips">
             <button class="chip-btn active" onclick="setQuickFilter('ALL', this)">🎵 ទាំងអស់</button>
             <button class="chip-btn" onclick="setQuickFilter('RECENT', this)">✨ ទើបបញ្ចូលថ្មី</button>
-            <button class="chip-btn" onclick="setQuickFilter('FAV', this)">❤️ ចូលចិត្ត (Playlist)</button>
+            <button class="chip-btn" onclick="setQuickFilter('FAV', this)">❤️ ចូលចិត្ត (Favorite)</button>
         </div>
 
         <div class="song-grid" id="songGrid">
@@ -370,6 +350,19 @@
         <img src="" id="fullScreenImg" class="fullscreen-img" alt="Song">
     </div>
     <button class="fullscreen-nav-btn fullscreen-next" onclick="slideFullScreen(1, event)">❯</button>
+</div>
+
+<!-- Modal ជ្រើសរើស Playlist សម្រាប់បន្ថែមបទចម្រៀង -->
+<div class="modal" id="addToPlaylistModal">
+    <div class="modal-content">
+        <h2>➕ បន្ថែមទៅកាន់ Playlist</h2>
+        <p style="font-size:0.85rem; color:var(--text-muted); margin-top:4px; margin-bottom:14px;">ជ្រើសរើស Playlist ដែលអ្នកចង់រក្សាទុកបទនេះ៖</p>
+        <div id="playlistChooserList" style="max-height:250px; overflow-y:auto;"></div>
+        <div style="text-align: right; margin-top: 15px; display: flex; gap: 10px; justify-content: space-between;">
+            <button type="button" onclick="closeModal('addToPlaylistModal'); openCreatePlaylistModal();" style="padding: 8px 12px; border-radius: 8px; border: 1px solid var(--primary); color: var(--primary); background: transparent; font-size:0.8rem; cursor: pointer;"><i class="fa-solid fa-plus"></i> បង្កើត Playlist ថ្មី</button>
+            <button type="button" onclick="closeModal('addToPlaylistModal')" style="background: var(--border); color: var(--text); padding: 8px 14px; border-radius:8px; border:none; cursor: pointer;">បោះបង់</button>
+        </div>
+    </div>
 </div>
 
 <div class="modal" id="addSongModal">
@@ -522,6 +515,7 @@
     let batchImagesArray = [];
     let currentFilteredSongs = [];
     let currentFullscreenIndex = 0;
+    let activeAddingSongId = null;
     
     let displayedItemCount = 20;
     const CHUNK_SIZE = 20;
@@ -948,28 +942,31 @@
 
             return `
                 <div class="song-card" id="song-card-${song.id}">
-                    <div class="song-img-container" onclick="openFullScreenModal('${song.id}')">
-                        <img src="${imgUrl}" class="song-img" alt="${escapeHtml(song.title)}" loading="lazy">
+                    <div class="song-img-container">
+                        <img src="${imgUrl}" class="song-img" alt="${escapeHtml(song.title)}" loading="lazy" onclick="openFullScreenModal('${song.id}')">
+                        <button class="heart-badge-btn" onclick="toggleFavorite(event, '${song.id}')" title="ចូលចិត្ត">
+                            <i class="${inFav ? 'fa-solid' : 'fa-regular'} fa-heart" style="${inFav ? 'color:#ef4444;' : 'color:#64748b;'}"></i>
+                        </button>
                     </div>
                     <div class="song-info">
                         <div>
                             <div class="song-title-row">
                                 <span class="song-title" title="${escapeHtml(song.title)}">${escapeHtml(song.title)}</span>
-                                <button class="btn-playlist-inline" onclick="toggleFavorite('${song.id}')" title="ចូលចិត្ត">
-                                    <i class="${inFav ? 'fa-solid' : 'fa-regular'} fa-heart" style="${inFav ? 'color:#ef4444;' : ''}"></i>
+                                <button class="btn-playlist-inline" onclick="addSongToPlaylist(event, '${song.id}')">
+                                    <i class="fa-solid fa-plus"></i> Playlist
                                 </button>
                             </div>
                             <div class="song-artist">🎤 ${escapeHtml(song.artist || 'មិនស្គាល់')}</div>
                         </div>
                         <div class="song-meta-info">
-                            <span>📁 ${escapeHtml(song.album || 'ទូទៅ')}</span>
+                            <span>📁 អាល់ប៊ុម៖ ${escapeHtml(song.album || 'ទូទៅ')}</span>
                         </div>
                         <div class="song-actions">
-                            <button class="song-action-btn btn-share-custom" onclick="shareSongImage('${song.id}')">
-                                <i class="fa-solid fa-share-nodes"></i> Share
-                            </button>
                             <button class="song-action-btn btn-save-custom" onclick="downloadSongImage('${imgUrl}', '${escapeHtml(song.title)}')">
-                                <i class="fa-solid fa-download"></i> Save
+                                <i class="fa-solid fa-download"></i> ទាញយក
+                            </button>
+                            <button class="song-action-btn btn-share-custom" onclick="shareSongImage('${song.id}')">
+                                <i class="fa-solid fa-share-nodes"></i> ចែករំលែក
                             </button>
                             <button class="song-action-btn btn-edit-custom editor-only" onclick="openEditSongModal('${song.id}')">
                                 <i class="fa-solid fa-pen-to-square"></i> Edit
@@ -1140,7 +1137,6 @@
         updateFullScreenContent();
     }
 
-    // 🔍 មុខងារ PINCH-TO-ZOOM, DRAG/PAN & DOUBLE CLICK សម្រាប់ទូរស័ព្ទ
     let currentScale = 1;
     let startDistance = 0;
     let initialScale = 1;
@@ -1178,15 +1174,12 @@
         const img = document.getElementById('fullScreenImg');
         if (!container || !img) return;
 
-        // Touch Start
         container.addEventListener('touchstart', (e) => {
             if (e.touches.length === 2) {
-                // Pinch Start
                 startDistance = getDistance(e.touches);
                 initialScale = currentScale;
                 isDragging = false;
             } else if (e.touches.length === 1) {
-                // Drag / Swipe Start
                 startX = e.touches[0].clientX - currentX;
                 startY = e.touches[0].clientY - currentY;
                 touchStartXSwipe = e.touches[0].clientX;
@@ -1194,10 +1187,8 @@
             }
         }, { passive: false });
 
-        // Touch Move
         container.addEventListener('touchmove', (e) => {
             if (e.touches.length === 2) {
-                // Pinch Zooming
                 e.preventDefault();
                 const newDist = getDistance(e.touches);
                 if (startDistance > 0) {
@@ -1206,7 +1197,6 @@
                 }
             } else if (e.touches.length === 1 && isDragging) {
                 if (currentScale > 1) {
-                    // Pan / Drag ពេល Zoom
                     e.preventDefault();
                     currentX = e.touches[0].clientX - startX;
                     currentY = e.touches[0].clientY - startY;
@@ -1215,7 +1205,6 @@
             }
         }, { passive: false });
 
-        // Touch End
         container.addEventListener('touchend', (e) => {
             if (e.touches.length < 2) {
                 startDistance = 0;
@@ -1227,7 +1216,6 @@
                     currentY = 0;
                     applyImageTransform();
                     
-                    // Swipe លុះត្រាតែអត់ Zoom
                     if (e.changedTouches.length === 1) {
                         touchEndXSwipe = e.changedTouches[0].clientX;
                         const diff = touchEndXSwipe - touchStartXSwipe;
@@ -1240,7 +1228,6 @@
             }
         });
 
-        // Double Click / Double Tap Zoom
         img.addEventListener('dblclick', (e) => {
             e.preventDefault();
             if (currentScale > 1) {
@@ -1254,7 +1241,6 @@
         });
     }
 
-    // 🔴 មុខងារ SHARE រូបភាពផ្ទាល់ដោយបង្ហាញតែចំណងជើងបទចម្រៀង
     async function shareSongImage(songId) {
         const song = songsList.find(s => s.id === songId);
         if (!song || !song.imageUrl) {
@@ -1324,7 +1310,8 @@
         document.body.removeChild(a);
     }
 
-    function toggleFavorite(songId) {
+    function toggleFavorite(event, songId) {
+        if (event) event.stopPropagation();
         if (!playlists['Favorite']) playlists['Favorite'] = [];
         const index = playlists['Favorite'].indexOf(songId);
         if (index === -1) {
@@ -1334,6 +1321,49 @@
         }
         localStorage.setItem('user_playlists', JSON.stringify(playlists));
         renderSongsListOnly();
+    }
+
+    // មុខងារបន្ថែមបទចម្រៀងទៅ Playlist (ប្រើ Pop-up Modal)
+    function addSongToPlaylist(event, songId) {
+        if (event) event.stopPropagation();
+        activeAddingSongId = songId;
+        
+        const playlistNames = Object.keys(playlists);
+        const container = document.getElementById('playlistChooserList');
+
+        if (playlistNames.length === 0) {
+            if (confirm('មិនទាន់មាន Playlist នៅឡើយទេ។ តើអ្នកចង់បង្កើត Playlist ថ្មីដែរឬទេ?')) {
+                openCreatePlaylistModal();
+            }
+            return;
+        }
+
+        container.innerHTML = playlistNames.map(pName => {
+            const hasSong = (playlists[pName] || []).includes(songId);
+            return `
+                <div class="playlist-select-item" onclick="confirmAddToPlaylist('${escapeHtml(pName)}')">
+                    <span style="font-weight:600;"><i class="fa-solid fa-list-check" style="color:var(--primary); margin-right:8px;"></i> ${escapeHtml(pName)}</span>
+                    <span style="font-size:0.8rem; color:${hasSong ? '#10b981' : 'var(--text-muted)'}">
+                        ${hasSong ? '<i class="fa-solid fa-check-circle"></i> មានរួចហើយ' : '<i class="fa-solid fa-plus-circle"></i> បន្ថែម'}
+                    </span>
+                </div>
+            `;
+        }).join('');
+
+        openModal('addToPlaylistModal');
+    }
+
+    function confirmAddToPlaylist(pName) {
+        if (!activeAddingSongId || !playlists[pName]) return;
+
+        if (!playlists[pName].includes(activeAddingSongId)) {
+            playlists[pName].push(activeAddingSongId);
+            localStorage.setItem('user_playlists', JSON.stringify(playlists));
+            alert(`បានបន្ថែមបទចម្រៀងទៅក្នុង Playlist "${pName}" រួចរាល់!`);
+        } else {
+            alert(`បទចម្រៀងនេះមាននៅក្នុង Playlist "${pName}" រួចហើយ!`);
+        }
+        closeModal('addToPlaylistModal');
     }
 
     function openModal(modalId) {
