@@ -386,7 +386,6 @@
     let currentFullscreenIndex = 0;
     let activeAddingSongId = null;
 
-    // --- Helper Functions សម្រាប់ Caching ក្នុង LocalStorage (0 Read Quota) ---
     function saveSongToLocal(song) {
         if (!song || !song.id) return;
         let cachedSongs = JSON.parse(localStorage.getItem('cached_songs') || '{}');
@@ -409,7 +408,6 @@
         listenToAuth();
         listenToAlbums();
         
-        // ១. បើក App មកទាញយកត្រឹម ២០ បទដំបូងដើម្បីសន្សំ Quota
         fetchInitial20Songs();
     };
 
@@ -423,7 +421,7 @@
               snapshot.forEach(doc => {
                   const songData = { id: doc.id, ...doc.data() };
                   songs.push(songData);
-                  saveSongToLocal(songData); // Save ចូល Local
+                  saveSongToLocal(songData);
               });
               initialSongsList = songs;
               songsList = songs;
@@ -454,7 +452,7 @@
     function updateTotalSongCount() {
         const countEl = document.getElementById('totalSongCountText');
         if (countEl && songsList) {
-            countEl.innerText = `🎵បង្ហាញតែ ${songsList.length} បទ បើចង់បានបទថ្មីអាចស្វែងរកនៅលើ🔍នេះបាន 🎵`;
+            countEl.innerText = `🎵មានចម្រៀងសរសើរដំកើងព្រះបង្ហាញ ${songsList.length} បទ🎵`;
         }
     }
 
@@ -480,12 +478,10 @@
             if (subtitle) subtitle.innerHTML = `✨ ផ្លាស់ប្តូរមកបង្ហាញ៖ <strong style="color:var(--primary);">បទចម្រៀងទើបបញ្ចូលថ្មី</strong>`;
             renderSongs();
         } else if (type === 'FAV') {
-            // ប្រើ Smart Filter សម្រាប់ Favorite
             filterByFavorite();
         }
     }
 
-    // ២. ស្វែងរកបទចម្រៀង (Search) - Fetch បទណា Save ចូល Local ភ្លាមៗ
     function handleSearchInput() {
         if (searchTimeout) clearTimeout(searchTimeout);
         
@@ -499,7 +495,6 @@
                 return;
             }
 
-            // ឆែកក្នុង LocalStorage មុនគេដើម្បីសន្សំ Read
             let cachedSongs = JSON.parse(localStorage.getItem('cached_songs') || '{}');
             let localMatches = Object.values(cachedSongs).filter(s => 
                 (s.title && s.title.toLowerCase().includes(query.toLowerCase())) ||
@@ -511,7 +506,6 @@
                 renderSongs();
             }
 
-            // Fetch បន្ថែមពី Firebase (យកតែបទត្រូវគ្នា ១០ បទ)
             db.collection('songs')
               .where('title', '>=', query)
               .where('title', '<=', query + '\uf8ff')
@@ -522,8 +516,6 @@
                   snapshot.forEach((doc) => {
                       const songData = { id: doc.id, ...doc.data() };
                       searchResults.push(songData);
-                      
-                      // Auto-Save ចូល Local ភ្លាមៗ!
                       saveSongToLocal(songData);
                   });
                   
@@ -546,7 +538,7 @@
         let listToDisplay = (currentFilterType !== 'ALL') ? currentFilteredSongs : songsList;
 
         if (listToDisplay.length === 0) {
-            grid.innerHTML = `<div class="empty-state">សូមរង់ចាំបន្តិចកំពុងដំណើរការ...!</div>`;
+            grid.innerHTML = `<div class="empty-state">ពុំមានបទចម្រៀងនៅក្នុងបញ្ជីនេះឡើយ!</div>`;
             return;
         }
 
@@ -596,7 +588,6 @@
         grid.innerHTML = html;
     }
 
-    // ៣. បង្ហាញ Playlist ដោយទាញចេញពី Local មុនគេ (បើខ្វះទើប Fetch)
     async function filterByPlaylist(pName) {
         switchTab('songs');
         const songIds = playlists[pName] || [];
@@ -611,7 +602,6 @@
         let playlistSongs = [];
         let missingIds = [];
 
-        // ទាញយករូបភាព និងទិន្នន័យពី LocalStorage មុនគេ (0 Read!)
         songIds.forEach(id => {
             let localSong = getSongFromLocal(id);
             if (localSong) {
@@ -621,7 +611,6 @@
             }
         });
 
-        // បើមានបទណាមិនទាន់ Save ទើបទៅ Fetch តែបទនោះពី Cloud
         if (missingIds.length > 0) {
             try {
                 const chunkSize = 10;
@@ -634,7 +623,7 @@
                     snapshot.forEach(doc => {
                         const songData = { id: doc.id, ...doc.data() };
                         playlistSongs.push(songData);
-                        saveSongToLocal(songData); // Save ទុកសម្រាប់លើកក្រោយ
+                        saveSongToLocal(songData);
                     });
                 }
             } catch (error) {
@@ -652,7 +641,6 @@
         renderSongs();
     }
 
-    // ៤. បង្ហាញ Favorite ដោយទាញចេញពី Local
     async function filterByFavorite() {
         const favs = JSON.parse(localStorage.getItem('fav_songs') || '[]');
         currentFilterType = 'FAV';
@@ -714,7 +702,6 @@
             favs = favs.filter(id => id !== sId);
         } else {
             favs.push(sId);
-            // ប្រាកដថាបទនោះត្រូវបាន Save ចូល Local
             const foundSong = songsList.find(s => String(s.id) === sId) || currentFilteredSongs.find(s => String(s.id) === sId);
             if (foundSong) saveSongToLocal(foundSong);
         }
@@ -754,7 +741,6 @@
             playlists[playlistName].push(activeAddingSongId);
             localStorage.setItem('user_playlists', JSON.stringify(playlists));
             
-            // Save បទនោះចូល Local ដើម្បីឱ្យមានរូបភាពបង្ហាញ
             const foundSong = songsList.find(s => String(s.id) === activeAddingSongId) || currentFilteredSongs.find(s => String(s.id) === activeAddingSongId);
             if (foundSong) saveSongToLocal(foundSong);
 
@@ -1002,7 +988,7 @@
             for (const doc of snapshot.docs) {
                 const songData = { id: doc.id, ...doc.data() };
                 songs.push(songData);
-                saveSongToLocal(songData); // Save ចូល Local
+                saveSongToLocal(songData);
                 current++;
                 const p = Math.round((current / total) * 100);
                 if (percentLabel) percentLabel.innerText = `${p}%`;
