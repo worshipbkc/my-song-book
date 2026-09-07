@@ -61,19 +61,53 @@
 
         .main-content { padding: 20px; width: 100%; max-width: 1200px; margin: 0 auto; position: relative; }
 
-        header { margin-bottom: 16px; display: flex; justify-content: space-between; align-items: flex-start; gap: 15px; padding-right: 50px; }
+        header { margin-bottom: 16px; display: flex; justify-content: space-between; align-items: flex-start; gap: 15px; }
         .header-text h1 { font-size: 1.5rem; color: var(--primary); margin-bottom: 4px; }
         .header-text p { color: var(--text-muted); font-size: 0.85rem; font-weight: 600; line-height: 1.5; }
 
-        .fetch-icon-btn {
-            position: absolute; top: 20px; right: 20px;
-            background: var(--card-bg); border: 1.5px solid var(--primary); color: var(--primary);
-            width: 44px; height: 44px; border-radius: 50%; display: flex; flex-direction: column; align-items: center; justify-content: center;
-            cursor: pointer; box-shadow: 0 3px 10px rgba(37,99,235,0.15); font-size: 1.1rem; z-index: 100;
+        .mode-switch-container {
+            display: flex;
+            gap: 8px;
+            align-items: center;
         }
-        .fetch-icon-btn:active { transform: scale(0.92); }
-        .fetch-icon-btn .percent-label { font-size: 0.62rem; font-weight: 700; line-height: 1; margin-top: 2px; display: none; }
-        .fetch-icon-btn.completed { border-color: #10b981; color: #10b981; }
+
+        .mode-btn {
+            background: var(--card-bg);
+            border: 1.5px solid var(--border);
+            color: var(--text-muted);
+            padding: 8px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.25s ease;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+        }
+
+        .mode-btn:active { transform: scale(0.95); }
+
+        .mode-btn.active {
+            border-color: var(--primary);
+            color: var(--primary);
+            background: rgba(37, 99, 235, 0.08);
+        }
+
+        .mode-btn.completed {
+            border-color: #10b981;
+            color: #10b981;
+            background: rgba(16, 185, 129, 0.08);
+        }
+
+        /* រចនាប័ទ្មសម្រាប់បង្ហាញភាគរយ % */
+        .mode-btn .percent-label {
+            font-size: 0.78rem;
+            font-weight: 700;
+            color: var(--primary);
+            display: none;
+        }
 
         .install-pwa-btn { background: #16a34a; border: none; color: white; padding: 6px 12px; border-radius: 8px; font-weight: 600; font-size: 0.8rem; cursor: pointer; display: none; align-items: center; gap: 6px; margin-top: 8px; }
 
@@ -266,10 +300,19 @@
             </button>
         </div>
 
-        <button class="fetch-icon-btn" id="fetchAllBtn" onclick="fetchAllSongsWithProgress()" title="ទាញយកទិន្នន័យ (Offline)">
-            <i class="fa-solid fa-cloud-arrow-down" id="fetchIcon"></i>
-            <span class="percent-label" id="progressPercent">0%</span>
-        </button>
+        <!-- ប៊ូតុងជម្រើស Mode ទាំងពីរ -->
+        <div class="mode-switch-container">
+            <button class="mode-btn active" id="onlineModeBtn" onclick="switchToOnlineMode()" title="ប្រើប្រាស់អនឡាញ (ទាញតែ២០បទដំបូង)">
+                <i class="fa-solid fa-wifi"></i>
+                <span>Online</span>
+            </button>
+
+            <button class="mode-btn" id="offlineModeBtn" onclick="handleOfflineButtonClick()" title="ទាញយកទិន្នន័យទាំងអស់ (Offline)">
+                <i class="fa-solid fa-cloud-arrow-down" id="fetchIcon"></i>
+                <span id="offlineBtnText">Offline</span>
+                <span class="percent-label" id="progressPercent">0%</span>
+            </button>
+        </div>
     </header>
 
     <div class="app-view active" id="viewSongs">
@@ -420,7 +463,9 @@
     let currentFullscreenIndex = 0;
     let activeAddingSongId = null;
 
+    let isOfflineMode = false;
     let dbIndexed = null;
+
     function initIndexedDB() {
         return new Promise((resolve, reject) => {
             const request = indexedDB.open('SongAppOfflineDB', 1);
@@ -451,13 +496,9 @@
         try {
             await initIndexedDB();
             const offlineSongs = await loadSongsFromIndexedDB();
-            if (offlineSongs && offlineSongs.length > 0) {
-                initialSongsList = offlineSongs;
-                songsList = offlineSongs;
-                renderSongs();
-                updateTotalSongCount();
-                updateSearchSuggestions();
-                markFetchCompleted();
+            
+            if (offlineSongs && offlineSongs.length > 20) {
+                enableOfflineMode(offlineSongs);
             } else {
                 fetchInitial20Songs();
             }
@@ -489,6 +530,159 @@
           });
     }
 
+    // --- មុខងារគ្រប់គ្រង Modes (Online / Offline) ---
+    function switchToOnlineMode() {
+        isOfflineMode = false;
+        
+        document.getElementById('onlineModeBtn').classList.add('active');
+        document.getElementById('offlineModeBtn').classList.remove('active');
+        
+        fetchInitial20Songs();
+    }
+
+    async function handleOfflineButtonClick() {
+        const offlineSongs = await loadSongsFromIndexedDB();
+        if (offlineSongs && offlineSongs.length > 20) {
+            enableOfflineMode(offlineSongs);
+        } else {
+            if (confirm('តើអ្នកចង់ទាញយកបទចម្រៀងទាំងអស់ទុកប្រើប្រាស់ Offline ឬ?')) {
+                fetchAllSongsWithProgress();
+            }
+        }
+    }
+
+    function enableOfflineMode(songs) {
+        isOfflineMode = true;
+        initialSongsList = songs;
+        songsList = songs;
+
+        document.getElementById('onlineModeBtn').classList.remove('active');
+        const offBtn = document.getElementById('offlineModeBtn');
+        offBtn.classList.add('active');
+        offBtn.classList.add('completed');
+        document.getElementById('offlineBtnText').innerText = 'Offline';
+
+        renderSongs();
+        updateTotalSongCount();
+        updateSearchSuggestions();
+    }
+
+    // --- មុខងារទាញយកទិន្នន័យ Offline ដោយបង្ហាញ % រង់ចាំ ---
+    async function fetchAllSongsWithProgress() {
+        const percentLabel = document.getElementById('progressPercent');
+        const btnText = document.getElementById('offlineBtnText');
+        const fetchIcon = document.getElementById('fetchIcon');
+
+        // បង្ហាញ Text ភាគរយ % និងប្តូរ Icon វិល
+        if (percentLabel) {
+            percentLabel.style.display = 'inline';
+            percentLabel.innerText = '0%';
+        }
+        if (btnText) btnText.style.display = 'none';
+        if (fetchIcon) fetchIcon.className = 'fa-solid fa-spinner fa-spin';
+
+        try {
+            const snapshot = await db.collection('songs').get();
+            const total = snapshot.size;
+            let current = 0;
+            const songs = [];
+
+            for (const doc of snapshot.docs) {
+                songs.push({ id: doc.id, ...doc.data() });
+                current++;
+                
+                // គណនា និងធ្វើបច្ចុប្បន្នភាព % លើប៊ូតុង
+                const p = Math.round((current / total) * 100);
+                if (percentLabel) percentLabel.innerText = `${p}%`;
+            }
+
+            await saveSongsToIndexedDB(songs);
+
+            // ពេលទាញយកចប់ បិទ % និងបង្ហាញអក្សរ Offline វិញ
+            if (percentLabel) percentLabel.style.display = 'none';
+            if (btnText) btnText.style.display = 'inline';
+            if (fetchIcon) fetchIcon.className = 'fa-solid fa-cloud-arrow-down';
+
+            enableOfflineMode(songs);
+            alert('បានទាញយកទិន្នន័យ offline រួចរាល់!');
+        } catch (err) {
+            console.error(err);
+            alert('ការទាញយកមានបញ្ហា៖ ' + err.message);
+            if (percentLabel) percentLabel.style.display = 'none';
+            if (btnText) btnText.style.display = 'inline';
+            if (fetchIcon) fetchIcon.className = 'fa-solid fa-cloud-arrow-down';
+        }
+    }
+
+    // --- មុខងារស្វែងរកតាម Mode ---
+    function handleSearchInput() {
+        if (searchTimeout) clearTimeout(searchTimeout);
+        
+        searchTimeout = setTimeout(() => {
+            const query = document.getElementById('searchInput').value.trim().toLowerCase();
+            
+            if (!query) {
+                songsList = [...initialSongsList];
+                setQuickFilter(currentFilterType);
+                updateTotalSongCount();
+                return;
+            }
+
+            if (isOfflineMode) {
+                const localResults = initialSongsList.filter(s => 
+                    (s.title && s.title.toLowerCase().includes(query)) ||
+                    (s.artist && s.artist.toLowerCase().includes(query))
+                );
+                currentFilteredSongs = localResults;
+                renderSongs();
+                updateTotalSongCount();
+                return;
+            }
+
+            const localFiltered = initialSongsList.filter(s => 
+                (s.title && s.title.toLowerCase().includes(query)) ||
+                (s.artist && s.artist.toLowerCase().includes(query))
+            );
+
+            if (localFiltered.length > 0) {
+                currentFilteredSongs = localFiltered;
+                renderSongs();
+                return;
+            }
+
+            const grid = document.getElementById('songGrid');
+            if (grid) grid.innerHTML = `<div class="empty-state">កំពុងស្វែងរកពី Server...</div>`;
+
+            db.collection('songs')
+              .where('title', '>=', document.getElementById('searchInput').value.trim())
+              .where('title', '<=', document.getElementById('searchInput').value.trim() + '\uf8ff')
+              .limit(30)
+              .get()
+              .then((snapshot) => {
+                  const searchResults = [];
+                  snapshot.forEach((doc) => {
+                      searchResults.push({ id: doc.id, ...doc.data() });
+                  });
+                  
+                  songsList = searchResults;
+                  currentFilteredSongs = searchResults;
+                  renderSongs();
+                  updateTotalSongCount();
+                  updateSearchSuggestions();
+              })
+              .catch(() => {
+                  const fallbackList = initialSongsList.filter(s => 
+                      (s.title && s.title.toLowerCase().includes(query)) ||
+                      (s.artist && s.artist.toLowerCase().includes(query))
+                  );
+                  songsList = fallbackList;
+                  currentFilteredSongs = fallbackList;
+                  renderSongs();
+                  updateTotalSongCount();
+              });
+        }, 300);
+    }
+
     function updateSearchSuggestions() {
         const datalist = document.getElementById('songSuggestions');
         if (!datalist) return;
@@ -507,7 +701,7 @@
     function updateTotalSongCount() {
         const countEl = document.getElementById('totalSongCountText');
         if (countEl && songsList) {
-            countEl.innerText = `🎵មានចម្រៀងសរសើរដំកើងព្រះបង្ហាញ ${songsList.length} បទ🎵`;
+            countEl.innerText = `🎵មានចម្រៀងសរសើរដំកើងព្រះបង្ហាញ ${songsList.length} បទ អ្នកអាចស្វែងបន្ថែមគ្រាន់កន្លែងស្វែងរក 🎵`;
         }
     }
 
@@ -533,66 +727,9 @@
         } else if (type === 'FAV') {
             const favs = JSON.parse(localStorage.getItem('fav_songs') || '[]');
             currentFilteredSongs = songsList.filter(s => favs.includes(s.id));
-            if (subtitle) subtitle.innerHTML = `❤️ ផ្លាស់ប្តូរមកបង្ហាញ៖ <strong style="color:var(--primary);">បទចម្រៀងចូលចិត្ត (Favorites)</strong>`;
+            if (subtitle) subtitle.innerHTML = `❤️ ផ្លាស់ប្តូរមកបង្ហាញ៖ <strong style="color:var(--primary);">បទចម្រៀងចូលចិត្ត (Favorite)</strong>`;
         }
         renderSongs();
-    }
-
-    function handleSearchInput() {
-        if (searchTimeout) clearTimeout(searchTimeout);
-        
-        searchTimeout = setTimeout(() => {
-            const query = document.getElementById('searchInput').value.trim();
-            
-            if (!query) {
-                songsList = [...initialSongsList];
-                setQuickFilter(currentFilterType);
-                updateTotalSongCount();
-                return;
-            }
-
-            const localFiltered = songsList.filter(s => 
-                (s.title && s.title.toLowerCase().includes(query.toLowerCase())) ||
-                (s.artist && s.artist.toLowerCase().includes(query.toLowerCase()))
-            );
-
-            if (localFiltered.length > 0) {
-                currentFilteredSongs = localFiltered;
-                renderSongs();
-                return;
-            }
-
-            const grid = document.getElementById('songGrid');
-            if (grid) grid.innerHTML = `<div class="empty-state">កំពុងស្វែងរក...</div>`;
-
-            db.collection('songs')
-              .where('title', '>=', query)
-              .where('title', '<=', query + '\uf8ff')
-              .limit(30)
-              .get()
-              .then((snapshot) => {
-                  const searchResults = [];
-                  snapshot.forEach((doc) => {
-                      searchResults.push({ id: doc.id, ...doc.data() });
-                  });
-                  
-                  songsList = searchResults;
-                  currentFilteredSongs = searchResults;
-                  renderSongs();
-                  updateTotalSongCount();
-                  updateSearchSuggestions();
-              })
-              .catch(() => {
-                  const fallbackList = initialSongsList.filter(s => 
-                      (s.title && s.title.toLowerCase().includes(query.toLowerCase())) ||
-                      (s.artist && s.artist.toLowerCase().includes(query.toLowerCase()))
-                  );
-                  songsList = fallbackList;
-                  currentFilteredSongs = fallbackList;
-                  renderSongs();
-                  updateTotalSongCount();
-              });
-        }, 300);
     }
 
     function renderSongs() {
@@ -602,7 +739,7 @@
         let listToDisplay = currentFilteredSongs.length > 0 || currentFilterType !== 'ALL' ? currentFilteredSongs : songsList;
 
         if (listToDisplay.length === 0) {
-            grid.innerHTML = `<div class="empty-state">ពុំមានបទចម្រៀងនៅក្នុងបញ្ជីនេះឡើយ!</div>`;
+            grid.innerHTML = `<div class="empty-state">សូមរង់ចាំបន្តិចកំពុងដំណើរការទាញយក...!</div>`;
             return;
         }
 
@@ -613,7 +750,6 @@
             const isFav = favs.includes(song.id);
             const heartIcon = isFav ? '❤️' : '🤍';
             
-            // ការពារករណីគ្មានរូបភាព
             const imgUrl = song.imageUrl && song.imageUrl.trim() !== '' 
                 ? song.imageUrl 
                 : 'https://via.placeholder.com/300x400?text=No+Image';
@@ -869,7 +1005,6 @@
         const songIds = playlists[pName] || [];
         currentFilterType = 'PLAYLIST';
         
-        // ទាញយក Object បទចម្រៀងពេញលេញតាម ID ក្នុង Playlist
         currentFilteredSongs = songsList.filter(s => songIds.includes(s.id));
         
         const subtitle = document.getElementById('currentAlbumSubtitle');
@@ -934,42 +1069,6 @@
         }
     }
 
-    async function fetchAllSongsWithProgress() {
-        const btn = document.getElementById('fetchAllBtn');
-        const percentLabel = document.getElementById('progressPercent');
-
-        if (percentLabel) percentLabel.style.display = 'block';
-
-        try {
-            const snapshot = await db.collection('songs').get();
-            const total = snapshot.size;
-            let current = 0;
-            const songs = [];
-
-            for (const doc of snapshot.docs) {
-                songs.push({ id: doc.id, ...doc.data() });
-                current++;
-                const p = Math.round((current / total) * 100);
-                if (percentLabel) percentLabel.innerText = `${p}%`;
-            }
-
-            initialSongsList = songs;
-            songsList = songs;
-            renderSongs();
-            updateTotalSongCount();
-            updateSearchSuggestions();
-            await saveSongsToIndexedDB(songs);
-
-            if (percentLabel) percentLabel.style.display = 'none';
-            if (btn) btn.classList.add('completed');
-            alert('បានទាញយកទិន្នន័យ offline រួចរាល់!');
-        } catch (err) {
-            console.error(err);
-            alert('ការទាញយកមានបញ្ហា៖ ' + err.message);
-            if (percentLabel) percentLabel.style.display = 'none';
-        }
-    }
-
     function saveSongsToIndexedDB(songs) {
         return new Promise((resolve, reject) => {
             if (!dbIndexed) return resolve();
@@ -991,11 +1090,6 @@
             request.onsuccess = () => resolve(request.result || []);
             request.onerror = (e) => reject(e);
         });
-    }
-
-    function markFetchCompleted() {
-        const btn = document.getElementById('fetchAllBtn');
-        if (btn) btn.classList.add('completed');
     }
 
     function openModal(modalId) {
