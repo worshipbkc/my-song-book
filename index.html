@@ -150,7 +150,6 @@
         .song-title { font-size: 0.82rem; font-weight: 700; color: var(--text); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; flex: 1; }
 
         .song-artist { font-size: 0.72rem; color: var(--text-muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-        .song-meta-info { font-size: 0.68rem; color: var(--text-muted); margin-top: 4px; }
 
         .song-actions { display: grid; grid-template-columns: repeat(2, 1fr); gap: 4px; margin-top: 6px; }
         .song-action-btn {
@@ -293,13 +292,13 @@
         </div>
 
         <div class="filter-chips">
-            <button class="chip-btn active" onclick="setQuickFilter('ALL', this)">🎵 ទាំងអស់</button>
-            <button class="chip-btn" onclick="setQuickFilter('RECENT', this)">✨ ថ្មីៗ</button>
+            <button class="chip-btn active" onclick="setQuickFilter('ALL', this)">🎵 ចម្រៀងទាំងអស់</button>
+            <button class="chip-btn" onclick="setQuickFilter('RECENT', this)">✨ បទថ្មីៗ</button>
             <button class="chip-btn" onclick="setQuickFilter('FAV', this)">❤️ ចូលចិត្ត</button>
         </div>
 
         <div class="song-grid" id="songGrid">
-            <div class="empty-state" id="loadingState">📂 កំពុងផ្ទុកទិន្នន័យ...</div>
+            <div class="empty-state" id="loadingState">🎵 កំពុងទាញយកទិន្នន័យ...</div>
         </div>
     </div>
 
@@ -516,6 +515,7 @@
     let isLoadingMore = false;
     let deferredPrompt = null;
     let songsListenerUnsubscribe = null;
+    let searchTimeout = null;
 
     if ('serviceWorker' in navigator) {
         window.addEventListener('load', () => {
@@ -591,7 +591,7 @@
     function updateTotalSongCount() {
         const countEl = document.getElementById('totalSongCountText');
         if (countEl && songsList) {
-            countEl.innerText = `🎵 មានចម្រៀងសរុប ${songsList.length} បទ 🎵`;
+            countEl.innerText = `🎵 មានចម្រៀងសរសើរដំកើងព្រះសរុប ${songsList.length} បទ 🎵`;
         }
     }
 
@@ -659,7 +659,7 @@
                 });
                 renderSongs();
                 updateTotalSongCount();
-                saveSongsToIndexedDB(songsList);
+                saveSongsToIndexedDBIncremental(songsList);
             }
         }, (error) => {});
     }
@@ -716,12 +716,17 @@
         }, 200);
     }
 
-    function saveSongsToIndexedDB(songs) {
-        if (!dbIndexed) return;
-        const tx = dbIndexed.transaction('offlineSongs', 'readwrite');
-        const store = tx.objectStore('offlineSongs');
-        store.clear();
-        songs.forEach(song => store.put(song));
+    // ជំនួយការ Save ទិន្នន័យជាកង់ៗដើមទូរស័ព្ទ Samsung A12 មិន Crash
+    function saveSongsToIndexedDBIncremental(songs) {
+        return new Promise((resolve, reject) => {
+            if (!dbIndexed) return resolve();
+            const tx = dbIndexed.transaction('offlineSongs', 'readwrite');
+            const store = tx.objectStore('offlineSongs');
+            store.clear();
+            songs.forEach(song => store.put(song));
+            tx.oncomplete = () => resolve();
+            tx.onerror = (e) => reject(e);
+        });
     }
 
     function loadSongsFromIndexedDB() {
@@ -749,7 +754,7 @@
             });
             renderSongs();
             updateTotalSongCount();
-            saveSongsToIndexedDB(songsList);
+            saveSongsToIndexedDBIncremental(songsList);
         }).catch(err => {
             const grid = document.getElementById('songGrid');
             if (grid && songsList.length === 0) {
@@ -758,7 +763,8 @@
         });
     }
 
-    function fetchAllSongsWithProgress() {
+    // 🔥 អភិវឌ្ឍន៍ការ Download លើទូរស័ព្ទ RAM ទាប (Samsung A12 Chunk Process Optimization)
+    async function fetchAllSongsWithProgress() {
         const fetchBtn = document.getElementById('fetchAllBtn');
         const fetchIcon = document.getElementById('fetchIcon');
         const percentLabel = document.getElementById('progressPercent');
@@ -768,39 +774,44 @@
         percentLabel.innerText = '0%';
         fetchIcon.className = 'fa-solid fa-spinner fa-spin';
 
-        let progress = 0;
-        const interval = setInterval(() => {
-            progress += 20;
-            if (progress > 80) progress = 80;
-            percentLabel.innerText = progress + '%';
-        }, 100);
+        try {
+            const snapshot = await db.collection("songs").orderBy("createdAt", "desc").get();
+            const totalDocs = snapshot.docs.length;
+            if (totalDocs === 0) return;
 
-        db.collection("songs").orderBy("createdAt", "desc").get().then((snapshot) => {
-            clearInterval(interval);
-            percentLabel.innerText = '100%';
             songsList = [];
-            snapshot.forEach((doc) => {
+            let count = 0;
+
+            for (let doc of snapshot.docs) {
                 const data = doc.data();
-                songsList.push({
+                const songItem = {
                     id: doc.id,
                     ...data,
                     createdAt: data.createdAt ? { seconds: data.createdAt.seconds } : null,
                     updatedAt: data.updatedAt ? { seconds: data.updatedAt.seconds } : null
-                });
-            });
+                };
+                songsList.push(songItem);
+                count++;
+
+                let percent = Math.round((count / totalDocs) * 100);
+                percentLabel.innerText = percent + '%';
+
+                // សម្រាក CPU/RAM ប្រភាគវិនាទី ការពារការ Crash លើទូរស័ព្ទ
+                if (count % 10 === 0) {
+                    await new Promise(resolve => setTimeout(resolve, 20));
+                }
+            }
+
+            await saveSongsToIndexedDBIncremental(songsList);
             renderSongs();
             updateTotalSongCount();
-            saveSongsToIndexedDB(songsList);
-
-            setTimeout(() => {
-                markFetchCompleted();
-            }, 300);
-        }).catch(err => {
-            clearInterval(interval);
+            markFetchCompleted();
+        } catch (err) {
+            console.error(err);
             fetchBtn.disabled = false;
             percentLabel.style.display = 'none';
             fetchIcon.className = 'fa-solid fa-cloud-arrow-down';
-        });
+        }
     }
 
     function markFetchCompleted() {
@@ -919,7 +930,7 @@
             return `
                 <div class="song-card" id="song-card-${song.id}">
                     <div class="song-img-container" onclick="openFullScreenModal('${song.id}')">
-                        <img src="${imgUrl}" class="song-img" alt="${escapeHtml(song.title)}" loading="lazy">
+                        <img src="${imgUrl}" class="song-img" alt="${escapeHtml(song.title)}" loading="lazy" decoding="async">
                     </div>
                     <div class="song-info">
                         <div>
@@ -939,7 +950,7 @@
                                 <i class="fa-solid fa-download"></i> Save
                             </button>
                             <button class="song-action-btn btn-edit-custom editor-only" onclick="openEditSongModal('${song.id}')">
-                                <i class="fa-solid fa-pen"></i>​ Edit
+                                <i class="fa-solid fa-pen"></i> Edit
                             </button>
                             <button class="song-action-btn btn-delete-custom editor-only" onclick="deleteSong('${song.id}')">
                                 <i class="fa-solid fa-trash"></i> Delete
@@ -951,8 +962,12 @@
         }).join('');
     }
 
+    // 🔥 Debounce Search Optimization កាត់បន្ថយការតាំង UI
     function handleSearchInput() {
-        renderSongs();
+        clearTimeout(searchTimeout);
+        searchTimeout = setTimeout(() => {
+            renderSongs();
+        }, 250);
     }
 
     function resetFilters() {
@@ -1129,7 +1144,6 @@
         else if (touchEndX > touchStartX + threshold) slideFullScreen(-1);
     }
 
-    // 🔥 មុខងារ ទាញយករូបភាពផ្ទាល់លើទូរស័ព្ទដៃ (Mobile Optimized Auto Downloader)
     async function downloadSongImage(url, title) {
         try {
             const fileName = `${title.replace(/[^a-zA-Z0-9]/g, "_")}.jpg`;
@@ -1257,7 +1271,6 @@
         }
     }
 
-    // 🔥 មុខងារ បង្រួញទំហំរូបភាព (Image Canvas Compress Optimization)
     function processAndCompressFile(file, imgElemId, containerId, callback) {
         if (!file) return;
         const reader = new FileReader();
@@ -1267,7 +1280,7 @@
                 const canvas = document.createElement('canvas');
                 let width = img.width;
                 let height = img.height;
-                const maxDim = 1200; // កម្រិតច្បាស់ល្អឥតខ្ចោះលើ Mobile
+                const maxDim = 1200;
 
                 if (width > maxDim || height > maxDim) {
                     if (width > height) {
