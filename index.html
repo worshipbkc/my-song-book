@@ -9,9 +9,9 @@
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
     
-    <meta name="theme-color" content="#ffffff">
+    <meta name="theme-color" content="#2563eb">
     <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="manifest" href="manifest.json">
@@ -26,34 +26,11 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
 
     <style>
-        html {
-            background-color: #ffffff;
-        }
-
-        #splashScreen {
-            position: fixed;
-            top: 0; left: 0; right: 0; bottom: 0;
-            width: 100vw; height: 100vh;
-            background-color: #ffffff;
-            display: flex; align-items: center; justify-content: center;
-            z-index: 99999;
-            transition: opacity 0.6s ease-out, visibility 0.6s ease-out;
-        }
-
-        #splashScreen img {
-            max-width: 85%; max-height: 80%;
-            object-fit: contain; border-radius: 16px;
-        }
-
-        #splashScreen.hide {
-            opacity: 0; visibility: hidden;
-        }
-
         :root {
             --primary: #2563eb;
             --primary-hover: #1d4ed8;
             --danger: #ef4444;
-            --bg: #ffffff;
+            --bg: #f8fafc;
             --card-bg: #ffffff;
             --text: #0f172a;
             --text-muted: #64748b;
@@ -70,194 +47,207 @@
             --border: #334155;
         }
 
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Kantumruy Pro', sans-serif; transition: background-color 0.2s, color 0.2s; touch-action: manipulation; }
+        * { 
+            box-sizing: border-box; 
+            margin: 0; 
+            padding: 0; 
+            font-family: 'Kantumruy Pro', sans-serif; 
+            -webkit-tap-highlight-color: transparent;
+            user-select: none;
+        }
         
         body { 
             background-color: var(--bg); 
             color: var(--text); 
             min-height: 100vh; 
-            position: relative; 
-            padding-top: max(12px, env(safe-area-inset-top));
-            padding-bottom: calc(75px + env(safe-area-inset-bottom));
+            padding-top: max(8px, env(safe-area-inset-top));
+            padding-bottom: calc(70px + env(safe-area-inset-bottom));
+            transition: background-color 0.2s, color 0.2s;
         }
 
-        .main-content { padding: 20px; width: 100%; max-width: 1200px; margin: 0 auto; position: relative; }
+        #splashScreen {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            width: 100vw; height: 100vh;
+            background-color: #ffffff;
+            display: flex; align-items: center; justify-content: center;
+            z-index: 99999;
+            transition: opacity 0.4s ease-out, visibility 0.4s ease-out;
+        }
 
-        header { margin-bottom: 16px; display: flex; justify-content: space-between; align-items: flex-start; gap: 15px; padding-right: 50px; }
-        .header-text h1 { font-size: 1.5rem; color: var(--primary); margin-bottom: 4px; }
-        .header-text p { color: var(--text-muted); font-size: 0.85rem; font-weight: 600; line-height: 1.5; }
+        #splashScreen img {
+            max-width: 70%; max-height: 60%;
+            object-fit: contain; border-radius: 16px;
+        }
+
+        #splashScreen.hide {
+            opacity: 0; visibility: hidden;
+        }
+
+        .main-content { padding: 12px; width: 100%; max-width: 800px; margin: 0 auto; }
+
+        header { margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; position: relative; }
+        .header-text h1 { font-size: 1.25rem; color: var(--primary); font-weight: 700; }
+        .header-text p { color: var(--text-muted); font-size: 0.75rem; font-weight: 500; line-height: 1.3; }
 
         .fetch-icon-btn {
-            position: absolute; top: 20px; right: 20px;
-            background: var(--card-bg); border: 1.5px solid var(--primary); color: var(--primary);
-            width: 44px; height: 44px; border-radius: 50%;
+            background: var(--card-bg); border: 1px solid var(--border); color: var(--primary);
+            width: 40px; height: 40px; border-radius: 50%;
             display: flex; flex-direction: column; align-items: center; justify-content: center;
-            cursor: pointer; box-shadow: 0 3px 10px rgba(37,99,235,0.15); font-size: 1.1rem; z-index: 100;
+            cursor: pointer; box-shadow: 0 2px 8px rgba(0,0,0,0.05); font-size: 1rem; flex-shrink: 0;
         }
         .fetch-icon-btn:active { transform: scale(0.92); }
-        .fetch-icon-btn .percent-label { font-size: 0.62rem; font-weight: 700; line-height: 1; margin-top: 2px; display: none; }
+        .fetch-icon-btn .percent-label { font-size: 0.6rem; font-weight: 700; line-height: 1; margin-top: 1px; display: none; }
         .fetch-icon-btn.completed { border-color: #10b981; color: #10b981; }
 
-        .install-pwa-btn { background: #16a34a; border: none; color: white; padding: 6px 12px; border-radius: 8px; font-weight: 600; font-size: 0.8rem; cursor: pointer; display: none; align-items: center; gap: 6px; margin-top: 8px; }
+        .install-pwa-btn { background: #16a34a; border: none; color: white; padding: 4px 8px; border-radius: 6px; font-weight: 600; font-size: 0.75rem; cursor: pointer; display: none; align-items: center; gap: 4px; margin-top: 4px; }
 
         .hero-banner {
-            background: linear-gradient(135deg, #1E1B4B, #1E1B4B);
-            color: rgb(34, 205, 79); padding: 16px; border-radius: 14px; margin-bottom: 16px;
-            box-shadow: 0 4px 12px rgba(37,99,235,0.2); display: flex; justify-content: space-between; align-items: center;
+            background: linear-gradient(135deg, #1e3a8a, #2563eb);
+            color: #ffffff; padding: 12px 16px; border-radius: 12px; margin-bottom: 12px;
+            display: flex; justify-content: space-between; align-items: center;
+            box-shadow: 0 4px 12px rgba(37,99,235,0.15);
         }
-        .hero-banner h3 { font-size: 1rem; margin-bottom: 4px; }
-        .hero-banner p { font-size: 0.78rem; opacity: 0.9; }
-        .hero-banner i { font-size: 2.2rem; opacity: 0.8; margin-left: 10px; }
+        .hero-banner h3 { font-size: 0.88rem; margin-bottom: 2px; font-weight: 600; }
+        .hero-banner p { font-size: 0.72rem; opacity: 0.9; }
+        .hero-banner i { font-size: 1.8rem; opacity: 0.8; margin-left: 8px; }
 
-        .filter-chips { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 8px; margin-bottom: 16px; scrollbar-width: none; }
+        .filter-chips { display: flex; gap: 6px; overflow-x: auto; padding-bottom: 4px; margin-bottom: 12px; scrollbar-width: none; }
         .filter-chips::-webkit-scrollbar { display: none; }
 
         .chip-btn {
             background: var(--card-bg); border: 1px solid var(--border); color: var(--text);
-            padding: 6px 14px; border-radius: 20px; font-size: 0.8rem; font-weight: 600;
+            padding: 6px 12px; border-radius: 18px; font-size: 0.78rem; font-weight: 600;
             white-space: nowrap; cursor: pointer; transition: all 0.2s;
         }
-        .chip-btn.active, .chip-btn:hover { background: var(--primary); color: white; border-color: var(--primary); }
+        .chip-btn.active { background: var(--primary); color: white; border-color: var(--primary); }
 
         .app-view { display: none; }
         .app-view.active { display: block; }
 
         input[type="text"], input[type="url"], select, textarea { font-size: 16px !important; }
 
-        .controls { position: sticky; top: 0; z-index: 90; background: var(--bg); padding: 6px 0 12px 0; margin-bottom: 12px; display: flex; align-items: center; gap: 10px; }
+        .controls { position: sticky; top: 0; z-index: 90; background: var(--bg); padding: 4px 0 8px 0; margin-bottom: 8px; display: flex; align-items: center; gap: 8px; }
         .search-box { position: relative; display: flex; align-items: center; flex: 1; }
-        .search-box input { width: 100%; padding: 10px 40px 10px 16px; border: 1px solid var(--border); border-radius: 10px; outline: none; background: var(--card-bg); color: var(--text); }
-        .search-btn { position: absolute; right: 6px; background: none; border: none; font-size: 1rem; cursor: pointer; padding: 6px; }
+        .search-box input { width: 100%; padding: 8px 36px 8px 12px; border: 1px solid var(--border); border-radius: 10px; outline: none; background: var(--card-bg); color: var(--text); font-size: 0.85rem; }
+        .search-btn { position: absolute; right: 6px; background: none; border: none; font-size: 0.9rem; cursor: pointer; padding: 4px; }
         
-        .theme-toggle-btn { background: var(--card-bg); border: 1px solid var(--border); color: var(--text); padding: 10px 14px; border-radius: 10px; font-size: 1rem; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+        .theme-toggle-btn { background: var(--card-bg); border: 1px solid var(--border); color: var(--text); padding: 8px 12px; border-radius: 10px; font-size: 0.9rem; cursor: pointer; display: flex; align-items: center; justify-content: center; }
 
-        .song-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 18px; }
-        .song-card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; display: flex; flex-direction: column; position: relative; }
+        /* Mobile Grid Layout Optimization */
+        .song-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
+        @media (min-width: 600px) {
+            .song-grid { grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 14px; }
+        }
 
-        .song-img-container { width: 100%; min-height: 200px; background: var(--border); display: flex; align-items: center; justify-content: center; overflow: hidden; cursor: pointer; position: relative; }
-        .song-img { width: 100%; height: 100%; max-height: 350px; object-fit: contain; display: block; }
-        .song-info { padding: 12px; flex: 1; display: flex; flex-direction: column; justify-content: space-between; }
+        .song-card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 10px; overflow: hidden; display: flex; flex-direction: column; position: relative; }
+
+        .song-img-container { width: 100%; aspect-ratio: 3/4; background: var(--border); display: flex; align-items: center; justify-content: center; overflow: hidden; cursor: pointer; position: relative; }
+        .song-img { width: 100%; height: 100%; object-fit: cover; display: block; }
+        .song-info { padding: 8px; flex: 1; display: flex; flex-direction: column; justify-content: space-between; }
         
-        .song-title-row { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 4px; }
-        .song-title { font-size: 0.95rem; font-weight: 700; color: var(--text); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; flex: 1; }
+        .song-title-row { display: flex; align-items: center; justify-content: space-between; gap: 4px; margin-bottom: 2px; }
+        .song-title { font-size: 0.82rem; font-weight: 700; color: var(--text); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; flex: 1; }
 
-        .song-artist { font-size: 0.82rem; color: var(--text-muted); }
-        .song-meta-info { font-size: 0.72rem; color: var(--text-muted); margin-top: 6px; display: flex; flex-direction: column; gap: 2px; }
+        .song-artist { font-size: 0.72rem; color: var(--text-muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .song-meta-info { font-size: 0.68rem; color: var(--text-muted); margin-top: 4px; }
 
-        .song-actions { display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px; margin-top: 8px; }
+        .song-actions { display: grid; grid-template-columns: repeat(2, 1fr); gap: 4px; margin-top: 6px; }
         .song-action-btn {
-            padding: 6px 2px; border-radius: 6px; font-size: 0.7rem; font-weight: 600; border: 1px solid var(--border);
-            cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 2px;
-            text-decoration: none; text-align: center; width: 100%; background-color: var(--card-bg); color: var(--text); white-space: nowrap;
+            padding: 5px 0; border-radius: 6px; font-size: 0.68rem; font-weight: 600; border: 1px solid var(--border);
+            cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 3px;
+            text-decoration: none; text-align: center; width: 100%; background-color: var(--card-bg); color: var(--text);
         }
 
         .btn-playlist-inline {
-            background-color: #e0f2fe; color: #0284c7; border: 1px solid #bae6fd; padding: 4px 8px; border-radius: 6px;
-            font-size: 0.72rem; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: 4px; white-space: nowrap;
+            background-color: transparent; color: var(--text-muted); border: none; padding: 2px 4px;
+            font-size: 0.85rem; cursor: pointer; display: inline-flex; align-items: center;
         }
-        body.dark-mode .btn-playlist-inline { background-color: #0369a1; color: #e0f2fe; border-color: #0284c7; }
 
         .btn-share-custom { background-color: #d1fae5; color: #047857; border-color: #a7f3d0; }
         body.dark-mode .btn-share-custom { background-color: #065f46; color: #d1fae5; border-color: #047857; }
-        .btn-save-custom { background-color: #f1f5f9; color: var(--text); border-color: var(--border); }
-        body.dark-mode .btn-save-custom { background-color: #334155; color: #f8fafc; border-color: #475569; }
+        .btn-save-custom { background-color: #e0f2fe; color: #0369a1; border-color: #bae6fd; }
+        body.dark-mode .btn-save-custom { background-color: #075985; color: #e0f2fe; border-color: #0284c7; }
         .btn-edit-custom { background-color: #fef3c7; color: #b45309; border-color: #fde68a; }
         body.dark-mode .btn-edit-custom { background-color: #78350f; color: #fef3c7; border-color: #92400e; }
         .btn-delete-custom { background-color: #fee2e2; color: var(--danger); border-color: #fecaca; }
         body.dark-mode .btn-delete-custom { background-color: #7f1d1d; color: #fee2e2; border-color: #991b1b; }
 
-        .section-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 16px; margin-top: 10px; }
-        .folder-card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 12px; padding: 18px 14px; text-align: center; cursor: pointer; transition: transform 0.2s, box-shadow 0.2s; position: relative; }
-        .folder-card:hover { transform: translateY(-3px); box-shadow: 0 4px 12px rgba(0,0,0,0.05); border-color: var(--primary); }
-        .folder-icon { font-size: 2.2rem; color: var(--primary); margin-bottom: 8px; }
-        .folder-name { font-weight: 700; font-size: 0.95rem; color: var(--text); margin-bottom: 4px; }
-        .folder-count { font-size: 0.78rem; color: var(--text-muted); font-weight: 600; }
-        .folder-delete-btn { position: absolute; top: 8px; right: 8px; background: none; border: none; color: var(--danger); font-size: 0.85rem; cursor: pointer; padding: 4px; }
+        .section-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 10px; margin-top: 8px; }
+        .folder-card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 10px; padding: 14px 10px; text-align: center; cursor: pointer; position: relative; }
+        .folder-icon { font-size: 1.8rem; color: var(--primary); margin-bottom: 4px; }
+        .folder-name { font-weight: 700; font-size: 0.82rem; color: var(--text); margin-bottom: 2px; }
+        .folder-count { font-size: 0.7rem; color: var(--text-muted); font-weight: 600; }
+        .folder-delete-btn { position: absolute; top: 6px; right: 6px; background: none; border: none; color: var(--danger); font-size: 0.75rem; cursor: pointer; padding: 2px; }
 
-        .profile-container { max-width: 600px; margin: 0 auto; background: var(--card-bg); border: 1px solid var(--border); border-radius: 16px; padding: 24px; }
-        .profile-header { display: flex; align-items: center; gap: 16px; margin-bottom: 20px; border-bottom: 1px solid var(--border); padding-bottom: 16px; }
-        .profile-avatar { width: 64px; height: 64px; border-radius: 50%; object-fit: cover; border: 2px solid var(--primary); }
-        .profile-name { font-size: 1.2rem; font-weight: 700; color: var(--text); }
-        .profile-badge { display: inline-block; font-size: 0.75rem; color: #16a34a; font-weight: 700; margin-top: 4px; }
+        .profile-container { max-width: 500px; margin: 0 auto; background: var(--card-bg); border: 1px solid var(--border); border-radius: 12px; padding: 16px; }
+        .profile-header { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; border-bottom: 1px solid var(--border); padding-bottom: 12px; }
+        .profile-avatar { width: 50px; height: 50px; border-radius: 50%; object-fit: cover; border: 2px solid var(--primary); }
+        .profile-name { font-size: 1rem; font-weight: 700; color: var(--text); }
+        .profile-badge { display: inline-block; font-size: 0.68rem; color: #16a34a; font-weight: 700; margin-top: 2px; }
         
-        .action-list { display: flex; flex-direction: column; gap: 10px; margin-top: 15px; }
-        .action-btn-item { display: flex; align-items: center; justify-content: space-between; padding: 12px 16px; background: var(--bg); border: 1px solid var(--border); border-radius: 10px; font-weight: 600; font-size: 0.9rem; cursor: pointer; color: var(--text); }
-        .action-btn-item:hover { border-color: var(--primary); color: var(--primary); }
+        .action-list { display: flex; flex-direction: column; gap: 8px; margin-top: 10px; }
+        .action-btn-item { display: flex; align-items: center; justify-content: space-between; padding: 10px 12px; background: var(--bg); border: 1px solid var(--border); border-radius: 8px; font-weight: 600; font-size: 0.82rem; cursor: pointer; color: var(--text); }
         .action-btn-item.danger { color: var(--danger); }
 
+        /* Bottom Nav Optimization */
         .bottom-nav {
-            position: fixed; bottom: 0; left: 0; right: 0; height: calc(60px + env(safe-area-inset-bottom));
+            position: fixed; bottom: 0; left: 0; right: 0; 
+            height: calc(56px + env(safe-area-inset-bottom));
             padding-bottom: env(safe-area-inset-bottom);
             background: var(--card-bg); border-top: 1px solid var(--border);
-            display: flex; align-items: center; justify-around;
-            z-index: 1300; box-shadow: 0 -2px 10px rgba(0,0,0,0.05);
+            display: flex; align-items: center; justify-content: space-around;
+            z-index: 1300; box-shadow: 0 -2px 10px rgba(0,0,0,0.03);
         }
 
         .bottom-nav-item {
             display: flex; flex-direction: column; align-items: center; justify-content: center;
             flex: 1; height: 100%; color: var(--text-muted); text-decoration: none;
-            font-size: 0.72rem; font-weight: 600; cursor: pointer; border: none; background: transparent; gap: 4px;
+            font-size: 0.65rem; font-weight: 600; cursor: pointer; border: none; background: transparent; gap: 2px;
         }
 
-        .bottom-nav-item i { font-size: 1.15rem; }
+        .bottom-nav-item i { font-size: 1.05rem; }
         .bottom-nav-item.active { color: var(--primary); }
 
-        .empty-state { text-align: center; padding: 40px 20px; color: var(--text-muted); grid-column: 1 / -1; font-weight: 600; }
-        .loading-more-spinner { text-align: center; padding: 16px; font-size: 0.85rem; color: var(--text-muted); grid-column: 1 / -1; font-weight: 600; }
+        .empty-state { text-align: center; padding: 30px 10px; color: var(--text-muted); grid-column: 1 / -1; font-weight: 600; font-size: 0.85rem; }
+        .loading-more-spinner { text-align: center; padding: 12px; font-size: 0.8rem; color: var(--text-muted); grid-column: 1 / -1; font-weight: 600; }
 
-        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); align-items: center; justify-content: center; z-index: 2000; padding: 20px; }
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); align-items: center; justify-content: center; z-index: 2000; padding: 16px; }
         .modal.active { display: flex; }
-        .modal-content { background: var(--card-bg); color: var(--text); padding: 20px; border-radius: 16px; width: 100%; max-width: 450px; max-height: 90vh; overflow-y: auto; border: 1px solid var(--border); }
-        .form-group { margin-bottom: 12px; }
-        .form-group label { display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 4px; color: var(--text); }
-        .form-group input, .form-group select { width: 100%; padding: 10px 12px; border: 1px solid var(--border); border-radius: 8px; outline: none; background: var(--bg); color: var(--text); }
+        .modal-content { background: var(--card-bg); color: var(--text); padding: 16px; border-radius: 12px; width: 100%; max-width: 400px; max-height: 90vh; overflow-y: auto; border: 1px solid var(--border); }
+        .form-group { margin-bottom: 10px; }
+        .form-group label { display: block; font-size: 0.78rem; font-weight: 600; margin-bottom: 4px; color: var(--text); }
+        .form-group input, .form-group select { width: 100%; padding: 8px 10px; border: 1px solid var(--border); border-radius: 6px; outline: none; background: var(--bg); color: var(--text); }
 
-        .image-drop-zone { border: 2px dashed var(--border); border-radius: 10px; padding: 14px; text-align: center; background: var(--bg); cursor: pointer; position: relative; }
-        .preview-container { margin-top: 8px; display: none; position: relative; max-height: 140px; overflow: hidden; border-radius: 8px; border: 1px solid var(--border); background: var(--card-bg); }
-        .preview-container img { width: 100%; max-height: 130px; object-fit: contain; }
-        .remove-img-btn { position: absolute; top: 4px; right: 4px; background: rgba(239, 68, 68, 0.9); color: white; border: none; border-radius: 50%; width: 22px; height: 22px; font-size: 0.75rem; cursor: pointer; }
+        .image-drop-zone { border: 2px dashed var(--border); border-radius: 8px; padding: 10px; text-align: center; background: var(--bg); cursor: pointer; position: relative; font-size: 0.75rem; }
+        .preview-container { margin-top: 6px; display: none; position: relative; max-height: 120px; overflow: hidden; border-radius: 6px; border: 1px solid var(--border); background: var(--card-bg); }
+        .preview-container img { width: 100%; max-height: 110px; object-fit: contain; }
+        .remove-img-btn { position: absolute; top: 4px; right: 4px; background: rgba(239, 68, 68, 0.9); color: white; border: none; border-radius: 50%; width: 20px; height: 20px; font-size: 0.65rem; cursor: pointer; }
 
         .fullscreen-modal { display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0, 0, 0, 0.95); z-index: 3000; flex-direction: column; align-items: center; justify-content: center; }
         .fullscreen-modal.active { display: flex; }
-        .fullscreen-header { position: absolute; top: calc(15px + env(safe-area-inset-top)); left: 20px; right: 20px; display: flex; justify-content: space-between; align-items: center; color: white; z-index: 3010; }
+        .fullscreen-header { position: absolute; top: calc(10px + env(safe-area-inset-top)); left: 16px; right: 16px; display: flex; justify-content: space-between; align-items: center; color: white; z-index: 3010; }
         
         .fullscreen-img-container { 
-            width: 100%; 
-            height: 82vh; 
-            display: flex; 
-            align-items: center; 
-            justify-content: center; 
-            position: relative; 
-            overflow: hidden; 
-            touch-action: none; 
+            width: 100%; height: 80vh; display: flex; align-items: center; justify-content: center; position: relative; overflow: hidden; touch-action: none; 
         }
         
         .fullscreen-img { 
-            max-width: 92%; 
-            max-height: 92%; 
-            object-fit: contain; 
-            transform-origin: center center;
-            transition: transform 0.1s ease-out;
-            cursor: grab;
+            max-width: 95%; max-height: 95%; object-fit: contain; transform-origin: center center; transition: transform 0.1s ease-out; 
         }
 
-        .fullscreen-nav-btn { position: absolute; top: 50%; transform: translateY(-50%); background: rgba(255, 255, 255, 0.15); color: white; border: none; font-size: 1.6rem; padding: 14px 10px; cursor: pointer; border-radius: 8px; z-index: 3010; }
-        .fullscreen-prev { left: 15px; }
-        .fullscreen-next { right: 15px; }
+        .fullscreen-nav-btn { position: absolute; top: 50%; transform: translateY(-50%); background: rgba(255, 255, 255, 0.2); color: white; border: none; font-size: 1.2rem; padding: 12px 8px; cursor: pointer; border-radius: 6px; z-index: 3010; }
+        .fullscreen-prev { left: 8px; }
+        .fullscreen-next { right: 8px; }
 
         .editor-only { display: none !important; }
-        .editor-authorized .editor-only { display: flex !important; }
-        .editor-authorized button.editor-only { display: inline-block !important; }
+        .editor-authorized .editor-only { display: inline-flex !important; }
+        .editor-authorized button.editor-only { display: inline-flex !important; }
 
-        .offline-sync-badge { position: fixed; bottom: calc(70px + env(safe-area-inset-bottom)); right: 16px; background: var(--card-bg); border: 1px solid var(--border); padding: 6px 12px; border-radius: 20px; font-size: 0.78rem; font-weight: 600; display: flex; align-items: center; gap: 6px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); z-index: 1100; }
-        .status-dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
+        .offline-sync-badge { position: fixed; bottom: calc(62px + env(safe-area-inset-bottom)); right: 12px; background: var(--card-bg); border: 1px solid var(--border); padding: 4px 10px; border-radius: 16px; font-size: 0.7rem; font-weight: 600; display: flex; align-items: center; gap: 4px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); z-index: 1100; }
+        .status-dot { width: 6px; height: 6px; border-radius: 50%; display: inline-block; }
         .status-online { background-color: #10b981; }
         .status-offline { background-color: #ef4444; }
-
-        @media (max-width: 768px) {
-            .main-content { padding: 14px; }
-            header { flex-direction: column; }
-        }
     </style>
 </head>
 <body id="bodyContainer">
@@ -269,17 +259,17 @@
 <div class="main-content">
     <header>
         <div class="header-text">
-            <h1>🎼 ចម្រៀងសរសើរដំកើងព្រះ 🎼</h1>
+            <h1>🎼 ចម្រៀងសរសើរដំកើងព្រះ</h1>
             <p id="currentAlbumSubtitle">
                 ចូរឱ្យជីវិតទាំងឡាយដែលមានដង្ហើម បានសរសើរដល់ព្រះយ៉េហូវ៉ាចុះ<br>
                 <span style="color: var(--primary); font-weight: 700;">ទំនុកដំកើង ១៥០៖៦</span>
             </p>
             <button class="install-pwa-btn" id="installPwaBtn" onclick="installPwaApp()">
-                📲 <span>Install App ទុកប្រើប្រាស់</span>
+                📲 <span>Install App</span>
             </button>
         </div>
 
-        <button class="fetch-icon-btn" id="fetchAllBtn" onclick="fetchAllSongsWithProgress()" title="ទាញយកទិន្នន័យ (Offline)">
+        <button class="fetch-icon-btn" id="fetchAllBtn" onclick="fetchAllSongsWithProgress()" title="ទាញយក Offline">
             <i class="fa-solid fa-cloud-arrow-down" id="fetchIcon"></i>
             <span class="percent-label" id="progressPercent">0%</span>
         </button>
@@ -288,7 +278,7 @@
     <div class="app-view active" id="viewSongs">
         <div class="hero-banner">
             <div>
-                <h3>​​​​​​​​  "ថ្វាយបង្គំដោយវិញ្ញាណ និងសេចក្តីពិត"</h3>
+                <h3>"ថ្វាយបង្គំដោយវិញ្ញាណ និងសេចក្តីពិត"</h3>
                 <p id="totalSongCountText">កំពុងទាញយកទិន្នន័យ...</p>
             </div>
             <i class="fa-solid fa-hands-praying"></i>
@@ -299,13 +289,13 @@
                 <input type="text" id="searchInput" placeholder="ស្វែងរកបទចម្រៀង..." oninput="handleSearchInput()">
                 <button class="search-btn" onclick="renderSongs()">🔍</button>
             </div>
-            <button class="theme-toggle-btn" id="themeToggleBtn" onclick="toggleDarkMode()" title="ប្តូររបៀបភ្លឺ/ងងឹត">🌙</button>
+            <button class="theme-toggle-btn" id="themeToggleBtn" onclick="toggleDarkMode()">🌙</button>
         </div>
 
         <div class="filter-chips">
             <button class="chip-btn active" onclick="setQuickFilter('ALL', this)">🎵 ទាំងអស់</button>
-            <button class="chip-btn" onclick="setQuickFilter('RECENT', this)">✨ ទើបបញ្ចូលថ្មី</button>
-            <button class="chip-btn" onclick="setQuickFilter('FAV', this)">❤️ ចូលចិត្ត (Playlist)</button>
+            <button class="chip-btn" onclick="setQuickFilter('RECENT', this)">✨ ថ្មីៗ</button>
+            <button class="chip-btn" onclick="setQuickFilter('FAV', this)">❤️ ចូលចិត្ត</button>
         </div>
 
         <div class="song-grid" id="songGrid">
@@ -314,17 +304,17 @@
     </div>
 
     <div class="app-view" id="viewAlbums">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
-            <h2>📁 អាល់ប៊ុមចម្រៀង (Albums)</h2>
-            <button class="btn-playlist-inline editor-only" onclick="addNewAlbum()" style="padding: 8px 12px;"><i class="fa-solid fa-plus"></i> បង្កើត Album ថ្មី</button>
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+            <h2 style="font-size: 1rem;">📁 អាល់ប៊ុមចម្រៀង</h2>
+            <button class="btn-playlist-inline editor-only" onclick="addNewAlbum()" style="background:var(--primary); color:white; padding: 4px 8px; border-radius: 6px; font-size:0.75rem;"><i class="fa-solid fa-plus"></i> Album ថ្មី</button>
         </div>
         <div class="section-grid" id="albumsGrid"></div>
     </div>
 
     <div class="app-view" id="viewPlaylists">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
-            <h2>📂 Playlist ផ្ទាល់ខ្លួន</h2>
-            <button class="btn-playlist-inline" onclick="openCreatePlaylistModal()" style="padding: 8px 12px;"><i class="fa-solid fa-plus"></i> បង្កើត Playlist</button>
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+            <h2 style="font-size: 1rem;">📂 Playlist ផ្ទាល់ខ្លួន</h2>
+            <button class="btn-playlist-inline" onclick="openCreatePlaylistModal()" style="background:var(--primary); color:white; padding: 4px 8px; border-radius: 6px; font-size:0.75rem;"><i class="fa-solid fa-plus"></i> បង្កើត Playlist</button>
         </div>
         <div class="section-grid" id="playlistsGrid"></div>
     </div>
@@ -355,13 +345,13 @@
 
 <div class="offline-sync-badge" id="offlineSyncBadge">
     <span class="status-dot status-online" id="statusDot"></span>
-    <span id="statusText">អនឡាញ (Online)</span>
+    <span id="statusText">អនឡាញ</span>
 </div>
 
 <div class="fullscreen-modal" id="fullScreenModal">
     <div class="fullscreen-header">
-        <div id="fullScreenTitle" style="font-weight: 700; font-size: 1rem; max-width: 80%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;"></div>
-        <button onclick="closeFullScreenModalDirect()" style="background:none; border:none; color:white; font-size:1.6rem; cursor:pointer; padding: 4px 8px;">✖</button>
+        <div id="fullScreenTitle" style="font-weight: 700; font-size: 0.9rem; max-width: 80%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;"></div>
+        <button onclick="closeFullScreenModalDirect()" style="background:none; border:none; color:white; font-size:1.4rem; cursor:pointer; padding: 4px;">✖</button>
     </div>
     <button class="fullscreen-nav-btn fullscreen-prev" onclick="slideFullScreen(-1, event)">❮</button>
     <div class="fullscreen-img-container" id="fullScreenImgContainer">
@@ -372,8 +362,8 @@
 
 <div class="modal" id="addSongModal">
     <div class="modal-content">
-        <h2>➕ បញ្ចូលបទចម្រៀងថ្មី</h2>
-        <form id="addSongForm" onsubmit="handleAddSong(event)" style="margin-top: 15px;">
+        <h3 style="font-size: 1rem;">➕ បញ្ចូលបទចម្រៀងថ្មី</h3>
+        <form id="addSongForm" onsubmit="handleAddSong(event)" style="margin-top: 10px;">
             <div class="form-group">
                 <label>ជ្រើសរើស Album *</label>
                 <select id="songAlbumSelect" required></select>
@@ -387,22 +377,22 @@
                 <input type="text" id="songArtist" placeholder="ឈ្មោះអ្នកចម្រៀង">
             </div>
             <div class="form-group">
-                <label>រូបភាពបទចម្រៀង (Upload ឬ URL) *</label>
-                <div class="image-drop-zone" id="dropZone" onclick="document.getElementById('songImageFile').click()" ondragover="handleDragOver(event)" ondragleave="handleDragLeave(event)" ondrop="handleDrop(event)">
-                    <p>📁 ចុចទីនេះ ឬទាញទម្លាក់រូបភាពចូលទីនេះ<br><span style="color:var(--primary); font-weight:600;">(អាចចុច Ctrl+V ដើម្បី Paste)</span></p>
+                <label>រូបភាពបទចម្រៀង *</label>
+                <div class="image-drop-zone" id="dropZone" onclick="document.getElementById('songImageFile').click()">
+                    <p>📁 ចុចជ្រើសរើសរូបភាព</p>
                     <input type="file" id="songImageFile" accept="image/*" onchange="handleFileSelect(event)" style="display: none;">
                     <div class="preview-container" id="previewContainer">
                         <img id="previewImg" src="" alt="Preview">
                         <button type="button" class="remove-img-btn" onclick="removeSelectedImage(event)">✖</button>
                     </div>
                 </div>
-                <div style="margin-top: 8px;">
-                    <input type="url" id="songImageUrlDirect" placeholder="ឬដាក់ Image URL ផ្ទាល់នៅទីនេះ">
+                <div style="margin-top: 6px;">
+                    <input type="url" id="songImageUrlDirect" placeholder="ឬដាក់ Image URL ផ្ទាល់">
                 </div>
             </div>
-            <div style="text-align: right; margin-top: 20px; display: flex; gap: 10px; justify-content: flex-end;">
-                <button type="button" class="btn" onclick="closeModal('addSongModal')" style="background: var(--border); color: var(--text); padding: 8px 14px; border-radius:8px; border:none;">បោះបង់</button>
-                <button type="submit" id="saveBtn" class="btn btn-primary" style="padding: 8px 16px; border-radius: 8px; border: none; font-weight: 600; background: var(--primary); color: white; cursor: pointer;">រក្សាទុក</button>
+            <div style="text-align: right; margin-top: 14px; display: flex; gap: 8px; justify-content: flex-end;">
+                <button type="button" onclick="closeModal('addSongModal')" style="background: var(--border); color: var(--text); padding: 6px 12px; border-radius:6px; border:none; font-size: 0.8rem;">បោះបង់</button>
+                <button type="submit" id="saveBtn" style="padding: 6px 14px; border-radius: 6px; border: none; font-weight: 600; background: var(--primary); color: white; font-size: 0.8rem;">រក្សាទុក</button>
             </div>
         </form>
     </div>
@@ -410,24 +400,24 @@
 
 <div class="modal" id="batchAddModal">
     <div class="modal-content">
-        <h2>📚 បញ្ចូលរូបភាពច្រើនក្នុងពេលតែមួយ</h2>
-        <div style="margin-top: 15px;">
+        <h3 style="font-size: 1rem;">📚 បញ្ចូលរូបភាពច្រើនក្នុងពេលតែមួយ</h3>
+        <div style="margin-top: 10px;">
             <div class="form-group">
-                <label>ជ្រើសរើស Album សម្រាប់គ្រប់បទទាំងអស់ *</label>
+                <label>ជ្រើសរើស Album *</label>
                 <select id="batchAlbumSelect" required></select>
             </div>
             <div class="form-group">
-                <label>ឈ្មោះអ្នកចម្រៀង (សម្រាប់គ្រប់បទទាំងអស់)</label>
-                <input type="text" id="batchArtist" placeholder="ឧទាហរណ៍៖ ក្រុមច្រៀងសរសើរដំកើង">
+                <label>ឈ្មោះអ្នកចម្រៀង</label>
+                <input type="text" id="batchArtist" placeholder="ឧទាហរណ៍៖ ក្រុមច្រៀងសរសើរ">
             </div>
             <div class="form-group">
-                <label>ជ្រើសរើសរូបភាពច្រើនសន្លឹក (Multi-Select) *</label>
-                <input type="file" id="batchImageFiles" accept="image/*" multiple onchange="handleBatchFilesSelect(event)" style="width:100%; padding:10px; background:var(--bg); border:1px solid var(--border); border-radius:8px;">
+                <label>ជ្រើសរើសរូបភាពច្រើនសន្លឹក *</label>
+                <input type="file" id="batchImageFiles" accept="image/*" multiple onchange="handleBatchFilesSelect(event)" style="width:100%; padding:6px; background:var(--bg); border:1px solid var(--border); border-radius:6px; font-size:0.75rem;">
             </div>
-            <div id="batchPreviewInfo" style="font-size: 0.85rem; font-weight: 600; color: var(--primary); margin-bottom: 10px;"></div>
-            <div style="text-align: right; margin-top: 20px; display: flex; gap: 10px; justify-content: flex-end;">
-                <button type="button" onclick="closeModal('batchAddModal')" style="background: var(--border); color: var(--text); padding: 8px 14px; border-radius:8px; border:none;">បោះបង់</button>
-                <button type="button" id="batchSaveBtn" onclick="handleBatchSaveSongs()" style="padding: 8px 16px; border-radius: 8px; border: none; font-weight: 600; background: #059669; color: white; cursor: pointer;" disabled>បញ្ជូនចូលទាំងអស់</button>
+            <div id="batchPreviewInfo" style="font-size: 0.75rem; font-weight: 600; color: var(--primary); margin-bottom: 8px;"></div>
+            <div style="text-align: right; margin-top: 14px; display: flex; gap: 8px; justify-content: flex-end;">
+                <button type="button" onclick="closeModal('batchAddModal')" style="background: var(--border); color: var(--text); padding: 6px 12px; border-radius:6px; border:none; font-size:0.8rem;">បោះបង់</button>
+                <button type="button" id="batchSaveBtn" onclick="handleBatchSaveSongs()" style="padding: 6px 14px; border-radius: 6px; border: none; font-weight: 600; background: #059669; color: white; font-size:0.8rem;" disabled>បញ្ចូលទាំងអស់</button>
             </div>
         </div>
     </div>
@@ -435,8 +425,8 @@
 
 <div class="modal" id="editSongModal">
     <div class="modal-content">
-        <h2>✏️ កែប្រែបទចម្រៀង</h2>
-        <form id="editSongForm" onsubmit="handleUpdateSong(event)" style="margin-top: 15px;">
+        <h3 style="font-size: 1rem;">✏️ កែប្រែបទចម្រៀង</h3>
+        <form id="editSongForm" onsubmit="handleUpdateSong(event)" style="margin-top: 10px;">
             <input type="hidden" id="editSongId">
             <div class="form-group">
                 <label>ជ្រើសរើស Album *</label>
@@ -452,21 +442,21 @@
             </div>
             <div class="form-group">
                 <label>ប្ដូររូបភាពថ្មី</label>
-                <div class="image-drop-zone" id="editDropZone" onclick="document.getElementById('editSongImageFile').click()" ondragover="handleEditDragOver(event)" ondragleave="handleEditDragLeave(event)" ondrop="handleEditDrop(event)">
-                    <p>📁 ចុចទីនេះ ឬទាញទម្លាក់រូបភាពថ្មី</p>
+                <div class="image-drop-zone" id="editDropZone" onclick="document.getElementById('editSongImageFile').click()">
+                    <p>📁 ចុចជ្រើសរើសរូបភាពថ្មី</p>
                     <input type="file" id="editSongImageFile" accept="image/*" onchange="handleEditFileSelect(event)" style="display: none;">
                     <div class="preview-container" id="editPreviewContainer">
                         <img id="editPreviewImg" src="" alt="Preview">
                         <button type="button" class="remove-img-btn" onclick="removeSelectedEditImage(event)">✖</button>
                     </div>
                 </div>
-                <div style="margin-top: 8px;">
-                    <input type="url" id="editSongImageUrlDirect" placeholder="ឬដាក់ Image URL ថ្មីផ្ទាល់">
+                <div style="margin-top: 6px;">
+                    <input type="url" id="editSongImageUrlDirect" placeholder="ឬដាក់ Image URL ថ្មី">
                 </div>
             </div>
-            <div style="text-align: right; margin-top: 20px; display: flex; gap: 10px; justify-content: flex-end;">
-                <button type="button" onclick="closeModal('editSongModal')" style="background: var(--border); color: var(--text); padding: 8px 14px; border-radius:8px; border:none;">បោះបង់</button>
-                <button type="submit" id="updateBtn" style="padding: 8px 16px; border-radius: 8px; border: none; font-weight: 600; background: var(--primary); color: white; cursor: pointer;">រក្សាទុក</button>
+            <div style="text-align: right; margin-top: 14px; display: flex; gap: 8px; justify-content: flex-end;">
+                <button type="button" onclick="closeModal('editSongModal')" style="background: var(--border); color: var(--text); padding: 6px 12px; border-radius:6px; border:none; font-size:0.8rem;">បោះបង់</button>
+                <button type="submit" id="updateBtn" style="padding: 6px 14px; border-radius: 6px; border: none; font-weight: 600; background: var(--primary); color: white; font-size:0.8rem;">រក្សាទុក</button>
             </div>
         </form>
     </div>
@@ -474,14 +464,14 @@
 
 <div class="modal" id="playlistModal">
     <div class="modal-content">
-        <h2>📂 បង្កើត Playlist ថ្មី</h2>
-        <div class="form-group" style="margin-top: 15px;">
+        <h3 style="font-size: 1rem;">📂 បង្កើត Playlist ថ្មី</h3>
+        <div class="form-group" style="margin-top: 10px;">
             <label>ឈ្មោះ Playlist *</label>
             <input type="text" id="newPlaylistName" placeholder="ឧទាហរណ៍៖ ថ្វាយបង្គំថ្ងៃអាទិត្យ">
         </div>
-        <div style="text-align: right; margin-top: 20px; display: flex; gap: 10px; justify-content: flex-end;">
-            <button type="button" onclick="closeModal('playlistModal')" style="background: var(--border); color: var(--text); padding: 8px 14px; border-radius:8px; border:none;">បោះបង់</button>
-            <button type="button" onclick="saveNewPlaylist()" style="padding: 8px 16px; border-radius: 8px; border: none; font-weight: 600; background: var(--primary); color: white; cursor: pointer;">បង្កើត</button>
+        <div style="text-align: right; margin-top: 14px; display: flex; gap: 8px; justify-content: flex-end;">
+            <button type="button" onclick="closeModal('playlistModal')" style="background: var(--border); color: var(--text); padding: 6px 12px; border-radius:6px; border:none; font-size:0.8rem;">បោះបង់</button>
+            <button type="button" onclick="saveNewPlaylist()" style="padding: 6px 14px; border-radius: 6px; border: none; font-weight: 600; background: var(--primary); color: white; font-size:0.8rem;">បង្កើត</button>
         </div>
     </div>
 </div>
@@ -529,18 +519,7 @@
 
     if ('serviceWorker' in navigator) {
         window.addEventListener('load', () => {
-            navigator.serviceWorker.register('sw.js').then((reg) => {
-                reg.onupdatefound = () => {
-                    const installingWorker = reg.installing;
-                    installingWorker.onstatechange = () => {
-                        if (installingWorker.state === 'installed') {
-                            if (navigator.serviceWorker.controller) {
-                                window.location.reload();
-                            }
-                        }
-                    };
-                };
-            }).catch(err => console.log('SW error:', err));
+            navigator.serviceWorker.register('sw.js').catch(err => {});
         });
     }
 
@@ -583,7 +562,7 @@
         setTimeout(() => {
             const splash = document.getElementById('splashScreen');
             if (splash) splash.classList.add('hide');
-        }, 2000);
+        }, 1200);
 
         applyStoredTheme();
         listenToAuth();
@@ -605,16 +584,14 @@
         }
 
         listenToSongsChanges();
-        setupGlobalPasteListener();
         setupTouchSwipeListeners();
         setupScrollListener();
-        initImageZoomAndPan();
     };
 
     function updateTotalSongCount() {
         const countEl = document.getElementById('totalSongCountText');
         if (countEl && songsList) {
-            countEl.innerText = `🎵មានចម្រៀងសរសើរដំកើងព្រះសរុប ${songsList.length} បទ🎵`;
+            countEl.innerText = `🎵 មានចម្រៀងសរុប ${songsList.length} បទ 🎵`;
         }
     }
 
@@ -633,12 +610,8 @@
             displayedItemCount = 20;
             renderSongsListOnly();
         } else if (type === 'FAV') {
-            const firstPlaylist = Object.keys(playlists)[0];
-            if (firstPlaylist) {
-                filterByPlaylist(firstPlaylist);
-            } else {
-                alert('មិនទាន់មានបទចម្រៀងក្នុង Favorite/Playlist នៅឡើយទេ!');
-            }
+            const firstPlaylist = Object.keys(playlists)[0] || 'Favorite';
+            filterByPlaylist(firstPlaylist);
         }
     }
 
@@ -715,7 +688,7 @@
 
     function setupScrollListener() {
         window.addEventListener('scroll', () => {
-            if ((window.innerHeight + window.scrollY) >= document.body.offsetHeight - 300) {
+            if ((window.innerHeight + window.scrollY) >= document.body.offsetHeight - 250) {
                 if (!isLoadingMore) loadMoreChunks();
             }
         });
@@ -731,7 +704,7 @@
             spinner = document.createElement('div');
             spinner.id = 'loadingSpinner';
             spinner.className = 'loading-more-spinner';
-            spinner.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> កំពុងផ្ទុកបន្ថែម...';
+            spinner.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> កំពុងផ្ទុក...';
             grid.appendChild(spinner);
         }
 
@@ -740,7 +713,7 @@
             if (spinner) spinner.remove();
             renderSongsListOnly();
             isLoadingMore = false;
-        }, 300);
+        }, 200);
     }
 
     function saveSongsToIndexedDB(songs) {
@@ -780,7 +753,7 @@
         }).catch(err => {
             const grid = document.getElementById('songGrid');
             if (grid && songsList.length === 0) {
-                grid.innerHTML = '<div class="empty-state">មិនមានអ៊ីនធឺណិត ហើយគ្មានទិន្នន័យ Offline ឡើយ</div>';
+                grid.innerHTML = '<div class="empty-state">គ្មានអ៊ីនធឺណិត និងគ្មានទិន្នន័យ Offine ឡើយ</div>';
             }
         });
     }
@@ -797,10 +770,10 @@
 
         let progress = 0;
         const interval = setInterval(() => {
-            progress += 15;
-            if (progress > 90) progress = 90;
+            progress += 20;
+            if (progress > 80) progress = 80;
             percentLabel.innerText = progress + '%';
-        }, 150);
+        }, 100);
 
         db.collection("songs").orderBy("createdAt", "desc").get().then((snapshot) => {
             clearInterval(interval);
@@ -821,14 +794,12 @@
 
             setTimeout(() => {
                 markFetchCompleted();
-                alert('បានទាញយកទិន្នន័យចម្រៀងទាំងអស់ទុក Offline រួចរាល់!');
-            }, 400);
+            }, 300);
         }).catch(err => {
             clearInterval(interval);
             fetchBtn.disabled = false;
             percentLabel.style.display = 'none';
             fetchIcon.className = 'fa-solid fa-cloud-arrow-down';
-            alert('ការទាញយកបរាជ័យ៖ ' + err.message);
         });
     }
 
@@ -954,14 +925,11 @@
                         <div>
                             <div class="song-title-row">
                                 <span class="song-title" title="${escapeHtml(song.title)}">${escapeHtml(song.title)}</span>
-                                <button class="btn-playlist-inline" onclick="toggleFavorite('${song.id}')" title="ចូលចិត្ត">
+                                <button class="btn-playlist-inline" onclick="toggleFavorite('${song.id}')">
                                     <i class="${inFav ? 'fa-solid' : 'fa-regular'} fa-heart" style="${inFav ? 'color:#ef4444;' : ''}"></i>
                                 </button>
                             </div>
                             <div class="song-artist">🎤 ${escapeHtml(song.artist || 'មិនស្គាល់')}</div>
-                        </div>
-                        <div class="song-meta-info">
-                            <span>📁 ${escapeHtml(song.album || 'ទូទៅ')}</span>
                         </div>
                         <div class="song-actions">
                             <button class="song-action-btn btn-share-custom" onclick="shareSongImage('${song.id}')">
@@ -971,10 +939,10 @@
                                 <i class="fa-solid fa-download"></i> Save
                             </button>
                             <button class="song-action-btn btn-edit-custom editor-only" onclick="openEditSongModal('${song.id}')">
-                                <i class="fa-solid fa-pen-to-square"></i> Edit
+                                <i class="fa-solid fa-pen"></i>
                             </button>
                             <button class="song-action-btn btn-delete-custom editor-only" onclick="deleteSong('${song.id}')">
-                                <i class="fa-solid fa-trash"></i> Delete
+                                <i class="fa-solid fa-trash"></i>
                             </button>
                         </div>
                     </div>
@@ -1002,8 +970,8 @@
         currentFilterValue = albumName;
         switchTab('songs');
         document.getElementById('currentAlbumSubtitle').innerHTML = `
-            កំពុងមើល Album: <b style="color: var(--primary);">${escapeHtml(albumName)}</b> 
-            <span style="cursor:pointer; color:var(--danger); font-size:0.8rem; margin-left:6px;" onclick="resetFilters()">(ជម្រះ)</span>
+            Album: <b style="color: var(--primary);">${escapeHtml(albumName)}</b> 
+            <span style="cursor:pointer; color:var(--danger); font-size:0.75rem; margin-left:4px;" onclick="resetFilters()">(ជម្រះ)</span>
         `;
         renderSongs();
     }
@@ -1013,8 +981,8 @@
         currentFilterValue = playlistName;
         switchTab('songs');
         document.getElementById('currentAlbumSubtitle').innerHTML = `
-            កំពុងមើល Playlist: <b style="color: var(--primary);">${escapeHtml(playlistName)}</b> 
-            <span style="cursor:pointer; color:var(--danger); font-size:0.8rem; margin-left:6px;" onclick="resetFilters()">(ជម្រះ)</span>
+            Playlist: <b style="color: var(--primary);">${escapeHtml(playlistName)}</b> 
+            <span style="cursor:pointer; color:var(--danger); font-size:0.75rem; margin-left:4px;" onclick="resetFilters()">(ជម្រះ)</span>
         `;
         renderSongs();
     }
@@ -1030,7 +998,7 @@
             return `
                 <div class="folder-card" onclick="filterByAlbum('${escapeHtml(album)}')">
                     ${!isDefault && isEditor ? `<button class="folder-delete-btn" onclick="deleteAlbum(event, '${escapeHtml(album)}')"><i class="fa-solid fa-trash"></i></button>` : ''}
-                    <div class="folder-icon"><i class="fa-solid fa-folder-closed"></i></div>
+                    <div class="folder-icon"><i class="fa-solid fa-folder"></i></div>
                     <div class="folder-name">${escapeHtml(album)}</div>
                     <div class="folder-count">${count} បទ</div>
                 </div>
@@ -1071,34 +1039,34 @@
                     <img src="${currentUser.photoURL || 'https://via.placeholder.com/100'}" class="profile-avatar" alt="User">
                     <div>
                         <div class="profile-name">${escapeHtml(currentUser.displayName || 'អ្នកប្រើប្រាស់')}</div>
-                        <div style="font-size:0.8rem; color:var(--text-muted);">${escapeHtml(currentUser.email || '')}</div>
+                        <div style="font-size:0.75rem; color:var(--text-muted);">${escapeHtml(currentUser.email || '')}</div>
                         <span class="profile-badge">${isAdmin ? '👑 Admin' : (isEditor ? '✏️ Editor' : '👤 សមាជិក')}</span>
                     </div>
                 </div>
                 <div class="action-list">
                     ${isEditor ? `
                         <button class="action-btn-item" onclick="openModal('addSongModal')">
-                            <span>➕ បញ្ចូលបទចម្រៀង (មួយបទ)</span> <i class="fa-solid fa-chevron-right"></i>
+                            <span>➕ បញ្ចូលបទចម្រៀង</span> <i class="fa-solid fa-chevron-right"></i>
                         </button>
                         <button class="action-btn-item" onclick="openModal('batchAddModal')">
                             <span>📚 បញ្ចូលរូបភាពច្រើនក្នុងពេលតែមួយ</span> <i class="fa-solid fa-chevron-right"></i>
                         </button>
                     ` : ''}
                     <button class="action-btn-item danger" onclick="handleLogout()">
-                        <span>🚪 ចាកចេញពីគណនី</span> <i class="fa-solid fa-right-from-bracket"></i>
+                        <span>🚪 ចាកចេញ</span> <i class="fa-solid fa-right-from-bracket"></i>
                     </button>
                 </div>
             `;
         } else {
             container.innerHTML = `
-                <div style="text-align:center; padding: 20px 0;">
-                    <i class="fa-solid fa-user-lock" style="font-size: 3rem; color: var(--primary); margin-bottom: 15px;"></i>
-                    <h2>ចូលប្រព័ន្ធ (Login)</h2>
-                    <p style="color:var(--text-muted); font-size:0.85rem; margin-top:6px; margin-bottom: 20px;">
-                        ចូលប្រព័ន្ធជាមួយ Google ដើម្បីទទួលបានសិទ្ធិបន្ថែម
+                <div style="text-align:center; padding: 10px 0;">
+                    <i class="fa-solid fa-user-lock" style="font-size: 2.5rem; color: var(--primary); margin-bottom: 10px;"></i>
+                    <h3 style="font-size: 1rem;">ចូលប្រព័ន្ធ (Login)</h3>
+                    <p style="color:var(--text-muted); font-size:0.78rem; margin-top:4px; margin-bottom: 16px;">
+                        ចូលប្រព័ន្ធដើម្បីទទួលបានសិទ្ធិគ្រប់គ្រងបន្ថែម
                     </p>
-                    <button class="action-btn-item" onclick="handleGoogleLogin()" style="justify-content: center; gap: 10px; background: var(--primary); color: white;">
-                        <i class="fa-brands fa-google"></i> ចូលប្រព័ន្ធតាម Google
+                    <button class="action-btn-item" onclick="handleGoogleLogin()" style="justify-content: center; gap: 8px; background: var(--primary); color: white;">
+                        <i class="fa-brands fa-google"></i> ចូលតាម Google
                     </button>
                 </div>
             `;
@@ -1123,7 +1091,6 @@
         document.getElementById('fullScreenTitle').innerText = song.title || 'រូបភាព';
         const img = document.getElementById('fullScreenImg');
         img.src = song.imageUrl || '';
-        img.style.transform = 'none';
     }
 
     function closeFullScreenModalDirect() {
@@ -1157,38 +1124,44 @@
     }
 
     function handleSwipeGesture() {
-        if (imgScale > 1) return;
-        const threshold = 50;
+        const threshold = 40;
         if (touchEndX < touchStartX - threshold) slideFullScreen(1);
         else if (touchEndX > touchStartX + threshold) slideFullScreen(-1);
     }
 
-    let imgScale = 1;
-    function initImageZoomAndPan() {
-        const img = document.getElementById('fullScreenImg');
-        if (!img) return;
-
-        img.addEventListener('dblclick', () => {
-            if (imgScale === 1) {
-                imgScale = 2;
-                img.style.transform = 'scale(2)';
+    // 🔥 មុខងារ ទាញយករូបភាពផ្ទាល់លើទូរស័ព្ទដៃ (Mobile Optimized Auto Downloader)
+    async function downloadSongImage(url, title) {
+        try {
+            const fileName = `${title.replace(/[^a-zA-Z0-9]/g, "_")}.jpg`;
+            if (url.startsWith('data:image')) {
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = fileName;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
             } else {
-                imgScale = 1;
-                img.style.transform = 'scale(1)';
+                const response = await fetch(url);
+                const blob = await response.blob();
+                const blobUrl = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = blobUrl;
+                a.download = fileName;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                window.URL.revokeObjectURL(blobUrl);
             }
-        });
+        } catch (e) {
+            window.open(url, '_blank');
+        }
     }
 
-    // 🔴 មុខងារ SHARE រូបភាពផ្ទាល់ដោយបង្ហាញតែចំណងជើងបទចម្រៀង
     async function shareSongImage(songId) {
         const song = songsList.find(s => s.id === songId);
-        if (!song || !song.imageUrl) {
-            alert('មិនមានរូបភាពសម្រាប់ Share ឡើយ!');
-            return;
-        }
+        if (!song || !song.imageUrl) return;
 
         const shareTitle = song.title || 'ចម្រៀងសរសើរដំកើង';
-        // ផ្ញើតែចំណងជើងបទចម្រៀងប៉ុណ្ណោះ
         const shareText = `🎵 ${song.title || ''}`;
 
         try {
@@ -1224,30 +1197,8 @@
                     text: shareText,
                     url: song.imageUrl
                 });
-            } else {
-                await navigator.clipboard.writeText(song.imageUrl);
-                alert('បាន Copy Link រូបភាពរួចរាល់!');
             }
-        } catch (err) {
-            if (err.name !== 'AbortError') {
-                console.error("Share failed:", err);
-                try {
-                    await navigator.clipboard.writeText(song.imageUrl);
-                    alert('បាន Copy Link រូបភាពចម្រៀងរួចរាល់!');
-                } catch (e) {
-                    alert('មិនអាចចែករំលែកបានឡើយ!');
-                }
-            }
-        }
-    }
-
-    function downloadSongImage(url, title) {
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = `${title || 'Song'}.jpg`;
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
+        } catch (err) {}
     }
 
     function toggleFavorite(songId) {
@@ -1262,22 +1213,15 @@
         renderSongsListOnly();
     }
 
-    function openModal(modalId) {
-        document.getElementById(modalId).classList.add('active');
-    }
+    function openModal(modalId) { document.getElementById(modalId).classList.add('active'); }
+    function closeModal(modalId) { document.getElementById(modalId).classList.remove('active'); }
 
-    function closeModal(modalId) {
-        document.getElementById(modalId).classList.remove('active');
-    }
-
-    function openCreatePlaylistModal() {
-        openModal('playlistModal');
-    }
+    function openCreatePlaylistModal() { openModal('playlistModal'); }
 
     function saveNewPlaylist() {
         const input = document.getElementById('newPlaylistName');
         const name = input.value.trim();
-        if (!name) return alert('សូមបញ្ចូលឈ្មោះ Playlist!');
+        if (!name) return;
 
         if (!playlists[name]) {
             playlists[name] = [];
@@ -1285,15 +1229,12 @@
             input.value = '';
             closeModal('playlistModal');
             renderPlaylistsView();
-            alert('បង្កើត Playlist ជោគជ័យ!');
-        } else {
-            alert('ឈ្មោះ Playlist នេះមានរួចហើយ!');
         }
     }
 
     function deletePlaylist(event, pName) {
         event.stopPropagation();
-        if (confirm(`តើអ្នកប្រាកដជាចង់លុប Playlist "${pName}" មែនទេ?`)) {
+        if (confirm(`លុប Playlist "${pName}"?`)) {
             delete playlists[pName];
             localStorage.setItem('user_playlists', JSON.stringify(playlists));
             renderPlaylistsView();
@@ -1303,58 +1244,59 @@
     function addNewAlbum() {
         const albumName = prompt("បញ្ចូលឈ្មោះ Album ថ្មី៖");
         if (albumName && albumName.trim() !== "") {
-            const name = albumName.trim();
-            db.collection("albums").add({ name: name }).then(() => {
-                alert("បានបង្កើត Album ថ្មីរួចរាល់!");
-            }).catch(err => alert("កំហុស៖ " + err.message));
+            db.collection("albums").add({ name: albumName.trim() });
         }
     }
 
     function deleteAlbum(event, albumName) {
         event.stopPropagation();
-        if (confirm(`តើអ្នកពិតជាចង់លុប Album "${albumName}" មែនទេ?`)) {
+        if (confirm(`លុប Album "${albumName}"?`)) {
             db.collection("albums").where("name", "==", albumName).get().then((snapshot) => {
                 snapshot.forEach((doc) => doc.ref.delete());
-                alert("បានលុប Album រួចរាល់!");
-            }).catch(err => alert("លុបមិនបាន៖ " + err.message));
+            });
         }
     }
 
-    function setupGlobalPasteListener() {
-        document.addEventListener('paste', (e) => {
-            const items = (e.clipboardData || e.originalEvent.clipboardData).items;
-            for (let item of items) {
-                if (item.kind === 'file' && item.type.startsWith('image/')) {
-                    const file = item.getAsFile();
-                    if (document.getElementById('addSongModal').classList.contains('active')) {
-                        processSelectedFile(file, 'previewImg', 'previewContainer', (base64) => {
-                            selectedImageBase64 = base64;
-                        });
-                    } else if (document.getElementById('editSongModal').classList.contains('active')) {
-                        processSelectedFile(file, 'editPreviewImg', 'editPreviewContainer', (base64) => {
-                            selectedEditImageBase64 = base64;
-                        });
-                    }
-                }
-            }
-        });
-    }
-
-    function processSelectedFile(file, imgElemId, containerId, callback) {
+    // 🔥 មុខងារ បង្រួញទំហំរូបភាព (Image Canvas Compress Optimization)
+    function processAndCompressFile(file, imgElemId, containerId, callback) {
         if (!file) return;
         const reader = new FileReader();
         reader.onload = (e) => {
-            const base64 = e.target.result;
-            document.getElementById(imgElemId).src = base64;
-            document.getElementById(containerId).style.display = 'block';
-            callback(base64);
+            const img = new Image();
+            img.onload = () => {
+                const canvas = document.createElement('canvas');
+                let width = img.width;
+                let height = img.height;
+                const maxDim = 1200; // កម្រិតច្បាស់ល្អឥតខ្ចោះលើ Mobile
+
+                if (width > maxDim || height > maxDim) {
+                    if (width > height) {
+                        height = Math.round((height * maxDim) / width);
+                        width = maxDim;
+                    } else {
+                        width = Math.round((width * maxDim) / height);
+                        height = maxDim;
+                    }
+                }
+
+                canvas.width = width;
+                canvas.height = height;
+                const ctx = canvas.getContext('2d');
+                ctx.drawImage(img, 0, 0, width, height);
+
+                const compressedBase64 = canvas.toDataURL('image/jpeg', 0.85);
+                document.getElementById(imgElemId).src = compressedBase64;
+                document.getElementById(containerId).style.display = 'block';
+                callback(compressedBase64);
+            };
+            img.src = e.target.result;
         };
         reader.readAsDataURL(file);
     }
 
     function handleFileSelect(e) {
         const file = e.target.files[0];
-        processSelectedFile(file, 'previewImg', 'previewContainer', (b64) => selectedImageBase64 = b64);
+        processAndCompressFile(file, 'previewImg', 'previewContainer', (b64) => selectedImageBase64 = b64);
     }
 
     function removeSelectedImage(e) {
@@ -1366,7 +1308,7 @@
 
     function handleEditFileSelect(e) {
         const file = e.target.files[0];
-        processSelectedFile(file, 'editPreviewImg', 'editPreviewContainer', (b64) => selectedEditImageBase64 = b64);
+        processAndCompressFile(file, 'editPreviewImg', 'editPreviewContainer', (b64) => selectedEditImageBase64 = b64);
     }
 
     function removeSelectedEditImage(e) {
@@ -1374,26 +1316,6 @@
         selectedEditImageBase64 = '';
         document.getElementById('editSongImageFile').value = '';
         document.getElementById('editPreviewContainer').style.display = 'none';
-    }
-
-    function handleDragOver(e) { e.preventDefault(); }
-    function handleDragLeave(e) { e.preventDefault(); }
-    function handleDrop(e) {
-        e.preventDefault();
-        const file = e.dataTransfer.files[0];
-        if (file && file.type.startsWith('image/')) {
-            processSelectedFile(file, 'previewImg', 'previewContainer', (b64) => selectedImageBase64 = b64);
-        }
-    }
-
-    function handleEditDragOver(e) { e.preventDefault(); }
-    function handleEditDragLeave(e) { e.preventDefault(); }
-    function handleEditDrop(e) {
-        e.preventDefault();
-        const file = e.dataTransfer.files[0];
-        if (file && file.type.startsWith('image/')) {
-            processSelectedFile(file, 'editPreviewImg', 'editPreviewContainer', (b64) => selectedEditImageBase64 = b64);
-        }
     }
 
     function handleAddSong(e) {
@@ -1404,15 +1326,10 @@
         const directUrl = document.getElementById('songImageUrlDirect').value.trim();
 
         const imageUrl = selectedImageBase64 || directUrl;
-
-        if (!imageUrl) {
-            alert('សូមបញ្ចូលរូបភាព ឬ Image URL!');
-            return;
-        }
+        if (!imageUrl) return;
 
         const saveBtn = document.getElementById('saveBtn');
         saveBtn.disabled = true;
-        saveBtn.innerText = 'កំពុងរក្សាទុក...';
 
         db.collection("songs").add({
             album: album,
@@ -1421,15 +1338,11 @@
             imageUrl: imageUrl,
             createdAt: firebase.firestore.FieldValue.serverTimestamp()
         }).then(() => {
-            alert('រក្សាទុកបទចម្រៀងបានជោគជ័យ!');
             document.getElementById('addSongForm').reset();
             removeSelectedImage(null);
             closeModal('addSongModal');
-        }).catch(err => {
-            alert('កំហុស៖ ' + err.message);
         }).finally(() => {
             saveBtn.disabled = false;
-            saveBtn.innerText = 'រក្សាទុក';
         });
     }
 
@@ -1445,21 +1358,45 @@
             return;
         }
 
-        previewInfo.innerText = `បានជ្រើសរើស ${files.length} រូបភាព។ កំពុងរៀបចំ...`;
+        previewInfo.innerText = `ជ្រើសរើសបាន ${files.length} រូបភាព...`;
 
         let loadedCount = 0;
         files.forEach((file) => {
             const reader = new FileReader();
             reader.onload = (event) => {
-                batchImagesArray.push({
-                    name: file.name.replace(/\.[^/.]+$/, ""),
-                    base64: event.target.result
-                });
-                loadedCount++;
-                if (loadedCount === files.length) {
-                    previewInfo.innerText = `បានរៀបចំរួចរាល់ ${files.length} រូបភាព! ចុច "បញ្ជូនចូលទាំងអស់"`;
-                    saveBtn.disabled = false;
-                }
+                const img = new Image();
+                img.onload = () => {
+                    const canvas = document.createElement('canvas');
+                    let width = img.width;
+                    let height = img.height;
+                    const maxDim = 1200;
+
+                    if (width > maxDim || height > maxDim) {
+                        if (width > height) {
+                            height = Math.round((height * maxDim) / width);
+                            width = maxDim;
+                        } else {
+                            width = Math.round((width * maxDim) / height);
+                            height = maxDim;
+                        }
+                    }
+
+                    canvas.width = width;
+                    canvas.height = height;
+                    const ctx = canvas.getContext('2d');
+                    ctx.drawImage(img, 0, 0, width, height);
+
+                    batchImagesArray.push({
+                        name: file.name.replace(/\.[^/.]+$/, ""),
+                        base64: canvas.toDataURL('image/jpeg', 0.85)
+                    });
+                    loadedCount++;
+                    if (loadedCount === files.length) {
+                        previewInfo.innerText = `រួចរាល់ ${files.length} រូបភាព! ចុច "បញ្ចូលទាំងអស់"`;
+                        saveBtn.disabled = false;
+                    }
+                };
+                img.src = event.target.result;
             };
             reader.readAsDataURL(file);
         });
@@ -1471,9 +1408,7 @@
         const saveBtn = document.getElementById('batchSaveBtn');
 
         if (batchImagesArray.length === 0) return;
-
         saveBtn.disabled = true;
-        saveBtn.innerText = 'កំពុងបញ្ចូល...';
 
         try {
             const batch = db.batch();
@@ -1489,16 +1424,13 @@
             });
 
             await batch.commit();
-            alert(`បានបញ្ចូលបទចម្រៀងចំនួន ${batchImagesArray.length} បទ ដោយជោគជ័យ!`);
             document.getElementById('batchImageFiles').value = '';
             document.getElementById('batchPreviewInfo').innerText = '';
             batchImagesArray = [];
             closeModal('batchAddModal');
         } catch (err) {
-            alert('កំហុសក្នុងការបញ្ចូល៖ ' + err.message);
         } finally {
             saveBtn.disabled = false;
-            saveBtn.innerText = 'បញ្ជូនចូលទាំងអស់';
         }
     }
 
@@ -1546,24 +1478,17 @@
 
         const updateBtn = document.getElementById('updateBtn');
         updateBtn.disabled = true;
-        updateBtn.innerText = 'កំពុងធ្វើបច្ចុប្បន្នភាព...';
 
         db.collection("songs").doc(id).update(updateData).then(() => {
-            alert('ធ្វើបច្ចុប្បន្នភាពបទចម្រៀងរួចរាល់!');
             closeModal('editSongModal');
-        }).catch(err => {
-            alert('កំហុស៖ ' + err.message);
         }).finally(() => {
             updateBtn.disabled = false;
-            updateBtn.innerText = 'រក្សាទុក';
         });
     }
 
     function deleteSong(songId) {
-        if (confirm('តើអ្នកពិតជាចង់លុំបទចម្រៀងនេះមែនទេ?')) {
-            db.collection("songs").doc(songId).delete().then(() => {
-                alert('បានលុំបទចម្រៀងរួចរាល់!');
-            }).catch(err => alert('លុបមិនបាន៖ ' + err.message));
+        if (confirm('តើអ្នកពិតជាចង់លុបបទចម្រៀងនេះមែនទេ?')) {
+            db.collection("songs").doc(songId).delete();
         }
     }
 
@@ -1575,24 +1500,20 @@
         const text = document.getElementById('statusText');
         if (navigator.onLine) {
             dot.className = 'status-dot status-online';
-            text.innerText = 'អនឡាញ (Online)';
+            text.innerText = 'អនឡាញ';
         } else {
             dot.className = 'status-dot status-offline';
-            text.innerText = 'ក្រៅបណ្តាញ (Offline)';
+            text.innerText = 'Offline';
         }
     }
 
     function handleGoogleLogin() {
         const provider = new firebase.auth.GoogleAuthProvider();
-        auth.signInWithPopup(provider).catch((error) => {
-            alert('ការចូលប្រព័ន្ធបរាជ័យ៖ ' + error.message);
-        });
+        auth.signInWithPopup(provider);
     }
 
     function handleLogout() {
-        auth.signOut().then(() => {
-            alert('បានចាកចេញពីគណនីរួចរាល់!');
-        });
+        auth.signOut();
     }
 
     function toggleDarkMode() {
