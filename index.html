@@ -293,13 +293,13 @@
         </div>
 
         <div class="filter-chips">
-            <button class="chip-btn active" onclick="setQuickFilter('ALL', this)">🎵 ទាំងអស់</button>
-            <button class="chip-btn" onclick="setQuickFilter('RECENT', this)">✨ ថ្មីៗ</button>
+            <button class="chip-btn active" onclick="setQuickFilter('ALL', this)">🎵 ចម្រៀងទាំងអស់</button>
+            <button class="chip-btn" onclick="setQuickFilter('RECENT', this)">✨ បទថ្មីៗ</button>
             <button class="chip-btn" onclick="setQuickFilter('FAV', this)">❤️ ចូលចិត្ត</button>
         </div>
 
         <div class="song-grid" id="songGrid">
-            <div class="empty-state" id="loadingState">📂 កំពុងផ្ទុកទិន្នន័យ...</div>
+            <div class="empty-state" id="loadingState">🎵 សូមទាញយកចម្រៀង...</div>
         </div>
     </div>
 
@@ -591,7 +591,7 @@
     function updateTotalSongCount() {
         const countEl = document.getElementById('totalSongCountText');
         if (countEl && songsList) {
-            countEl.innerText = `🎵 មានចម្រៀងសរុប ${songsList.length} បទ 🎵`;
+            countEl.innerText = `🎵 មានចម្រៀងសរសើរដំកើងសរុប ${songsList.length} បទ 🎵`;
         }
     }
 
@@ -758,7 +758,7 @@
         });
     }
 
-    async function fetchAllSongsWithProgress() {
+    function fetchAllSongsWithProgress() {
         const fetchBtn = document.getElementById('fetchAllBtn');
         const fetchIcon = document.getElementById('fetchIcon');
         const percentLabel = document.getElementById('progressPercent');
@@ -768,66 +768,39 @@
         percentLabel.innerText = '0%';
         fetchIcon.className = 'fa-solid fa-spinner fa-spin';
 
-        try {
-            // 1. រាប់ចំនួនបទចម្រៀងសរុបជាមុនសិន
-            const countSnapshot = await db.collection("songs").get();
-            const totalDocs = countSnapshot.size;
+        let progress = 0;
+        const interval = setInterval(() => {
+            progress += 20;
+            if (progress > 80) progress = 80;
+            percentLabel.innerText = progress + '%';
+        }, 100);
 
-            if (totalDocs === 0) {
-                markFetchCompleted();
-                return;
-            }
-
-            const BATCH_SIZE = 15; // ទាញយកម្ដង ១៥ បទ ដើម្បីការពារ Memory Crash
-            let downloadedSongs = [];
-            let lastDoc = null;
-
-            while (downloadedSongs.length < totalDocs) {
-                let query = db.collection("songs")
-                    .orderBy("createdAt", "desc")
-                    .limit(BATCH_SIZE);
-
-                if (lastDoc) {
-                    query = query.startAfter(lastDoc);
-                }
-
-                const snapshot = await query.get();
-                if (snapshot.empty) break;
-
-                snapshot.forEach((doc) => {
-                    const data = doc.data();
-                    downloadedSongs.push({
-                        id: doc.id,
-                        ...data,
-                        createdAt: data.createdAt ? { seconds: data.createdAt.seconds } : null,
-                        updatedAt: data.updatedAt ? { seconds: data.updatedAt.seconds } : null
-                    });
+        db.collection("songs").orderBy("createdAt", "desc").get().then((snapshot) => {
+            clearInterval(interval);
+            percentLabel.innerText = '100%';
+            songsList = [];
+            snapshot.forEach((doc) => {
+                const data = doc.data();
+                songsList.push({
+                    id: doc.id,
+                    ...data,
+                    createdAt: data.createdAt ? { seconds: data.createdAt.seconds } : null,
+                    updatedAt: data.updatedAt ? { seconds: data.updatedAt.seconds } : null
                 });
-
-                lastDoc = snapshot.docs[snapshot.docs.length - 1];
-
-                // គណនាភាគរយនៃការទាញយក (% Progress)
-                const percent = Math.min(100, Math.round((downloadedSongs.length / totalDocs) * 100));
-                percentLabel.innerText = percent + '%';
-
-                // រក្សាទុកទិន្នន័យចូល IndexedDB បន្តិចម្ដងៗ
-                saveSongsToIndexedDB(downloadedSongs);
-
-                // ពន្យារពេល 80ms រវាង Batch ដើម្បីឱ្យ CPU/RAM ទូរស័ព្ទសម្រាក
-                await new Promise(res => setTimeout(res, 80));
-            }
-
-            songsList = downloadedSongs;
+            });
             renderSongs();
             updateTotalSongCount();
-            markFetchCompleted();
+            saveSongsToIndexedDB(songsList);
 
-        } catch (err) {
-            console.error(err);
+            setTimeout(() => {
+                markFetchCompleted();
+            }, 300);
+        }).catch(err => {
+            clearInterval(interval);
             fetchBtn.disabled = false;
             percentLabel.style.display = 'none';
             fetchIcon.className = 'fa-solid fa-cloud-arrow-down';
-        }
+        });
     }
 
     function markFetchCompleted() {
