@@ -129,25 +129,6 @@
         .song-title-row { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 6px; }
         .song-title { font-size: 0.95rem; font-weight: 700; color: var(--text); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; flex: 1; }
 
-        .btn-playlist-small {
-            background-color: #e0f2fe; 
-            color: #0284c7; 
-            border: 1px solid #bae6fd;
-            padding: 4px 8px;
-            border-radius: 6px;
-            font-size: 0.72rem;
-            font-weight: 600;
-            cursor: pointer;
-            white-space: nowrap;
-            display: inline-flex;
-            align-items: center;
-            gap: 4px;
-            flex-shrink: 0;
-            transition: all 0.2s;
-        }
-        .btn-playlist-small:active { transform: scale(0.95); }
-        body.dark-mode .btn-playlist-small { background-color: #0369a1; color: #e0f2fe; border-color: #0284c7; }
-
         .song-artist { font-size: 0.82rem; color: var(--text-muted); margin-bottom: 2px; }
         .song-meta-info { font-size: 0.78rem; color: var(--text-muted); margin-top: 4px; display: flex; flex-direction: column; gap: 2px; }
 
@@ -158,12 +139,21 @@
             text-decoration: none; text-align: center; width: 100%; background-color: var(--card-bg); color: var(--text); white-space: nowrap;
         }
 
-        .btn-download-custom { background-color: #f0fdf4; color: #16a34a; border-color: #bbf7d0; }
-        body.dark-mode .btn-download-custom { background-color: #14532d; color: #bbf7d0; border-color: #16a34a; }
+        .btn-playlist-inline {
+            background-color: #e0f2fe; color: #0284c7; border: 1px solid #bae6fd; padding: 4px 10px; border-radius: 8px;
+            font-size: 0.78rem; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: 4px; white-space: nowrap;
+        }
+        body.dark-mode .btn-playlist-inline { background-color: #0369a1; color: #e0f2fe; border-color: #0284c7; }
 
         .btn-share-custom { background-color: #d1fae5; color: #047857; border-color: #a7f3d0; }
         body.dark-mode .btn-share-custom { background-color: #065f46; color: #d1fae5; border-color: #047857; }
-        
+        .btn-save-custom { background-color: #f1f5f9; color: var(--text); border-color: var(--border); }
+        body.dark-mode .btn-save-custom { background-color: #334155; color: #f8fafc; border-color: #475569; }
+        .btn-edit-custom { background-color: #fef3c7; color: #b45309; border-color: #fde68a; }
+        body.dark-mode .btn-edit-custom { background-color: #78350f; color: #fef3c7; border-color: #92400e; }
+        .btn-delete-custom { background-color: #fee2e2; color: var(--danger); border-color: #fecaca; }
+        body.dark-mode .btn-delete-custom { background-color: #7f1d1d; color: #fee2e2; border-color: #991b1b; }
+
         .section-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 16px; margin-top: 10px; }
         .folder-card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 12px; padding: 18px 14px; text-align: center; cursor: pointer; transition: transform 0.2s, box-shadow 0.2s; position: relative; }
         .folder-card:hover { transform: translateY(-3px); box-shadow: 0 4px 12px rgba(0,0,0,0.05); border-color: var(--primary); }
@@ -199,6 +189,7 @@
         .bottom-nav-item.active { color: var(--primary); }
 
         .empty-state { text-align: center; padding: 40px 20px; color: var(--text-muted); grid-column: 1 / -1; font-weight: 600; }
+        .loading-more-spinner { text-align: center; padding: 16px; font-size: 0.85rem; color: var(--text-muted); grid-column: 1 / -1; font-weight: 600; }
 
         .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); align-items: center; justify-content: center; z-index: 2000; padding: 20px; }
         .modal.active { display: flex; }
@@ -207,14 +198,17 @@
         .form-group label { display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 4px; color: var(--text); }
         .form-group input, .form-group select { width: 100%; padding: 10px 12px; border: 1px solid var(--border); border-radius: 8px; outline: none; background: var(--bg); color: var(--text); }
 
+        .image-drop-zone { border: 2px dashed var(--border); border-radius: 10px; padding: 14px; text-align: center; background: var(--bg); cursor: pointer; position: relative; }
+        .preview-container { margin-top: 8px; display: none; position: relative; max-height: 140px; overflow: hidden; border-radius: 8px; border: 1px solid var(--border); background: var(--card-bg); }
+        .preview-container img { width: 100%; max-height: 130px; object-fit: contain; }
+        .remove-img-btn { position: absolute; top: 4px; right: 4px; background: rgba(239, 68, 68, 0.9); color: white; border: none; border-radius: 50%; width: 22px; height: 22px; font-size: 0.75rem; cursor: pointer; }
+
         .fullscreen-modal { display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0, 0, 0, 0.95); z-index: 3000; flex-direction: column; align-items: center; justify-content: center; }
         .fullscreen-modal.active { display: flex; }
         .fullscreen-header { position: absolute; top: calc(15px + env(safe-area-inset-top)); left: 20px; right: 20px; display: flex; justify-content: space-between; align-items: center; color: white; z-index: 3010; }
-        .fullscreen-toolbar { display: flex; gap: 12px; align-items: center; }
-        .fullscreen-tool-btn { background: rgba(255,255,255,0.2); border: none; color: white; font-size: 1.1rem; padding: 8px 12px; border-radius: 8px; cursor: pointer; }
-
+        
         .fullscreen-img-container { 
-            width: 100%; height: 80vh; display: flex; align-items: center; justify-content: center; 
+            width: 100%; height: 82vh; display: flex; align-items: center; justify-content: center; 
             position: relative; overflow: hidden; touch-action: none; 
         }
         
@@ -234,6 +228,7 @@
         .offline-sync-badge { position: fixed; bottom: calc(70px + env(safe-area-inset-bottom)); right: 16px; background: var(--card-bg); border: 1px solid var(--border); padding: 6px 12px; border-radius: 20px; font-size: 0.78rem; font-weight: 600; display: flex; align-items: center; gap: 6px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); z-index: 1100; }
         .status-dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
         .status-online { background-color: #10b981; }
+        .status-offline { background-color: #ef4444; }
 
         .playlist-select-item {
             padding: 12px 14px; border: 1px solid var(--border); border-radius: 10px; margin-bottom: 8px;
@@ -283,8 +278,7 @@
 
         <div class="controls">
             <div class="search-box">
-                <input type="text" id="searchInput" list="songSuggestions" placeholder="ស្វែងរកបទចម្រៀង..." oninput="handleSearchInput()">
-                <datalist id="songSuggestions"></datalist>
+                <input type="text" id="searchInput" placeholder="ស្វែងរកបទចម្រៀង..." oninput="handleSearchInput()">
                 <button class="search-btn" onclick="handleSearchInput()">🔍</button>
             </div>
             <button class="theme-toggle-btn" id="themeToggleBtn" onclick="toggleDarkMode()" title="ប្តូររបៀបភ្លឺ/ងងឹត">🌙</button>
@@ -304,7 +298,7 @@
     <div class="app-view" id="viewAlbums">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
             <h2>📁 អាល់ប៊ុមចម្រៀង (Albums)</h2>
-            <button class="btn-playlist-small editor-only" onclick="addNewAlbum()" style="padding: 8px 12px;"><i class="fa-solid fa-plus"></i> បង្កើត Album ថ្មី</button>
+            <button class="btn-playlist-inline editor-only" onclick="addNewAlbum()" style="padding: 8px 12px;"><i class="fa-solid fa-plus"></i> បង្កើត Album ថ្មី</button>
         </div>
         <div class="section-grid" id="albumsGrid"></div>
     </div>
@@ -312,7 +306,7 @@
     <div class="app-view" id="viewPlaylists">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
             <h2>📂 Playlist ផ្ទាល់ខ្លួន</h2>
-            <button class="btn-playlist-small" onclick="openCreatePlaylistModal()" style="padding: 8px 12px;"><i class="fa-solid fa-plus"></i> បង្កើត Playlist ថ្មី</button>
+            <button class="btn-playlist-inline" onclick="openCreatePlaylistModal()" style="padding: 8px 12px;"><i class="fa-solid fa-plus"></i> បង្កើត Playlist ថ្មី</button>
         </div>
         <div class="section-grid" id="playlistsGrid"></div>
     </div>
@@ -348,12 +342,8 @@
 
 <div class="fullscreen-modal" id="fullScreenModal">
     <div class="fullscreen-header">
-        <div id="fullScreenTitle" style="font-weight: 700; font-size: 1rem; max-width: 50%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;"></div>
-        <div class="fullscreen-toolbar">
-            <button class="fullscreen-tool-btn" onclick="downloadCurrentFullscreenImage()" title="ទាញយករូបភាព"><i class="fa-solid fa-download"></i></button>
-            <button class="fullscreen-tool-btn" onclick="shareCurrentFullscreenImage()" title="ចែករំលែករូបភាព"><i class="fa-solid fa-share-nodes"></i></button>
-            <button onclick="closeFullScreenModalDirect()" style="background:none; border:none; color:white; font-size:1.6rem; cursor:pointer; padding: 4px 8px;">✖</button>
-        </div>
+        <div id="fullScreenTitle" style="font-weight: 700; font-size: 1rem; max-width: 80%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;"></div>
+        <button onclick="closeFullScreenModalDirect()" style="background:none; border:none; color:white; font-size:1.6rem; cursor:pointer; padding: 4px 8px;">✖</button>
     </div>
     <button class="fullscreen-nav-btn fullscreen-prev" onclick="slideFullScreen(-1, event)">❮</button>
     <div class="fullscreen-img-container" id="fullScreenImgContainer">
@@ -371,6 +361,108 @@
             <button type="button" onclick="closeModal('addToPlaylistModal'); openCreatePlaylistModal();" style="padding: 8px 12px; border-radius: 8px; border: 1px solid var(--primary); color: var(--primary); background: transparent; font-size:0.8rem; cursor: pointer;"><i class="fa-solid fa-plus"></i> បង្កើត Playlist ថ្មី</button>
             <button type="button" onclick="closeModal('addToPlaylistModal')" style="background: var(--border); color: var(--text); padding: 8px 14px; border-radius:8px; border:none; cursor: pointer;">បោះបង់</button>
         </div>
+    </div>
+</div>
+
+<div class="modal" id="addSongModal">
+    <div class="modal-content">
+        <h2>➕ បញ្ចូលបទចម្រៀងថ្មី</h2>
+        <form id="addSongForm" onsubmit="handleAddSong(event)" style="margin-top: 15px;">
+            <div class="form-group">
+                <label>ជ្រើសរើស Album *</label>
+                <select id="songAlbumSelect" required></select>
+            </div>
+            <div class="form-group">
+                <label>ចំណងជើងបទចម្រៀង *</label>
+                <input type="text" id="songTitle" required placeholder="ឧទាហរណ៍៖ ព្រះគុណព្រះអង្គ">
+            </div>
+            <div class="form-group">
+                <label>ឈ្មោះអ្នកចម្រៀង</label>
+                <input type="text" id="songArtist" placeholder="ឈ្មោះអ្នកចម្រៀង">
+            </div>
+            <div class="form-group">
+                <label>រូបភាពបទចម្រៀង (Upload ឬ URL) *</label>
+                <div class="image-drop-zone" id="dropZone" onclick="document.getElementById('songImageFile').click()" ondragover="handleDragOver(event)" ondragleave="handleDragLeave(event)" ondrop="handleDrop(event)">
+                    <p>📁 ចុចទីនេះ ឬទាញទម្លាក់រូបភាពចូលទីនេះ<br><span style="color:var(--primary); font-weight:600;">(អាចចុច Ctrl+V ដើម្បី Paste)</span></p>
+                    <input type="file" id="songImageFile" accept="image/*" onchange="handleFileSelect(event)" style="display: none;">
+                    <div class="preview-container" id="previewContainer">
+                        <img id="previewImg" src="" alt="Preview">
+                        <button type="button" class="remove-img-btn" onclick="removeSelectedImage(event)">✖</button>
+                    </div>
+                </div>
+                <div style="margin-top: 8px;">
+                    <input type="url" id="songImageUrlDirect" placeholder="ឬដាក់ Image URL ផ្ទាល់នៅទីនេះ">
+                </div>
+            </div>
+            <div style="text-align: right; margin-top: 20px; display: flex; gap: 10px; justify-content: flex-end;">
+                <button type="button" class="btn" onclick="closeModal('addSongModal')" style="background: var(--border); color: var(--text); padding: 8px 14px; border-radius:8px; border:none;">បោះបង់</button>
+                <button type="submit" id="saveBtn" class="btn btn-primary" style="padding: 8px 16px; border-radius: 8px; border: none; font-weight: 600; background: var(--primary); color: white; cursor: pointer;">រក្សាទុក</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="modal" id="batchAddModal">
+    <div class="modal-content">
+        <h2>📚 បញ្ចូលរូបភាពច្រើនក្នុងពេលតែមួយ</h2>
+        <div style="margin-top: 15px;">
+            <div class="form-group">
+                <label>ជ្រើសរើស Album សម្រាប់គ្រប់បទទាំងអស់ *</label>
+                <select id="batchAlbumSelect" required></select>
+            </div>
+            <div class="form-group">
+                <label>ឈ្មោះអ្នកចម្រៀង (សម្រាប់គ្រប់បទទាំងអស់)</label>
+                <input type="text" id="batchArtist" placeholder="ឧទាហរណ៍៖ ក្រុមច្រៀងសរសើរដំកើង">
+            </div>
+            <div class="form-group">
+                <label>ជ្រើសរើសរូបភាពច្រើនសន្លឹក (Multi-Select) *</label>
+                <input type="file" id="batchImageFiles" accept="image/*" multiple onchange="handleBatchFilesSelect(event)" style="width:100%; padding:10px; background:var(--bg); border:1px solid var(--border); border-radius:8px;">
+            </div>
+            <div id="batchPreviewInfo" style="font-size: 0.85rem; font-weight: 600; color: var(--primary); margin-bottom: 10px;"></div>
+            <div style="text-align: right; margin-top: 20px; display: flex; gap: 10px; justify-content: flex-end;">
+                <button type="button" onclick="closeModal('batchAddModal')" style="background: var(--border); color: var(--text); padding: 8px 14px; border-radius:8px; border:none;">បោះបង់</button>
+                <button type="button" id="batchSaveBtn" onclick="handleBatchSaveSongs()" style="padding: 8px 16px; border-radius: 8px; border: none; font-weight: 600; background: #059669; color: white; cursor: pointer;" disabled>បញ្ជូនចូលទាំងអស់</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal" id="editSongModal">
+    <div class="modal-content">
+        <h2>✏️ កែប្រែបទចម្រៀង</h2>
+        <form id="editSongForm" onsubmit="handleUpdateSong(event)" style="margin-top: 15px;">
+            <input type="hidden" id="editSongId">
+            <div class="form-group">
+                <label>ជ្រើសរើស Album *</label>
+                <select id="editSongAlbumSelect" required></select>
+            </div>
+            <div class="form-group">
+                <label>ចំណងជើងបទចម្រៀង *</label>
+                <input type="text" id="editSongTitle" required>
+            </div>
+            <div class="form-group">
+                <label>ឈ្មោះអ្នកចម្រៀង</label>
+                <input type="text" id="editSongArtist">
+            </div>
+            <div class="form-group">
+                <label>ប្ដូររូបភាពថ្មី</label>
+                <div class="image-drop-zone" id="editDropZone" onclick="document.getElementById('editSongImageFile').click()" ondragover="handleEditDragOver(event)" ondragleave="handleEditDragLeave(event)" ondrop="handleEditDrop(event)">
+                    <p>📁 ចុចទីនេះ ឬទាញទម្លាក់រូបភាពថ្មី</p>
+                    <input type="file" id="editSongImageFile" accept="image/*" onchange="handleEditFileSelect(event)" style="display: none;">
+                    <div class="preview-container" id="editPreviewContainer">
+                        <img id="editPreviewImg" src="" alt="Preview">
+                        <button type="button" class="remove-img-btn" onclick="removeSelectedEditImage(event)">✖</button>
+                    </div>
+                </div>
+                <div style="margin-top: 8px;">
+                    <input type="url" id="editSongImageUrlDirect" placeholder="ឬដាក់ Image URL ថ្មីផ្ទាល់">
+                </div>
+            </div>
+            <div style="text-align: right; margin-top: 20px; display: flex; gap: 10px; justify-content: flex-end;">
+                <button type="button" onclick="closeModal('editSongModal')" style="background: var(--border); color: var(--text); padding: 8px 14px; border-radius:8px; border:none;">បោះបង់</button>
+                <button type="submit" id="updateBtn" style="padding: 8px 16px; border-radius: 8px; border: none; font-weight: 600; background: var(--primary); color: white; cursor: pointer;">រក្សាទុក</button>
+            </div>
+        </form>
     </div>
 </div>
 
@@ -405,20 +497,61 @@
     const db = firebase.firestore();
     const auth = firebase.auth();
 
+    auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL).catch((error) => {});
+
     let currentUser = null;
     let isEditor = false;
     let isAdmin = false;
 
-    let initialSongsList = [];
-    let songsList = [];
+    let initialSongsList = []; // រក្សាទុក ២០ បទដំបូងពេលបើក App
+    let songsList = [];        // រក្សាទុកបញ្ជីបទចម្រៀងបច្ចុប្បន្នសម្រាប់បង្ហាញ
     let searchTimeout = null;
 
     let customAlbums = ['ទំនុកដំកើង', 'ទំនុកខ្មែរបរិសុទ្ធ'];
     let playlists = JSON.parse(localStorage.getItem('user_playlists') || '{}');
     let currentFilterType = 'ALL';
+    let currentFilterValue = 'ALL';
+    let selectedImageBase64 = '';
+    let selectedEditImageBase64 = '';
+    let batchImagesArray = [];
     let currentFilteredSongs = [];
     let currentFullscreenIndex = 0;
     let activeAddingSongId = null;
+    let deferredPrompt = null;
+
+    if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+            navigator.serviceWorker.register('sw.js').then((reg) => {
+                reg.onupdatefound = () => {
+                    const installingWorker = reg.installing;
+                    installingWorker.onstatechange = () => {
+                        if (installingWorker.state === 'installed') {
+                            if (navigator.serviceWorker.controller) {
+                                window.location.reload();
+                            }
+                        }
+                    };
+                };
+            }).catch(err => console.log('SW error:', err));
+        });
+    }
+
+    window.addEventListener('beforeinstallprompt', (e) => {
+        e.preventDefault();
+        deferredPrompt = e;
+        const installBtn = document.getElementById('installPwaBtn');
+        if (installBtn) installBtn.style.display = 'flex';
+    });
+
+    function installPwaApp() {
+        if (deferredPrompt) {
+            deferredPrompt.prompt();
+            deferredPrompt.userChoice.then(() => {
+                deferredPrompt = null;
+                document.getElementById('installPwaBtn').style.display = 'none';
+            });
+        }
+    }
 
     let dbIndexed = null;
     function initIndexedDB() {
@@ -456,7 +589,6 @@
                 songsList = offlineSongs;
                 renderSongs();
                 updateTotalSongCount();
-                updateSearchSuggestions();
                 markFetchCompleted();
             } else {
                 fetchInitial20Songs();
@@ -465,9 +597,11 @@
             fetchInitial20Songs();
         }
 
+        setupGlobalPasteListener();
         initImageZoomAndPan();
     };
 
+    // ១. ទាញយកតែ ២០ បទដំបូងពេលបើក App (ចំណាយត្រឹម ២0 Reads)
     function fetchInitial20Songs() {
         db.collection('songs')
           .orderBy('createdAt', 'desc')
@@ -482,32 +616,18 @@
               songsList = songs;
               renderSongs();
               updateTotalSongCount();
-              updateSearchSuggestions();
           })
           .catch((err) => {
               console.error("Error fetching initial songs:", err);
+              const grid = document.getElementById('songGrid');
+              if (grid) grid.innerHTML = `<div class="empty-state">មិនអាចទាញយកទិន្នន័យបានទេ!</div>`;
           });
-    }
-
-    function updateSearchSuggestions() {
-        const datalist = document.getElementById('songSuggestions');
-        if (!datalist) return;
-
-        let html = '';
-        songsList.forEach(song => {
-            if (song.title) {
-                const artistInfo = song.artist ? ` - ${song.artist}` : '';
-                html += `<option value="${escapeHtml(song.title)}">${escapeHtml(artistInfo)}</option>`;
-            }
-        });
-
-        datalist.innerHTML = html;
     }
 
     function updateTotalSongCount() {
         const countEl = document.getElementById('totalSongCountText');
         if (countEl && songsList) {
-            countEl.innerText = `🎵 បង្ហាញត្រឹមតែ ${songsList.length} បទ មានចម្រៀងច្រើនទៀត🎵`;
+            countEl.innerText = `🎵មានចម្រៀងសរសើរដំកើងព្រះបង្ហាញ ${songsList.length} បទ🎵`;
         }
     }
 
@@ -516,34 +636,29 @@
         if (btnElement) btnElement.classList.add('active');
 
         currentFilterType = type;
-        const subtitle = document.getElementById('currentAlbumSubtitle');
-
         if (type === 'ALL') {
-            currentFilteredSongs = [];
-            if (subtitle) {
-                subtitle.innerHTML = `ចូរឱ្យជីវិតទាំងឡាយដែលមានដង្ហើម បានសរសើរដល់ព្រះយ៉េហូវ៉ាចុះ<br><span style="color: var(--primary); font-weight: 700;">ទំនុកដំកើង ១៥០៖៦</span>`;
-            }
+            currentFilteredSongs = [...songsList];
         } else if (type === 'RECENT') {
             currentFilteredSongs = [...songsList].sort((a, b) => {
                 const tA = a.createdAt ? (a.createdAt.seconds || 0) : 0;
                 const tB = b.createdAt ? (b.createdAt.seconds || 0) : 0;
                 return tB - tA;
             });
-            if (subtitle) subtitle.innerHTML = `✨ ផ្លាស់ប្តូរមកបង្ហាញ៖ <strong style="color:var(--primary);">បទចម្រៀងទើបបញ្ចូលថ្មី</strong>`;
         } else if (type === 'FAV') {
             const favs = JSON.parse(localStorage.getItem('fav_songs') || '[]');
             currentFilteredSongs = songsList.filter(s => favs.includes(s.id));
-            if (subtitle) subtitle.innerHTML = `❤️ ផ្លាស់ប្តូរមកបង្ហាញ៖ <strong style="color:var(--primary);">បទចម្រៀងចូលចិត្ត (Favorites)</strong>`;
         }
         renderSongs();
     }
 
+    // ២. ការស្វែងរក (Search) ប្រសិទ្ធភាពតាម Hybrid Strategy
     function handleSearchInput() {
         if (searchTimeout) clearTimeout(searchTimeout);
         
         searchTimeout = setTimeout(() => {
             const query = document.getElementById('searchInput').value.trim();
             
+            // ប្រសិនបើប្រអប់ស្វែងរកគ្មានអក្សរ៖ បង្ហាញ ២០ បទចុងក្រោយដែលបានទាញយកស្រាប់
             if (!query) {
                 songsList = [...initialSongsList];
                 setQuickFilter(currentFilterType);
@@ -551,20 +666,11 @@
                 return;
             }
 
-            const localFiltered = songsList.filter(s => 
-                (s.title && s.title.toLowerCase().includes(query.toLowerCase())) ||
-                (s.artist && s.artist.toLowerCase().includes(query.toLowerCase()))
-            );
-
-            if (localFiltered.length > 0) {
-                currentFilteredSongs = localFiltered;
-                renderSongs();
-                return;
-            }
-
+            // ប្រសិនបើអ្នកប្រើប្រាស់វាយអក្សរស្វែងរក៖ ឱ្យវាទៅ Query ស្វែងរកតែបទណាដែលត្រូវនឹងតួអក្សរនោះពី Server
             const grid = document.getElementById('songGrid');
             if (grid) grid.innerHTML = `<div class="empty-state">កំពុងស្វែងរក...</div>`;
 
+            // Firestore Query ស្វែងរកតាមចំណងជើង
             db.collection('songs')
               .where('title', '>=', query)
               .where('title', '<=', query + '\uf8ff')
@@ -580,9 +686,10 @@
                   currentFilteredSongs = searchResults;
                   renderSongs();
                   updateTotalSongCount();
-                  updateSearchSuggestions();
               })
-              .catch(() => {
+              .catch((err) => {
+                  console.error("Search error:", err);
+                  // បើ Query ស្តង់ដារត្រូវរៀបចំ Index អ្នកអាចប្រើ fallback filter លើចង្កោមក្នុង Offline ឬប្តូរមក Client Filter ជំនួស
                   const fallbackList = initialSongsList.filter(s => 
                       (s.title && s.title.toLowerCase().includes(query.toLowerCase())) ||
                       (s.artist && s.artist.toLowerCase().includes(query.toLowerCase()))
@@ -592,7 +699,7 @@
                   renderSongs();
                   updateTotalSongCount();
               });
-        }, 300);
+        }, 400); // Debounce delay 400ms
     }
 
     function renderSongs() {
@@ -602,7 +709,7 @@
         let listToDisplay = currentFilteredSongs.length > 0 || currentFilterType !== 'ALL' ? currentFilteredSongs : songsList;
 
         if (listToDisplay.length === 0) {
-            grid.innerHTML = `<div class="empty-state">សូមរង់ចាំបន្តិចកំពុងទាញយក...!</div>`;
+            grid.innerHTML = `<div class="empty-state">ពុំមានបទចម្រៀងត្រូវបានរកឃើញឡើយ!</div>`;
             return;
         }
 
@@ -612,11 +719,7 @@
         listToDisplay.forEach((song, idx) => {
             const isFav = favs.includes(song.id);
             const heartIcon = isFav ? '❤️' : '🤍';
-            
-            // ការពារករណីគ្មានរូបភាព
-            const imgUrl = song.imageUrl && song.imageUrl.trim() !== '' 
-                ? song.imageUrl 
-                : 'https://via.placeholder.com/300x400?text=No+Image';
+            const imgUrl = song.imageUrl || 'https://via.placeholder.com/300x400?text=No+Image';
 
             html += `
                 <div class="song-card">
@@ -628,9 +731,6 @@
                         <div>
                             <div class="song-title-row">
                                 <div class="song-title">${escapeHtml(song.title)}</div>
-                                <button class="btn-playlist-small" onclick="openAddToPlaylistModal('${song.id}')" title="បន្ថែមទៅ Playlist">
-                                    <i class="fa-solid fa-plus"></i> Playlist
-                                </button>
                             </div>
                             <div class="song-artist"><i class="fa-solid fa-microphone"></i> ${escapeHtml(song.artist || 'មិនស្គាល់')}</div>
                             <div class="song-meta-info">
@@ -638,12 +738,20 @@
                             </div>
                         </div>
                         <div class="song-actions">
-                            <button class="song-action-btn btn-download-custom" onclick="downloadImageDirect('${imgUrl}', '${escapeHtml(song.title)}')">
-                                <i class="fa-solid fa-download"></i> ទាញយក
+                            <button class="song-action-btn btn-playlist-inline" onclick="openAddToPlaylistModal('${song.id}')">
+                                <i class="fa-solid fa-plus"></i> Playlist
                             </button>
-                            <button class="song-action-btn btn-share-custom" onclick="shareImageDirect('${imgUrl}', '${escapeHtml(song.title)}')">
+                            <button class="song-action-btn btn-share-custom" onclick="shareSong('${song.id}')">
                                 <i class="fa-solid fa-share-nodes"></i> ចែករំលែក
                             </button>
+                            ${isEditor || isAdmin ? `
+                                <button class="song-action-btn btn-edit-custom editor-only" onclick="openEditSongModal('${song.id}')">
+                                    <i class="fa-solid fa-pen"></i> កែប្រែ
+                                </button>
+                                <button class="song-action-btn btn-delete-custom editor-only" onclick="deleteSong('${song.id}')">
+                                    <i class="fa-solid fa-trash"></i> លុប
+                                </button>
+                            ` : ''}
                         </div>
                     </div>
                 </div>
@@ -651,73 +759,6 @@
         });
 
         grid.innerHTML = html;
-    }
-
-    async function downloadImageDirect(url, fileName) {
-        try {
-            const response = await fetch(url);
-            const blob = await response.blob();
-            const blobUrl = URL.createObjectURL(blob);
-            
-            const link = document.createElement('a');
-            link.href = blobUrl;
-            link.download = `${fileName || 'song-image'}.jpg`;
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-            URL.revokeObjectURL(blobUrl);
-        } catch (err) {
-            const link = document.createElement('a');
-            link.href = url;
-            link.target = '_blank';
-            link.download = `${fileName || 'song-image'}.jpg`;
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-        }
-    }
-
-    async function shareImageDirect(url, title) {
-        try {
-            const response = await fetch(url);
-            const blob = await response.blob();
-            const file = new File([blob], `${title || 'worship-song'}.jpg`, { type: blob.type });
-
-            if (navigator.canShare && navigator.canShare({ files: [file] })) {
-                await navigator.share({
-                    files: [file],
-                    title: title || 'ចម្រៀងសរសើរដំកើង',
-                    text: `🎼 ${title || 'ចម្រៀងសរសើរដំកើង'}`
-                });
-            } else if (navigator.share) {
-                await navigator.share({
-                    title: title,
-                    url: url
-                });
-            } else {
-                navigator.clipboard.writeText(url);
-                alert('បានចម្លង Link រូបភាពរួចរាល់!');
-            }
-        } catch (err) {
-            console.error(err);
-            alert('មិនអាចចែករំលែករូបភាពបានឡើយ!');
-        }
-    }
-
-    function downloadCurrentFullscreenImage() {
-        let listToDisplay = currentFilteredSongs.length > 0 || currentFilterType !== 'ALL' ? currentFilteredSongs : songsList;
-        const song = listToDisplay[currentFullscreenIndex];
-        if (song && song.imageUrl) {
-            downloadImageDirect(song.imageUrl, song.title);
-        }
-    }
-
-    function shareCurrentFullscreenImage() {
-        let listToDisplay = currentFilteredSongs.length > 0 || currentFilterType !== 'ALL' ? currentFilteredSongs : songsList;
-        const song = listToDisplay[currentFullscreenIndex];
-        if (song && song.imageUrl) {
-            shareImageDirect(song.imageUrl, song.title);
-        }
     }
 
     function toggleFavorite(songId, event) {
@@ -729,10 +770,6 @@
             favs.push(songId);
         }
         localStorage.setItem('fav_songs', JSON.stringify(favs));
-        
-        if (currentFilterType === 'FAV') {
-            currentFilteredSongs = songsList.filter(s => favs.includes(s.id));
-        }
         renderSongs();
     }
 
@@ -794,6 +831,7 @@
         } else {
             document.body.classList.remove('editor-authorized');
         }
+        renderProfileTab();
         renderSongs();
     }
 
@@ -806,6 +844,17 @@
             });
             customAlbums = albums;
             renderAlbumsTab();
+            populateAlbumDropdowns();
+        });
+    }
+
+    function populateAlbumDropdowns() {
+        const selects = ['songAlbumSelect', 'batchAlbumSelect', 'editSongAlbumSelect'];
+        selects.forEach(id => {
+            const el = document.getElementById(id);
+            if (el) {
+                el.innerHTML = customAlbums.map(a => `<option value="${escapeHtml(a)}">${escapeHtml(a)}</option>`).join('');
+            }
         });
     }
 
@@ -831,11 +880,6 @@
         switchTab('songs');
         currentFilterType = 'ALBUM';
         currentFilteredSongs = songsList.filter(s => s.album === albumName);
-        
-        const subtitle = document.getElementById('currentAlbumSubtitle');
-        if (subtitle) {
-            subtitle.innerHTML = `📁 ឆែកមើលអាល់ប៊ុម៖ <strong style="color:var(--primary);">${escapeHtml(albumName)}</strong>`;
-        }
         renderSongs();
     }
 
@@ -868,14 +912,7 @@
         switchTab('songs');
         const songIds = playlists[pName] || [];
         currentFilterType = 'PLAYLIST';
-        
-        // ទាញយក Object បទចម្រៀងពេញលេញតាម ID ក្នុង Playlist
         currentFilteredSongs = songsList.filter(s => songIds.includes(s.id));
-        
-        const subtitle = document.getElementById('currentAlbumSubtitle');
-        if (subtitle) {
-            subtitle.innerHTML = `📂 ឆែកមើល Playlist៖ <strong style="color:var(--primary);">${escapeHtml(pName)}</strong>`;
-        }
         renderSongs();
     }
 
@@ -915,6 +952,14 @@
                     </div>
                 </div>
                 <div class="action-list">
+                    ${isEditor || isAdmin ? `
+                        <button class="action-btn-item" onclick="openModal('addSongModal')">
+                            <span>➕ បញ្ចូលបទចម្រៀងថ្មី</span> <i class="fa-solid fa-chevron-right"></i>
+                        </button>
+                        <button class="action-btn-item" onclick="openModal('batchAddModal')">
+                            <span>📚 បញ្ចូលរូបភាពច្រើន (Batch Upload)</span> <i class="fa-solid fa-chevron-right"></i>
+                        </button>
+                    ` : ''}
                     <button class="action-btn-item danger" onclick="handleLogout()">
                         <span>🚪 ចាកចេញពីគណនី</span> <i class="fa-solid fa-right-from-bracket"></i>
                     </button>
@@ -936,6 +981,7 @@
 
     async function fetchAllSongsWithProgress() {
         const btn = document.getElementById('fetchAllBtn');
+        const icon = document.getElementById('fetchIcon');
         const percentLabel = document.getElementById('progressPercent');
 
         if (percentLabel) percentLabel.style.display = 'block';
@@ -957,7 +1003,6 @@
             songsList = songs;
             renderSongs();
             updateTotalSongCount();
-            updateSearchSuggestions();
             await saveSongsToIndexedDB(songs);
 
             if (percentLabel) percentLabel.style.display = 'none';
@@ -1038,7 +1083,33 @@
 
     function escapeHtml(str) {
         if (!str) return '';
-        return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
+        return str.replace(/&/g, "&amp;")
+                  .replace(/</g, "&lt;")
+                  .replace(/>/g, "&gt;")
+                  .replace(/"/g, "&quot;")
+                  .replace(/'/g, "&#039;");
+    }
+
+    function setupGlobalPasteListener() {
+        document.addEventListener('paste', (e) => {
+            const items = (e.clipboardData || e.originalEvent.clipboardData).items;
+            for (let item of items) {
+                if (item.type.indexOf('image') === 0) {
+                    const blob = item.getAsFile();
+                    const reader = new FileReader();
+                    reader.onload = (event) => {
+                        selectedImageBase64 = event.target.result;
+                        const preview = document.getElementById('previewImg');
+                        const container = document.getElementById('previewContainer');
+                        if (preview && container) {
+                            preview.src = selectedImageBase64;
+                            container.style.display = 'block';
+                        }
+                    };
+                    reader.readAsDataURL(blob);
+                }
+            }
+        });
     }
 
     let currentScale = 1;
@@ -1121,6 +1192,20 @@
             delete playlists[name];
             localStorage.setItem('user_playlists', JSON.stringify(playlists));
             renderPlaylistsTab();
+        }
+    }
+
+    function shareSong(songId) {
+        const shareData = {
+            title: 'ចម្រៀងសរសើរដំកើងព្រះ',
+            text: 'សូមអញ្ជើញស្តាប់បទចម្រៀងនេះ!',
+            url: window.location.href
+        };
+        if (navigator.share) {
+            navigator.share(shareData).catch(() => {});
+        } else {
+            navigator.clipboard.writeText(window.location.href);
+            alert('បានចម្លង Link រួចរាល់!');
         }
     }
 </script>
