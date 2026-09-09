@@ -132,42 +132,69 @@
 
         input[type="text"], input[type="url"], select, textarea { font-size: 16px !important; }
 
-        .controls { position: sticky; top: 0; z-index: 90; background: var(--bg); padding: 4px 0 8px 0; margin-bottom: 8px; display: flex; align-items: center; gap: 8px; }
+        /* Sticky Control Area for Search Dropdown */
+        .controls { 
+            position: sticky; 
+            top: 0; 
+            z-index: 1000; 
+            background: var(--bg); 
+            padding: 6px 0; 
+            margin-bottom: 8px; 
+            display: flex; 
+            align-items: center; 
+            gap: 8px; 
+        }
         .search-box { position: relative; display: flex; align-items: center; flex: 1; }
         .search-box input { width: 100%; padding: 8px 36px 8px 12px; border: 1px solid var(--border); border-radius: 10px; outline: none; background: var(--card-bg); color: var(--text); font-size: 0.85rem; }
         .search-btn { position: absolute; right: 6px; background: none; border: none; font-size: 0.9rem; cursor: pointer; padding: 4px; }
         
+        /* Dropdown Search Suggestions */
+        .search-dropdown {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            max-height: 250px;
+            overflow-y: auto;
+            z-index: 1001;
+            display: none;
+            margin-top: 4px;
+        }
+        .search-dropdown-item {
+            padding: 10px 12px;
+            border-bottom: 1px solid var(--border);
+            cursor: pointer;
+            font-size: 0.82rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .search-dropdown-item:last-child { border-bottom: none; }
+        .search-dropdown-item:hover { background: var(--bg); }
+        .search-dropdown-title { font-weight: 600; color: var(--text); }
+        .search-dropdown-artist { font-size: 0.72rem; color: var(--text-muted); }
+
         .theme-toggle-btn { background: var(--card-bg); border: 1px solid var(--border); color: var(--text); padding: 8px 12px; border-radius: 10px; font-size: 0.9rem; cursor: pointer; display: flex; align-items: center; justify-content: center; }
 
-        /* =======================================================
-           DYNAMIC GRID & CARD ADJUSTMENT (កែសម្រួលទំហំរូបភាព)
-           ======================================================= */
         .song-grid { 
             display: grid; 
             grid-template-columns: 1fr; 
             gap: 16px; 
-            justify-items: center; /* តម្រឹម Card ឲ្យនៅចំកណ្ដាល */
+            justify-items: center;
         }
 
         @media (min-width: 600px) {
-            .song-grid { 
-                grid-template-columns: repeat(2, 1fr); 
-                gap: 16px; 
-            }
+            .song-grid { grid-template-columns: repeat(2, 1fr); gap: 16px; }
         }
-
         @media (min-width: 900px) {
-            .song-grid { 
-                grid-template-columns: repeat(3, 1fr); 
-                gap: 20px; 
-            }
+            .song-grid { grid-template-columns: repeat(3, 1fr); gap: 20px; }
         }
-
         @media (min-width: 1200px) {
-            .song-grid { 
-                grid-template-columns: repeat(4, 1fr); 
-                gap: 20px; 
-            }
+            .song-grid { grid-template-columns: repeat(4, 1fr); gap: 20px; }
         }
 
         .song-card { 
@@ -179,7 +206,7 @@
             flex-direction: column; 
             position: relative;
             width: 100%;
-            max-width: 450px; /* កំណត់ទំហំអតិបរមាកុំឲ្យរីកធំពេកលើអេក្រង់ធំ */
+            max-width: 450px; 
         }
 
         .song-img-container { 
@@ -196,14 +223,37 @@
         .song-img { 
             width: 100%; 
             height: auto; 
-            max-height: 70vh; /* បង្ហាញតាមសមាមាត្រពិតរបស់រូបភាព original */
+            max-height: 70vh; 
             object-fit: contain; 
             display: block; 
         }
+
+        /* Fav Icon Floating on Image */
+        .fav-img-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: rgba(0, 0, 0, 0.4);
+            backdrop-filter: blur(4px);
+            border: none;
+            color: #ffffff;
+            width: 34px;
+            height: 34px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.1rem;
+            cursor: pointer;
+            z-index: 10;
+            transition: transform 0.2s;
+        }
+        .fav-img-btn:active { transform: scale(0.85); }
+        .fav-img-btn.active { color: #ef4444; }
         
         .song-info { padding: 10px 12px; flex: 1; display: flex; flex-direction: column; justify-content: space-between; }
         
-        .song-title-row { display: flex; align-items: center; justify-content: space-between; gap: 4px; margin-bottom: 2px; }
+        .song-title-row { display: flex; align-items: center; justify-content: space-between; gap: 6px; margin-bottom: 2px; }
         .song-title { font-size: 0.9rem; font-weight: 700; color: var(--text); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; flex: 1; }
 
         .song-artist { font-size: 0.78rem; color: var(--text-muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
@@ -215,10 +265,22 @@
             text-decoration: none; text-align: center; width: 100%; background-color: var(--card-bg); color: var(--text);
         }
 
-        .btn-playlist-inline {
-            background-color: transparent; color: var(--text-muted); border: none; padding: 2px 4px;
-            font-size: 0.95rem; cursor: pointer; display: inline-flex; align-items: center;
+        /* +Playlist inline button near title */
+        .btn-add-playlist-title {
+            background: var(--bg);
+            border: 1px solid var(--border);
+            color: var(--primary);
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 2px;
+            white-space: nowrap;
         }
+        .btn-add-playlist-title:hover { background: var(--primary); color: white; }
 
         .btn-share-custom { background-color: #d1fae5; color: #047857; border-color: #a7f3d0; }
         body.dark-mode .btn-share-custom { background-color: #065f46; color: #d1fae5; border-color: #047857; }
@@ -236,7 +298,7 @@
         .folder-count { font-size: 0.7rem; color: var(--text-muted); font-weight: 600; }
         .folder-delete-btn { position: absolute; top: 6px; right: 6px; background: none; border: none; color: var(--danger); font-size: 0.75rem; cursor: pointer; padding: 2px; }
 
-        .profile-container { max-width: 500px; margin: 0 auto; background: var(--card-bg); border: 1px solid var(--border); border-radius: 12px; padding: 16px; }
+        .profile-container { max-width: 450px; margin: 20px auto; background: var(--card-bg); border: 1px solid var(--border); border-radius: 12px; padding: 20px; }
         .profile-header { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; border-bottom: 1px solid var(--border); padding-bottom: 12px; }
         .profile-avatar { width: 50px; height: 50px; border-radius: 50%; object-fit: cover; border: 2px solid var(--primary); }
         .profile-name { font-size: 1rem; font-weight: 700; color: var(--text); }
@@ -352,10 +414,12 @@
             <i class="fa-solid fa-hands-praying"></i>
         </div>
 
+        <!-- Sticky Controls Search Section -->
         <div class="controls">
             <div class="search-box">
-                <input type="text" id="searchInput" placeholder="ស្វែងរកបទចម្រៀង..." oninput="handleSearchInput()">
+                <input type="text" id="searchInput" placeholder="ស្វែងរកបទចម្រៀង..." oninput="handleSearchInput()" onfocus="handleSearchInput()" autocomplete="off">
                 <button class="search-btn" onclick="renderSongs()">🔍</button>
+                <div class="search-dropdown" id="searchDropdown"></div>
             </div>
             <button class="theme-toggle-btn" id="themeToggleBtn" onclick="toggleDarkMode()">🌙</button>
         </div>
@@ -374,7 +438,7 @@
     <div class="app-view" id="viewAlbums">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
             <h2 style="font-size: 1rem;">📁 អាល់ប៊ុមចម្រៀង</h2>
-            <button class="btn-playlist-inline editor-only" onclick="addNewAlbum()" style="background:var(--primary); color:white; padding: 4px 8px; border-radius: 6px; font-size:0.75rem;"><i class="fa-solid fa-plus"></i> Album ថ្មី</button>
+            <button class="btn-add-playlist-title editor-only" onclick="addNewAlbum()" style="background:var(--primary); color:white; padding: 4px 8px; border-radius: 6px; font-size:0.75rem;"><i class="fa-solid fa-plus"></i> Album ថ្មី</button>
         </div>
         <div class="section-grid" id="albumsGrid"></div>
     </div>
@@ -382,7 +446,7 @@
     <div class="app-view" id="viewPlaylists">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
             <h2 style="font-size: 1rem;">📂 Playlist ផ្ទាល់ខ្លួន</h2>
-            <button class="btn-playlist-inline" onclick="openCreatePlaylistModal()" style="background:var(--primary); color:white; padding: 4px 8px; border-radius: 6px; font-size:0.75rem;"><i class="fa-solid fa-plus"></i> បង្កើត Playlist</button>
+            <button class="btn-add-playlist-title" onclick="openCreatePlaylistModal()" style="background:var(--primary); color:white; padding: 4px 8px; border-radius: 6px; font-size:0.75rem;"><i class="fa-solid fa-plus"></i> បង្កើត Playlist</button>
         </div>
         <div class="section-grid" id="playlistsGrid"></div>
     </div>
@@ -397,6 +461,7 @@
         <i class="fa-solid fa-music"></i>
         <span>បទចម្រៀង</span>
     </button>
+
     <button class="bottom-nav-item" id="navAlbumsBtn" onclick="switchTab('albums')">
         <i class="fa-solid fa-record-vinyl"></i>
         <span>អាល់ប៊ុម</span>
@@ -532,14 +597,19 @@
 
 <div class="modal" id="playlistModal">
     <div class="modal-content">
-        <h3 style="font-size: 1rem;">📂 បង្កើត Playlist ថ្មី</h3>
+        <h3 style="font-size: 1rem;">📂 បង្កើត / ជ្រើសរើស Playlist</h3>
+        <input type="hidden" id="playlistTargetSongId">
         <div class="form-group" style="margin-top: 10px;">
-            <label>ឈ្មោះ Playlist *</label>
+            <label>ឈ្មោះ Playlist ថ្មី</label>
             <input type="text" id="newPlaylistName" placeholder="ឧទាហរណ៍៖ ថ្វាយបង្គំថ្ងៃអាទិត្យ">
         </div>
-        <div style="text-align: right; margin-top: 14px; display: flex; gap: 8px; justify-content: flex-end;">
-            <button type="button" onclick="closeModal('playlistModal')" style="background: var(--border); color: var(--text); padding: 6px 12px; border-radius:6px; border:none; font-size:0.8rem;">បោះបង់</button>
-            <button type="button" onclick="saveNewPlaylist()" style="padding: 6px 14px; border-radius: 6px; border: none; font-weight: 600; background: var(--primary); color: white; font-size:0.8rem;">បង្កើត</button>
+        <button type="button" onclick="saveNewPlaylist()" style="width: 100%; padding: 8px; border-radius: 6px; border: none; font-weight: 600; background: var(--primary); color: white; font-size:0.8rem; margin-bottom: 12px;">+ បង្កើតថ្មី</button>
+        
+        <div style="font-size:0.8rem; font-weight:600; margin-bottom:6px;">ឬបន្ថែមទៅ Playlist មានស្រាប់៖</div>
+        <div id="existingPlaylistsList" style="max-height: 150px; overflow-y: auto; display: flex; flex-direction: column; gap: 6px;"></div>
+
+        <div style="text-align: right; margin-top: 14px;">
+            <button type="button" onclick="closeModal('playlistModal')" style="background: var(--border); color: var(--text); padding: 6px 12px; border-radius:6px; border:none; font-size:0.8rem;">បិទ</button>
         </div>
     </div>
 </div>
@@ -657,6 +727,14 @@
         listenToSongsChanges();
         initPinchToZoom();
         setupScrollListener();
+
+        // Close search dropdown when clicking outside
+        document.addEventListener('click', function(e) {
+            const searchBox = document.querySelector('.search-box');
+            if (searchBox && !searchBox.contains(e.target)) {
+                hideSearchDropdown();
+            }
+        });
     };
 
     function updateTotalSongCount() {
@@ -989,15 +1067,18 @@
 
             return `
                 <div class="song-card" id="song-card-${song.id}">
-                    <div class="song-img-container" onclick="openFullScreenModal('${song.id}')">
-                        <img src="${imgUrl}" class="song-img" alt="${escapeHtml(song.title)}" loading="lazy">
+                    <div class="song-img-container">
+                        <button class="fav-img-btn ${inFav ? 'active' : ''}" onclick="toggleFavorite('${song.id}', event)">
+                            <i class="${inFav ? 'fa-solid' : 'fa-regular'} fa-heart"></i>
+                        </button>
+                        <img src="${imgUrl}" class="song-img" alt="${escapeHtml(song.title)}" loading="lazy" onclick="openFullScreenModal('${song.id}')">
                     </div>
                     <div class="song-info">
                         <div>
                             <div class="song-title-row">
                                 <span class="song-title" title="${escapeHtml(song.title)}">${escapeHtml(song.title)}</span>
-                                <button class="btn-playlist-inline" onclick="toggleFavorite('${song.id}')">
-                                    <i class="${inFav ? 'fa-solid' : 'fa-regular'} fa-heart" style="${inFav ? 'color:#ef4444;' : ''}"></i>
+                                <button class="btn-add-playlist-title" onclick="openPlaylistChooserModal('${song.id}')">
+                                    <i class="fa-solid fa-plus"></i> Playlist
                                 </button>
                             </div>
                             <div class="song-artist">🎤 ${escapeHtml(song.artist || 'មិនស្គាល់')}</div>
@@ -1022,8 +1103,48 @@
         }).join('');
     }
 
+    /* Search Dropdown functionality */
     function handleSearchInput() {
+        const val = document.getElementById('searchInput').value.trim().toLowerCase();
+        const dropdown = document.getElementById('searchDropdown');
+
         renderSongs();
+
+        if (!val) {
+            hideSearchDropdown();
+            return;
+        }
+
+        const matches = songsList.filter(s => 
+            (s.title && s.title.toLowerCase().includes(val)) ||
+            (s.artist && s.artist.toLowerCase().includes(val))
+        ).slice(0, 8); // Limit to top 8 items
+
+        if (matches.length > 0) {
+            dropdown.innerHTML = matches.map(s => `
+                <div class="search-dropdown-item" onclick="selectSearchDropdownItem('${s.id}')">
+                    <div>
+                        <div class="search-dropdown-title">${escapeHtml(s.title)}</div>
+                        <div class="search-dropdown-artist">🎤 ${escapeHtml(s.artist || 'មិនស្គាល់')}</div>
+                    </div>
+                    <i class="fa-solid fa-chevron-right" style="font-size: 0.7rem; color: var(--text-muted);"></i>
+                </div>
+            `).join('');
+            dropdown.style.display = 'block';
+        } else {
+            dropdown.innerHTML = '<div class="search-dropdown-item" style="color:var(--text-muted);">រកមិនឃើញចម្រៀងឡើយ</div>';
+            dropdown.style.display = 'block';
+        }
+    }
+
+    function hideSearchDropdown() {
+        const dropdown = document.getElementById('searchDropdown');
+        if (dropdown) dropdown.style.display = 'none';
+    }
+
+    function selectSearchDropdownItem(songId) {
+        hideSearchDropdown();
+        openFullScreenModal(songId);
     }
 
     function resetFilters() {
@@ -1106,12 +1227,14 @@
 
         if (currentUser) {
             container.innerHTML = `
-                <div class="profile-header">
-                    <img src="${currentUser.photoURL || 'https://via.placeholder.com/100'}" class="profile-avatar" alt="User">
-                    <div>
-                        <div class="profile-name">${escapeHtml(currentUser.displayName || 'អ្នកប្រើប្រាស់')}</div>
-                        <div style="font-size:0.75rem; color:var(--text-muted);">${escapeHtml(currentUser.email || '')}</div>
-                        <span class="profile-badge">${isAdmin ? '👑 Admin' : (isEditor ? '✏️ Editor' : '👤 សមាជិក')}</span>
+                <div class="profile-header" style="border-bottom:none; margin-bottom:0; justify-content: space-between;">
+                    <div style="display:flex; align-items:center; gap:12px;">
+                        <img src="${currentUser.photoURL || 'https://via.placeholder.com/100'}" class="profile-avatar" alt="User">
+                        <div>
+                            <div class="profile-name">${escapeHtml(currentUser.displayName || 'អ្នកប្រើប្រាស់')}</div>
+                            <div style="font-size:0.75rem; color:var(--text-muted);">${escapeHtml(currentUser.email || '')}</div>
+                            <span class="profile-badge">${isAdmin ? '👑 Admin' : (isEditor ? '✏️ Editor' : '👤 សមាជិក')}</span>
+                        </div>
                     </div>
                 </div>
                 <div class="action-list">
@@ -1350,7 +1473,8 @@
         } catch (err) {}
     }
 
-    function toggleFavorite(songId) {
+    function toggleFavorite(songId, event) {
+        if(event) event.stopPropagation();
         if (!playlists['Favorite']) playlists['Favorite'] = [];
         const index = playlists['Favorite'].indexOf(songId);
         if (index === -1) {
@@ -1367,13 +1491,42 @@
 
     function openCreatePlaylistModal() { openModal('playlistModal'); }
 
+    function openPlaylistChooserModal(songId) {
+        document.getElementById('playlistTargetSongId').value = songId;
+        const listContainer = document.getElementById('existingPlaylistsList');
+        const keys = Object.keys(playlists);
+        
+        if(keys.length === 0) {
+            listContainer.innerHTML = '<div style="font-size:0.75rem; color:var(--text-muted);">គ្មាន Playlist ស្រាប់ទេ</div>';
+        } else {
+            listContainer.innerHTML = keys.map(p => `
+                <button type="button" class="action-btn-item" onclick="addSongToPlaylist('${p}')" style="font-size:0.78rem; padding:8px 10px;">
+                    <span>📂 ${escapeHtml(p)}</span>
+                    <i class="fa-solid fa-plus"></i>
+                </button>
+            `).join('');
+        }
+        openModal('playlistModal');
+    }
+
+    function addSongToPlaylist(playlistName) {
+        const songId = document.getElementById('playlistTargetSongId').value;
+        if (!playlists[playlistName]) playlists[playlistName] = [];
+        if (!playlists[playlistName].includes(songId)) {
+            playlists[playlistName].push(songId);
+            localStorage.setItem('user_playlists', JSON.stringify(playlists));
+        }
+        closeModal('playlistModal');
+    }
+
     function saveNewPlaylist() {
         const input = document.getElementById('newPlaylistName');
+        const songId = document.getElementById('playlistTargetSongId').value;
         const name = input.value.trim();
         if (!name) return;
 
         if (!playlists[name]) {
-            playlists[name] = [];
+            playlists[name] = songId ? [songId] : [];
             localStorage.setItem('user_playlists', JSON.stringify(playlists));
             input.value = '';
             closeModal('playlistModal');
