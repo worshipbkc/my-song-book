@@ -134,7 +134,6 @@
         
         .theme-toggle-btn { background: var(--card-bg); border: 1px solid var(--border); color: var(--text); padding: 8px 12px; border-radius: 10px; font-size: 0.9rem; cursor: pointer; display: flex; align-items: center; justify-content: center; }
 
-        /* Mobile Grid Layout Optimization */
         .song-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
         @media (min-width: 600px) {
             .song-grid { grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 14px; }
@@ -150,7 +149,6 @@
         .song-title { font-size: 0.82rem; font-weight: 700; color: var(--text); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; flex: 1; }
 
         .song-artist { font-size: 0.72rem; color: var(--text-muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-        .song-meta-info { font-size: 0.68rem; color: var(--text-muted); margin-top: 4px; }
 
         .song-actions { display: grid; grid-template-columns: repeat(2, 1fr); gap: 4px; margin-top: 6px; }
         .song-action-btn {
@@ -190,7 +188,6 @@
         .action-btn-item { display: flex; align-items: center; justify-content: space-between; padding: 10px 12px; background: var(--bg); border: 1px solid var(--border); border-radius: 8px; font-weight: 600; font-size: 0.82rem; cursor: pointer; color: var(--text); }
         .action-btn-item.danger { color: var(--danger); }
 
-        /* Bottom Nav Optimization */
         .bottom-nav {
             position: fixed; bottom: 0; left: 0; right: 0; 
             height: calc(56px + env(safe-area-inset-bottom));
@@ -224,16 +221,17 @@
         .preview-container img { width: 100%; max-height: 110px; object-fit: contain; }
         .remove-img-btn { position: absolute; top: 4px; right: 4px; background: rgba(239, 68, 68, 0.9); color: white; border: none; border-radius: 50%; width: 20px; height: 20px; font-size: 0.65rem; cursor: pointer; }
 
+        /* Fullscreen Zoom Modal Container */
         .fullscreen-modal { display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0, 0, 0, 0.95); z-index: 3000; flex-direction: column; align-items: center; justify-content: center; }
         .fullscreen-modal.active { display: flex; }
         .fullscreen-header { position: absolute; top: calc(10px + env(safe-area-inset-top)); left: 16px; right: 16px; display: flex; justify-content: space-between; align-items: center; color: white; z-index: 3010; }
         
         .fullscreen-img-container { 
-            width: 100%; height: 80vh; display: flex; align-items: center; justify-content: center; position: relative; overflow: hidden; touch-action: none; 
+            width: 100%; height: 85vh; display: flex; align-items: center; justify-content: center; position: relative; overflow: hidden; touch-action: none; 
         }
         
         .fullscreen-img { 
-            max-width: 95%; max-height: 95%; object-fit: contain; transform-origin: center center; transition: transform 0.1s ease-out; 
+            max-width: 95%; max-height: 95%; object-fit: contain; transform-origin: center center; transition: transform 0.1s ease-out; will-change: transform;
         }
 
         .fullscreen-nav-btn { position: absolute; top: 50%; transform: translateY(-50%); background: rgba(255, 255, 255, 0.2); color: white; border: none; font-size: 1.2rem; padding: 12px 8px; cursor: pointer; border-radius: 6px; z-index: 3010; }
@@ -348,6 +346,7 @@
     <span id="statusText">អនឡាញ</span>
 </div>
 
+<!-- Fullscreen Viewer Modal ដែលមានបន្ថែម Pinch to Zoom -->
 <div class="fullscreen-modal" id="fullScreenModal">
     <div class="fullscreen-header">
         <div id="fullScreenTitle" style="font-weight: 700; font-size: 0.9rem; max-width: 80%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;"></div>
@@ -493,6 +492,9 @@
     const db = firebase.firestore();
     const auth = firebase.auth();
 
+    const CLOUDINARY_URL = "https://api.cloudinary.com/v1_1/jgc1rmgz/image/upload";
+    const CLOUDINARY_UPLOAD_PRESET = "unsigned_preset"; 
+
     auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL).catch((error) => {});
 
     let currentUser = null;
@@ -584,7 +586,7 @@
         }
 
         listenToSongsChanges();
-        setupTouchSwipeListeners();
+        initPinchToZoom(); // បញ្ចូលមុខងារ Pinch to Zoom
         setupScrollListener();
     };
 
@@ -939,7 +941,7 @@
                                 <i class="fa-solid fa-download"></i> Save
                             </button>
                             <button class="song-action-btn btn-edit-custom editor-only" onclick="openEditSongModal('${song.id}')">
-                                <i class="fa-solid fa-pen"></i>​ Edit
+                                <i class="fa-solid fa-pen"></i> Edit
                             </button>
                             <button class="song-action-btn btn-delete-custom editor-only" onclick="deleteSong('${song.id}')">
                                 <i class="fa-solid fa-trash"></i> Delete
@@ -1091,10 +1093,14 @@
         document.getElementById('fullScreenTitle').innerText = song.title || 'រូបភាព';
         const img = document.getElementById('fullScreenImg');
         img.src = song.imageUrl || '';
+        
+        // Reset Zoom មកដើមវិញពេលប្តូរបទចម្រៀង
+        resetZoomState();
     }
 
     function closeFullScreenModalDirect() {
         document.getElementById('fullScreenModal').classList.remove('active');
+        resetZoomState();
     }
 
     function slideFullScreen(direction, event) {
@@ -1105,31 +1111,115 @@
         updateFullScreenContent();
     }
 
-    let touchStartX = 0;
-    let touchEndX = 0;
-    function setupTouchSwipeListeners() {
+    /* ==========================================================================
+       🔎 MUGNGA PINCH TO ZOOM & SWIPE GESTURES
+       ========================================================================== */
+    let currentScale = 1;
+    let initialPinchDistance = 0;
+    let imgOffsetX = 0;
+    let imgOffsetY = 0;
+    let dragStartX = 0;
+    let dragStartY = 0;
+    let lastTapTime = 0;
+
+    function resetZoomState() {
+        currentScale = 1;
+        imgOffsetX = 0;
+        imgOffsetY = 0;
+        const img = document.getElementById('fullScreenImg');
+        if (img) {
+            img.style.transform = `translate3d(0px, 0px, 0px) scale(1)`;
+        }
+    }
+
+    function initPinchToZoom() {
         const container = document.getElementById('fullScreenImgContainer');
-        if (!container) return;
+        const img = document.getElementById('fullScreenImg');
+        if (!container || !img) return;
+
+        function getDistance(touches) {
+            return Math.hypot(
+                touches[0].clientX - touches[1].clientX,
+                touches[0].clientY - touches[1].clientY
+            );
+        }
 
         container.addEventListener('touchstart', (e) => {
-            if (e.touches.length === 1) touchStartX = e.touches[0].screenX;
-        }, {passive: true});
+            if (e.touches.length === 2) {
+                // Pinch-to-Zoom ម្រាមដៃ ២
+                initialPinchDistance = getDistance(e.touches);
+            } else if (e.touches.length === 1) {
+                // ម្រាមដៃ ១ ( Drag ពេល Zoom រួច ឬ Swipe ពេលមិនទាន់ Zoom )
+                dragStartX = e.touches[0].clientX - imgOffsetX;
+                dragStartY = e.touches[0].clientY - imgOffsetY;
+            }
+        }, { passive: true });
+
+        container.addEventListener('touchmove', (e) => {
+            if (e.touches.length === 2) {
+                // ដំណើរការ Zoom ពេលអូសម្រាម ២
+                const newDistance = getDistance(e.touches);
+                const factor = newDistance / initialPinchDistance;
+                currentScale = Math.min(Math.max(1, currentScale * factor), 4); // Max 4x Zoom
+                initialPinchDistance = newDistance;
+
+                if (currentScale === 1) {
+                    imgOffsetX = 0;
+                    imgOffsetY = 0;
+                }
+                img.style.transform = `translate3d(${imgOffsetX}px, ${imgOffsetY}px, 0px) scale(${currentScale})`;
+            } else if (e.touches.length === 1 && currentScale > 1) {
+                // អូសចលនារូបភាព (Drag/Pan) ពេលកំពុង Zoom
+                imgOffsetX = e.touches[0].clientX - dragStartX;
+                imgOffsetY = e.touches[0].clientY - dragStartY;
+                img.style.transform = `translate3d(${imgOffsetX}px, ${imgOffsetY}px, 0px) scale(${currentScale})`;
+            }
+        }, { passive: true });
 
         container.addEventListener('touchend', (e) => {
-            if (e.changedTouches.length === 1) {
-                touchEndX = e.changedTouches[0].screenX;
-                handleSwipeGesture();
+            if (e.touches.length < 2 && currentScale <= 1) {
+                resetZoomState();
             }
-        }, {passive: true});
+
+            // Double Tap to Zoom (ចុច ២ ដងលឿនៗ)
+            const currentTime = new Date().getTime();
+            const tapGap = currentTime - lastTapTime;
+            if (tapGap < 300 && tapGap > 0) {
+                if (currentScale > 1) {
+                    resetZoomState();
+                } else {
+                    currentScale = 2.5;
+                    imgOffsetX = 0;
+                    imgOffsetY = 0;
+                    img.style.transform = `translate3d(0px, 0px, 0px) scale(${currentScale})`;
+                }
+            }
+            lastTapTime = currentTime;
+        });
+
+        // Swipe ឆ្វេង-ស្តាំ ប្តូរបទចម្រៀង (តែពេលមិន Zoom ទេ)
+        let touchStartX = 0;
+        let touchEndX = 0;
+
+        container.addEventListener('touchstart', (e) => {
+            if (e.touches.length === 1 && currentScale === 1) {
+                touchStartX = e.touches[0].screenX;
+            }
+        }, { passive: true });
+
+        container.addEventListener('touchend', (e) => {
+            if (e.changedTouches.length === 1 && currentScale === 1) {
+                touchEndX = e.changedTouches[0].screenX;
+                const threshold = 50;
+                if (touchEndX < touchStartX - threshold) {
+                    slideFullScreen(1); // Next
+                } else if (touchEndX > touchStartX + threshold) {
+                    slideFullScreen(-1); // Prev
+                }
+            }
+        }, { passive: true });
     }
 
-    function handleSwipeGesture() {
-        const threshold = 40;
-        if (touchEndX < touchStartX - threshold) slideFullScreen(1);
-        else if (touchEndX > touchStartX + threshold) slideFullScreen(-1);
-    }
-
-    // 🔥 មុខងារ ទាញយករូបភាពផ្ទាល់លើទូរស័ព្ទដៃ (Mobile Optimized Auto Downloader)
     async function downloadSongImage(url, title) {
         try {
             const fileName = `${title.replace(/[^a-zA-Z0-9]/g, "_")}.jpg`;
@@ -1257,7 +1347,24 @@
         }
     }
 
-    // 🔥 មុខងារ បង្រួញទំហំរូបភាព (Image Canvas Compress Optimization)
+    async function uploadToCloudinary(base64Data) {
+        const formData = new FormData();
+        formData.append('file', base64Data);
+        formData.append('upload_preset', CLOUDINARY_UPLOAD_PRESET);
+        formData.append('folder', 'worship_songs');
+
+        const res = await fetch(CLOUDINARY_URL, {
+            method: 'POST',
+            body: formData
+        });
+        const data = await res.json();
+        if (data.secure_url) {
+            return data.secure_url;
+        } else {
+            throw new Error(data.error ? data.error.message : 'Upload មិនបានសម្រេច');
+        }
+    }
+
     function processAndCompressFile(file, imgElemId, containerId, callback) {
         if (!file) return;
         const reader = new FileReader();
@@ -1267,7 +1374,7 @@
                 const canvas = document.createElement('canvas');
                 let width = img.width;
                 let height = img.height;
-                const maxDim = 1200; // កម្រិតច្បាស់ល្អឥតខ្ចោះលើ Mobile
+                const maxDim = 1200;
 
                 if (width > maxDim || height > maxDim) {
                     if (width > height) {
@@ -1318,32 +1425,43 @@
         document.getElementById('editPreviewContainer').style.display = 'none';
     }
 
-    function handleAddSong(e) {
+    async function handleAddSong(e) {
         e.preventDefault();
         const album = document.getElementById('songAlbumSelect').value;
         const title = document.getElementById('songTitle').value.trim();
         const artist = document.getElementById('songArtist').value.trim();
         const directUrl = document.getElementById('songImageUrlDirect').value.trim();
 
-        const imageUrl = selectedImageBase64 || directUrl;
-        if (!imageUrl) return;
+        if (!selectedImageBase64 && !directUrl) return;
 
         const saveBtn = document.getElementById('saveBtn');
         saveBtn.disabled = true;
+        saveBtn.innerText = 'កំពុង Upload...';
 
-        db.collection("songs").add({
-            album: album,
-            title: title,
-            artist: artist,
-            imageUrl: imageUrl,
-            createdAt: firebase.firestore.FieldValue.serverTimestamp()
-        }).then(() => {
+        try {
+            let finalImageUrl = directUrl;
+
+            if (selectedImageBase64) {
+                finalImageUrl = await uploadToCloudinary(selectedImageBase64);
+            }
+
+            await db.collection("songs").add({
+                album: album,
+                title: title,
+                artist: artist,
+                imageUrl: finalImageUrl,
+                createdAt: firebase.firestore.FieldValue.serverTimestamp()
+            });
+
             document.getElementById('addSongForm').reset();
             removeSelectedImage(null);
             closeModal('addSongModal');
-        }).finally(() => {
+        } catch (err) {
+            alert('មានបញ្ហាប្រឈម៖ ' + err.message);
+        } finally {
             saveBtn.disabled = false;
-        });
+            saveBtn.innerText = 'រក្សាទុក';
+        }
     }
 
     function handleBatchFilesSelect(e) {
@@ -1406,31 +1524,43 @@
         const album = document.getElementById('batchAlbumSelect').value;
         const artist = document.getElementById('batchArtist').value.trim();
         const saveBtn = document.getElementById('batchSaveBtn');
+        const previewInfo = document.getElementById('batchPreviewInfo');
 
         if (batchImagesArray.length === 0) return;
         saveBtn.disabled = true;
 
         try {
+            let count = 0;
             const batch = db.batch();
-            batchImagesArray.forEach((item) => {
+
+            for (const item of batchImagesArray) {
+                count++;
+                previewInfo.innerText = `កំពុង Upload រូបទី ${count}/${batchImagesArray.length}...`;
+                
+                const cloudUrl = await uploadToCloudinary(item.base64);
+
                 const docRef = db.collection("songs").doc();
                 batch.set(docRef, {
                     album: album,
                     title: item.name,
                     artist: artist,
-                    imageUrl: item.base64,
+                    imageUrl: cloudUrl,
                     createdAt: firebase.firestore.FieldValue.serverTimestamp()
                 });
-            });
+            }
 
+            previewInfo.innerText = 'កំពុងរក្សាទុកក្នុង Firebase...';
             await batch.commit();
+
             document.getElementById('batchImageFiles').value = '';
             document.getElementById('batchPreviewInfo').innerText = '';
             batchImagesArray = [];
             closeModal('batchAddModal');
         } catch (err) {
+            alert('បរាជ័យ៖ ' + err.message);
         } finally {
             saveBtn.disabled = false;
+            saveBtn.innerText = 'បញ្ចូលទាំងអស់';
         }
     }
 
@@ -1455,7 +1585,7 @@
         openModal('editSongModal');
     }
 
-    function handleUpdateSong(e) {
+    async function handleUpdateSong(e) {
         e.preventDefault();
         const id = document.getElementById('editSongId').value;
         const album = document.getElementById('editSongAlbumSelect').value;
@@ -1463,27 +1593,32 @@
         const artist = document.getElementById('editSongArtist').value.trim();
         const directUrl = document.getElementById('editSongImageUrlDirect').value.trim();
 
-        const updateData = {
-            album: album,
-            title: title,
-            artist: artist,
-            updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-        };
-
-        if (selectedEditImageBase64) {
-            updateData.imageUrl = selectedEditImageBase64;
-        } else if (directUrl) {
-            updateData.imageUrl = directUrl;
-        }
-
         const updateBtn = document.getElementById('updateBtn');
         updateBtn.disabled = true;
+        updateBtn.innerText = 'កំពុង រក្សាទុក...';
 
-        db.collection("songs").doc(id).update(updateData).then(() => {
+        try {
+            const updateData = {
+                album: album,
+                title: title,
+                artist: artist,
+                updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+            };
+
+            if (selectedEditImageBase64) {
+                updateData.imageUrl = await uploadToCloudinary(selectedEditImageBase64);
+            } else if (directUrl) {
+                updateData.imageUrl = directUrl;
+            }
+
+            await db.collection("songs").doc(id).update(updateData);
             closeModal('editSongModal');
-        }).finally(() => {
+        } catch (err) {
+            alert('កែប្រែមិនបានសម្រេច៖ ' + err.message);
+        } finally {
             updateBtn.disabled = false;
-        });
+            updateBtn.innerText = 'រក្សាទុក';
+        }
     }
 
     function deleteSong(songId) {
