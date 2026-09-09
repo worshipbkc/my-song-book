@@ -132,7 +132,6 @@
 
         input[type="text"], input[type="url"], select, textarea { font-size: 16px !important; }
 
-        /* Sticky Control Area for Search Dropdown */
         .controls { 
             position: sticky; 
             top: 0; 
@@ -148,7 +147,6 @@
         .search-box input { width: 100%; padding: 8px 36px 8px 12px; border: 1px solid var(--border); border-radius: 10px; outline: none; background: var(--card-bg); color: var(--text); font-size: 0.85rem; }
         .search-btn { position: absolute; right: 6px; background: none; border: none; font-size: 0.9rem; cursor: pointer; padding: 4px; }
         
-        /* Dropdown Search Suggestions */
         .search-dropdown {
             position: absolute;
             top: 100%;
@@ -228,7 +226,6 @@
             display: block; 
         }
 
-        /* Fav Icon Floating on Image */
         .fav-img-btn {
             position: absolute;
             top: 10px;
@@ -265,7 +262,6 @@
             text-decoration: none; text-align: center; width: 100%; background-color: var(--card-bg); color: var(--text);
         }
 
-        /* +Playlist inline button near title */
         .btn-add-playlist-title {
             background: var(--bg);
             border: 1px solid var(--border);
@@ -298,13 +294,9 @@
         .folder-count { font-size: 0.7rem; color: var(--text-muted); font-weight: 600; }
         .folder-delete-btn { position: absolute; top: 6px; right: 6px; background: none; border: none; color: var(--danger); font-size: 0.75rem; cursor: pointer; padding: 2px; }
 
-        .profile-container { max-width: 450px; margin: 20px auto; background: var(--card-bg); border: 1px solid var(--border); border-radius: 12px; padding: 20px; }
-        .profile-header { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; border-bottom: 1px solid var(--border); padding-bottom: 12px; }
-        .profile-avatar { width: 50px; height: 50px; border-radius: 50%; object-fit: cover; border: 2px solid var(--primary); }
-        .profile-name { font-size: 1rem; font-weight: 700; color: var(--text); }
-        .profile-badge { display: inline-block; font-size: 0.68rem; color: #16a34a; font-weight: 700; margin-top: 2px; }
+        .profile-container { max-width: 450px; margin: 10px auto; background: var(--card-bg); border: 1px solid var(--border); border-radius: 12px; padding: 16px; }
         
-        .action-list { display: flex; flex-direction: column; gap: 8px; margin-top: 10px; }
+        .action-list { display: flex; flex-direction: column; gap: 8px; }
         .action-btn-item { display: flex; align-items: center; justify-content: space-between; padding: 10px 12px; background: var(--bg); border: 1px solid var(--border); border-radius: 8px; font-weight: 600; font-size: 0.82rem; cursor: pointer; color: var(--text); }
         .action-btn-item.danger { color: var(--danger); }
 
@@ -336,7 +328,23 @@
         .form-group label { display: block; font-size: 0.78rem; font-weight: 600; margin-bottom: 4px; color: var(--text); }
         .form-group input, .form-group select { width: 100%; padding: 8px 10px; border: 1px solid var(--border); border-radius: 6px; outline: none; background: var(--bg); color: var(--text); }
 
-        .image-drop-zone { border: 2px dashed var(--border); border-radius: 8px; padding: 10px; text-align: center; background: var(--bg); cursor: pointer; position: relative; font-size: 0.75rem; }
+        /* Style បន្ថែមសម្រាប់កន្លែង Paste / Drag / Drop រូបភាព */
+        .image-drop-zone { 
+            border: 2px dashed var(--border); 
+            border-radius: 8px; 
+            padding: 14px 10px; 
+            text-align: center; 
+            background: var(--bg); 
+            cursor: pointer; 
+            position: relative; 
+            font-size: 0.75rem; 
+            outline: none;
+            transition: border-color 0.2s, background-color 0.2s;
+        }
+        .image-drop-zone:focus, .image-drop-zone.dragover { 
+            border-color: var(--primary); 
+            background: rgba(37, 99, 235, 0.05); 
+        }
         .preview-container { margin-top: 6px; display: none; position: relative; max-height: 120px; overflow: hidden; border-radius: 6px; border: 1px solid var(--border); background: var(--card-bg); }
         .preview-container img { width: 100%; max-height: 110px; object-fit: contain; }
         .remove-img-btn { position: absolute; top: 4px; right: 4px; background: rgba(239, 68, 68, 0.9); color: white; border: none; border-radius: 50%; width: 20px; height: 20px; font-size: 0.65rem; cursor: pointer; }
@@ -387,7 +395,7 @@
 </div>
 
 <div class="main-content">
-    <header>
+    <header id="mainAppHeader">
         <div class="header-text">
             <h1>🎼 ចម្រៀងសរសើរដំកើងព្រះ</h1>
             <p id="currentAlbumSubtitle">
@@ -414,7 +422,6 @@
             <i class="fa-solid fa-hands-praying"></i>
         </div>
 
-        <!-- Sticky Controls Search Section -->
         <div class="controls">
             <div class="search-box">
                 <input type="text" id="searchInput" placeholder="ស្វែងរកបទចម្រៀង..." oninput="handleSearchInput()" onfocus="handleSearchInput()" autocomplete="off">
@@ -493,6 +500,7 @@
     <button class="fullscreen-nav-btn fullscreen-next" onclick="slideFullScreen(1, event)">❯</button>
 </div>
 
+<!-- Modal បញ្ចូលបទចម្រៀងថ្មី (កែប្រែកន្លែង Upload រូបភាព) -->
 <div class="modal" id="addSongModal">
     <div class="modal-content">
         <h3 style="font-size: 1rem;">➕ បញ្ចូលបទចម្រៀងថ្មី</h3>
@@ -511,8 +519,8 @@
             </div>
             <div class="form-group">
                 <label>រូបភាពបទចម្រៀង *</label>
-                <div class="image-drop-zone" id="dropZone" onclick="document.getElementById('songImageFile').click()">
-                    <p>📁 ចុចជ្រើសរើសរូបភាព</p>
+                <div class="image-drop-zone" id="dropZone" tabindex="0" onclick="document.getElementById('songImageFile').click()">
+                    <p>📁 ចុចជ្រើសរើស / អូសរូបភាព<br>ឬ 📋 Paste (Ctrl+V) នៅទីនេះ</p>
                     <input type="file" id="songImageFile" accept="image/*" onchange="handleFileSelect(event)" style="display: none;">
                     <div class="preview-container" id="previewContainer">
                         <img id="previewImg" src="" alt="Preview">
@@ -556,6 +564,7 @@
     </div>
 </div>
 
+<!-- Modal កែប្រែបទចម្រៀង (កែប្រែកន្លែង Upload រូបភាព) -->
 <div class="modal" id="editSongModal">
     <div class="modal-content">
         <h3 style="font-size: 1rem;">✏️ កែប្រែបទចម្រៀង</h3>
@@ -575,8 +584,8 @@
             </div>
             <div class="form-group">
                 <label>ប្ដូររូបភាពថ្មី</label>
-                <div class="image-drop-zone" id="editDropZone" onclick="document.getElementById('editSongImageFile').click()">
-                    <p>📁 ចុចជ្រើសរើសរូបភាពថ្មី</p>
+                <div class="image-drop-zone" id="editDropZone" tabindex="0" onclick="document.getElementById('editSongImageFile').click()">
+                    <p>📁 ចុចជ្រើសរើស / អូសរូបភាពថ្មី<br>ឬ 📋 Paste (Ctrl+V) នៅទីនេះ</p>
                     <input type="file" id="editSongImageFile" accept="image/*" onchange="handleEditFileSelect(event)" style="display: none;">
                     <div class="preview-container" id="editPreviewContainer">
                         <img id="editPreviewImg" src="" alt="Preview">
@@ -727,8 +736,8 @@
         listenToSongsChanges();
         initPinchToZoom();
         setupScrollListener();
+        setupDropZoneHandlers();
 
-        // Close search dropdown when clicking outside
         document.addEventListener('click', function(e) {
             const searchBox = document.querySelector('.search-box');
             if (searchBox && !searchBox.contains(e.target)) {
@@ -736,6 +745,60 @@
             }
         });
     };
+
+    /* មុខងារបន្ថែមសម្រាប់ចាប់ Paste (Ctrl+V) និង Drag & Drop រូបភាព */
+    function setupDropZoneHandlers() {
+        // ចាប់ Paste និង Drag/Drop សម្រាប់ Modal បញ្ចូលថ្មី
+        setupSingleDropZone('dropZone', 'previewImg', 'previewContainer', (b64) => selectedImageBase64 = b64);
+
+        // ចាប់ Paste និង Drag/Drop សម្រាប់ Modal កែប្រែ
+        setupSingleDropZone('editDropZone', 'editPreviewImg', 'editPreviewContainer', (b64) => selectedEditImageBase64 = b64);
+    }
+
+    function setupSingleDropZone(zoneId, imgElemId, containerId, callback) {
+        const zone = document.getElementById(zoneId);
+        if (!zone) return;
+
+        // ១. ចាប់ Paste event (Ctrl + V)
+        zone.addEventListener('paste', (e) => {
+            e.stopPropagation();
+            const items = (e.clipboardData || e.originalEvent.clipboardData).items;
+            for (let item of items) {
+                if (item.type.indexOf('image') !== -1) {
+                    const file = item.getAsFile();
+                    processAndCompressFile(file, imgElemId, containerId, callback);
+                    break;
+                }
+            }
+        });
+
+        // ២. ចាប់ Drag and Drop
+        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+            zone.addEventListener(eventName, (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+            }, false);
+        });
+
+        ['dragenter', 'dragover'].forEach(eventName => {
+            zone.addEventListener(eventName, () => zone.classList.add('dragover'), false);
+        });
+
+        ['dragleave', 'drop'].forEach(eventName => {
+            zone.addEventListener(eventName, () => zone.classList.remove('dragover'), false);
+        });
+
+        zone.addEventListener('drop', (e) => {
+            const dt = e.dataTransfer;
+            const files = dt.files;
+            if (files && files.length > 0) {
+                const file = files[0];
+                if (file.type.startsWith('image/')) {
+                    processAndCompressFile(file, imgElemId, containerId, callback);
+                }
+            }
+        });
+    }
 
     function updateTotalSongCount() {
         const countEl = document.getElementById('totalSongCountText');
@@ -817,18 +880,24 @@
         document.querySelectorAll('.app-view').forEach(el => el.classList.remove('active'));
         document.querySelectorAll('.bottom-nav-item').forEach(el => el.classList.remove('active'));
 
+        const mainHeader = document.getElementById('mainAppHeader');
+
         if (tabName === 'songs') {
+            if (mainHeader) mainHeader.style.display = 'flex';
             document.getElementById('viewSongs').classList.add('active');
             document.getElementById('navSongsBtn').classList.add('active');
         } else if (tabName === 'albums') {
+            if (mainHeader) mainHeader.style.display = 'flex';
             document.getElementById('viewAlbums').classList.add('active');
             document.getElementById('navAlbumsBtn').classList.add('active');
             renderAlbumsView();
         } else if (tabName === 'playlists') {
+            if (mainHeader) mainHeader.style.display = 'flex';
             document.getElementById('viewPlaylists').classList.add('active');
             document.getElementById('navPlaylistsBtn').classList.add('active');
             renderPlaylistsView();
         } else if (tabName === 'profile') {
+            if (mainHeader) mainHeader.style.display = 'none';
             document.getElementById('viewProfile').classList.add('active');
             document.getElementById('navProfileBtn').classList.add('active');
             renderProfileView();
@@ -1055,7 +1124,7 @@
         if (!grid) return;
 
         if (currentFilteredSongs.length === 0) {
-            grid.innerHTML = '<div class="empty-state">ពុំមានបទចម្រៀងឡើយ</div>';
+            grid.innerHTML = '<div class="empty-state">សូមរងចាំបន្តិចកំពុងទាញចម្រៀង...!</div>';
             return;
         }
 
@@ -1103,7 +1172,6 @@
         }).join('');
     }
 
-    /* Search Dropdown functionality */
     function handleSearchInput() {
         const val = document.getElementById('searchInput').value.trim().toLowerCase();
         const dropdown = document.getElementById('searchDropdown');
@@ -1118,7 +1186,7 @@
         const matches = songsList.filter(s => 
             (s.title && s.title.toLowerCase().includes(val)) ||
             (s.artist && s.artist.toLowerCase().includes(val))
-        ).slice(0, 8); // Limit to top 8 items
+        ).slice(0, 8);
 
         if (matches.length > 0) {
             dropdown.innerHTML = matches.map(s => `
@@ -1227,14 +1295,12 @@
 
         if (currentUser) {
             container.innerHTML = `
-                <div class="profile-header" style="border-bottom:none; margin-bottom:0; justify-content: space-between;">
-                    <div style="display:flex; align-items:center; gap:12px;">
-                        <img src="${currentUser.photoURL || 'https://via.placeholder.com/100'}" class="profile-avatar" alt="User">
-                        <div>
-                            <div class="profile-name">${escapeHtml(currentUser.displayName || 'អ្នកប្រើប្រាស់')}</div>
-                            <div style="font-size:0.75rem; color:var(--text-muted);">${escapeHtml(currentUser.email || '')}</div>
-                            <span class="profile-badge">${isAdmin ? '👑 Admin' : (isEditor ? '✏️ Editor' : '👤 សមាជិក')}</span>
-                        </div>
+                <div style="display:flex; align-items:center; gap:12px; margin-bottom:16px;">
+                    <img src="${currentUser.photoURL || 'https://via.placeholder.com/100'}" style="width:50px; height:50px; border-radius:50%; object-fit:cover; border:2px solid var(--primary);" alt="User">
+                    <div>
+                        <div style="font-size:0.95rem; font-weight:700; color:var(--text);">${escapeHtml(currentUser.displayName || 'អ្នកប្រើប្រាស់')}</div>
+                        <div style="font-size:0.75rem; color:var(--text-muted);">${escapeHtml(currentUser.email || '')}</div>
+                        <span style="display:inline-block; font-size:0.68rem; color:#16a34a; font-weight:700; margin-top:2px;">${isAdmin ? '👑 Admin' : (isEditor ? '✏️ Editor' : '👤 សមាជិក')}</span>
                     </div>
                 </div>
                 <div class="action-list">
