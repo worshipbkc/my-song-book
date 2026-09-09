@@ -328,7 +328,6 @@
         .form-group label { display: block; font-size: 0.78rem; font-weight: 600; margin-bottom: 4px; color: var(--text); }
         .form-group input, .form-group select { width: 100%; padding: 8px 10px; border: 1px solid var(--border); border-radius: 6px; outline: none; background: var(--bg); color: var(--text); }
 
-        /* Style បន្ថែមសម្រាប់កន្លែង Paste / Drag / Drop រូបភាព */
         .image-drop-zone { 
             border: 2px dashed var(--border); 
             border-radius: 8px; 
@@ -500,7 +499,7 @@
     <button class="fullscreen-nav-btn fullscreen-next" onclick="slideFullScreen(1, event)">❯</button>
 </div>
 
-<!-- Modal បញ្ចូលបទចម្រៀងថ្មី (កែប្រែកន្លែង Upload រូបភាព) -->
+<!-- Modal បញ្ចូលបទចម្រៀងថ្មី -->
 <div class="modal" id="addSongModal">
     <div class="modal-content">
         <h3 style="font-size: 1rem;">➕ បញ្ចូលបទចម្រៀងថ្មី</h3>
@@ -564,7 +563,7 @@
     </div>
 </div>
 
-<!-- Modal កែប្រែបទចម្រៀង (កែប្រែកន្លែង Upload រូបភាព) -->
+<!-- Modal កែប្រែបទចម្រៀង -->
 <div class="modal" id="editSongModal">
     <div class="modal-content">
         <h3 style="font-size: 1rem;">✏️ កែប្រែបទចម្រៀង</h3>
@@ -746,12 +745,8 @@
         });
     };
 
-    /* មុខងារបន្ថែមសម្រាប់ចាប់ Paste (Ctrl+V) និង Drag & Drop រូបភាព */
     function setupDropZoneHandlers() {
-        // ចាប់ Paste និង Drag/Drop សម្រាប់ Modal បញ្ចូលថ្មី
         setupSingleDropZone('dropZone', 'previewImg', 'previewContainer', (b64) => selectedImageBase64 = b64);
-
-        // ចាប់ Paste និង Drag/Drop សម្រាប់ Modal កែប្រែ
         setupSingleDropZone('editDropZone', 'editPreviewImg', 'editPreviewContainer', (b64) => selectedEditImageBase64 = b64);
     }
 
@@ -759,7 +754,6 @@
         const zone = document.getElementById(zoneId);
         if (!zone) return;
 
-        // ១. ចាប់ Paste event (Ctrl + V)
         zone.addEventListener('paste', (e) => {
             e.stopPropagation();
             const items = (e.clipboardData || e.originalEvent.clipboardData).items;
@@ -772,7 +766,6 @@
             }
         });
 
-        // ២. ចាប់ Drag and Drop
         ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
             zone.addEventListener(eventName, (e) => {
                 e.preventDefault();
@@ -1625,6 +1618,7 @@
         }
     }
 
+    // មុខងារ Upload រូបភាពទៅ Cloudinary
     async function uploadToCloudinary(base64Data) {
         const formData = new FormData();
         formData.append('file', base64Data);
@@ -1639,7 +1633,7 @@
         if (data.secure_url) {
             return data.secure_url;
         } else {
-            throw new Error(data.error ? data.error.message : 'Upload មិនបានសម្រេច');
+            throw new Error(data.error ? data.error.message : 'Upload ទៅ Cloudinary មិនបានសម្រេច');
         }
     }
 
@@ -1703,6 +1697,7 @@
         document.getElementById('editPreviewContainer').style.display = 'none';
     }
 
+    // មុខងារបញ្ចូលចម្រៀងមួយបទ (Upload រូបទៅ Cloudinary រួចរក្សាទុកក្នុង Firebase)
     async function handleAddSong(e) {
         e.preventDefault();
         const album = document.getElementById('songAlbumSelect').value;
@@ -1710,11 +1705,14 @@
         const artist = document.getElementById('songArtist').value.trim();
         const directUrl = document.getElementById('songImageUrlDirect').value.trim();
 
-        if (!selectedImageBase64 && !directUrl) return;
+        if (!selectedImageBase64 && !directUrl) {
+            alert('សូមជ្រើសរើសរូបភាព ឬបញ្ចូល Link រូបភាព');
+            return;
+        }
 
         const saveBtn = document.getElementById('saveBtn');
         saveBtn.disabled = true;
-        saveBtn.innerText = 'កំពុង Upload...';
+        saveBtn.innerText = 'កំពុង Upload ទៅ Cloudinary...';
 
         try {
             let finalImageUrl = directUrl;
@@ -1722,6 +1720,8 @@
             if (selectedImageBase64) {
                 finalImageUrl = await uploadToCloudinary(selectedImageBase64);
             }
+
+            saveBtn.innerText = 'កំពុងរក្សាទុកក្នុង Firebase...';
 
             await db.collection("songs").add({
                 album: album,
@@ -1735,7 +1735,7 @@
             removeSelectedImage(null);
             closeModal('addSongModal');
         } catch (err) {
-            alert('មានបញ្ហាប្រឈម៖ ' + err.message);
+            alert('មានបញ្ហា៖ ' + err.message);
         } finally {
             saveBtn.disabled = false;
             saveBtn.innerText = 'រក្សាទុក';
@@ -1798,6 +1798,7 @@
         });
     }
 
+    // មុខងារបញ្ចូលរូបភាពច្រើន (Upload ទៅ Cloudinary រួចរក្សាទុកក្នុង Firebase)
     async function handleBatchSaveSongs() {
         const album = document.getElementById('batchAlbumSelect').value;
         const artist = document.getElementById('batchArtist').value.trim();
@@ -1813,7 +1814,7 @@
 
             for (const item of batchImagesArray) {
                 count++;
-                previewInfo.innerText = `កំពុង Upload រូបទី ${count}/${batchImagesArray.length}...`;
+                previewInfo.innerText = `កំពុង Upload ទៅ Cloudinary (${count}/${batchImagesArray.length})...`;
                 
                 const cloudUrl = await uploadToCloudinary(item.base64);
 
@@ -1863,6 +1864,7 @@
         openModal('editSongModal');
     }
 
+    // មុខងារកែប្រែចម្រៀង ( Update រូបភាពទៅ Cloudinary រួច Update Firebase)
     async function handleUpdateSong(e) {
         e.preventDefault();
         const id = document.getElementById('editSongId').value;
@@ -1873,7 +1875,7 @@
 
         const updateBtn = document.getElementById('updateBtn');
         updateBtn.disabled = true;
-        updateBtn.innerText = 'កំពុង រក្សាទុក...';
+        updateBtn.innerText = 'កំពុងរក្សាទុក...';
 
         try {
             const updateData = {
@@ -1884,6 +1886,7 @@
             };
 
             if (selectedEditImageBase64) {
+                updateBtn.innerText = 'កំពុង Upload រូបភាពថ្មី...';
                 updateData.imageUrl = await uploadToCloudinary(selectedEditImageBase64);
             } else if (directUrl) {
                 updateData.imageUrl = directUrl;
