@@ -119,6 +119,19 @@
 
         .filter-chips { display: flex; gap: 6px; overflow-x: auto; padding-bottom: 4px; margin-bottom: 12px; scrollbar-width: none; }
         .filter-chips::-webkit-scrollbar { display: none; }
+        
+/* លុបបន្ទាត់ពីក្រោមតំណរភ្ជាប់ (Link Underline) ចេញពីប៊ូតុង Telegram */
+    .chip-btn.bg-telegram {
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    background-color: #0088cc; /* ពណ៌ផ្ទៃខាងក្រោយ */
+    color: #ffffff; /* ពណ៌អក្សរ */
+    padding: 6px 12px;
+    border:none
+    }
 
         .chip-btn {
             background: var(--card-bg); border: 1px solid var(--border); color: var(--text);
@@ -405,11 +418,11 @@
                 📲 <span>Install App</span>
             </button>
         </div>
-
         <button class="fetch-icon-btn" id="fetchAllBtn" onclick="fetchAllSongsWithProgress()" title="ទាញយក Offline">
             <i class="fa-solid fa-cloud-arrow-down" id="fetchIcon"></i>
             <span class="percent-label" id="progressPercent">0%</span>
         </button>
+        
     </header>
 
     <div class="app-view active" id="viewSongs">
@@ -430,17 +443,21 @@
             <button class="theme-toggle-btn" id="themeToggleBtn" onclick="toggleDarkMode()">🌙</button>
         </div>
 
-        <div class="filter-chips">
-            <button class="chip-btn active" onclick="setQuickFilter('ALL', this)">🎵 ចម្រៀងទាំងអស់</button>
-            <button class="chip-btn" onclick="setQuickFilter('RECENT', this)">✨ បទថ្មីៗ</button>
-            <button class="chip-btn" onclick="setQuickFilter('FAV', this)">❤️ ចូលចិត្ត</button>
-        </div>
+       <div class="filter-chips">
+    <button class="chip-btn active" onclick="setQuickFilter('ALL', this)">🎵 ចម្រៀងទាំងអស់</button>
+    <button class="chip-btn" onclick="setQuickFilter('RECENT', this)">✨ បទថ្មីៗ</button>
+    <button class="chip-btn" onclick="setQuickFilter('FAV', this)">❤️ ចូលចិត្ត</button>
+    
+    <!-- ប៊ូតុង Telegram ដែលកែប្រែរួច -->
+    <a href="https://t.me/phallakhum" target="_blank" class="chip-btn bg-telegram">
+        <i class="fa-brands fa-telegram"></i> Telegram
+    </a>
+</div>
 
         <div class="song-grid" id="songGrid">
             <div class="empty-state" id="loadingState">🎵 សូមទាញយកចម្រៀង...</div>
         </div>
     </div>
-
     <div class="app-view" id="viewAlbums">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
             <h2 style="font-size: 1rem;">📁 អាល់ប៊ុមចម្រៀង</h2>
