@@ -120,18 +120,17 @@
         .filter-chips { display: flex; gap: 6px; overflow-x: auto; padding-bottom: 4px; margin-bottom: 12px; scrollbar-width: none; }
         .filter-chips::-webkit-scrollbar { display: none; }
         
-/* លុបបន្ទាត់ពីក្រោមតំណរភ្ជាប់ (Link Underline) ចេញពីប៊ូតុង Telegram */
-    .chip-btn.bg-telegram {
-    text-decoration: none;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 6px;
-    background-color: #0088cc; /* ពណ៌ផ្ទៃខាងក្រោយ */
-    color: #ffffff; /* ពណ៌អក្សរ */
-    padding: 6px 12px;
-    border:none
-    }
+        .chip-btn.bg-telegram {
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            background-color: #0088cc;
+            color: #ffffff;
+            padding: 6px 12px;
+            border:none
+        }
 
         .chip-btn {
             background: var(--card-bg); border: 1px solid var(--border); color: var(--text);
@@ -157,7 +156,23 @@
             gap: 8px; 
         }
         .search-box { position: relative; display: flex; align-items: center; flex: 1; }
-        .search-box input { width: 100%; padding: 8px 36px 8px 12px; border: 1px solid var(--border); border-radius: 10px; outline: none; background: var(--card-bg); color: var(--text); font-size: 0.85rem; }
+        .search-box input { width: 100%; padding: 8px 65px 8px 12px; border: 1px solid var(--border); border-radius: 10px; outline: none; background: var(--card-bg); color: var(--text); font-size: 0.85rem; }
+        
+        .clear-btn { 
+            position: absolute; 
+            right: 32px; 
+            background: none; 
+            border: none; 
+            color: var(--text-muted); 
+            font-size: 0.85rem; 
+            cursor: pointer; 
+            padding: 4px; 
+            display: none; 
+            align-items: center;
+            justify-content: center;
+        }
+        .clear-btn:hover { color: var(--text); }
+        
         .search-btn { position: absolute; right: 6px; background: none; border: none; font-size: 0.9rem; cursor: pointer; padding: 4px; }
         
         .search-dropdown {
@@ -409,7 +424,7 @@
 <div class="main-content">
     <header id="mainAppHeader">
         <div class="header-text">
-            <h1>🎼 ចម្រៀងសរសើរដំកើងព្រះ</h1>
+            <h1>✝️ ចម្រៀងសរសើរដំកើងព្រះ ✝️</h1>
             <p id="currentAlbumSubtitle">
                 ចូរឱ្យជីវិតទាំងឡាយដែលមានដង្ហើម បានសរសើរដល់ព្រះយ៉េហូវ៉ាចុះ<br>
                 <span style="color: var(--primary); font-weight: 700;">ទំនុកដំកើង ១៥០៖៦</span>
@@ -437,6 +452,9 @@
         <div class="controls">
             <div class="search-box">
                 <input type="text" id="searchInput" placeholder="ស្វែងរកបទចម្រៀង..." oninput="handleSearchInput()" onfocus="handleSearchInput()" autocomplete="off">
+                <button class="clear-btn" id="clearSearchBtn" onclick="clearSearchInput()" title="លុបអក្សរ">
+                    <i class="fa-solid fa-circle-xmark"></i>
+                </button>
                 <button class="search-btn" onclick="renderSongs()">🔍</button>
                 <div class="search-dropdown" id="searchDropdown"></div>
             </div>
@@ -444,15 +462,14 @@
         </div>
 
        <div class="filter-chips">
-    <button class="chip-btn active" onclick="setQuickFilter('ALL', this)">🎵 បទទាំងអស់</button>
-    <button class="chip-btn" onclick="setQuickFilter('RECENT', this)">✨ បទថ្មីៗ</button>
-    <button class="chip-btn" onclick="setQuickFilter('FAV', this)">❤️ ចូលចិត្ត</button>
-    
-    <!-- ប៊ូតុង Telegram ដែលកែប្រែរួច -->
-    <a href="https://t.me/phallakhum" target="_blank" class="chip-btn bg-telegram">
-        <i class="fa-brands fa-telegram"></i> Telegram
-    </a>
-</div>
+            <button class="chip-btn active" onclick="setQuickFilter('ALL', this)">🎵 បទទាំងអស់</button>
+            <button class="chip-btn" onclick="setQuickFilter('RECENT', this)">✨ បទថ្មីៗ</button>
+            <button class="chip-btn" onclick="setQuickFilter('FAV', this)">❤️ ចូលចិត្ត</button>
+            
+            <a href="https://t.me/phallakhum" target="_blank" class="chip-btn bg-telegram">
+                <i class="fa-brands fa-telegram"></i> Telegram
+            </a>
+        </div>
 
         <div class="song-grid" id="songGrid">
             <div class="empty-state" id="loadingState">🎵 សូមទាញយកចម្រៀង...</div>
@@ -1183,8 +1200,17 @@
     }
 
     function handleSearchInput() {
-        const val = document.getElementById('searchInput').value.trim().toLowerCase();
+        const input = document.getElementById('searchInput');
+        const clearBtn = document.getElementById('clearSearchBtn');
+        const val = input.value.trim().toLowerCase();
         const dropdown = document.getElementById('searchDropdown');
+
+        // បង្ហាញ ឬ លាក់ប៊ូតុង X
+        if (input.value.length > 0) {
+            clearBtn.style.display = 'flex';
+        } else {
+            clearBtn.style.display = 'none';
+        }
 
         renderSongs();
 
@@ -1213,6 +1239,16 @@
             dropdown.innerHTML = '<div class="search-dropdown-item" style="color:var(--text-muted);">រកមិនឃើញចម្រៀងឡើយ</div>';
             dropdown.style.display = 'block';
         }
+    }
+
+    function clearSearchInput() {
+        const input = document.getElementById('searchInput');
+        const clearBtn = document.getElementById('clearSearchBtn');
+        input.value = '';
+        clearBtn.style.display = 'none';
+        hideSearchDropdown();
+        renderSongs();
+        input.focus();
     }
 
     function hideSearchDropdown() {
@@ -1635,7 +1671,6 @@
         }
     }
 
-    // មុខងារ Upload រូបភាពទៅ Cloudinary
     async function uploadToCloudinary(base64Data) {
         const formData = new FormData();
         formData.append('file', base64Data);
@@ -1714,7 +1749,6 @@
         document.getElementById('editPreviewContainer').style.display = 'none';
     }
 
-    // មុខងារបញ្ចូលចម្រៀងមួយបទ (Upload រូបទៅ Cloudinary រួចរក្សាទុកក្នុង Firebase)
     async function handleAddSong(e) {
         e.preventDefault();
         const album = document.getElementById('songAlbumSelect').value;
@@ -1815,7 +1849,6 @@
         });
     }
 
-    // មុខងារបញ្ចូលរូបភាពច្រើន (Upload ទៅ Cloudinary រួចរក្សាទុកក្នុង Firebase)
     async function handleBatchSaveSongs() {
         const album = document.getElementById('batchAlbumSelect').value;
         const artist = document.getElementById('batchArtist').value.trim();
@@ -1881,7 +1914,6 @@
         openModal('editSongModal');
     }
 
-    // មុខងារកែប្រែចម្រៀង ( Update រូបភាពទៅ Cloudinary រួច Update Firebase)
     async function handleUpdateSong(e) {
         e.preventDefault();
         const id = document.getElementById('editSongId').value;
