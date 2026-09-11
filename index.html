@@ -106,9 +106,24 @@
         .fetch-icon-btn.completed { border-color: #10b981; color: #10b981; }
 
         .install-pwa-btn { background: #16a34a; border: none; color: white; padding: 4px 8px; border-radius: 6px; font-weight: 600; font-size: 0.75rem; cursor: pointer; display: none; align-items: center; gap: 4px; margin-top: 4px; }
+        /* កំណត់ទំហំ និងទីតាំងរូបភាពនៅពីមុខអក្សរ */
+        .title-icon {
+          width: 32px;            /* កំណត់ទទឹងរូបភាព (អាចកែប្រែតាមចិត្ត ឧ. 30px, 40px) */
+          height: 32px;           /* កំណត់កម្ពស់រូបភាព */
+          vertical-align: middle; /* ឱ្យរូបភាពនៅចំកណ្តាលកម្ពស់អក្សរ */
+          margin-right: 8px;      /* គម្លាតរវាងរូបភាព និងអក្សរ */
+          object-fit: contain;    /* រក្សារូបរាងដើមនៃរូបភាព */
+        }
 
+/* ប្រសិនបើចង់ឱ្យ <h1> តម្រឹមរូប និងអក្សរស្មើគ្នាល្អឥតខ្ចោះ */
+        .header-text h1 {
+          display: flex;
+          align-items: center;
+          justify-content: center; /* ដាក់ឱ្យនៅចំកណ្តាល Header */
+          gap: 8px;                /* គម្លាតរវាងរូបភាព និងអក្សរ */
+        }
         .hero-banner {
-            background: linear-gradient(135deg, #1e3a8a, #2563eb);
+            background: linear-gradient(135deg, #0b6605, #114fd4);
             color: #ffffff; padding: 12px 16px; border-radius: 12px; margin-bottom: 12px;
             display: flex; justify-content: space-between; align-items: center;
             box-shadow: 0 4px 12px rgba(37,99,235,0.15);
@@ -206,54 +221,47 @@
 
         .theme-toggle-btn { background: var(--card-bg); border: 1px solid var(--border); color: var(--text); padding: 8px 12px; border-radius: 10px; font-size: 0.9rem; cursor: pointer; display: flex; align-items: center; justify-content: center; }
 
-        .song-grid { 
-            display: grid; 
-            grid-template-columns: 1fr; 
-            gap: 16px; 
-            justify-items: center;
+        .song-grid { display: grid; 
+          grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); 
+          gap: 18px; 
         }
-
-        @media (min-width: 600px) {
-            .song-grid { grid-template-columns: repeat(2, 1fr); gap: 16px; }
-        }
-        @media (min-width: 900px) {
-            .song-grid { grid-template-columns: repeat(3, 1fr); gap: 20px; }
-        }
-        @media (min-width: 1200px) {
-            .song-grid { grid-template-columns: repeat(4, 1fr); gap: 20px; }
-        }
-
         .song-card { 
-            background: var(--card-bg); 
-            border: 1px solid var(--border); 
-            border-radius: 12px; 
-            overflow: hidden; 
-            display: flex; 
-            flex-direction: column; 
-            position: relative;
-            width: 100%;
-            max-width: 450px; 
+          background: var(--card-bg); 
+          backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); 
+          border: 1px solid var(--border); 
+          border-radius: 20px; 
+          overflow: hidden; 
+          display: flex; 
+          flex-direction: column; 
+          position: relative; 
+          box-shadow: var(--shadow); 
         }
 
         /* កំណត់ទំហំ Picture Card ឲ្យនៅទំហំ A4 ( Ratio 210:297 ) */
         .song-img-container { 
-            width: 100%; 
-            aspect-ratio: 1 / 1.414; /* ទំហំសមាមាត្រ A4 */
-            background: rgba(0,0,0,0.03); 
-            display: flex; 
-            align-items: center; 
-            justify-content: center; 
-            overflow: hidden; 
-            cursor: pointer; 
-            position: relative; 
-        }
+        width: 100%; 
+        min-height: 220px; 
 
+    /* ប្តូរត្រង់នេះ៖ ជ្រើសរើសពណ៌មួយដែលអ្នកចូលចិត្ត */
+        background: #f0ebc4; /* ពណ៌ប្រផេះស្រាល */
+    /* background: #ffffff;  ពណ៌ស */
+    /* background: #1a1a1a;  ពណ៌ខ្មៅចាស់ */
+    /* background: #eef2ff;  ពណ៌ខៀវស្រាល (Soft Blue) */
+
+        display: flex; 
+        align-items: center; 
+        justify-content: center; 
+        overflow: hidden; 
+        cursor: pointer; 
+        position: relative; 
+        }
         .song-img { 
-            width: 100%; 
-            height: 100%; 
-            object-fit: cover; /* បង្ហាញជារូបមួយកំណាត់យ៉ាងស្អាត */
-            object-position: top center; /* ផ្ដោតលើផ្នែកខាងលើនៃរូបភាព */
-            display: block; 
+          width: 100%; 
+          height: 100%; 
+          max-height: 320px; 
+          object-fit: contain; 
+          display: block; 
+          padding: 8px; 
         }
 
         .fav-img-btn {
@@ -424,22 +432,26 @@
 
 <div class="main-content">
     <header id="mainAppHeader">
-        <div class="header-text">
-            <h1>✝️ ចម្រៀងសរសើរដំកើងព្រះ ✝️</h1>
-            <p id="currentAlbumSubtitle">
-                ចូរឱ្យជីវិតទាំងឡាយដែលមានដង្ហើម បានសរសើរដល់ព្រះយ៉េហូវ៉ាចុះ<br>
-                <span style="color: var(--primary); font-weight: 700;">ទំនុកដំកើង ១៥០៖៦</span>
-            </p>
-            <button class="install-pwa-btn" id="installPwaBtn" onclick="installPwaApp()">
-                📲 <span>Install App</span>
-            </button>
-        </div>
-        <button class="fetch-icon-btn" id="fetchAllBtn" onclick="fetchAllSongsWithProgress()" title="ទាញយក Offline">
-            <i class="fa-solid fa-cloud-arrow-down" id="fetchIcon"></i>
-            <span class="percent-label" id="progressPercent">0%</span>
-        </button>
+    <div class="header-text">
+        <!-- ដាក់រូបភាពនៅក្នុង <h1> ជាមួយអត្ថបទ -->
+        <h1>
+            <img src="https://lh3.googleusercontent.com/d/1E2J-kXOZCTkQJ7g739qDcgcqfUQOysTc" alt="Icon" class="title-icon">
+            ចម្រៀងសរសើរដំកើងនិងថ្វាយបង្គំព្រះ✝️
+        </h1>
         
-    </header>
+        <p id="currentAlbumSubtitle">
+            ចូរឱ្យជីវិតទាំងឡាយដែលមានដង្ហើម បានសរសើរដល់ព្រះយ៉េហូវ៉ាចុះ<br>
+            <span style="color: var(--primary); font-weight: 700;">ទំនុកដំកើង ១៥០៖៦</span>
+        </p>
+        <button class="install-pwa-btn" id="installPwaBtn" onclick="installPwaApp()">
+            📲 <span>Install App</span>
+        </button>
+    </div>
+    <button class="fetch-icon-btn" id="fetchAllBtn" onclick="fetchAllSongsWithProgress()" title="ទាញយក Offline">
+        <i class="fa-solid fa-cloud-arrow-down" id="fetchIcon"></i>
+        <span class="percent-label" id="progressPercent">0%</span>
+    </button>
+</header>
 
     <div class="app-view active" id="viewSongs">
         <div class="hero-banner">
