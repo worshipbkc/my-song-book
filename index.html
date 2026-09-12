@@ -100,15 +100,26 @@
             align-items: center; 
             position: relative; 
         }
-        .header-text h1 { font-size: 1.3rem; color: var(--primary); font-weight: 900; }
-        .header-text p { color: var(--text-muted); font-size: 0.8rem; font-weight: 500; line-height: 1.3; }
+        .header-text h1 { 
+            font-size: 1.3rem; 
+            color: white; 
+            font-weight: 900; 
+        }
+        .header-text p { 
+            color: rgb(128, 208, 231);
+             font-size: 0.8rem; 
+             font-weight: 500; 
+             line-height: 1.3; }
         /* រៀបចំ Container ធំ */
 #mainAppHeader {
     display: flex;
     justify-content: space-between;
     align-items: center;
     padding: 12px 20px;
-    background-color: #fefef5;
+    background-color: #032409;
+    border-radius: 12px 12px ;
+    
+
     
 
 }
@@ -141,6 +152,7 @@
     font-weight: bold;
     color: #1a202c; /* ពណ៌អក្សរដិត */
     line-height: 1.3;
+    color: ;
 }
 
 /* អក្សររងភាសាអង់គ្លេស */
@@ -158,10 +170,20 @@
     gap: 10px;
 }
         .fetch-icon-btn {
-            background: var(--card-bg); border: 1px solid var(--border); color: var(--primary);
-            width: 40px; height: 40px; border-radius: 50%;
-            display: flex; flex-direction: column; align-items: center; justify-content: center;
-            cursor: pointer; box-shadow: 0 2px 8px rgba(0,0,0,0.05); font-size: 1rem; flex-shrink: 0;
+            background: var(--card-bg); 
+            border: 1px solid var(--border); 
+            color: var(--primary);
+            width: 40px; 
+            height: 40px; 
+            border-radius: 50%;
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            justify-content: center;
+            cursor: pointer; 
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05); 
+            font-size: 1rem; 
+            flex-shrink: 0;
         }
         .fetch-icon-btn:active { transform: scale(0.92); }
         .fetch-icon-btn .percent-label { font-size: 0.6rem; font-weight: 700; line-height: 1; margin-top: 1px; display: none; }
@@ -199,12 +221,17 @@
             background: var(--card-bg);             
             padding: 12px 16px; 
             margin-bottom: 12px; 
-            font-size: 0.82rem; 
-            color: green; 
+            font-size: 0.86rem; 
+            color: rgb(0, 11, 0); 
             line-height: 1.4; 
             text-align: center;
             text-shadow: 0 1px 2px rgba(26, 97, 54, 0.1);
             border-radius: 12px 12px ;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+            border: 1px solid var(--border);
+            font-weight: 500;
+            font-family: 'Kantumruy Pro', sans-serif;
+            
         }
         .text-box span { font-weight: 600; color: var(--primary); }
 
@@ -290,12 +317,33 @@
             justify-content: space-between;
             align-items: center;
         }
-        .search-dropdown-item:last-child { border-bottom: none; }
-        .search-dropdown-item:hover { background: var(--bg); }
-        .search-dropdown-title { font-weight: 600; color: var(--text); }
-        .search-dropdown-artist { font-size: 0.72rem; color: var(--text-muted); }
+        .search-dropdown-item:last-child { 
+            border-bottom: none; 
+        }
+        .search-dropdown-item:hover { 
+            background: var(--bg); 
+        }
+        .search-dropdown-title { 
+            font-weight: 600; 
+            color: var(--text); 
+        }
+        .search-dropdown-artist { 
+            font-size: 0.72rem; 
+            color: var(--text-muted); 
+        }
 
-        .theme-toggle-btn { background: var(--card-bg); border: 1px solid var(--border); color: var(--text); padding: 8px 12px; border-radius: 10px; font-size: 0.9rem; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+        .theme-toggle-btn { 
+            background: var(--card-bg); 
+            border: 1px solid var(--border); 
+            color: var(--text); 
+            padding: 8px 12px; 
+            border-radius: 10px; 
+            font-size: 0.9rem; 
+            cursor: pointer; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+        }
 
         .song-grid { display: grid; 
           grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); 
@@ -317,13 +365,7 @@
         .song-img-container { 
         width: 100%; 
         min-height: 220px; 
-
-    /* ប្តូរត្រង់នេះ៖ ជ្រើសរើសពណ៌មួយដែលអ្នកចូលចិត្ត */
-        background: #f0ebc4; /* ពណ៌ប្រផេះស្រាល */
-    /* background: #ffffff;  ពណ៌ស */
-    /* background: #1a1a1a;  ពណ៌ខ្មៅចាស់ */
-    /* background: #eef2ff;  ពណ៌ខៀវស្រាល (Soft Blue) */
-
+        background: #fcfce5; /* ពណ៌ប្រផេះស្រាល */
         display: flex; 
         align-items: center; 
         justify-content: center; 
@@ -514,7 +556,7 @@
 
         <!-- អត្ថបទនៅខាងស្តាំ Logo -->
         <div class="header-text">
-            <h1 class="main-title">ចម្រៀងសរសើរដំកើងព្រះ</h1>
+            <h1 class="main-title">ចម្រៀងសរសើរដំកើងព្រះ </h1>
             <p id="currentAlbumSubtitle" class="sub-title">Khmer Christian Worship Songs</p>
         </div>
     </div>
@@ -532,7 +574,7 @@
 
     <div class="app-view active" id="viewSongs">
         <div class="text-box">
-                ចូរឱ្យជីវិតទាំងឡាយដែលមានដង្ហើម បានសរសើរដល់ព្រះយ៉េហូវ៉ាចុះ <br><span>ទំនុកតម្កើង 150:6</span>
+                ចូរឱ្យជីវិតទាំងឡាយដែលមានដង្ហើម បានសរសើរដល់ព្រះយ៉េហូវ៉ាចុះ <br><span>----ទំនុកតម្កើង 150:6----</span>
         </div> 
         <div class="hero-banner">
             <div>
