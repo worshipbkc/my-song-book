@@ -1824,7 +1824,7 @@
         }
     }
 
-    // --- ជម្រើសទី ១៖ Share ជា PDF (ទំព័រ PDF ប្រែប្រួលតាមទំហំរូបភាពជាក់ស្តែង) ---
+    // --- ជម្រើសទី ១៖ Share ជា PDF (ប្រែប្រួលតាមទំហំរូប និងបើកមើលម្តងមួយសន្លឹកៗ) ---
     async function sharePlaylistAsPDF(playlistName) {
         const songIds = playlists[playlistName];
         if (!songIds || songIds.length === 0) return;
@@ -1836,9 +1836,13 @@
         try {
             const { jsPDF } = window.jspdf;
             
-            // កំណត់ឯកតា (unit) ជា 'px' ដើម្បីឱ្យទំហំ PDF ស្មើនឹងទំហំរូបភាពដើម ១០០%
             const doc = new jsPDF({ unit: 'px' }); 
-            doc.deletePage(1); // លុបទំព័រ A4 ទទេដែលវាបង្កើតដំបូងចោលសិន
+            doc.deletePage(1); // លុបទំព័រ A4 ទទេចោល
+            
+            // 🔴 កូដបញ្ជាការបង្ហាញ៖
+            // 'fullpage' ឱ្យវា Zoom សមនឹងអេក្រង់
+            // 'single' ឱ្យវាបង្ហាញម្តង ១សន្លឹកដាច់ៗពីគ្នា
+            doc.setDisplayMode('fullpage', 'single');
             
             let hasImages = false;
 
@@ -1849,16 +1853,10 @@
                 const imgData = await getCleanBase64ForPDF(song.imageUrl);
                 if (!imgData) continue;
 
-                // វាស់ទំហំរូបភាព (ទទឹង និងកម្ពស់)
                 const imgProps = doc.getImageProperties(imgData);
-                
-                // កំណត់ទិសដៅក្រដាស (បើទទឹងធំជាងកម្ពស់ គឺផ្តេក 'l', បើបញ្ឈរគឺ 'p')
                 const orientation = imgProps.width > imgProps.height ? 'l' : 'p';
-                
-                // កំណត់ទំហំទំព័រ PDF ថ្មីឱ្យស្មើនឹងទំហំរូបភាពជាក់ស្តែង
                 const format = [imgProps.width, imgProps.height];
                 
-                // បន្ថែមទំព័រថ្មី រួចដាក់រូបភាពចូលឱ្យពេញទំព័រតែម្តង
                 doc.addPage(format, orientation);
                 doc.addImage(imgData, 'JPEG', 0, 0, imgProps.width, imgProps.height);
                 hasImages = true;
@@ -1883,7 +1881,6 @@
                     files: [pdfFile]
                 });
             } else {
-                // បើទូរសព្ទអត់គាំទ្រការ Share ផ្ទាល់ វានឹងទាញយក (Download) ជំនួសវិញ
                 const url = URL.createObjectURL(pdfBlob);
                 const a = document.createElement('a');
                 a.href = url; a.download = `${safeName}.pdf`;
