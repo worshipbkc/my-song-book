@@ -80,10 +80,7 @@
         .chip-btn.bg-telegram { text-decoration: none; display: inline-flex; align-items: center; justify-content: center; gap: 6px; background-color: #0088cc; color: #ffffff; padding: 6px 12px; border:none }
         .chip-btn { background: var(--card-bg); border: none; color: var(--text-muted); padding: 8px 16px; border-radius: 20px; font-size: 0.7rem; font-weight: 600; white-space: nowrap; cursor: pointer; transition: all 0.2s; box-shadow: 4px 4px 10px rgba(180, 185, 200, 0.3), -4px -4px 10px rgba(255, 255, 255, 0.9); margin-bottom: 6px; }
         body.dark-mode .chip-btn { box-shadow: 4px 4px 10px rgba(0,0,0,0.4), -4px -4px 10px rgba(255,255,255,0.05); }
-        .chip-btn.active { 
-            background: var(--primary); 
-            color: white; 
-            box-shadow: inset 3px 3px 6px rgba(0,0,0,0.2), inset -3px -3px 6px rgba(255,255,255,0.2); }
+        .chip-btn.active { background: var(--primary); color: white; box-shadow: inset 3px 3px 6px rgba(0,0,0,0.2), inset -3px -3px 6px rgba(255,255,255,0.2); }
 
         .app-view { display: none; }
         .app-view.active { display: block; }
@@ -93,16 +90,7 @@
         .sticky-action-bar { position: sticky; top: 0; z-index: 1200; background: var(--bg-glass); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); margin: 0 -12px; padding: 10px 12px 0 12px; border-bottom: 1px solid rgba(255, 255, 255, 0.5); box-shadow: 0 4px 15px rgba(0, 0, 0, 0.03); }
         
         .search-box { position: relative; display: flex; align-items: center; flex: 1; }
-        .search-box input { 
-            width: 100%; 
-            padding: 12px 100px 12px 20px; 
-            border: none; border-radius: 25px; 
-            outline: none; 
-            background: var(--card-bg); 
-            color: var(--text); 
-            font-size: 0.9rem; 
-            box-shadow: inset 4px 4px 8px rgba(180, 185, 200, 0.4), inset -4px -4px 8px rgba(255, 255, 255, 0.9); 
-            transition: all 0.3s ease; }   
+        .search-box input { width: 100%; padding: 12px 100px 12px 20px; border: none; border-radius: 25px; outline: none; background: var(--card-bg); color: var(--text); font-size: 0.9rem; box-shadow: inset 4px 4px 8px rgba(180, 185, 200, 0.4), inset -4px -4px 8px rgba(255, 255, 255, 0.9); transition: all 0.3s ease; }   
         body.dark-mode .search-box input { box-shadow: inset 4px 4px 8px rgba(0,0,0,0.5), inset -4px -4px 8px rgba(255,255,255,0.05); }
         .search-box input:focus { box-shadow: inset 6px 6px 12px rgba(180, 185, 200, 0.5), inset -6px -6px 12px rgba(255, 255, 255, 1), 0 0 0 2px rgba(37,99,235,0.2); }
         body.dark-mode .search-box input:focus { box-shadow: inset 6px 6px 12px rgba(0,0,0,0.6), inset -6px -6px 12px rgba(255,255,255,0.1), 0 0 0 2px rgba(59,130,246,0.3); }
@@ -132,8 +120,12 @@
         body.dark-mode .song-count-badge { box-shadow: 2px 2px 6px rgba(0,0,0,0.4), -2px -2px 6px rgba(255,255,255,0.05); }
         .section-divider { flex-grow: 1; height: 2px; background: linear-gradient(90deg, rgba(37,99,235,0.4) 0%, rgba(255,255,255,0) 100%); border-radius: 2px; }
         
-        .song-card { background: var(--card-bg); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border: 1px solid rgba(255,255,255,0.5); border-radius: 20px; overflow: hidden; display: flex; flex-direction: column; position: relative; box-shadow: 6px 6px 15px rgba(180, 185, 200, 0.4), -6px -6px 15px rgba(255, 255, 255, 0.9); }
+        .song-card { background: var(--card-bg); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border: 1px solid rgba(255,255,255,0.5); border-radius: 20px; overflow: hidden; display: flex; flex-direction: column; position: relative; box-shadow: 6px 6px 15px rgba(180, 185, 200, 0.4), -6px -6px 15px rgba(255, 255, 255, 0.9); transition: transform 0.2s, border-color 0.2s; }
         body.dark-mode .song-card { border-color: rgba(51, 65, 85, 0.5); box-shadow: 4px 4px 15px rgba(0,0,0,0.5), -4px -4px 15px rgba(255,255,255,0.02); }
+        
+        /* Drag and Drop UI */
+        .song-card.dragging { opacity: 0.4; transform: scale(0.98); border: 2px dashed var(--primary); }
+        .song-card.drag-over { border-top: 4px solid var(--primary); }
 
         .song-img-container { width: 100%; min-height: 220px; background: #eaebe7; display: flex; align-items: center; justify-content: center; overflow: hidden; cursor: pointer; position: relative; }
         body.dark-mode .song-img-container { background: #0f172a; }
@@ -162,35 +154,85 @@
         .btn-delete-custom { background-color: #fee2e2; color: var(--danger); border-color: #fecaca; }
         body.dark-mode .btn-delete-custom { background-color: #7f1d1d; color: #fee2e2; border-color: #991b1b; }
 
-        .section-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 10px; margin-top: 8px; }
-        .folder-card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 10px; padding: 14px 10px; text-align: center; cursor: pointer; position: relative; }
-        .folder-icon { font-size: 1.8rem; color: var(--primary); margin-bottom: 4px; }
-        .folder-name { font-weight: 700; font-size: 0.82rem; color: var(--text); margin-bottom: 2px; }
-        .folder-count { font-size: 0.7rem; color: var(--text-muted); font-weight: 600; }
-        .folder-delete-btn { position: absolute; top: 6px; right: 6px; background: none; border: none; color: var(--danger); font-size: 0.75rem; cursor: pointer; padding: 2px; }
+        /* ---------------------------------------------------- */
+        /* UI Album & Playlist (Clean Icon Design) */
+        /* ---------------------------------------------------- */
+        .section-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 14px; margin-top: 8px; }
+        
+        .folder-card { 
+            background: var(--card-bg); 
+            border: 1px solid var(--border); 
+            border-radius: 18px; 
+            padding: 20px 12px; 
+            text-align: center; 
+            cursor: pointer; 
+            position: relative; 
+            box-shadow: 4px 4px 15px rgba(180, 185, 200, 0.25), -4px -4px 15px rgba(255, 255, 255, 0.9); 
+            transition: transform 0.2s ease, background-color 0.2s ease;
+        }
+        body.dark-mode .folder-card { box-shadow: 4px 4px 15px rgba(0,0,0,0.3), -4px -4px 15px rgba(255,255,255,0.02); }
+        .folder-card:active { transform: scale(0.95); background: var(--bg); }
+        
+        .folder-icon-wrapper {
+            width: 60px;
+            height: 60px;
+            margin: 0 auto 12px auto;
+            background: rgba(37, 99, 235, 0.08);
+            color: var(--primary);
+            border-radius: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.8rem;
+        }
+        body.dark-mode .folder-icon-wrapper { background: rgba(59, 130, 246, 0.15); }
+        
+        /* ពណ៌ដាច់ដោយឡែកសម្រាប់ Folder Favorite (បេះដូង) */
+        .folder-icon-wrapper.fav-icon { background: rgba(239, 68, 68, 0.1); color: var(--danger); }
+        body.dark-mode .folder-icon-wrapper.fav-icon { background: rgba(239, 68, 68, 0.2); }
+        
+        .folder-name { font-weight: 700; font-size: 0.9rem; color: var(--text); margin-bottom: 4px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .folder-count { font-size: 0.75rem; color: var(--text-muted); font-weight: 600; }
+        
+        .folder-delete-btn { 
+            position: absolute; top: 10px; right: 10px; 
+            background: rgba(239, 68, 68, 0.1); color: var(--danger); 
+            border-radius: 50%; width: 28px; height: 28px; 
+            display: flex; align-items: center; justify-content: center; 
+            border: none; cursor: pointer; transition: 0.2s; 
+        }
+        body.dark-mode .folder-delete-btn { background: rgba(239, 68, 68, 0.2); }
+        .folder-delete-btn:active { transform: scale(0.85); background: var(--danger); color: white; }
+        /* Icon ជំនួសពេលគ្មានរូបភាព */
+        .folder-icon-placeholder {
+            width: 80px; height: 80px;
+            border-radius: 20px;
+            background: linear-gradient(135deg, var(--primary), #8b5cf6);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 2.2rem; color: white;
+            box-shadow: 0 8px 16px rgba(37, 99, 235, 0.3);
+            z-index: 2;
+        }
 
-        .profile-container { max-width: 450px; margin: 10px auto; background: var(--card-bg); border: 1px solid var(--border); border-radius: 12px; padding: 16px; }
+        .folder-info { padding: 12px 10px; flex: 1; display: flex; flex-direction: column; justify-content: center; z-index: 2; background: rgba(255,255,255, 0.1); }
+        body.dark-mode .folder-info { background: rgba(0,0,0, 0.1); }
+        .folder-name { font-weight: 700; font-size: 0.9rem; color: var(--text); margin-bottom: 4px; }
+        .folder-count { font-size: 0.72rem; color: var(--text-muted); font-weight: 600; }
+        .folder-delete-btn { position: absolute; top: 10px; right: 10px; background: rgba(0,0,0,0.5); color: #ff4d4f; border-radius: 50%; width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; border: 1px solid rgba(255,255,255,0.2); cursor: pointer; backdrop-filter: blur(4px); z-index: 10; }
+        /* Profile & Stats */
+        .profile-container { max-width: 450px; margin: 10px auto; background: var(--card-bg); border: 1px solid var(--border); border-radius: 12px; padding: 16px; box-shadow: 4px 4px 10px rgba(180, 185, 200, 0.2), -4px -4px 10px rgba(255, 255, 255, 0.9); }
+        body.dark-mode .profile-container { box-shadow: 4px 4px 10px rgba(0,0,0,0.3), -4px -4px 10px rgba(255,255,255,0.02); }
+        .profile-stats { display: flex; gap: 12px; margin-bottom: 18px; }
+        .stat-box { flex: 1; background: var(--bg); border: 1px solid var(--border); padding: 12px 10px; border-radius: 12px; text-align: center; }
+        .stat-num { font-size: 1.3rem; font-weight: 800; color: var(--primary); line-height: 1.1; }
+        .stat-label { font-size: 0.72rem; color: var(--text-muted); font-weight: 600; margin-top: 4px; }
+        
         .action-list { display: flex; flex-direction: column; gap: 8px; }
-        .action-btn-item { display: flex; align-items: center; justify-content: space-between; padding: 10px 12px; background: var(--bg); border: 1px solid var(--border); border-radius: 8px; font-weight: 600; font-size: 0.82rem; cursor: pointer; color: var(--text); }
+        .action-btn-item { display: flex; align-items: center; justify-content: space-between; padding: 12px 14px; background: var(--bg); border: 1px solid var(--border); border-radius: 10px; font-weight: 600; font-size: 0.85rem; cursor: pointer; color: var(--text); }
         .action-btn-item.danger { color: var(--danger); }
 
-        /* ---------------------------------------------------- */
-        .bottom-nav { 
-            position: fixed; 
-            bottom: 1%; 
-            left: 0; 
-            right: 0; 
-            height: 62px; 
-            background: var(--card-bg); 
-            border-top: 1px solid var(--border); 
-            display: flex; align-items: center; 
-            justify-content: space-around; 
-            z-index: 1000; box-shadow: 0 -2px 8px rgba(0,0,0,0.08);
-            border-radius: 20px 20px 20px 20px; 
-            backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
-            border-color: #c4c4c1;
-            }
-
+        /* Bottom Nav */
+        .bottom-nav { position: fixed; bottom: 1%; left: 0; right: 0; height: 62px; background: var(--card-bg); border-top: 1px solid var(--border); display: flex; align-items: center; justify-content: space-around; z-index: 1000; box-shadow: 0 -2px 8px rgba(0,0,0,0.08); border-radius: 20px 20px 20px 20px; backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border-color: #c4c4c1; }
         .bottom-nav-item { display: flex; flex-direction: column; align-items: center; justify-content: center; flex: 1; height: 100%; color: var(--text-muted); text-decoration: none; font-size: 0.65rem; font-weight: 600; cursor: pointer; border: none; background: transparent; gap: 2px; }
         .bottom-nav-item i { font-size: 1.05rem; }
         .bottom-nav-item.active { color: var(--primary); }
@@ -209,17 +251,15 @@
         @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.5; } 100% { opacity: 1; } }
         body.dark-mode .skeleton-img, body.dark-mode .skeleton-line, body.dark-mode .skeleton-btn { background: #334155; }
 
-        /* Bottom Sheet Modal CSS */
+        /* Modals... (Keep original styles) */
         .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); align-items: flex-end; justify-content: center; z-index: 2000; padding: 0; opacity: 0; transition: opacity 0.3s ease; }
         .modal.active { display: flex; opacity: 1; }
         .modal-content { background: var(--card-bg); color: var(--text); padding: 20px 16px; border-radius: 20px 20px 0 0; width: 100%; max-width: 600px; max-height: 90vh; overflow-y: auto; border-top: 1px solid var(--border); transform: translateY(100%); transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1); margin: 0 auto; }
         .modal.active .modal-content { transform: translateY(0); }
         .modal-drag-handle { width: 40px; height: 5px; background: var(--border); border-radius: 3px; margin: 0 auto 15px auto; }
-        
         .form-group { margin-bottom: 10px; }
         .form-group label { display: block; font-size: 0.78rem; font-weight: 600; margin-bottom: 4px; color: var(--text); }
         .form-group input, .form-group select { width: 100%; padding: 10px; border: 1px solid var(--border); border-radius: 8px; outline: none; background: var(--bg); color: var(--text); font-size: 0.9rem; }
-
         .image-drop-zone { border: 2px dashed var(--border); border-radius: 8px; padding: 14px 10px; text-align: center; background: var(--bg); cursor: pointer; position: relative; font-size: 0.75rem; outline: none; transition: border-color 0.2s, background-color 0.2s; }
         .image-drop-zone:focus, .image-drop-zone.dragover { border-color: var(--primary); background: rgba(37, 99, 235, 0.05); }
         .preview-container { margin-top: 6px; display: none; position: relative; max-height: 120px; overflow: hidden; border-radius: 6px; border: 1px solid var(--border); background: var(--card-bg); }
@@ -253,106 +293,25 @@
         .toast.info i { color: #3b82f6; }
         .toast.warning i { color: #f59e0b; }
 
-        /* =========================================
-           Responsive UI: Mobile, Tablet, Desktop
-           ========================================= */
-
-        /* សម្រាប់ Tablet (Tab) - ទំហំចន្លោះពី 768px ទៅ 1024px */
+        /* Responsive UI */
         @media (min-width: 768px) and (max-width: 1024px) {
-            .song-grid {
-                /* បង្ហាញ Card ច្រើនជាងមុនដោយបន្ថយទំហំអប្បបរមា */
-                grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); 
-            }
-            .bottom-nav {
-                height: 70px;
-                padding-bottom: env(safe-area-inset-bottom);
-            }
-            .bottom-nav-item i {
-                font-size: 1.2rem;
-            }
-            .modal-content {
-                max-width: 700px; /* ពង្រីកទំហំ Modal ឲ្យសមនឹង Tab */
-            }
+            .song-grid { grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); }
+            .bottom-nav { height: 70px; padding-bottom: env(safe-area-inset-bottom); }
+            .bottom-nav-item i { font-size: 1.2rem; }
+            .modal-content { max-width: 700px; }
         }
-
-        /* សម្រាប់ Desktop - ទំហំធំជាង 1024px */
         @media (min-width: 1025px) {
-            body {
-                display: flex;
-                padding-bottom: 0; /* លុបចន្លោះខាងក្រោម ព្រោះលែងមាន Bottom Nav */
-            }
-
-            /* ប្ដូរ Bottom Nav ទៅជា Sidebar បញ្ឈរនៅខាងឆ្វេង */
-            .bottom-nav {
-                position: fixed;
-                top: 0;
-                left: 0;
-                bottom: 0;
-                width: 260px;
-                height: 100vh;
-                flex-direction: column;
-                justify-content: flex-start;
-                padding-top: 30px;
-                border-top: none;
-                border-right: 1px solid var(--border);
-                border-radius: 0;
-                box-shadow: 4px 0 15px rgba(0,0,0,0.03);
-            }
-
-            .bottom-nav-item {
-                flex: none;
-                height: 50px;
-                width: 85%;
-                margin: 8px auto;
-                flex-direction: row; /* តម្រៀប Icon និង Text ផ្ដេកចូលគ្នា */
-                justify-content: flex-start;
-                padding-left: 24px;
-                border-radius: 12px;
-                font-size: 0.95rem;
-                gap: 16px;
-                transition: all 0.2s;
-            }
-
-            .bottom-nav-item:hover {
-                background: rgba(37, 99, 235, 0.08);
-            }
-            
-            body.dark-mode .bottom-nav-item:hover {
-                background: rgba(59, 130, 246, 0.15);
-            }
-
-            .bottom-nav-item i {
-                font-size: 1.15rem;
-            }
-
-            /* រុញផ្ទៃ Main Content ទៅខាងស្ដាំ ដើម្បីទុកកន្លែងឲ្យ Sidebar */
-            .main-content {
-                margin-left: 260px;
-                max-width: calc(100% - 260px);
-                padding: 30px 40px;
-            }
-
-            .offline-sync-badge {
-                bottom: 20px;
-                right: 20px;
-            }
-
-            /* ប្ដូរទម្រង់ Bottom Sheet Modal ទៅជា Center Dialog Modal វិញសម្រាប់ Desktop */
-            .modal {
-                align-items: center; /* តម្រៀបចំកណ្ដាលអេក្រង់ */
-            }
-            .modal-content {
-                border-radius: 20px; /* ធ្វើឲ្យជ្រុងទាំង ៤ មូល */
-                transform: translateY(-20px) scale(0.95); /* Animation លោតពីកណ្ដាល */
-                border: 1px solid var(--border);
-                box-shadow: 0 10px 40px rgba(0,0,0,0.2);
-            }
-            .modal.active .modal-content {
-                transform: translateY(0) scale(1);
-            }
-            .modal-drag-handle {
-                display: none; /* លាក់ប្រអប់អូសចុះក្រោម ព្រោះនៅលើ Desktop យើងប្រើ Mouse មិនមែន Touch ទេ */
-            }
+            body { display: flex; padding-bottom: 0; }
+            .bottom-nav { position: fixed; top: 0; left: 0; bottom: 0; width: 260px; height: 100vh; flex-direction: column; justify-content: flex-start; padding-top: 30px; border-top: none; border-right: 1px solid var(--border); border-radius: 0; box-shadow: 4px 0 15px rgba(0,0,0,0.03); }
+            .bottom-nav-item { flex: none; height: 50px; width: 85%; margin: 8px auto; flex-direction: row; justify-content: flex-start; padding-left: 24px; border-radius: 12px; font-size: 0.95rem; gap: 16px; transition: all 0.2s; }
+            .bottom-nav-item:hover { background: rgba(37, 99, 235, 0.08); }
+            body.dark-mode .bottom-nav-item:hover { background: rgba(59, 130, 246, 0.15); }
+            .main-content { margin-left: 260px; max-width: calc(100% - 260px); padding: 30px 40px; }
+            .offline-sync-badge { bottom: 20px; right: 20px; }
+            .modal { align-items: center; }
+            .modal-content { border-radius: 20px; transform: translateY(-20px) scale(0.95); border: 1px solid var(--border); box-shadow: 0 10px 40px rgba(0,0,0,0.2); }
+            .modal.active .modal-content { transform: translateY(0) scale(1); }
+            .modal-drag-handle { display: none; }
         }
     </style>
 </head>
@@ -394,10 +353,6 @@
                     <button class="clear-btn" id="clearSearchBtn" onclick="clearSearchInput()" title="លុបអក្សរ">
                         <i class="fa-solid fa-circle-xmark"></i>
                     </button>
-                    <!-- Voice Search Button -->
-                    <button class="voice-btn" id="voiceSearchBtn" onclick="startVoiceSearch()" title="ស្វែងរកដោយសំឡេង">
-                        <i class="fa-solid fa-microphone"></i>
-                    </button>
                     <button class="search-btn" onclick="renderSongs()">🔍</button>
                     <div class="search-dropdown" id="searchDropdown"></div>
                 </div>
@@ -417,10 +372,14 @@
             <div class="section-title-wrapper">
                 <h2 class="section-title">
                     <span class="icon-circle"><i class="fa-solid fa-headphones-simple"></i></span> 
-                    បទចម្រៀងទាំងអស់
+                    <span id="sectionTitleText">បទចម្រៀងទាំងអស់</span>
                     <span id="totalSongCountBadge" class="song-count-badge">...</span>
                 </h2>
                 <div class="section-divider"></div>
+            </div>
+            <!-- Playlist Drag Info -->
+            <div id="playlistDragInfo" style="display:none; font-size:0.75rem; color:var(--primary); text-align:right; margin-bottom: 8px;">
+                <i class="fa-solid fa-arrows-up-down"></i> អូសប័ណ្ណបទចម្រៀងចុះឡើងដើម្បីប្តូរលំដាប់ទីតាំង
             </div>
         </div>
 
@@ -448,6 +407,7 @@
     <div class="app-view" id="viewProfile">
         <div class="profile-container" id="profileCardContent"></div>
     </div>
+    <div 
 </div>
 
 <div class="bottom-nav">
@@ -489,7 +449,8 @@
     <button class="fullscreen-nav-btn fullscreen-next" onclick="slideFullScreen(1, event)">❯</button>
 </div>
 
-<!-- Modal បញ្ចូលបទចម្រៀងថ្មី (Bottom Sheet) -->
+<!-- All Modals... (Keep same as original) -->
+<!-- Modal បញ្ចូលបទចម្រៀងថ្មី -->
 <div class="modal" id="addSongModal">
     <div class="modal-content">
         <div class="modal-drag-handle"></div>
@@ -529,7 +490,7 @@
     </div>
 </div>
 
-<!-- Modal សម្រាប់បញ្ចូលច្រើន (Bottom Sheet) -->
+<!-- Modal សម្រាប់បញ្ចូលច្រើន -->
 <div class="modal" id="batchAddModal">
     <div class="modal-content">
         <div class="modal-drag-handle"></div>
@@ -556,7 +517,7 @@
     </div>
 </div>
 
-<!-- Modal កែប្រែបទចម្រៀង (Bottom Sheet) -->
+<!-- Modal កែប្រែបទចម្រៀង -->
 <div class="modal" id="editSongModal">
     <div class="modal-content">
         <div class="modal-drag-handle"></div>
@@ -660,6 +621,9 @@
     let deferredPrompt = null;
     let songsListenerUnsubscribe = null;
     let scrollObserver = null;
+    
+    // Drag & Drop Data
+    let dragSrcId = null;
 
     if ('serviceWorker' in navigator) {
         window.addEventListener('load', () => navigator.serviceWorker.register('sw.js').catch(err => {}));
@@ -682,7 +646,11 @@
         }
     }
 
-    // មុខងារ Custom Toast Notification
+    // Haptic Feedback Helper
+    function vibratePhone(ms = 50) {
+        if (navigator.vibrate) { navigator.vibrate(ms); }
+    }
+
     function showToast(message, type = 'info') {
         const container = document.getElementById('toastContainer');
         const toast = document.createElement('div');
@@ -703,7 +671,6 @@
         }, 3000);
     }
 
-    // មុខងារ Voice Search (Web Speech API ភាសាខ្មែរ)
     function startVoiceSearch() {
         const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
         if (!SpeechRecognition) { 
@@ -731,21 +698,13 @@
         };
         
         recognition.onerror = function(event) {
-    console.error("Voice Error:", event.error);
-    
-    let errorMsg = 'មិនអាចស្តាប់បានច្បាស់ សូមព្យាយាមម្តងទៀត';
-    if (event.error === 'not-allowed') {
-        errorMsg = 'សូមបើកសិទ្ធិ (Allow) ឲ្យកម្មវិធីប្រើប្រាស់ Microphone សិន';
-    } else if (event.error === 'network') {
-        errorMsg = 'សូមភ្ជាប់អ៊ីនធឺណិតដើម្បីប្រើប្រាស់មុខងារសំឡេង';
-    } else if (event.error === 'no-speech') {
-         errorMsg = 'មិនមានសំឡេងចូលទេ';
-    }
-    
-    showToast(errorMsg, 'warning');
-    document.getElementById('voiceSearchBtn').style.color = 'var(--primary)';
-}
-        
+            let errorMsg = 'មិនអាចស្តាប់បានច្បាស់ សូមព្យាយាមម្តងទៀត';
+            if (event.error === 'not-allowed') { errorMsg = 'សូមបើកសិទ្ធិ (Allow) ឲ្យកម្មវិធីប្រើប្រាស់ Microphone សិន'; } 
+            else if (event.error === 'network') { errorMsg = 'សូមភ្ជាប់អ៊ីនធឺណិតដើម្បីប្រើប្រាស់មុខងារសំឡេង'; } 
+            else if (event.error === 'no-speech') { errorMsg = 'មិនមានសំឡេងចូលទេ'; }
+            showToast(errorMsg, 'warning');
+            document.getElementById('voiceSearchBtn').style.color = 'var(--primary)';
+        }
         recognition.start();
     }
 
@@ -771,7 +730,7 @@
         applyStoredTheme();
         listenToAuth();
         listenToAlbums();
-        renderSongsListOnly(); // បង្ហាញ Skeleton ដំបូង
+        renderSongsListOnly();
 
         try {
             await initIndexedDB();
@@ -799,7 +758,6 @@
             if (searchBox && !searchBox.contains(e.target)) hideSearchDropdown();
         });
         
-        // បិទ Modal ពេលចុច Background (សម្រាប់ Bottom Sheet)
         document.querySelectorAll('.modal').forEach(modal => {
             modal.addEventListener('click', (e) => {
                 if(e.target === modal) closeModal(modal.id);
@@ -853,16 +811,12 @@
 
         if (type === 'ALL') resetFilters();
         else if (type === 'RECENT') {
-            currentFilteredSongs = [...songsList].sort((a, b) => {
-                const timeA = a.createdAt ? a.createdAt.seconds : 0;
-                const timeB = b.createdAt ? b.createdAt.seconds : 0;
-                return timeB - timeA;
-            });
-            displayedItemCount = 20;
-            renderSongsListOnly();
+            document.getElementById('sectionTitleText').innerText = "បទថ្មីៗ";
+            document.getElementById('currentAlbumSubtitle').innerHTML = `Khmer Christian Worship Songs`;
+            currentFilterType = 'RECENT'; currentFilterValue = 'RECENT';
+            renderSongs();
         } else if (type === 'FAV') {
-            const firstPlaylist = Object.keys(playlists)[0] || 'Favorite';
-            filterByPlaylist(firstPlaylist);
+            filterByPlaylist('Favorite');
         }
     }
 
@@ -923,7 +877,6 @@
         }
     }
 
-    // ប្តូរពី Scroll Event មកប្រើ Intersection Observer
     function setupIntersectionObserver() {
         const options = { root: null, rootMargin: '200px', threshold: 0.1 };
         scrollObserver = new IntersectionObserver((entries) => {
@@ -952,6 +905,18 @@
                         <div class="skeleton-btn"></div>
                         <div class="skeleton-btn"></div>
                     </div>
+                </div>
+            </div>
+        `).join('');
+    }
+
+    function getFolderSkeletonHTML(count = 4) {
+        return Array(count).fill(`
+            <div class="folder-card" style="padding:0; border:1px solid var(--border);">
+                <div class="skeleton-img" style="height:110px;"></div>
+                <div class="folder-info" style="padding:10px;">
+                    <div class="skeleton-line" style="margin-bottom:6px;"></div>
+                    <div class="skeleton-line short" style="margin-bottom:0;"></div>
                 </div>
             </div>
         `).join('');
@@ -1049,6 +1014,7 @@
             saveSongsToIndexedDB(songsList);
 
             setTimeout(() => markFetchCompleted(), 300);
+            vibratePhone(100);
             showToast('ទាញយកដោយជោគជ័យ', 'success');
         }).catch(err => {
             clearInterval(interval);
@@ -1106,7 +1072,24 @@
     function renderSongs() {
         const searchVal = document.getElementById('searchInput').value.trim().toLowerCase();
         
-        currentFilteredSongs = songsList.filter(song => {
+        let filtered = [];
+        
+        // Sorting Logic Based on Filter
+        if (currentFilterType === 'PLAYLIST') {
+            const pList = playlists[currentFilterValue] || [];
+            filtered = pList.map(id => songsList.find(s => s.id === id)).filter(s => s); // keep Playlist order
+        } else if (currentFilterType === 'RECENT') {
+            filtered = [...songsList].sort((a, b) => {
+                const timeA = a.createdAt ? a.createdAt.seconds : 0;
+                const timeB = b.createdAt ? b.createdAt.seconds : 0;
+                return timeB - timeA;
+            });
+        } else {
+            filtered = [...songsList];
+        }
+
+        // Apply Search & Album Filter
+        currentFilteredSongs = filtered.filter(song => {
             const matchSearch = !searchVal || 
                 (song.title && song.title.toLowerCase().includes(searchVal)) ||
                 (song.artist && song.artist.toLowerCase().includes(searchVal)) ||
@@ -1114,13 +1097,59 @@
 
             let matchFilter = true;
             if (currentFilterType === 'ALBUM') matchFilter = song.album === currentFilterValue;
-            else if (currentFilterType === 'PLAYLIST') matchFilter = (playlists[currentFilterValue] || []).includes(song.id);
-
+            
             return matchSearch && matchFilter;
         });
 
         displayedItemCount = 20;
+        
+        // Show/Hide Drag info text for Playlist
+        const dragInfo = document.getElementById('playlistDragInfo');
+        if(currentFilterType === 'PLAYLIST' && currentFilterValue !== 'Favorite') dragInfo.style.display = 'block';
+        else dragInfo.style.display = 'none';
+
         renderSongsListOnly();
+    }
+
+    /* Drag & Drop Handlers for Reordering Playlist */
+    function handleDragStart(e, songId) {
+        dragSrcId = songId;
+        e.dataTransfer.effectAllowed = 'move';
+        setTimeout(() => e.target.classList.add('dragging'), 50);
+    }
+    function handleDragOver(e) {
+        e.preventDefault(); 
+        e.dataTransfer.dropEffect = 'move';
+        const card = e.target.closest('.song-card');
+        if(card) {
+            document.querySelectorAll('.song-card').forEach(c => c.classList.remove('drag-over'));
+            card.classList.add('drag-over');
+        }
+        return false;
+    }
+    function handleDragEnd(e) {
+        e.target.classList.remove('dragging');
+        document.querySelectorAll('.song-card').forEach(c => c.classList.remove('drag-over'));
+    }
+    function handleDrop(e, targetSongId) {
+        e.stopPropagation();
+        document.querySelectorAll('.song-card').forEach(c => c.classList.remove('drag-over'));
+        
+        if (dragSrcId && dragSrcId !== targetSongId && currentFilterType === 'PLAYLIST') {
+            const pName = currentFilterValue;
+            const list = playlists[pName];
+            
+            const fromIdx = list.indexOf(dragSrcId);
+            const toIdx = list.indexOf(targetSongId);
+            if (fromIdx > -1 && toIdx > -1) {
+                list.splice(fromIdx, 1);
+                list.splice(toIdx, 0, dragSrcId);
+                localStorage.setItem('user_playlists', JSON.stringify(playlists));
+                vibratePhone(50);
+                renderSongs(); // Update view
+            }
+        }
+        return false;
     }
 
     function renderSongsListOnly() {
@@ -1137,6 +1166,7 @@
             return;
         }
 
+        const isCustomPlaylist = currentFilterType === 'PLAYLIST' && currentFilterValue !== 'Favorite';
         const itemsToDisplay = currentFilteredSongs.slice(0, displayedItemCount);
 
         let html = itemsToDisplay.map((song) => {
@@ -1144,7 +1174,9 @@
             const inFav = (playlists['Favorite'] || []).includes(song.id);
 
             return `
-                <div class="song-card" id="song-card-${song.id}">
+                <div class="song-card" id="song-card-${song.id}"
+                     ${isCustomPlaylist ? `draggable="true" ondragstart="handleDragStart(event, '${song.id}')" ondragover="handleDragOver(event)" ondrop="handleDrop(event, '${song.id}')" ondragend="handleDragEnd(event)"` : ''}>
+                    
                     <div class="song-img-container">
                         <button class="fav-img-btn ${inFav ? 'active' : ''}" onclick="toggleFavorite('${song.id}', event)">
                             <i class="${inFav ? 'fa-solid' : 'fa-regular'} fa-heart"></i>
@@ -1180,7 +1212,6 @@
             `;
         }).join('');
 
-        // បញ្ចូល Sentinel សម្រាប់ Intersection Observer ដឹងថាដល់ចុងបញ្ជី
         if (displayedItemCount < currentFilteredSongs.length) {
             html += `<div id="scrollSentinel" style="height: 1px; width: 100%; grid-column: 1 / -1;"></div>`;
         }
@@ -1189,7 +1220,6 @@
         observeSentinel();
     }
 
-    // មុខងារ Highlight ពាក្យស្វែងរក
     function highlightSearchText(text, query) {
         if (!query) return escapeHtml(text);
         const safeText = escapeHtml(text);
@@ -1245,32 +1275,67 @@
 
     function resetFilters() {
         currentFilterType = 'ALL'; currentFilterValue = 'ALL';
-        document.getElementById('currentAlbumSubtitle').innerHTML = `ចូរឱ្យជីវិតទាំងឡាយដែលមានដង្ហើម បានសរសើរដល់ព្រះយ៉េហូវ៉ាចុះ<br><span style="color: var(--primary); font-weight: 700;">ទំនុកដំកើង ១៥០៖៦</span>`;
+        document.getElementById('sectionTitleText').innerText = "បទចម្រៀងទាំងអស់";
+        document.getElementById('currentAlbumSubtitle').innerHTML = `Khmer Christian Worship Songs`;
         renderSongs();
     }
 
     function filterByAlbum(albumName) {
         currentFilterType = 'ALBUM'; currentFilterValue = albumName; switchTab('songs');
+        document.getElementById('sectionTitleText').innerHTML = `Album: ${escapeHtml(albumName)}`;
         document.getElementById('currentAlbumSubtitle').innerHTML = `Album: <b style="color: var(--primary);">${escapeHtml(albumName)}</b> <span style="cursor:pointer; color:var(--danger); font-size:0.75rem; margin-left:4px;" onclick="resetFilters()">(ជម្រះ)</span>`;
         renderSongs();
     }
 
     function filterByPlaylist(playlistName) {
         currentFilterType = 'PLAYLIST'; currentFilterValue = playlistName; switchTab('songs');
+        const icon = playlistName === 'Favorite' ? '❤️' : '📂';
+        document.getElementById('sectionTitleText').innerHTML = `${icon} ${escapeHtml(playlistName)}`;
         document.getElementById('currentAlbumSubtitle').innerHTML = `Playlist: <b style="color: var(--primary);">${escapeHtml(playlistName)}</b> <span style="cursor:pointer; color:var(--danger); font-size:0.75rem; margin-left:4px;" onclick="resetFilters()">(ជម្រះ)</span>`;
         renderSongs();
     }
 
+    /* Thumbnail Utilities */
+    const thumbCache = {};
+    function getOptimizedThumbnail(url, callback) {
+        if(!url) { callback(null); return; }
+        if(thumbCache[url]) { callback(thumbCache[url]); return; }
+        
+        const img = new Image();
+        img.crossOrigin = "Anonymous";
+        img.onload = () => {
+            const canvas = document.createElement('canvas');
+            const MAX = 200;
+            let w = img.width, h = img.height;
+            if(w > h) { h = Math.round(h * MAX / w); w = MAX; } 
+            else { w = Math.round(w * MAX / h); h = MAX; }
+            canvas.width = w; canvas.height = h;
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(img, 0, 0, w, h);
+            try {
+                const b64 = canvas.toDataURL('image/jpeg', 0.6);
+                thumbCache[url] = b64;
+                callback(b64);
+            } catch(e) { thumbCache[url] = url; callback(url); }
+        };
+        img.onerror = () => callback(url);
+        img.src = url;
+    }
+
     function renderAlbumsView() {
         const grid = document.getElementById('albumsGrid'); if (!grid) return;
+        
         grid.innerHTML = customAlbums.map(album => {
             const count = songsList.filter(s => s.album === album).length;
             const isDefault = (album === 'ទំនុកដំកើង' || album === 'ទំនុកខ្មែរបរិសុទ្ធ');
+            
             return `
                 <div class="folder-card" onclick="filterByAlbum('${escapeHtml(album)}')">
                     ${!isDefault && isEditor ? `<button class="folder-delete-btn" onclick="deleteAlbum(event, '${escapeHtml(album)}')"><i class="fa-solid fa-trash"></i></button>` : ''}
-                    <div class="folder-icon"><i class="fa-solid fa-folder"></i></div>
-                    <div class="folder-name">${escapeHtml(album)}</div>
+                    <div class="folder-icon-wrapper">
+                        <i class="fa-solid fa-folder"></i>
+                    </div>
+                    <div class="folder-name" title="${escapeHtml(album)}">${escapeHtml(album)}</div>
                     <div class="folder-count">${count} បទ</div>
                 </div>`;
         }).join('');
@@ -1280,19 +1345,70 @@
         const grid = document.getElementById('playlistsGrid'); if (!grid) return;
         const keys = Object.keys(playlists);
         if (keys.length === 0) { grid.innerHTML = '<div class="empty-state">ពុំទាន់មាន Playlist ឡើយ</div>'; return; }
-        grid.innerHTML = keys.map(pName => `
-            <div class="folder-card" onclick="filterByPlaylist('${escapeHtml(pName)}')">
-                <button class="folder-delete-btn" onclick="deletePlaylist(event, '${escapeHtml(pName)}')"><i class="fa-solid fa-trash"></i></button>
-                <div class="folder-icon"><i class="fa-solid fa-list-check"></i></div>
-                <div class="folder-name">${escapeHtml(pName)}</div>
-                <div class="folder-count">${(playlists[pName] || []).length} បទ</div>
-            </div>`).join('');
+        
+        grid.innerHTML = keys.map(pName => {
+            const count = (playlists[pName] || []).length;
+            const isFav = (pName === 'Favorite');
+            
+            return `
+                <div class="folder-card" onclick="filterByPlaylist('${escapeHtml(pName)}')">
+                    ${!isFav ? `<button class="folder-delete-btn" onclick="deletePlaylist(event, '${escapeHtml(pName)}')"><i class="fa-solid fa-trash"></i></button>` : ''}
+                    <div class="folder-icon-wrapper ${isFav ? 'fav-icon' : ''}">
+                        <i class="fa-solid ${isFav ? 'fa-heart' : 'fa-list-ul'}"></i>
+                    </div>
+                    <div class="folder-name" title="${escapeHtml(pName)}">${escapeHtml(pName)}</div>
+                    <div class="folder-count">${count} បទ</div>
+                </div>`;
+        }).join('');
     }
 
+    function renderAlbumsView() {
+        const grid = document.getElementById('albumsGrid'); if (!grid) return;
+        
+        grid.innerHTML = customAlbums.map(album => {
+            const count = songsList.filter(s => s.album === album).length;
+            const isDefault = (album === 'ទំនុកដំកើង' || album === 'ទំនុកខ្មែរបរិសុទ្ធ');
+            
+            return `
+                <div class="folder-card" onclick="filterByAlbum('${escapeHtml(album)}')">
+                    ${!isDefault && isEditor ? `<button class="folder-delete-btn" onclick="deleteAlbum(event, '${escapeHtml(album)}')"><i class="fa-solid fa-trash"></i></button>` : ''}
+                    <div class="folder-icon-wrapper">
+                        <i class="fa-solid fa-folder"></i>
+                    </div>
+                    <div class="folder-name" title="${escapeHtml(album)}">${escapeHtml(album)}</div>
+                    <div class="folder-count">${count} បទ</div>
+                </div>`;
+        }).join('');
+    }
+
+    function renderPlaylistsView() {
+        const grid = document.getElementById('playlistsGrid'); if (!grid) return;
+        const keys = Object.keys(playlists);
+        if (keys.length === 0) { grid.innerHTML = '<div class="empty-state">ពុំទាន់មាន Playlist ឡើយ</div>'; return; }
+        
+        grid.innerHTML = keys.map(pName => {
+            const count = (playlists[pName] || []).length;
+            const isFav = (pName === 'Favorite');
+            
+            return `
+                <div class="folder-card" onclick="filterByPlaylist('${escapeHtml(pName)}')">
+                    ${!isFav ? `<button class="folder-delete-btn" onclick="deletePlaylist(event, '${escapeHtml(pName)}')"><i class="fa-solid fa-trash"></i></button>` : ''}
+                    <div class="folder-icon-wrapper ${isFav ? 'fav-icon' : ''}">
+                        <i class="fa-solid ${isFav ? 'fa-heart' : 'fa-list-ul'}"></i>
+                    </div>
+                    <div class="folder-name" title="${escapeHtml(pName)}">${escapeHtml(pName)}</div>
+                    <div class="folder-count">${count} បទ</div>
+                </div>`;
+        }).join('');
+    }
     function renderProfileView() {
         const container = document.getElementById('profileCardContent'); if (!container) return;
+        const favCount = (playlists['Favorite'] || []).length;
+        const playlistCount = Object.keys(playlists).filter(k => k !== 'Favorite').length;
+
+        let profileHtml = '';
         if (currentUser) {
-            container.innerHTML = `
+            profileHtml = `
                 <div style="display:flex; align-items:center; gap:12px; margin-bottom:16px;">
                     <img src="${currentUser.photoURL || 'https://via.placeholder.com/100'}" style="width:50px; height:50px; border-radius:50%; object-fit:cover; border:2px solid var(--primary);" alt="User">
                     <div>
@@ -1300,22 +1416,47 @@
                         <div style="font-size:0.75rem; color:var(--text-muted);">${escapeHtml(currentUser.email || '')}</div>
                         <span style="display:inline-block; font-size:0.68rem; color:#16a34a; font-weight:700; margin-top:2px;">${isAdmin ? '👑 Admin' : (isEditor ? '✏️ Editor' : '👤 សមាជិក')}</span>
                     </div>
-                </div>
-                <div class="action-list">
-                    ${isEditor ? `
-                        <button class="action-btn-item" onclick="openModal('addSongModal')"><span>➕ បញ្ចូលបទចម្រៀង</span> <i class="fa-solid fa-chevron-right"></i></button>
-                        <button class="action-btn-item" onclick="openModal('batchAddModal')"><span>📚 បញ្ចូលរូបភាពច្រើន</span> <i class="fa-solid fa-chevron-right"></i></button>
-                    ` : ''}
-                    <button class="action-btn-item danger" onclick="handleLogout()"><span>🚪 ចាកចេញ</span> <i class="fa-solid fa-right-from-bracket"></i></button>
                 </div>`;
         } else {
-            container.innerHTML = `
-                <div style="text-align:center; padding: 10px 0;">
+            profileHtml = `
+                <div style="text-align:center; padding: 10px 0; margin-bottom: 16px;">
                     <i class="fa-solid fa-user-lock" style="font-size: 2.5rem; color: var(--primary); margin-bottom: 10px;"></i>
                     <h3 style="font-size: 1rem;">ចូលប្រព័ន្ធ (Login)</h3>
                     <p style="color:var(--text-muted); font-size:0.78rem; margin-top:4px; margin-bottom: 16px;">ចូលប្រព័ន្ធដើម្បីទទួលបានសិទ្ធិគ្រប់គ្រងបន្ថែម</p>
                     <button class="action-btn-item" onclick="handleGoogleLogin()" style="justify-content: center; gap: 8px; background: var(--primary); color: white;"><i class="fa-brands fa-google"></i> ចូលតាម Google</button>
                 </div>`;
+        }
+
+        container.innerHTML = profileHtml + `
+            <div class="profile-stats">
+                <div class="stat-box">
+                    <div class="stat-num">${favCount}</div>
+                    <div class="stat-label">❤️ បេះដូង</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-num">${playlistCount}</div>
+                    <div class="stat-label">📂 Playlist</div>
+                </div>
+            </div>
+            <div class="action-list">
+                ${isEditor && currentUser ? `
+                    <button class="action-btn-item" onclick="openModal('addSongModal')"><span>➕ បញ្ចូលបទចម្រៀង</span> <i class="fa-solid fa-chevron-right"></i></button>
+                    <button class="action-btn-item" onclick="openModal('batchAddModal')"><span>📚 បញ្ចូលរូបភាពច្រើន</span> <i class="fa-solid fa-chevron-right"></i></button>
+                ` : ''}
+                <button class="action-btn-item" onclick="clearOfflineData()"><span>🧹 ជម្រះទិន្នន័យអុហ្វឡាញ (Clear Cache)</span> <i class="fa-solid fa-broom"></i></button>
+                ${currentUser ? `<button class="action-btn-item danger" onclick="handleLogout()"><span>🚪 ចាកចេញ</span> <i class="fa-solid fa-right-from-bracket"></i></button>` : ''}
+            </div>`;
+    }
+
+    async function clearOfflineData() {
+        if(confirm('តើអ្នកពិតជាចង់លុបទិន្នន័យ Offline ទាំងអស់មែនទេ? (វានឹងមិនលុប Playlist របស់អ្នកឡើយ)')) {
+            if(dbIndexed) {
+                const tx = dbIndexed.transaction('offlineSongs', 'readwrite');
+                tx.objectStore('offlineSongs').clear();
+            }
+            vibratePhone(50);
+            showToast('ជម្រះទិន្នន័យរួចរាល់', 'success');
+            setTimeout(() => window.location.reload(), 1000);
         }
     }
 
@@ -1335,6 +1476,7 @@
         if (currentFullscreenIndex < 0) currentFullscreenIndex = currentFilteredSongs.length - 1;
         if (currentFullscreenIndex >= currentFilteredSongs.length) currentFullscreenIndex = 0;
         updateFullScreenContent();
+        vibratePhone(30);
     }
 
     let scale = 1, pointX = 0, pointY = 0, startX = 0, startY = 0, initialDist = 0, isDragging = false, isPinching = false, lastTapTime = 0, animFrame = null;
@@ -1392,6 +1534,7 @@
 
     function toggleFavorite(songId, event) {
         if(event) event.stopPropagation();
+        vibratePhone(50);
         if (!playlists['Favorite']) playlists['Favorite'] = [];
         const index = playlists['Favorite'].indexOf(songId);
         if (index === -1) playlists['Favorite'].push(songId); else playlists['Favorite'].splice(index, 1);
