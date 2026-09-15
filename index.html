@@ -372,19 +372,25 @@
             </div>
             
             <div class="section-title-wrapper">
-    <h2 class="section-title">
-        <span class="icon-circle"><i class="fa-solid fa-headphones-simple"></i></span> 
-        <span id="sectionTitleText">បទចម្រៀងទាំងអស់</span>
-        <span id="totalSongCountBadge" class="song-count-badge">...</span>
-    </h2>
-    
-    <!-- ប៊ូតុង Share Playlist ថ្មី (លាក់សិន វានឹងលោតចេញតែពេលចូលមើល Playlist ប៉ុណ្ណោះ) -->
-    <button id="sharePlaylistBtn" class="btn-share-custom" style="display: none; margin-left: 8px; padding: 4px 10px; border-radius: 8px; font-size: 0.75rem; font-weight: 600; cursor: pointer; border-width: 1px; border-style: solid; align-items: center; gap: 4px;" onclick="handleShareCurrentPlaylist()">
-        <i class="fa-solid fa-share-nodes"></i> Share All
-    </button>
+                <!-- បន្ថែមប៊ូតុងថយក្រោយ (លាក់ជាបណ្តោះអាសន្ន) -->
+                <button id="backButton" onclick="goBackToMain()" style="display: none; background: transparent; border: none; font-size: 1.2rem; color: var(--text); cursor: pointer; padding-right: 12px; transition: 0.2s;">
+                    <i class="fa-solid fa-arrow-left"></i>
+                </button>
+                
+                <h2 class="section-title">
+                    <span class="icon-circle"><i class="fa-solid fa-headphones-simple"></i></span> 
+                    <span id="sectionTitleText">បទចម្រៀងទាំងអស់</span>
+                    <span id="totalSongCountBadge" class="song-count-badge">...</span>
+                </h2>
+                
+                <!-- ប៊ូតុង Share Playlist ថ្មី (លាក់សិន វានឹងលោតចេញតែពេលចូលមើល Playlist ប៉ុណ្ណោះ) -->
+                <button id="sharePlaylistBtn" class="btn-share-custom" style="display: none; margin-left: 8px; padding: 4px 10px; border-radius: 8px; font-size: 0.75rem; font-weight: 600; cursor: pointer; border-width: 1px; border-style: solid; align-items: center; gap: 4px;" onclick="handleShareCurrentPlaylist()">
+                    <i class="fa-solid fa-share-nodes"></i> Share All
+                </button>
 
-    <div class="section-divider"></div>
-</div>
+                <div class="section-divider"></div>
+            </div>
+            
             <!-- Playlist Drag Info -->
             <div id="playlistDragInfo" style="display:none; font-size:0.75rem; color:var(--primary); text-align:right; margin-bottom: 8px;">
                 <i class="fa-solid fa-arrows-up-down"></i> អូសប័ណ្ណបទចម្រៀងចុះឡើងដើម្បីប្តូរលំដាប់ទីតាំង
@@ -415,7 +421,6 @@
     <div class="app-view" id="viewProfile">
         <div class="profile-container" id="profileCardContent"></div>
     </div>
-    <div 
 </div>
 
 <div class="bottom-nav">
@@ -753,6 +758,45 @@
         });
     }
 
+    // មុខងារត្រួតពិនិត្យការ លាក់/បង្ហាញ UI
+    function toggleFilterUI(isFiltered) {
+        const header = document.getElementById('mainAppHeader');
+        const greeting = document.querySelector('.minimal-greeting');
+        const controls = document.querySelector('.controls');
+        const filterChips = document.querySelector('.filter-chips');
+        const backBtn = document.getElementById('backButton');
+        const iconCircle = document.querySelector('.section-title .icon-circle');
+
+        if (isFiltered) {
+            if (header) header.style.display = 'none';
+            if (greeting) greeting.style.display = 'none';
+            if (controls) controls.style.display = 'none';
+            if (filterChips) filterChips.style.display = 'none';
+            if (iconCircle) iconCircle.style.display = 'none';
+            if (backBtn) backBtn.style.display = 'block';
+        } else {
+            if (header) header.style.display = 'flex';
+            if (greeting) greeting.style.display = 'block';
+            if (controls) controls.style.display = 'flex';
+            if (filterChips) filterChips.style.display = 'flex';
+            if (iconCircle) iconCircle.style.display = 'flex';
+            if (backBtn) backBtn.style.display = 'none';
+        }
+    }
+
+    // មុខងារសម្រាប់ប៊ូតុងថយក្រោយ
+    function goBackToMain() {
+        const prevFilterType = currentFilterType;
+        resetFilters();
+        if (prevFilterType === 'ALBUM') {
+            switchTab('albums');
+        } else if (prevFilterType === 'PLAYLIST') {
+            switchTab('playlists');
+        } else {
+            switchTab('songs');
+        }
+    }
+
     window.onload = async function() {
         setTimeout(() => {
             const splash = document.getElementById('splashScreen');
@@ -846,6 +890,7 @@
             document.getElementById('sectionTitleText').innerText = "បទថ្មីៗ";
             document.getElementById('currentAlbumSubtitle').innerHTML = `Khmer Christian Worship Songs`;
             currentFilterType = 'RECENT'; currentFilterValue = 'RECENT';
+            toggleFilterUI(false); 
             renderSongs();
         } else if (type === 'FAV') {
             filterByPlaylist('Favorite');
@@ -886,9 +931,10 @@
         document.querySelectorAll('.bottom-nav-item').forEach(el => el.classList.remove('active'));
 
         const mainHeader = document.getElementById('mainAppHeader');
+        const isFiltered = (currentFilterType === 'ALBUM' || currentFilterType === 'PLAYLIST');
 
         if (tabName === 'songs') {
-            if (mainHeader) mainHeader.style.display = 'flex';
+            if (mainHeader) mainHeader.style.display = isFiltered ? 'none' : 'flex';
             document.getElementById('viewSongs').classList.add('active');
             document.getElementById('navSongsBtn').classList.add('active');
         } else if (tabName === 'albums') {
@@ -1135,21 +1181,19 @@
 
         displayedItemCount = 20;
         
-        // Show/Hide Drag info text for Playlist
-        // Show/Hide Drag info text & Share Button for Playlist
-    const dragInfo = document.getElementById('playlistDragInfo');
-    const shareBtn = document.getElementById('sharePlaylistBtn');
+        const dragInfo = document.getElementById('playlistDragInfo');
+        const shareBtn = document.getElementById('sharePlaylistBtn');
 
-    if (currentFilterType === 'PLAYLIST' && currentFilterValue !== 'Favorite') {
-        dragInfo.style.display = 'block';
-        if (shareBtn) shareBtn.style.display = 'inline-flex'; // បង្ហាញប៊ូតុង Share ពេលចូល Playlist ធម្មតា
-    } else {
-        dragInfo.style.display = 'none';
-        if (shareBtn) shareBtn.style.display = 'none'; // លាក់វាវិញពេលចូលកន្លែងផ្សេង
+        if (currentFilterType === 'PLAYLIST' && currentFilterValue !== 'Favorite') {
+            dragInfo.style.display = 'block';
+            if (shareBtn) shareBtn.style.display = 'inline-flex'; 
+        } else {
+            dragInfo.style.display = 'none';
+            if (shareBtn) shareBtn.style.display = 'none';
+        }
+
+        renderSongsListOnly();
     }
-
-    renderSongsListOnly();
-}
 
     /* Drag & Drop Handlers for Reordering Playlist */
     function handleDragStart(e, songId) {
@@ -1317,21 +1361,24 @@
         currentFilterType = 'ALL'; currentFilterValue = 'ALL';
         document.getElementById('sectionTitleText').innerText = "បទចម្រៀងទាំងអស់";
         document.getElementById('currentAlbumSubtitle').innerHTML = `Khmer Christian Worship Songs`;
+        toggleFilterUI(false);
         renderSongs();
     }
 
     function filterByAlbum(albumName) {
         currentFilterType = 'ALBUM'; currentFilterValue = albumName; switchTab('songs');
-        document.getElementById('sectionTitleText').innerHTML = `Album: ${escapeHtml(albumName)}`;
-        document.getElementById('currentAlbumSubtitle').innerHTML = `Album: <b style="color: var(--primary);">${escapeHtml(albumName)}</b> <span style="cursor:pointer; color:var(--danger); font-size:0.75rem; margin-left:4px;" onclick="resetFilters()">(ជម្រះ)</span>`;
+        document.getElementById('sectionTitleText').innerHTML = escapeHtml(albumName);
+        document.getElementById('currentAlbumSubtitle').innerHTML = '';
+        toggleFilterUI(true);
         renderSongs();
     }
 
     function filterByPlaylist(playlistName) {
         currentFilterType = 'PLAYLIST'; currentFilterValue = playlistName; switchTab('songs');
-        const icon = playlistName === 'Favorite' ? '❤️' : '📂';
-        document.getElementById('sectionTitleText').innerHTML = `${icon} ${escapeHtml(playlistName)}`;
-        document.getElementById('currentAlbumSubtitle').innerHTML = `Playlist: <b style="color: var(--primary);">${escapeHtml(playlistName)}</b> <span style="cursor:pointer; color:var(--danger); font-size:0.75rem; margin-left:4px;" onclick="resetFilters()">(ជម្រះ)</span>`;
+        const icon = playlistName === 'Favorite' ? '❤️ ' : '';
+        document.getElementById('sectionTitleText').innerHTML = icon + escapeHtml(playlistName);
+        document.getElementById('currentAlbumSubtitle').innerHTML = '';
+        toggleFilterUI(true);
         renderSongs();
     }
 
@@ -1402,45 +1449,6 @@
         }).join('');
     }
 
-    function renderAlbumsView() {
-        const grid = document.getElementById('albumsGrid'); if (!grid) return;
-        
-        grid.innerHTML = customAlbums.map(album => {
-            const count = songsList.filter(s => s.album === album).length;
-            const isDefault = (album === 'ទំនុកដំកើង' || album === 'ទំនុកខ្មែរបរិសុទ្ធ');
-            
-            return `
-                <div class="folder-card" onclick="filterByAlbum('${escapeHtml(album)}')">
-                    ${!isDefault && isEditor ? `<button class="folder-delete-btn" onclick="deleteAlbum(event, '${escapeHtml(album)}')"><i class="fa-solid fa-trash"></i></button>` : ''}
-                    <div class="folder-icon-wrapper">
-                        <i class="fa-solid fa-folder"></i>
-                    </div>
-                    <div class="folder-name" title="${escapeHtml(album)}">${escapeHtml(album)}</div>
-                    <div class="folder-count">${count} បទ</div>
-                </div>`;
-        }).join('');
-    }
-
-    function renderPlaylistsView() {
-        const grid = document.getElementById('playlistsGrid'); if (!grid) return;
-        const keys = Object.keys(playlists);
-        if (keys.length === 0) { grid.innerHTML = '<div class="empty-state">ពុំទាន់មាន Playlist ឡើយ</div>'; return; }
-        
-        grid.innerHTML = keys.map(pName => {
-            const count = (playlists[pName] || []).length;
-            const isFav = (pName === 'Favorite');
-            
-            return `
-                <div class="folder-card" onclick="filterByPlaylist('${escapeHtml(pName)}')">
-                    ${!isFav ? `<button class="folder-delete-btn" onclick="deletePlaylist(event, '${escapeHtml(pName)}')"><i class="fa-solid fa-trash"></i></button>` : ''}
-                    <div class="folder-icon-wrapper ${isFav ? 'fav-icon' : ''}">
-                        <i class="fa-solid ${isFav ? 'fa-heart' : 'fa-list-ul'}"></i>
-                    </div>
-                    <div class="folder-name" title="${escapeHtml(pName)}">${escapeHtml(pName)}</div>
-                    <div class="folder-count">${count} បទ</div>
-                </div>`;
-        }).join('');
-    }
     function renderProfileView() {
         const container = document.getElementById('profileCardContent'); if (!container) return;
         const favCount = (playlists['Favorite'] || []).length;
@@ -1748,7 +1756,6 @@
         
         let filesToShare = [];
 
-        // ប្រើ for loop ដើម្បីធានាថាវាទាញយករូបភាពតាមលំដាប់លេខរៀងទី១ ទី២ ទី៣...
         for (let i = 0; i < songIds.length; i++) {
             const songId = songIds[i];
             const song = songsList.find(s => s.id === songId);
@@ -1756,7 +1763,6 @@
             if (!song || !song.imageUrl) continue;
 
             const safeTitle = song.title ? song.title.replace(/[^a-zA-Z0-9\u1780-\u17FF]/g, "_") : 'Song';
-            // ដាក់លេខរៀងពីមុខ ដើម្បីឱ្យ Telegram/Messenger តម្រៀបត្រូវ
             const fileName = `${i + 1}_${safeTitle}.jpg`; 
 
             try {
@@ -1787,11 +1793,9 @@
 
         if (shareBtn) shareBtn.innerHTML = '<i class="fa-solid fa-share-nodes"></i> Share All';
 
-        // ធ្វើការ Share
         if (filesToShare.length > 0) {
             if (navigator.canShare && navigator.canShare({ files: filesToShare })) {
                 try {
-                    // ផ្ញើរតែ File រូបភាពសុទ្ធ មិនមានភ្ជាប់អក្សរ
                     await navigator.share({
                         files: filesToShare
                     });
@@ -1811,7 +1815,7 @@
     function handleShareCurrentPlaylist() {
         if (currentFilterType === 'PLAYLIST' && currentFilterValue) {
             pendingSharePlaylistName = currentFilterValue;
-            openModal('sharePlaylistModal'); // បើកផ្ទាំងឱ្យរើសសិន
+            openModal('sharePlaylistModal'); 
         }
     }
 
@@ -1824,7 +1828,7 @@
         }
     }
 
-    // --- ជម្រើសទី ១៖ Share ជា PDF (ប្រែប្រួលតាមទំហំរូប និងបើកមើលម្តងមួយសន្លឹកៗ) ---
+    // --- ជម្រើសទី ១៖ Share ជា PDF ---
     async function sharePlaylistAsPDF(playlistName) {
         const songIds = playlists[playlistName];
         if (!songIds || songIds.length === 0) return;
@@ -1837,11 +1841,8 @@
             const { jsPDF } = window.jspdf;
             
             const doc = new jsPDF({ unit: 'px' }); 
-            doc.deletePage(1); // លុបទំព័រ A4 ទទេចោល
+            doc.deletePage(1); 
             
-            // 🔴 កូដបញ្ជាការបង្ហាញ៖
-            // 'fullpage' ឱ្យវា Zoom សមនឹងអេក្រង់
-            // 'single' ឱ្យវាបង្ហាញម្តង ១សន្លឹកដាច់ៗពីគ្នា
             doc.setDisplayMode('fullpage', 'single');
             
             let hasImages = false;
@@ -1895,7 +1896,6 @@
         }
     }
 
-    // Function ជំនួយទាញយករូបមកធ្វើ Base64 ឱ្យ jsPDF ប្រើបាន
     function getCleanBase64ForPDF(url) {
         return new Promise((resolve) => {
             if (url.startsWith('data:image')) { resolve(url); return; }
