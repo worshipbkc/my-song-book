@@ -370,13 +370,19 @@
             </div>
             
             <div class="section-title-wrapper">
-                <h2 class="section-title">
-                    <span class="icon-circle"><i class="fa-solid fa-headphones-simple"></i></span> 
-                    <span id="sectionTitleText">បទចម្រៀងទាំងអស់</span>
-                    <span id="totalSongCountBadge" class="song-count-badge">...</span>
-                </h2>
-                <div class="section-divider"></div>
-            </div>
+    <h2 class="section-title">
+        <span class="icon-circle"><i class="fa-solid fa-headphones-simple"></i></span> 
+        <span id="sectionTitleText">បទចម្រៀងទាំងអស់</span>
+        <span id="totalSongCountBadge" class="song-count-badge">...</span>
+    </h2>
+    
+    <!-- ប៊ូតុង Share Playlist ថ្មី (លាក់សិន វានឹងលោតចេញតែពេលចូលមើល Playlist ប៉ុណ្ណោះ) -->
+    <button id="sharePlaylistBtn" class="btn-share-custom" style="display: none; margin-left: 8px; padding: 4px 10px; border-radius: 8px; font-size: 0.75rem; font-weight: 600; cursor: pointer; border-width: 1px; border-style: solid; align-items: center; gap: 4px;" onclick="handleShareCurrentPlaylist()">
+        <i class="fa-solid fa-share-nodes"></i> Share All
+    </button>
+
+    <div class="section-divider"></div>
+</div>
             <!-- Playlist Drag Info -->
             <div id="playlistDragInfo" style="display:none; font-size:0.75rem; color:var(--primary); text-align:right; margin-bottom: 8px;">
                 <i class="fa-solid fa-arrows-up-down"></i> អូសប័ណ្ណបទចម្រៀងចុះឡើងដើម្បីប្តូរលំដាប់ទីតាំង
@@ -1104,12 +1110,20 @@
         displayedItemCount = 20;
         
         // Show/Hide Drag info text for Playlist
-        const dragInfo = document.getElementById('playlistDragInfo');
-        if(currentFilterType === 'PLAYLIST' && currentFilterValue !== 'Favorite') dragInfo.style.display = 'block';
-        else dragInfo.style.display = 'none';
+        // Show/Hide Drag info text & Share Button for Playlist
+    const dragInfo = document.getElementById('playlistDragInfo');
+    const shareBtn = document.getElementById('sharePlaylistBtn');
 
-        renderSongsListOnly();
+    if (currentFilterType === 'PLAYLIST' && currentFilterValue !== 'Favorite') {
+        dragInfo.style.display = 'block';
+        if (shareBtn) shareBtn.style.display = 'inline-flex'; // បង្ហាញប៊ូតុង Share ពេលចូល Playlist ធម្មតា
+    } else {
+        dragInfo.style.display = 'none';
+        if (shareBtn) shareBtn.style.display = 'none'; // លាក់វាវិញពេលចូលកន្លែងផ្សេង
     }
+
+    renderSongsListOnly();
+}
 
     /* Drag & Drop Handlers for Reordering Playlist */
     function handleDragStart(e, songId) {
@@ -1685,6 +1699,84 @@
     }
     function applyStoredTheme() { if (localStorage.getItem('theme_mode') === 'dark') { document.body.classList.add('dark-mode'); document.getElementById('themeToggleBtn').innerText = '☀️'; } }
     function escapeHtml(str) { if (!str) return ''; return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;"); }
+    // ==========================================
+    // មុខងារ Share Playlist រូបភាពតាមលេខរៀង
+    // ==========================================
+    function handleShareCurrentPlaylist() {
+        if (currentFilterType === 'PLAYLIST' && currentFilterValue) {
+            sharePlaylistFolder(currentFilterValue);
+        }
+    }
+
+    async function sharePlaylistFolder(playlistName) {
+        const songIds = playlists[playlistName];
+        
+        if (!songIds || songIds.length === 0) {
+            showToast('មិនមានបទចម្រៀងក្នុង Playlist នេះទេ', 'warning');
+            return;
+        }
+
+        const shareBtn = document.getElementById('sharePlaylistBtn');
+        if (shareBtn) shareBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> កំពុងរៀបចំ...';
+        showToast('កំពុងរៀបចំរូបភាព សូមរង់ចាំបន្តិច...', 'info');
+        
+        let filesToShare = [];
+
+        // ប្រើ for loop ដើម្បីធានាថាវាទាញយករូបភាពតាមលំដាប់លេខរៀងទី១ ទី២ ទី៣...
+        for (let i = 0; i < songIds.length; i++) {
+            const songId = songIds[i];
+            const song = songsList.find(s => s.id === songId);
+            
+            if (!song || !song.imageUrl) continue;
+
+            const safeTitle = song.title ? song.title.replace(/[^a-zA-Z0-9\u1780-\u17FF]/g, "_") : 'Song';
+            // ដាក់លេខរៀងពីមុខ ដើម្បីឱ្យ Telegram/Messenger តម្រៀបត្រូវ
+            const fileName = `${i + 1}_${safeTitle}.jpg`; 
+
+            try {
+                let fileObj = null;
+                
+                if (song.imageUrl.startsWith('data:image')) {
+                    const arr = song.imageUrl.split(','); 
+                    const mime = (arr[0].match(/:(.*?);/) || [])[1] || 'image/jpeg'; 
+                    const bstr = atob(arr[1]); 
+                    let n = bstr.length; 
+                    const u8arr = new Uint8Array(n); 
+                    while (n--) u8arr[n] = bstr.charCodeAt(n);
+                    
+                    fileObj = new File([new Blob([u8arr], { type: mime })], fileName, { type: mime });
+                } else {
+                    const res = await fetch(song.imageUrl);
+                    const blob = await res.blob();
+                    fileObj = new File([blob], fileName, { type: blob.type || 'image/jpeg' });
+                }
+                
+                if (fileObj) {
+                    filesToShare.push(fileObj);
+                }
+            } catch (err) {
+                console.error("Error formatting image for share:", err);
+            }
+        }
+
+        if (shareBtn) shareBtn.innerHTML = '<i class="fa-solid fa-share-nodes"></i> Share All';
+
+        if (filesToShare.length > 0) {
+            if (navigator.canShare && navigator.canShare({ files: filesToShare })) {
+                try {
+                    await navigator.share({
+                        title: `Playlist: ${playlistName}`,
+                        text: `សូមជូនបទចម្រៀងពី Playlist: ${playlistName}`,
+                        files: filesToShare
+                    });
+                } catch (err) {
+                    console.log("បោះបង់ការ Share:", err);
+                }
+            } else {
+                showToast('Browser របស់អ្នកមិនគាំទ្រការ Share ហ្វាល់រូបភាពច្រើនទេ', 'warning');
+            }
+        }
+    }
 </script>
 </body>
 </html>
