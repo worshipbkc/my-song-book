@@ -252,6 +252,108 @@
         .toast.error i { color: #ef4444; }
         .toast.info i { color: #3b82f6; }
         .toast.warning i { color: #f59e0b; }
+
+        /* =========================================
+           Responsive UI: Mobile, Tablet, Desktop
+           ========================================= */
+
+        /* សម្រាប់ Tablet (Tab) - ទំហំចន្លោះពី 768px ទៅ 1024px */
+        @media (min-width: 768px) and (max-width: 1024px) {
+            .song-grid {
+                /* បង្ហាញ Card ច្រើនជាងមុនដោយបន្ថយទំហំអប្បបរមា */
+                grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); 
+            }
+            .bottom-nav {
+                height: 70px;
+                padding-bottom: env(safe-area-inset-bottom);
+            }
+            .bottom-nav-item i {
+                font-size: 1.2rem;
+            }
+            .modal-content {
+                max-width: 700px; /* ពង្រីកទំហំ Modal ឲ្យសមនឹង Tab */
+            }
+        }
+
+        /* សម្រាប់ Desktop - ទំហំធំជាង 1024px */
+        @media (min-width: 1025px) {
+            body {
+                display: flex;
+                padding-bottom: 0; /* លុបចន្លោះខាងក្រោម ព្រោះលែងមាន Bottom Nav */
+            }
+
+            /* ប្ដូរ Bottom Nav ទៅជា Sidebar បញ្ឈរនៅខាងឆ្វេង */
+            .bottom-nav {
+                position: fixed;
+                top: 0;
+                left: 0;
+                bottom: 0;
+                width: 260px;
+                height: 100vh;
+                flex-direction: column;
+                justify-content: flex-start;
+                padding-top: 30px;
+                border-top: none;
+                border-right: 1px solid var(--border);
+                border-radius: 0;
+                box-shadow: 4px 0 15px rgba(0,0,0,0.03);
+            }
+
+            .bottom-nav-item {
+                flex: none;
+                height: 50px;
+                width: 85%;
+                margin: 8px auto;
+                flex-direction: row; /* តម្រៀប Icon និង Text ផ្ដេកចូលគ្នា */
+                justify-content: flex-start;
+                padding-left: 24px;
+                border-radius: 12px;
+                font-size: 0.95rem;
+                gap: 16px;
+                transition: all 0.2s;
+            }
+
+            .bottom-nav-item:hover {
+                background: rgba(37, 99, 235, 0.08);
+            }
+            
+            body.dark-mode .bottom-nav-item:hover {
+                background: rgba(59, 130, 246, 0.15);
+            }
+
+            .bottom-nav-item i {
+                font-size: 1.15rem;
+            }
+
+            /* រុញផ្ទៃ Main Content ទៅខាងស្ដាំ ដើម្បីទុកកន្លែងឲ្យ Sidebar */
+            .main-content {
+                margin-left: 260px;
+                max-width: calc(100% - 260px);
+                padding: 30px 40px;
+            }
+
+            .offline-sync-badge {
+                bottom: 20px;
+                right: 20px;
+            }
+
+            /* ប្ដូរទម្រង់ Bottom Sheet Modal ទៅជា Center Dialog Modal វិញសម្រាប់ Desktop */
+            .modal {
+                align-items: center; /* តម្រៀបចំកណ្ដាលអេក្រង់ */
+            }
+            .modal-content {
+                border-radius: 20px; /* ធ្វើឲ្យជ្រុងទាំង ៤ មូល */
+                transform: translateY(-20px) scale(0.95); /* Animation លោតពីកណ្ដាល */
+                border: 1px solid var(--border);
+                box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            }
+            .modal.active .modal-content {
+                transform: translateY(0) scale(1);
+            }
+            .modal-drag-handle {
+                display: none; /* លាក់ប្រអប់អូសចុះក្រោម ព្រោះនៅលើ Desktop យើងប្រើ Mouse មិនមែន Touch ទេ */
+            }
+        }
     </style>
 </head>
 <body id="bodyContainer">
@@ -629,9 +731,20 @@
         };
         
         recognition.onerror = function(event) {
-            showToast('មិនអាចស្តាប់បានច្បាស់ សូមព្យាយាមម្តងទៀត', 'warning');
-            document.getElementById('voiceSearchBtn').style.color = 'var(--primary)';
-        }
+    console.error("Voice Error:", event.error);
+    
+    let errorMsg = 'មិនអាចស្តាប់បានច្បាស់ សូមព្យាយាមម្តងទៀត';
+    if (event.error === 'not-allowed') {
+        errorMsg = 'សូមបើកសិទ្ធិ (Allow) ឲ្យកម្មវិធីប្រើប្រាស់ Microphone សិន';
+    } else if (event.error === 'network') {
+        errorMsg = 'សូមភ្ជាប់អ៊ីនធឺណិតដើម្បីប្រើប្រាស់មុខងារសំឡេង';
+    } else if (event.error === 'no-speech') {
+         errorMsg = 'មិនមានសំឡេងចូលទេ';
+    }
+    
+    showToast(errorMsg, 'warning');
+    document.getElementById('voiceSearchBtn').style.color = 'var(--primary)';
+}
         
         recognition.start();
     }
