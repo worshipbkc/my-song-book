@@ -24,6 +24,8 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+    <!-- បន្ថែម Library សម្រាប់បង្កើត PDF -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
     <style>
         :root {
@@ -580,6 +582,30 @@
 
         <div style="text-align: right; margin-top: 18px;">
             <button type="button" onclick="closeModal('playlistModal')" style="background: var(--border); color: var(--text); padding: 10px 20px; border-radius:8px; border:none; font-size:0.9rem; font-weight: 600; width: 100%;">បិទ</button>
+        </div>
+    </div>
+</div>
+<!-- Modal ជម្រើស Share Playlist -->
+<div class="modal" id="sharePlaylistModal">
+    <div class="modal-content" style="max-width: 400px;">
+        <div class="modal-drag-handle"></div>
+        <h3 style="font-size: 1.1rem; margin-bottom: 16px; text-align: center;">📤 ជម្រើសចែករំលែក</h3>
+        <p style="text-align: center; font-size: 0.85rem; color: var(--text-muted); margin-bottom: 20px;">
+            តើអ្នកចង់ចែករំលែក Playlist នេះជាទម្រង់អ្វី?
+        </p>
+        
+        <div style="display: flex; flex-direction: column; gap: 12px;">
+            <button onclick="executeShare('pdf')" style="padding: 12px; border-radius: 12px; border: 1px solid var(--primary); font-weight: 600; background: var(--primary); color: white; font-size: 0.95rem; display: flex; align-items: center; justify-content: center; gap: 8px;">
+                <i class="fa-solid fa-file-pdf"></i> ជាឯកសារ PDF (រក្សាលំដាប់១០០%)
+            </button>
+            
+            <button onclick="executeShare('images')" style="padding: 12px; border-radius: 12px; border: 1px solid var(--border); font-weight: 600; background: var(--bg); color: var(--text); font-size: 0.95rem; display: flex; align-items: center; justify-content: center; gap: 8px;">
+                <i class="fa-solid fa-images"></i> ជារូបភាពធម្មតាសុទ្ធ
+            </button>
+        </div>
+        
+        <div style="text-align: center; margin-top: 16px;">
+            <button type="button" onclick="closeModal('sharePlaylistModal')" style="background: transparent; color: var(--danger); padding: 8px 16px; border: none; font-size: 0.9rem; font-weight: 600; cursor: pointer;">បោះបង់</button>
         </div>
     </div>
 </div>
@@ -1761,6 +1787,173 @@
 
         if (shareBtn) shareBtn.innerHTML = '<i class="fa-solid fa-share-nodes"></i> Share All';
 
+        // ធ្វើការ Share
+        if (filesToShare.length > 0) {
+            if (navigator.canShare && navigator.canShare({ files: filesToShare })) {
+                try {
+                    // ផ្ញើរតែ File រូបភាពសុទ្ធ មិនមានភ្ជាប់អក្សរ
+                    await navigator.share({
+                        files: filesToShare
+                    });
+                } catch (err) {
+                    console.log("បោះបង់ការ Share:", err);
+                }
+            } else {
+                showToast('Browser របស់អ្នកមិនគាំទ្រការ Share រូបភាពទេ', 'warning');
+            }
+        }
+    }
+// ==========================================
+    // មុខងារ Share Playlist (មានជម្រើស PDF & រូបភាព)
+    // ==========================================
+    let pendingSharePlaylistName = "";
+
+    function handleShareCurrentPlaylist() {
+        if (currentFilterType === 'PLAYLIST' && currentFilterValue) {
+            pendingSharePlaylistName = currentFilterValue;
+            openModal('sharePlaylistModal'); // បើកផ្ទាំងឱ្យរើសសិន
+        }
+    }
+
+    function executeShare(type) {
+        closeModal('sharePlaylistModal');
+        if (type === 'pdf') {
+            sharePlaylistAsPDF(pendingSharePlaylistName);
+        } else {
+            sharePlaylistAsImages(pendingSharePlaylistName);
+        }
+    }
+
+    // --- ជម្រើសទី ១៖ Share ជា PDF (ទំព័រ PDF ប្រែប្រួលតាមទំហំរូបភាពជាក់ស្តែង) ---
+    async function sharePlaylistAsPDF(playlistName) {
+        const songIds = playlists[playlistName];
+        if (!songIds || songIds.length === 0) return;
+
+        const shareBtn = document.getElementById('sharePlaylistBtn');
+        if (shareBtn) shareBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> រៀបចំ PDF...';
+        showToast('កំពុងបង្កើត PDF សូមរង់ចាំបន្តិច...', 'info');
+
+        try {
+            const { jsPDF } = window.jspdf;
+            
+            // កំណត់ឯកតា (unit) ជា 'px' ដើម្បីឱ្យទំហំ PDF ស្មើនឹងទំហំរូបភាពដើម ១០០%
+            const doc = new jsPDF({ unit: 'px' }); 
+            doc.deletePage(1); // លុបទំព័រ A4 ទទេដែលវាបង្កើតដំបូងចោលសិន
+            
+            let hasImages = false;
+
+            for (let i = 0; i < songIds.length; i++) {
+                const song = songsList.find(s => s.id === songIds[i]);
+                if (!song || !song.imageUrl) continue;
+
+                const imgData = await getCleanBase64ForPDF(song.imageUrl);
+                if (!imgData) continue;
+
+                // វាស់ទំហំរូបភាព (ទទឹង និងកម្ពស់)
+                const imgProps = doc.getImageProperties(imgData);
+                
+                // កំណត់ទិសដៅក្រដាស (បើទទឹងធំជាងកម្ពស់ គឺផ្តេក 'l', បើបញ្ឈរគឺ 'p')
+                const orientation = imgProps.width > imgProps.height ? 'l' : 'p';
+                
+                // កំណត់ទំហំទំព័រ PDF ថ្មីឱ្យស្មើនឹងទំហំរូបភាពជាក់ស្តែង
+                const format = [imgProps.width, imgProps.height];
+                
+                // បន្ថែមទំព័រថ្មី រួចដាក់រូបភាពចូលឱ្យពេញទំព័រតែម្តង
+                doc.addPage(format, orientation);
+                doc.addImage(imgData, 'JPEG', 0, 0, imgProps.width, imgProps.height);
+                hasImages = true;
+            }
+
+            if (!hasImages) {
+                showToast('មិនមានរូបភាពសម្រាប់បង្កើត PDF ទេ', 'warning');
+                if (shareBtn) shareBtn.innerHTML = '<i class="fa-solid fa-share-nodes"></i> Share All';
+                return;
+            }
+
+            const pdfBlob = doc.output('blob');
+            const safeName = playlistName.replace(/[^a-zA-Z0-9\u1780-\u17FF]/g, "_");
+            const pdfFile = new File([pdfBlob], `${safeName}.pdf`, { type: 'application/pdf' });
+
+            if (shareBtn) shareBtn.innerHTML = '<i class="fa-solid fa-share-nodes"></i> Share All';
+
+            if (navigator.canShare && navigator.canShare({ files: [pdfFile] })) {
+                await navigator.share({
+                    title: `Playlist: ${playlistName}`,
+                    text: `ឯកសារ PDF សម្រាប់ Playlist: ${playlistName}`,
+                    files: [pdfFile]
+                });
+            } else {
+                // បើទូរសព្ទអត់គាំទ្រការ Share ផ្ទាល់ វានឹងទាញយក (Download) ជំនួសវិញ
+                const url = URL.createObjectURL(pdfBlob);
+                const a = document.createElement('a');
+                a.href = url; a.download = `${safeName}.pdf`;
+                document.body.appendChild(a); a.click(); document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+                showToast('បានទាញយកជា PDF', 'success');
+            }
+        } catch (err) {
+            console.error(err);
+            showToast('មានបញ្ហាក្នុងការបង្កើត PDF', 'error');
+            if (shareBtn) shareBtn.innerHTML = '<i class="fa-solid fa-share-nodes"></i> Share All';
+        }
+    }
+
+    // Function ជំនួយទាញយករូបមកធ្វើ Base64 ឱ្យ jsPDF ប្រើបាន
+    function getCleanBase64ForPDF(url) {
+        return new Promise((resolve) => {
+            if (url.startsWith('data:image')) { resolve(url); return; }
+            const img = new Image();
+            img.crossOrigin = "Anonymous";
+            img.onload = () => {
+                const canvas = document.createElement('canvas');
+                canvas.width = img.width; canvas.height = img.height;
+                const ctx = canvas.getContext('2d');
+                ctx.drawImage(img, 0, 0);
+                resolve(canvas.toDataURL('image/jpeg', 0.85));
+            };
+            img.onerror = () => resolve(null);
+            img.src = url;
+        });
+    }
+
+    // --- ជម្រើសទី ២៖ Share ជារូបភាពសុទ្ធធម្មតា ---
+    async function sharePlaylistAsImages(playlistName) {
+        const songIds = playlists[playlistName];
+        if (!songIds || songIds.length === 0) return;
+
+        const shareBtn = document.getElementById('sharePlaylistBtn');
+        if (shareBtn) shareBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> រៀបចំរូបភាព...';
+        showToast('កំពុងរៀបចំរូបភាព...', 'info');
+        
+        let filesToShare = [];
+        for (let i = 0; i < songIds.length; i++) {
+            const song = songsList.find(s => s.id === songIds[i]);
+            if (!song || !song.imageUrl) continue;
+
+            const safeTitle = song.title ? song.title.replace(/[^a-zA-Z0-9\u1780-\u17FF]/g, "_") : 'Song';
+            const fileName = `${i + 1}_${safeTitle}.jpg`; 
+
+            try {
+                let fileObj = null;
+                if (song.imageUrl.startsWith('data:image')) {
+                    const arr = song.imageUrl.split(','); 
+                    const mime = (arr[0].match(/:(.*?);/) || [])[1] || 'image/jpeg'; 
+                    const bstr = atob(arr[1]); 
+                    let n = bstr.length; 
+                    const u8arr = new Uint8Array(n); 
+                    while (n--) u8arr[n] = bstr.charCodeAt(n);
+                    fileObj = new File([new Blob([u8arr], { type: mime })], fileName, { type: mime });
+                } else {
+                    const res = await fetch(song.imageUrl);
+                    const blob = await res.blob();
+                    fileObj = new File([blob], fileName, { type: blob.type || 'image/jpeg' });
+                }
+                if (fileObj) filesToShare.push(fileObj);
+            } catch (err) {}
+        }
+
+        if (shareBtn) shareBtn.innerHTML = '<i class="fa-solid fa-share-nodes"></i> Share All';
+
         if (filesToShare.length > 0) {
             if (navigator.canShare && navigator.canShare({ files: filesToShare })) {
                 try {
@@ -1769,14 +1962,12 @@
                         text: `សូមជូនបទចម្រៀងពី Playlist: ${playlistName}`,
                         files: filesToShare
                     });
-                } catch (err) {
-                    console.log("បោះបង់ការ Share:", err);
-                }
+                } catch (err) {}
             } else {
-                showToast('Browser របស់អ្នកមិនគាំទ្រការ Share ហ្វាល់រូបភាពច្រើនទេ', 'warning');
+                showToast('Browser របស់អ្នកមិនគាំទ្រការ Share ទេ។', 'warning');
             }
         }
-    }
+    }    
 </script>
 </body>
 </html>
