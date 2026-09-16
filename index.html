@@ -195,7 +195,7 @@
         .sub-settings-view { display: none; }
         .sub-settings-view.active { display: block; }
 
-        /* 💡 អក្សរអណ្តែតឡើង (Floating Status Text) គ្មាន Background */
+        /* 💡 អក្សរអណ្តែតឡើង (Floating Status Text) គ្មាន Background និងមាន Animation ស្រាល */
         .offline-sync-badge {
             position: fixed;
             bottom: calc(75px + env(safe-area-inset-bottom));
@@ -427,11 +427,23 @@
 
     <!-- ទីតាំង Settings (ការកំណត់) -->
     <div class="app-view" id="viewSettings">
-        <div class="profile-container" style="padding: 10px 16px;">
+        <div class="profile-container" style="padding: 10px 16px;" id="mainSettingsContainer">
             
             <div class="settings-section-title">គណនី (Account)</div>
             <div class="settings-card" id="settingsAccountArea">
                 <!-- User Profile or Login Placeholder -->
+            </div>
+
+            <!-- ប៊ូតុងចូលទៅមើលការជូនដំណឹង (ដាច់ដោយឡែក) -->
+            <div class="settings-section-title">ព័ត៌មានថ្មីៗ</div>
+            <div class="settings-card">
+                <button class="settings-item" onclick="openNotificationsSubView()">
+                    <div class="settings-item-left"><i class="fa-solid fa-bell" style="color: #f59e0b;"></i> ការជូនដំណឹងបទចម្រៀងថ្មី</div>
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <span class="settings-badge-count" id="settingsNotifBadge">0 ថ្មី</span>
+                        <i class="fa-solid fa-chevron-right" style="color: var(--border);"></i>
+                    </div>
+                </button>
             </div>
 
             <!-- ផ្ទាំងគ្រប់គ្រងទិន្នន័យ (Admin) - លាក់ជានិច្ច ទាល់តែមានសិទ្ធិ និងចុច ៣ដង -->
@@ -501,6 +513,19 @@
             </div>
 
         </div>
+
+        <!-- ផ្ទាំងរង (Sub-view) សម្រាប់ការជូនដំណឹង -->
+        <div class="sub-settings-view" id="subViewNotifications" style="padding: 10px 16px;">
+            <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 16px;">
+                <button onclick="closeNotificationsSubView()" style="background: var(--card-bg); border: 1px solid var(--border); color: var(--text); width: 38px; height: 38px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 1rem;">
+                    <i class="fa-solid fa-arrow-left"></i>
+                </button>
+                <h2 style="font-size: 1.1rem; font-weight: 700;">🔔 ការជូនដំណឹងបទចម្រៀងថ្មី</h2>
+            </div>
+            <div class="settings-card" id="settingsNotificationsList">
+                <!-- បញ្ជីបទចម្រៀងថ្មីៗនឹងលោតមកទីនេះ -->
+            </div>
+        </div>
     </div>
 </div>
 
@@ -520,6 +545,7 @@
     <button class="bottom-nav-item" id="navProfileBtn" onclick="switchTab('settings')">
         <i class="fa-solid fa-gear"></i>
         <span>ការកំណត់</span>
+        <span class="nav-badge-dot" id="navNotifDot"></span>
     </button>
 </div>
 
@@ -681,7 +707,7 @@
                 </div>
             </div>
             <div style="text-align: right; margin-top: 18px; display: flex; gap: 10px; justify-content: flex-end;">
-                <button type="button" onclick="closeModal('editSongModal')" style="background: var(--border); color: var(--text); padding: 10px 16px; border-radius:8px; border:none; font-size: 0.9rem; font-weight: 600;">បោះបង់</button>
+                <button type="button" onclick="closeModal('editSongModal')" style="background: var(--border); color: var(--text); padding: 10px 16px; border-radius:8px; border:none; font-size:0.9rem; font-weight: 600;">បោះបង់</button>
                 <button type="submit" id="updateBtn" style="padding: 10px 20px; border-radius: 8px; border: none; font-weight: 600; background: var(--primary); color: white; font-size:0.9rem;">រក្សាទុក</button>
             </div>
         </form>
@@ -956,6 +982,7 @@
         renderSongsListOnly();
         checkAndShowIosInstallGuide();
         updateOnlineStatus();
+        checkNewSongsNotification();
 
         const tapArea = document.getElementById('versionTapArea');
         if (tapArea) {
@@ -993,6 +1020,7 @@
                 renderSongs();
                 updateTotalSongCount();
                 markFetchCompleted();
+                checkNewSongsNotification();
             } else {
                 fetchAllSongsSilently();
             }
@@ -1102,6 +1130,7 @@
                 renderSongs();
                 updateTotalSongCount();
                 saveSongsToIndexedDB(songsList);
+                checkNewSongsNotification();
             }
         }, (error) => {});
     }
@@ -1131,7 +1160,50 @@
             if (mainHeader) mainHeader.style.display = 'none';
             document.getElementById('viewSettings').classList.add('active');
             document.getElementById('navProfileBtn').classList.add('active');
+            
+            closeNotificationsSubView();
             renderSettingsView();
+        }
+    }
+
+    function openNotificationsSubView() {
+        document.getElementById('mainSettingsContainer').style.display = 'none';
+        document.getElementById('subViewNotifications').classList.add('active');
+        markNotificationsAsRead();
+    }
+
+    function closeNotificationsSubView() {
+        document.getElementById('mainSettingsContainer').style.display = 'block';
+        document.getElementById('subViewNotifications').classList.remove('active');
+    }
+
+    function checkNewSongsNotification() {
+        if (!songsList || songsList.length === 0) return;
+        const lastChecked = localStorage.getItem('last_seen_song_time') || 0;
+        
+        const newSongs = songsList.filter(s => s.createdAt && s.createdAt.seconds > lastChecked);
+        
+        const dot = document.getElementById('navNotifDot');
+        const badge = document.getElementById('settingsNotifBadge');
+        if (newSongs.length > 0) {
+            if(dot) dot.style.display = 'block';
+            if(badge) {
+                badge.innerText = `${newSongs.length} ថ្មី`;
+                badge.style.display = 'inline-block';
+            }
+        } else {
+            if(dot) dot.style.display = 'none';
+            if(badge) badge.style.display = 'none';
+        }
+    }
+
+    function markNotificationsAsRead() {
+        if (songsList && songsList.length > 0 && songsList[0].createdAt) {
+            localStorage.setItem('last_seen_song_time', songsList[0].createdAt.seconds);
+            const dot = document.getElementById('navNotifDot');
+            if(dot) dot.style.display = 'none';
+            const badge = document.getElementById('settingsNotifBadge');
+            if(badge) badge.style.display = 'none';
         }
     }
 
@@ -1220,6 +1292,7 @@
             renderSongs();
             updateTotalSongCount();
             saveSongsToIndexedDB(songsList);
+            checkNewSongsNotification();
         }).catch(err => {
             const grid = document.getElementById('songGrid');
             if (grid && songsList.length === 0) {
@@ -1262,6 +1335,7 @@
             renderSongs();
             updateTotalSongCount();
             saveSongsToIndexedDB(songsList);
+            checkNewSongsNotification();
 
             setTimeout(() => markFetchCompleted(), 300);
             vibratePhone(100);
@@ -1292,6 +1366,7 @@
                         isAdmin = userData.role === 'admin'; 
                         isEditor = isAdmin || userData.role === 'editor'; 
                         
+                        // Cloud Sync: Merge cloud playlists with local
                         if (userData.playlists) {
                             playlists = Object.assign({}, playlists, userData.playlists);
                             localStorage.setItem('user_playlists', JSON.stringify(playlists));
@@ -1504,7 +1579,7 @@
     function highlightSearchText(text, query) {
         if (!query) return escapeHtml(text);
         const safeText = escapeHtml(text);
-        const safeQuery = query.replace(/[^.*+?^${}()|[\]\\]/g, '\\$&');
+        const safeQuery = query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
         const regex = new RegExp(`(${safeQuery})`, 'gi');
         return safeText.replace(regex, '<span class="highlight">$1</span>');
     }
@@ -1629,7 +1704,8 @@
     function renderSettingsView() {
         const accountContainer = document.getElementById('settingsAccountArea'); 
         const authBottomContainer = document.getElementById('bottomAuthArea');
-        if (!accountContainer || !authBottomContainer) return;
+        const notifContainer = document.getElementById('settingsNotificationsList');
+        if (!accountContainer || !authBottomContainer || !notifContainer) return;
 
         if (currentUser) {
             accountContainer.innerHTML = `
@@ -1658,6 +1734,24 @@
                     <div class="settings-item-left"><i class="fa-brands fa-google"></i> Login Email </div>
                 </button>
             `;
+        }
+
+        if (songsList && songsList.length > 0) {
+            const latestSongs = songsList.slice(0, 10);
+            notifContainer.innerHTML = latestSongs.map(song => `
+                <div class="settings-item" onclick="openFullScreenModal('${song.id}')">
+                    <div class="settings-item-left">
+                        <i class="fa-solid fa-music" style="color: var(--primary);"></i>
+                        <div>
+                            <div style="font-weight: 600; font-size: 0.88rem;">${escapeHtml(song.title)}</div>
+                            <div style="font-size: 0.72rem; color: var(--text-muted);">អាល់ប៊ុម៖ ${escapeHtml(song.album || 'ទូទៅ')}</div>
+                        </div>
+                    </div>
+                    <i class="fa-solid fa-chevron-right" style="color: var(--border);"></i>
+                </div>
+            `).join('');
+        } else {
+            notifContainer.innerHTML = `<div style="padding: 14px 16px; font-size: 0.85rem; color: var(--text-muted); text-align: center;">គ្មានការជូនដំណឹងថ្មីទេ</div>`;
         }
     }
 
