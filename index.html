@@ -24,7 +24,6 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
-    <!-- បន្ថែម Library សម្រាប់បង្កើត PDF -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
     <style>
@@ -52,10 +51,14 @@
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Kantumruy Pro', sans-serif; -webkit-tap-highlight-color: transparent; user-select: none; }
-        body { background-color: var(--bg); color: var(--text); min-height: 100vh; padding-top: max(8px, env(safe-area-inset-top)); padding-bottom: calc(70px + env(safe-area-inset-bottom)); transition: background-color 0.2s, color 0.2s; }
+        body { background-color: var(--bg); color: var(--text); min-height: 100vh; padding-top: max(8px, env(safe-area-inset-top)); padding-bottom: calc(70px + env(safe-area-inset-bottom)); transition: background-color 0.2s, color 0.2s; overscroll-behavior-y: none; -webkit-overflow-scrolling: touch; }
+
+        input, textarea, select { user-select: auto !important; -webkit-user-select: auto !important; }
+        img { -webkit-touch-callout: none; pointer-events: none; }
+        .fullscreen-img, .song-img, .preview-container img { pointer-events: auto; }
 
         #splashScreen { position: fixed; top: 0; left: 0; right: 0; bottom: 0; width: 100vw; height: 100vh; background-color: #ffffff; display: flex; align-items: center; justify-content: center; z-index: 99999; transition: opacity 0.4s ease-out, visibility 0.4s ease-out; }
-        #splashScreen img { max-width: 70%; max-height: 60%; object-fit: contain; border-radius: 16px; }
+        #splashScreen img { max-width: 70%; max-height: 60%; object-fit: contain; border-radius: 16px; pointer-events: auto; }
         #splashScreen.hide { opacity: 0; visibility: hidden; }
 
         .minimal-greeting { text-align: center; padding: 0 16px; margin-top: -6px; margin-bottom: 8px; }
@@ -97,9 +100,9 @@
         .search-box input:focus { box-shadow: inset 6px 6px 12px rgba(180, 185, 200, 0.5), inset -6px -6px 12px rgba(255, 255, 255, 1), 0 0 0 2px rgba(37,99,235,0.2); }
         body.dark-mode .search-box input:focus { box-shadow: inset 6px 6px 12px rgba(0,0,0,0.6), inset -6px -6px 12px rgba(255,255,255,0.1), 0 0 0 2px rgba(59,130,246,0.3); }
         
-        .voice-btn { position: absolute; right: 40px; background: none; border: none; color: var(--primary); font-size: 1.1rem; cursor: pointer; padding: 4px; display: flex; align-items: center; justify-content: center; transition: color 0.3s;}
+        .voice-btn { position: absolute; right: 65px; background: none; border: none; color: var(--primary); font-size: 1.1rem; cursor: pointer; padding: 4px; display: flex; align-items: center; justify-content: center; transition: color 0.3s; }
         .voice-btn:active { transform: scale(0.9); }
-        .clear-btn { position: absolute; right: 70px; background: none; border: none; color: var(--text-muted); font-size: 0.85rem; cursor: pointer; padding: 4px; display: none; align-items: center; justify-content: center; }
+        .clear-btn { position: absolute; right: 38px; background: none; border: none; color: var(--text-muted); font-size: 0.85rem; cursor: pointer; padding: 4px; display: none; align-items: center; justify-content: center; }
         .search-btn { position: absolute; right: 8px; background: none; border: none; font-size: 0.9rem; cursor: pointer; padding: 4px; }
         
         .search-dropdown { position: absolute; top: 100%; left: 0; right: 0; background: var(--card-bg); border: 1px solid var(--border); border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); max-height: 250px; overflow-y: auto; z-index: 1001; display: none; margin-top: 4px; }
@@ -141,86 +144,27 @@
         .song-title { font-size: 0.9rem; font-weight: 700; color: var(--text); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; flex: 1; }
         .song-artist { font-size: 0.78rem; color: var(--text-muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
-        .song-actions { display: grid; grid-template-columns: repeat(2, 1fr); gap: 6px; margin-top: 8px; }
-        .song-action-btn { padding: 6px 0; border-radius: 6px; font-size: 0.75rem; font-weight: 600; border: 1px solid var(--border); cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 4px; text-decoration: none; text-align: center; width: 100%; background-color: var(--card-bg); color: var(--text); }
-
         .btn-add-playlist-title { background: var(--bg); border: 1px solid var(--border); color: var(--primary); padding: 2px 8px; border-radius: 12px; font-size: 0.7rem; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: 2px; white-space: nowrap; }
         .btn-add-playlist-title:hover { background: var(--primary); color: white; }
 
         .btn-share-custom { background-color: #d1fae5; color: #047857; border-color: #a7f3d0; }
         body.dark-mode .btn-share-custom { background-color: #065f46; color: #d1fae5; border-color: #047857; }
-        .btn-save-custom { background-color: #e0f2fe; color: #0369a1; border-color: #bae6fd; }
-        body.dark-mode .btn-save-custom { background-color: #075985; color: #e0f2fe; border-color: #0284c7; }
-        .btn-edit-custom { background-color: #fef3c7; color: #b45309; border-color: #fde68a; }
-        body.dark-mode .btn-edit-custom { background-color: #78350f; color: #fef3c7; border-color: #92400e; }
-        .btn-delete-custom { background-color: #fee2e2; color: var(--danger); border-color: #fecaca; }
-        body.dark-mode .btn-delete-custom { background-color: #7f1d1d; color: #fee2e2; border-color: #991b1b; }
 
-        /* ---------------------------------------------------- */
-        /* UI Album & Playlist (Clean Icon Design) */
-        /* ---------------------------------------------------- */
+        /* UI Album & Playlist */
         .section-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 14px; margin-top: 8px; }
-        
-        .folder-card { 
-            background: var(--card-bg); 
-            border: 1px solid var(--border); 
-            border-radius: 18px; 
-            padding: 20px 12px; 
-            text-align: center; 
-            cursor: pointer; 
-            position: relative; 
-            box-shadow: 4px 4px 15px rgba(180, 185, 200, 0.25), -4px -4px 15px rgba(255, 255, 255, 0.9); 
-            transition: transform 0.2s ease, background-color 0.2s ease;
-        }
+        .folder-card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 18px; padding: 20px 12px; text-align: center; cursor: pointer; position: relative; box-shadow: 4px 4px 15px rgba(180, 185, 200, 0.25), -4px -4px 15px rgba(255, 255, 255, 0.9); transition: transform 0.2s ease, background-color 0.2s ease; }
         body.dark-mode .folder-card { box-shadow: 4px 4px 15px rgba(0,0,0,0.3), -4px -4px 15px rgba(255,255,255,0.02); }
         .folder-card:active { transform: scale(0.95); background: var(--bg); }
-        
-        .folder-icon-wrapper {
-            width: 60px;
-            height: 60px;
-            margin: 0 auto 12px auto;
-            background: rgba(37, 99, 235, 0.08);
-            color: var(--primary);
-            border-radius: 18px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.8rem;
-        }
+        .folder-icon-wrapper { width: 60px; height: 60px; margin: 0 auto 12px auto; background: rgba(37, 99, 235, 0.08); color: var(--primary); border-radius: 18px; display: flex; align-items: center; justify-content: center; font-size: 1.8rem; }
         body.dark-mode .folder-icon-wrapper { background: rgba(59, 130, 246, 0.15); }
-        
-        /* ពណ៌ដាច់ដោយឡែកសម្រាប់ Folder Favorite (បេះដូង) */
         .folder-icon-wrapper.fav-icon { background: rgba(239, 68, 68, 0.1); color: var(--danger); }
         body.dark-mode .folder-icon-wrapper.fav-icon { background: rgba(239, 68, 68, 0.2); }
-        
         .folder-name { font-weight: 700; font-size: 0.9rem; color: var(--text); margin-bottom: 4px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
         .folder-count { font-size: 0.75rem; color: var(--text-muted); font-weight: 600; }
-        
-        .folder-delete-btn { 
-            position: absolute; top: 10px; right: 10px; 
-            background: rgba(239, 68, 68, 0.1); color: var(--danger); 
-            border-radius: 50%; width: 28px; height: 28px; 
-            display: flex; align-items: center; justify-content: center; 
-            border: none; cursor: pointer; transition: 0.2s; 
-        }
+        .folder-delete-btn { position: absolute; top: 10px; right: 10px; background: rgba(239, 68, 68, 0.1); color: var(--danger); border-radius: 50%; width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; border: none; cursor: pointer; transition: 0.2s; }
         body.dark-mode .folder-delete-btn { background: rgba(239, 68, 68, 0.2); }
         .folder-delete-btn:active { transform: scale(0.85); background: var(--danger); color: white; }
-        /* Icon ជំនួសពេលគ្មានរូបភាព */
-        .folder-icon-placeholder {
-            width: 80px; height: 80px;
-            border-radius: 20px;
-            background: linear-gradient(135deg, var(--primary), #8b5cf6);
-            display: flex; align-items: center; justify-content: center;
-            font-size: 2.2rem; color: white;
-            box-shadow: 0 8px 16px rgba(37, 99, 235, 0.3);
-            z-index: 2;
-        }
 
-        .folder-info { padding: 12px 10px; flex: 1; display: flex; flex-direction: column; justify-content: center; z-index: 2; background: rgba(255,255,255, 0.1); }
-        body.dark-mode .folder-info { background: rgba(0,0,0, 0.1); }
-        .folder-name { font-weight: 700; font-size: 0.9rem; color: var(--text); margin-bottom: 4px; }
-        .folder-count { font-size: 0.72rem; color: var(--text-muted); font-weight: 600; }
-        .folder-delete-btn { position: absolute; top: 10px; right: 10px; background: rgba(0,0,0,0.5); color: #ff4d4f; border-radius: 50%; width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; border: 1px solid rgba(255,255,255,0.2); cursor: pointer; backdrop-filter: blur(4px); z-index: 10; }
         /* Profile & Stats */
         .profile-container { max-width: 450px; margin: 10px auto; background: var(--card-bg); border: 1px solid var(--border); border-radius: 12px; padding: 16px; box-shadow: 4px 4px 10px rgba(180, 185, 200, 0.2), -4px -4px 10px rgba(255, 255, 255, 0.9); }
         body.dark-mode .profile-container { box-shadow: 4px 4px 10px rgba(0,0,0,0.3), -4px -4px 10px rgba(255,255,255,0.02); }
@@ -228,20 +172,24 @@
         .stat-box { flex: 1; background: var(--bg); border: 1px solid var(--border); padding: 12px 10px; border-radius: 12px; text-align: center; }
         .stat-num { font-size: 1.3rem; font-weight: 800; color: var(--primary); line-height: 1.1; }
         .stat-label { font-size: 0.72rem; color: var(--text-muted); font-weight: 600; margin-top: 4px; }
-        
         .action-list { display: flex; flex-direction: column; gap: 8px; }
         .action-btn-item { display: flex; align-items: center; justify-content: space-between; padding: 12px 14px; background: var(--bg); border: 1px solid var(--border); border-radius: 10px; font-weight: 600; font-size: 0.85rem; cursor: pointer; color: var(--text); }
         .action-btn-item.danger { color: var(--danger); }
 
         /* Bottom Nav */
-        .bottom-nav { position: fixed; bottom: 1%; left: 0; right: 0; height: 62px; background: var(--card-bg); border-top: 1px solid var(--border); display: flex; align-items: center; justify-content: space-around; z-index: 1000; box-shadow: 0 -2px 8px rgba(0,0,0,0.08); border-radius: 20px 20px 20px 20px; backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border-color: #c4c4c1; }
+        .bottom-nav { position: fixed; bottom: 1%; left: 0; right: 0; height: 62px; background: var(--card-bg); border-top: 1px solid var(--border); display: flex; align-items: center; justify-content: space-around; z-index: 1000; box-shadow: 0 -2px 8px rgba(0,0,0,0.08); border-radius: 20px; backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); }
         .bottom-nav-item { display: flex; flex-direction: column; align-items: center; justify-content: center; flex: 1; height: 100%; color: var(--text-muted); text-decoration: none; font-size: 0.65rem; font-weight: 600; cursor: pointer; border: none; background: transparent; gap: 2px; }
         .bottom-nav-item i { font-size: 1.05rem; }
         .bottom-nav-item.active { color: var(--primary); }
 
-        .empty-state { text-align: center; padding: 30px 10px; color: var(--text-muted); grid-column: 1 / -1; font-weight: 600; font-size: 0.85rem; }
+        /* Empty States */
+        .empty-state { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 50px 20px; text-align: center; grid-column: 1 / -1; gap: 12px; }
+        .empty-icon { font-size: 3.5rem; color: #cbd5e1; margin-bottom: 8px; }
+        body.dark-mode .empty-icon { color: #334155; }
+        .empty-title { font-size: 1.1rem; font-weight: 700; color: var(--text); }
+        .empty-desc { font-size: 0.85rem; color: var(--text-muted); max-width: 250px; line-height: 1.4; }
 
-        /* Skeleton Loading CSS */
+        /* Skeleton */
         .skeleton-card { background: var(--card-bg); border-radius: 20px; overflow: hidden; display: flex; flex-direction: column; box-shadow: 6px 6px 15px rgba(180, 185, 200, 0.4), -6px -6px 15px rgba(255, 255, 255, 0.9); }
         body.dark-mode .skeleton-card { box-shadow: 4px 4px 15px rgba(0,0,0,0.5), -4px -4px 15px rgba(255,255,255,0.02); }
         .skeleton-img { width: 100%; height: 220px; background: #e2e8f0; animation: pulse 1.5s infinite ease-in-out; }
@@ -253,7 +201,7 @@
         @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.5; } 100% { opacity: 1; } }
         body.dark-mode .skeleton-img, body.dark-mode .skeleton-line, body.dark-mode .skeleton-btn { background: #334155; }
 
-        /* Modals... (Keep original styles) */
+        /* Modals */
         .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); align-items: flex-end; justify-content: center; z-index: 2000; padding: 0; opacity: 0; transition: opacity 0.3s ease; }
         .modal.active { display: flex; opacity: 1; }
         .modal-content { background: var(--card-bg); color: var(--text); padding: 20px 16px; border-radius: 20px 20px 0 0; width: 100%; max-width: 600px; max-height: 90vh; overflow-y: auto; border-top: 1px solid var(--border); transform: translateY(100%); transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1); margin: 0 auto; }
@@ -268,6 +216,7 @@
         .preview-container img { width: 100%; max-height: 110px; object-fit: contain; }
         .remove-img-btn { position: absolute; top: 4px; right: 4px; background: rgba(239, 68, 68, 0.9); color: white; border: none; border-radius: 50%; width: 24px; height: 24px; font-size: 0.75rem; cursor: pointer; }
 
+        /* Fullscreen */
         .fullscreen-modal { display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0, 0, 0, 0.95); z-index: 3000; flex-direction: column; align-items: center; justify-content: center; }
         .fullscreen-modal.active { display: flex; }
         .fullscreen-header { position: absolute; top: calc(10px + env(safe-area-inset-top)); left: 16px; right: 16px; display: flex; justify-content: space-between; align-items: center; color: white; z-index: 3010; }
@@ -286,7 +235,6 @@
         .status-online { background-color: #10b981; }
         .status-offline { background-color: #ef4444; }
 
-        /* Toast Notifications CSS */
         .toast-container { position: fixed; bottom: calc(75px + env(safe-area-inset-bottom)); left: 50%; transform: translateX(-50%); z-index: 9999; display: flex; flex-direction: column; gap: 8px; align-items: center; pointer-events: none; width: 90%; max-width: 400px; }
         .toast { background: rgba(30, 41, 59, 0.95); color: white; padding: 12px 20px; border-radius: 25px; font-size: 0.85rem; font-weight: 500; opacity: 0; transform: translateY(20px); transition: all 0.3s ease; text-align: center; box-shadow: 0 4px 12px rgba(0,0,0,0.2); display: flex; align-items: center; gap: 8px; }
         .toast.show { opacity: 1; transform: translateY(0); }
@@ -294,6 +242,17 @@
         .toast.error i { color: #ef4444; }
         .toast.info i { color: #3b82f6; }
         .toast.warning i { color: #f59e0b; }
+
+        /* Kebab Dropdown CSS */
+        .btn-more-options { background: none; border: none; color: var(--text-muted); padding: 4px 8px; cursor: pointer; font-size: 1.2rem; display: flex; align-items: center; justify-content: center; }
+        .card-dropdown { position: absolute; right: 10px; bottom: 30px; background: var(--card-bg); border: 1px solid var(--border); border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.15); padding: 6px; display: none; flex-direction: column; gap: 2px; z-index: 100; min-width: 140px; }
+        body.dark-mode .card-dropdown { box-shadow: 0 4px 15px rgba(0,0,0,0.5); }
+        .card-dropdown.show { display: flex; animation: scaleIn 0.2s ease-out; transform-origin: top right; }
+        .card-dropdown-item { padding: 10px 12px; border: none; background: none; text-align: left; font-size: 0.82rem; font-weight: 600; cursor: pointer; border-radius: 8px; display: flex; align-items: center; gap: 10px; color: var(--text); }
+        .card-dropdown-item:hover { background: var(--bg); color: var(--primary); }
+        .card-dropdown-item.danger { color: var(--danger); }
+        .card-dropdown-item.danger:hover { background: rgba(239, 68, 68, 0.1); }
+        @keyframes scaleIn { from { opacity: 0; transform: scale(0.9); } to { opacity: 1; transform: scale(1); } }
 
         /* Responsive UI */
         @media (min-width: 768px) and (max-width: 1024px) {
@@ -326,7 +285,7 @@
     <div class="header-brand">
         <img src="https://lh3.googleusercontent.com/d/12dt7uNglluI-nnVcc2jvslICE0HRoYIm" alt="Logo" class="app-logo">
         <div class="header-text">
-            <h1 class="main-title">ចម្រៀងសរសើរដំកើងព្រះ </h1>
+            <h1 class="main-title">ចម្រៀងសរសើរដំកើងព្រះ</h1>
             <p id="currentAlbumSubtitle" class="sub-title">Khmer Christian Worship Songs</p>
         </div>
     </div>
@@ -352,9 +311,12 @@
             <div class="controls">
                 <div class="search-box">
                     <input type="text" id="searchInput" placeholder="ស្វែងរកបទចម្រៀង..." oninput="handleSearchInput()" onfocus="handleSearchInput()" autocomplete="off">
+                    
+                    <!-- ប៊ូតុងលុបអក្សរ -->
                     <button class="clear-btn" id="clearSearchBtn" onclick="clearSearchInput()" title="លុបអក្សរ">
                         <i class="fa-solid fa-circle-xmark"></i>
                     </button>
+                   
                     <button class="search-btn" onclick="renderSongs()">🔍</button>
                     <div class="search-dropdown" id="searchDropdown"></div>
                 </div>
@@ -372,7 +334,6 @@
             </div>
             
             <div class="section-title-wrapper">
-                <!-- បន្ថែមប៊ូតុងថយក្រោយ (លាក់ជាបណ្តោះអាសន្ន) -->
                 <button id="backButton" onclick="goBackToMain()" style="display: none; background: transparent; border: none; font-size: 1.2rem; color: var(--text); cursor: pointer; padding-right: 12px; transition: 0.2s;">
                     <i class="fa-solid fa-arrow-left"></i>
                 </button>
@@ -383,7 +344,6 @@
                     <span id="totalSongCountBadge" class="song-count-badge">...</span>
                 </h2>
                 
-                <!-- ប៊ូតុង Share Playlist ថ្មី (លាក់សិន វានឹងលោតចេញតែពេលចូលមើល Playlist ប៉ុណ្ណោះ) -->
                 <button id="sharePlaylistBtn" class="btn-share-custom" style="display: none; margin-left: 8px; padding: 4px 10px; border-radius: 8px; font-size: 0.75rem; font-weight: 600; cursor: pointer; border-width: 1px; border-style: solid; align-items: center; gap: 4px;" onclick="handleShareCurrentPlaylist()">
                     <i class="fa-solid fa-share-nodes"></i> Share All
                 </button>
@@ -391,17 +351,17 @@
                 <div class="section-divider"></div>
             </div>
             
-            <!-- Playlist Drag Info -->
             <div id="playlistDragInfo" style="display:none; font-size:0.75rem; color:var(--primary); text-align:right; margin-bottom: 8px;">
                 <i class="fa-solid fa-arrows-up-down"></i> អូសប័ណ្ណបទចម្រៀងចុះឡើងដើម្បីប្តូរលំដាប់ទីតាំង
             </div>
         </div>
 
         <div class="song-grid" id="songGrid">
-            <!-- Skeleton items will be injected here if loading -->
+            <!-- Content Injected via JS -->
         </div>
         
     </div>
+    
     <div class="app-view" id="viewAlbums">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
             <h2 style="font-size: 1rem;">📁 អាល់ប៊ុមចម្រៀង</h2>
@@ -447,13 +407,16 @@
     <span id="statusText">អនឡាញ</span>
 </div>
 
-<!-- Toast Container -->
 <div id="toastContainer" class="toast-container"></div>
 
+<!-- Fullscreen Viewer ថ្មី -->
 <div class="fullscreen-modal" id="fullScreenModal">
     <div class="fullscreen-header">
-        <div id="fullScreenTitle" style="font-weight: 700; font-size: 0.9rem; max-width: 80%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;"></div>
-        <button onclick="closeFullScreenModalDirect()" style="background:none; border:none; color:white; font-size:1.4rem; cursor:pointer; padding: 4px;">✖</button>
+        <div style="display: flex; align-items: center; gap: 10px; max-width: 80%;">
+            <div id="fullScreenTitle" style="font-weight: 700; font-size: 0.95rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;"></div>
+            <span id="pageCounter" style="background: rgba(255,255,255,0.25); color: #fff; padding: 2px 10px; border-radius: 12px; font-size: 0.75rem; font-weight: 700; white-space: nowrap; backdrop-filter: blur(4px);"></span>
+        </div>
+        <button onclick="closeFullScreenModalDirect()" style="background:none; border:none; color:white; font-size:1.5rem; cursor:pointer; padding: 4px;">✖</button>
     </div>
     <button class="fullscreen-nav-btn fullscreen-prev" onclick="slideFullScreen(-1, event)">❮</button>
     <div class="fullscreen-img-container" id="fullScreenImgContainer">
@@ -462,8 +425,7 @@
     <button class="fullscreen-nav-btn fullscreen-next" onclick="slideFullScreen(1, event)">❯</button>
 </div>
 
-<!-- All Modals... (Keep same as original) -->
-<!-- Modal បញ្ចូលបទចម្រៀងថ្មី -->
+<!-- Modals ... -->
 <div class="modal" id="addSongModal">
     <div class="modal-content">
         <div class="modal-drag-handle"></div>
@@ -503,7 +465,6 @@
     </div>
 </div>
 
-<!-- Modal សម្រាប់បញ្ចូលច្រើន -->
 <div class="modal" id="batchAddModal">
     <div class="modal-content">
         <div class="modal-drag-handle"></div>
@@ -530,7 +491,6 @@
     </div>
 </div>
 
-<!-- Modal កែប្រែបទចម្រៀង -->
 <div class="modal" id="editSongModal">
     <div class="modal-content">
         <div class="modal-drag-handle"></div>
@@ -590,25 +550,20 @@
         </div>
     </div>
 </div>
-<!-- Modal ជម្រើស Share Playlist -->
+
 <div class="modal" id="sharePlaylistModal">
     <div class="modal-content" style="max-width: 400px;">
         <div class="modal-drag-handle"></div>
         <h3 style="font-size: 1.1rem; margin-bottom: 16px; text-align: center;">📤 ជម្រើសចែករំលែក</h3>
-        <p style="text-align: center; font-size: 0.85rem; color: var(--text-muted); margin-bottom: 20px;">
-            តើអ្នកចង់ចែករំលែក Playlist នេះជាទម្រង់អ្វី?
-        </p>
-        
+        <p style="text-align: center; font-size: 0.85rem; color: var(--text-muted); margin-bottom: 20px;">តើអ្នកចង់ចែករំលែក Playlist នេះជាទម្រង់អ្វី?</p>
         <div style="display: flex; flex-direction: column; gap: 12px;">
             <button onclick="executeShare('pdf')" style="padding: 12px; border-radius: 12px; border: 1px solid var(--primary); font-weight: 600; background: var(--primary); color: white; font-size: 0.95rem; display: flex; align-items: center; justify-content: center; gap: 8px;">
-                <i class="fa-solid fa-file-pdf"></i> ចែករំលែកជាPDF
+                <i class="fa-solid fa-file-pdf"></i> ចែករំលែកជា PDF
             </button>
-            
             <button onclick="executeShare('images')" style="padding: 12px; border-radius: 12px; border: 1px solid var(--border); font-weight: 600; background: var(--bg); color: var(--text); font-size: 0.95rem; display: flex; align-items: center; justify-content: center; gap: 8px;">
                 <i class="fa-solid fa-images"></i> ចែករំលែកជារូបភាព
             </button>
         </div>
-        
         <div style="text-align: center; margin-top: 16px;">
             <button type="button" onclick="closeModal('sharePlaylistModal')" style="background: transparent; color: var(--danger); padding: 8px 16px; border: none; font-size: 0.9rem; font-weight: 600; cursor: pointer;">បោះបង់</button>
         </div>
@@ -659,9 +614,26 @@
     let songsListenerUnsubscribe = null;
     let scrollObserver = null;
     
-    // Drag & Drop Data
     let dragSrcId = null;
 
+    let wakeLock = null;
+
+async function requestWakeLock() {
+    try {
+        if ('wakeLock' in navigator) {
+            wakeLock = await navigator.wakeLock.request('screen');
+        }
+    } catch (err) {
+        console.log('Wake Lock Error:', err);
+    }
+}
+
+function releaseWakeLock() {
+    if (wakeLock !== null) {
+        wakeLock.release();
+        wakeLock = null;
+    }
+}
     if ('serviceWorker' in navigator) {
         window.addEventListener('load', () => navigator.serviceWorker.register('sw.js').catch(err => {}));
     }
@@ -683,7 +655,18 @@
         }
     }
 
-    // Haptic Feedback Helper
+    function checkAndShowIosInstallGuide() {
+        const isIos = /iphone|ipad|ipod/.test(window.navigator.userAgent.toLowerCase());
+        const isStandalone = ('standalone' in window.navigator) && (window.navigator.standalone);
+        if (isIos && !isStandalone) {
+            const installBtn = document.getElementById('installPwaBtn');
+            installBtn.style.display = 'flex';
+            installBtn.onclick = function() {
+                alert("នៅលើ iPhone៖ សូមចុចប៊ូតុង Share នៅផ្នែកខាងក្រោម រួចរំកិលចុះក្រោម រួចជ្រើសរើស 'Add to Home Screen' ដើម្បីដំឡើង App នេះ។");
+            };
+        }
+    }
+
     function vibratePhone(ms = 50) {
         if (navigator.vibrate) { navigator.vibrate(ms); }
     }
@@ -711,7 +694,7 @@
     function startVoiceSearch() {
         const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
         if (!SpeechRecognition) { 
-            showToast('កម្មវិធីរុករករបស់អ្នកមិនគាំទ្រមុខងារស្វែងរកដោយសំឡេងទេ', 'warning'); 
+            showToast('Browser របស់អ្នកមិនគាំទ្រមុខងារស្វែងរកដោយសំឡេងទេ', 'warning'); 
             return; 
         }
         
@@ -758,7 +741,6 @@
         });
     }
 
-    // មុខងារត្រួតពិនិត្យការ លាក់/បង្ហាញ UI
     function toggleFilterUI(isFiltered) {
         const header = document.getElementById('mainAppHeader');
         const greeting = document.querySelector('.minimal-greeting');
@@ -784,7 +766,6 @@
         }
     }
 
-    // មុខងារសម្រាប់ប៊ូតុងថយក្រោយ
     function goBackToMain() {
         const prevFilterType = currentFilterType;
         resetFilters();
@@ -807,6 +788,7 @@
         listenToAuth();
         listenToAlbums();
         renderSongsListOnly();
+        checkAndShowIosInstallGuide(); // Add iOS guide check
 
         try {
             await initIndexedDB();
@@ -829,9 +811,15 @@
         setupIntersectionObserver();
         setupDropZoneHandlers();
 
+        // មុខងារចុចលើកន្លែងផ្សេង ដើម្បីបិទ Dropdown ផ្សេងៗ
         document.addEventListener('click', function(e) {
             const searchBox = document.querySelector('.search-box');
             if (searchBox && !searchBox.contains(e.target)) hideSearchDropdown();
+
+            // បិទ Kebab Menus
+            if (!e.target.closest('.card-dropdown') && !e.target.closest('.btn-more-options')) {
+                document.querySelectorAll('.card-dropdown').forEach(el => el.classList.remove('show'));
+            }
         });
         
         document.querySelectorAll('.modal').forEach(modal => {
@@ -988,18 +976,6 @@
         `).join('');
     }
 
-    function getFolderSkeletonHTML(count = 4) {
-        return Array(count).fill(`
-            <div class="folder-card" style="padding:0; border:1px solid var(--border);">
-                <div class="skeleton-img" style="height:110px;"></div>
-                <div class="folder-info" style="padding:10px;">
-                    <div class="skeleton-line" style="margin-bottom:6px;"></div>
-                    <div class="skeleton-line short" style="margin-bottom:0;"></div>
-                </div>
-            </div>
-        `).join('');
-    }
-
     function loadMoreChunks() {
         if (displayedItemCount >= currentFilteredSongs.length) return;
         isLoadingMore = true;
@@ -1056,7 +1032,11 @@
             const grid = document.getElementById('songGrid');
             if (grid && songsList.length === 0) {
                 isDataLoaded = true;
-                grid.innerHTML = '<div class="empty-state">គ្មានអ៊ីនធឺណិត និងគ្មានទិន្នន័យ Offine ឡើយ</div>';
+                grid.innerHTML = `<div class="empty-state">
+                    <i class="fa-solid fa-wifi empty-icon"></i>
+                    <div class="empty-title">គ្មានការតភ្ជាប់</div>
+                    <div class="empty-desc">សូមភ្ជាប់អ៊ីនធឺណិតដើម្បីទាញយកទិន្នន័យលើកដំបូងសិន!</div>
+                </div>`;
             }
         });
     }
@@ -1152,10 +1132,9 @@
         
         let filtered = [];
         
-        // Sorting Logic Based on Filter
         if (currentFilterType === 'PLAYLIST') {
             const pList = playlists[currentFilterValue] || [];
-            filtered = pList.map(id => songsList.find(s => s.id === id)).filter(s => s); // keep Playlist order
+            filtered = pList.map(id => songsList.find(s => s.id === id)).filter(s => s);
         } else if (currentFilterType === 'RECENT') {
             filtered = [...songsList].sort((a, b) => {
                 const timeA = a.createdAt ? a.createdAt.seconds : 0;
@@ -1166,7 +1145,6 @@
             filtered = [...songsList];
         }
 
-        // Apply Search & Album Filter
         currentFilteredSongs = filtered.filter(song => {
             const matchSearch = !searchVal || 
                 (song.title && song.title.toLowerCase().includes(searchVal)) ||
@@ -1195,7 +1173,6 @@
         renderSongsListOnly();
     }
 
-    /* Drag & Drop Handlers for Reordering Playlist */
     function handleDragStart(e, songId) {
         dragSrcId = songId;
         e.dataTransfer.effectAllowed = 'move';
@@ -1230,10 +1207,20 @@
                 list.splice(toIdx, 0, dragSrcId);
                 localStorage.setItem('user_playlists', JSON.stringify(playlists));
                 vibratePhone(50);
-                renderSongs(); // Update view
+                renderSongs();
             }
         }
         return false;
+    }
+
+    // បិទបើក Menu លើកាត (Kebab)
+    function toggleSongMenu(event, songId) {
+        event.stopPropagation();
+        document.querySelectorAll('.card-dropdown').forEach(el => {
+            if(el.id !== `dropdown-${songId}`) el.classList.remove('show');
+        });
+        const menu = document.getElementById(`dropdown-${songId}`);
+        if(menu) menu.classList.toggle('show');
     }
 
     function renderSongsListOnly() {
@@ -1246,7 +1233,11 @@
         }
 
         if (currentFilteredSongs.length === 0) {
-            grid.innerHTML = '<div class="empty-state">រកមិនឃើញបទចម្រៀងឡើយ!</div>';
+            grid.innerHTML = `<div class="empty-state">
+                <i class="fa-solid fa-magnifying-glass empty-icon"></i>
+                <div class="empty-title">រកមិនឃើញចម្រៀងឡើយ</div>
+                <div class="empty-desc">សូមសាកល្បងស្វែងរកដោយប្រើពាក្យផ្សេង ឬពិនិត្យអក្ខរាវិរុទ្ធឡើងវិញ។</div>
+            </div>`;
             return;
         }
 
@@ -1268,28 +1259,25 @@
                         <img src="${imgUrl}" class="song-img" alt="${escapeHtml(song.title)}" loading="lazy" onclick="openFullScreenModal('${song.id}')">
                     </div>
                     <div class="song-info">
-                        <div>
-                            <div class="song-title-row">
-                                <span class="song-title" title="${escapeHtml(song.title)}">${escapeHtml(song.title)}</span>
-                                <button class="btn-add-playlist-title" onclick="openPlaylistChooserModal('${song.id}')">
-                                    <i class="fa-solid fa-plus"></i> Playlist
-                                </button>
-                            </div>
-                            <div class="song-artist">🎤 ${escapeHtml(song.artist || 'មិនស្គាល់')}</div>
+                        <div class="song-title-row">
+                            <span class="song-title" title="${escapeHtml(song.title)}">${escapeHtml(song.title)}</span>
+                            <button class="btn-more-options" onclick="toggleSongMenu(event, '${song.id}')">
+                                <i class="fa-solid fa-ellipsis-vertical"></i>
+                            </button>
                         </div>
-                        <div class="song-actions">
-                            <button class="song-action-btn btn-share-custom" onclick="shareSongImage('${song.id}')">
-                                <i class="fa-solid fa-share-nodes"></i> Share
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 4px;">
+                            <div class="song-artist">🎤 ${escapeHtml(song.artist || 'មិនស្គាល់')}</div>
+                            <button class="btn-add-playlist-title" onclick="openPlaylistChooserModal('${song.id}')">
+                                <i class="fa-solid fa-plus"></i> Playlist
                             </button>
-                            <button class="song-action-btn btn-save-custom" onclick="downloadSongImage('${imgUrl}', '${escapeHtml(song.title)}')">
-                                <i class="fa-solid fa-download"></i> Save
-                            </button>
-                            <button class="song-action-btn btn-edit-custom editor-only" onclick="openEditSongModal('${song.id}')">
-                                <i class="fa-solid fa-pen"></i> Edit
-                            </button>
-                            <button class="song-action-btn btn-delete-custom editor-only" onclick="deleteSong('${song.id}')">
-                                <i class="fa-solid fa-trash"></i> Delete
-                            </button>
+                        </div>
+                        
+                        <!-- Dropdown Menu -->
+                        <div class="card-dropdown" id="dropdown-${song.id}">
+                            <button class="card-dropdown-item" onclick="shareSongImage('${song.id}')"><i class="fa-solid fa-share-nodes"></i> Share ចម្រៀង</button>
+                            <button class="card-dropdown-item" onclick="downloadSongImage('${imgUrl}', '${escapeHtml(song.title)}')"><i class="fa-solid fa-download"></i> Save ទុក</button>
+                            <button class="card-dropdown-item editor-only" onclick="openEditSongModal('${song.id}')"><i class="fa-solid fa-pen"></i> កែប្រែ (Edit)</button>
+                            <button class="card-dropdown-item danger editor-only" onclick="deleteSong('${song.id}')"><i class="fa-solid fa-trash"></i> លុបចោល</button>
                         </div>
                     </div>
                 </div>
@@ -1382,33 +1370,6 @@
         renderSongs();
     }
 
-    /* Thumbnail Utilities */
-    const thumbCache = {};
-    function getOptimizedThumbnail(url, callback) {
-        if(!url) { callback(null); return; }
-        if(thumbCache[url]) { callback(thumbCache[url]); return; }
-        
-        const img = new Image();
-        img.crossOrigin = "Anonymous";
-        img.onload = () => {
-            const canvas = document.createElement('canvas');
-            const MAX = 200;
-            let w = img.width, h = img.height;
-            if(w > h) { h = Math.round(h * MAX / w); w = MAX; } 
-            else { w = Math.round(w * MAX / h); h = MAX; }
-            canvas.width = w; canvas.height = h;
-            const ctx = canvas.getContext('2d');
-            ctx.drawImage(img, 0, 0, w, h);
-            try {
-                const b64 = canvas.toDataURL('image/jpeg', 0.6);
-                thumbCache[url] = b64;
-                callback(b64);
-            } catch(e) { thumbCache[url] = url; callback(url); }
-        };
-        img.onerror = () => callback(url);
-        img.src = url;
-    }
-
     function renderAlbumsView() {
         const grid = document.getElementById('albumsGrid'); if (!grid) return;
         
@@ -1431,7 +1392,14 @@
     function renderPlaylistsView() {
         const grid = document.getElementById('playlistsGrid'); if (!grid) return;
         const keys = Object.keys(playlists);
-        if (keys.length === 0) { grid.innerHTML = '<div class="empty-state">ពុំទាន់មាន Playlist ឡើយ</div>'; return; }
+        if (keys.length === 0) { 
+            grid.innerHTML = `<div class="empty-state" style="margin-top: 30px;">
+                <i class="fa-solid fa-folder-open empty-icon"></i>
+                <div class="empty-title">ពុំទាន់មាន Playlist ទេ</div>
+                <div class="empty-desc">អ្នកអាចបង្កើត Playlist ថ្មីដើម្បីងាយស្រួលរៀបចំបទចម្រៀងសម្រាប់ថ្វាយបង្គំ។</div>
+            </div>`; 
+            return; 
+        }
         
         grid.innerHTML = keys.map(pName => {
             const count = (playlists[pName] || []).length;
@@ -1508,16 +1476,27 @@
         }
     }
 
-    function openFullScreenModal(songId) {
-        const songIndex = currentFilteredSongs.findIndex(s => s.id === songId); if (songIndex === -1) return;
-        currentFullscreenIndex = songIndex; updateFullScreenContent(); document.getElementById('fullScreenModal').classList.add('active');
+   function openFullScreenModal(songId) {
+    const songIndex = currentFilteredSongs.findIndex(s => s.id === songId); if (songIndex === -1) return;
+    currentFullscreenIndex = songIndex; updateFullScreenContent(); document.getElementById('fullScreenModal').classList.add('active');
+    requestWakeLock(); // បន្ថែមនៅទីនេះ ដើម្បីឱ្យអេក្រង់ភ្លឺរហូតពេលបើកមើលចម្រៀង
     }
+    
+    // បង្ហាញលេខរៀងនៅពេលបើក Fullscreen
     function updateFullScreenContent() {
         const song = currentFilteredSongs[currentFullscreenIndex]; if (!song) return;
         document.getElementById('fullScreenTitle').innerText = song.title || 'រូបភាព';
-        document.getElementById('fullScreenImg').src = song.imageUrl || ''; resetZoomState();
+        document.getElementById('fullScreenImg').src = song.imageUrl || ''; 
+        document.getElementById('pageCounter').innerText = `${currentFullscreenIndex + 1} / ${currentFilteredSongs.length}`;
+        resetZoomState();
     }
-    function closeFullScreenModalDirect() { document.getElementById('fullScreenModal').classList.remove('active'); resetZoomState(); }
+    
+    function closeFullScreenModalDirect() { 
+        document.getElementById('fullScreenModal').classList.remove('active'); 
+        resetZoomState(); 
+        releaseWakeLock(); // បន្ថែមនៅទីនេះ ដើម្បីឱ្យអេក្រង់អាចលត់វិញតាមធម្មតាពេលបិទ
+    }
+    
     function slideFullScreen(direction, event) {
         if (event) event.stopPropagation();
         currentFullscreenIndex += direction;
@@ -1733,83 +1712,7 @@
     }
     function applyStoredTheme() { if (localStorage.getItem('theme_mode') === 'dark') { document.body.classList.add('dark-mode'); document.getElementById('themeToggleBtn').innerText = '☀️'; } }
     function escapeHtml(str) { if (!str) return ''; return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;"); }
-    // ==========================================
-    // មុខងារ Share Playlist រូបភាពតាមលេខរៀង
-    // ==========================================
-    function handleShareCurrentPlaylist() {
-        if (currentFilterType === 'PLAYLIST' && currentFilterValue) {
-            sharePlaylistFolder(currentFilterValue);
-        }
-    }
 
-    async function sharePlaylistFolder(playlistName) {
-        const songIds = playlists[playlistName];
-        
-        if (!songIds || songIds.length === 0) {
-            showToast('មិនមានបទចម្រៀងក្នុង Playlist នេះទេ', 'warning');
-            return;
-        }
-
-        const shareBtn = document.getElementById('sharePlaylistBtn');
-        if (shareBtn) shareBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> កំពុងរៀបចំ...';
-        showToast('កំពុងរៀបចំរូបភាព សូមរង់ចាំបន្តិច...', 'info');
-        
-        let filesToShare = [];
-
-        for (let i = 0; i < songIds.length; i++) {
-            const songId = songIds[i];
-            const song = songsList.find(s => s.id === songId);
-            
-            if (!song || !song.imageUrl) continue;
-
-            const safeTitle = song.title ? song.title.replace(/[^a-zA-Z0-9\u1780-\u17FF]/g, "_") : 'Song';
-            const fileName = `${i + 1}_${safeTitle}.jpg`; 
-
-            try {
-                let fileObj = null;
-                
-                if (song.imageUrl.startsWith('data:image')) {
-                    const arr = song.imageUrl.split(','); 
-                    const mime = (arr[0].match(/:(.*?);/) || [])[1] || 'image/jpeg'; 
-                    const bstr = atob(arr[1]); 
-                    let n = bstr.length; 
-                    const u8arr = new Uint8Array(n); 
-                    while (n--) u8arr[n] = bstr.charCodeAt(n);
-                    
-                    fileObj = new File([new Blob([u8arr], { type: mime })], fileName, { type: mime });
-                } else {
-                    const res = await fetch(song.imageUrl);
-                    const blob = await res.blob();
-                    fileObj = new File([blob], fileName, { type: blob.type || 'image/jpeg' });
-                }
-                
-                if (fileObj) {
-                    filesToShare.push(fileObj);
-                }
-            } catch (err) {
-                console.error("Error formatting image for share:", err);
-            }
-        }
-
-        if (shareBtn) shareBtn.innerHTML = '<i class="fa-solid fa-share-nodes"></i> Share All';
-
-        if (filesToShare.length > 0) {
-            if (navigator.canShare && navigator.canShare({ files: filesToShare })) {
-                try {
-                    await navigator.share({
-                        files: filesToShare
-                    });
-                } catch (err) {
-                    console.log("បោះបង់ការ Share:", err);
-                }
-            } else {
-                showToast('Browser របស់អ្នកមិនគាំទ្រការ Share រូបភាពទេ', 'warning');
-            }
-        }
-    }
-// ==========================================
-    // មុខងារ Share Playlist (មានជម្រើស PDF & រូបភាព)
-    // ==========================================
     let pendingSharePlaylistName = "";
 
     function handleShareCurrentPlaylist() {
@@ -1828,7 +1731,6 @@
         }
     }
 
-    // --- ជម្រើសទី ១៖ Share ជា PDF ---
     async function sharePlaylistAsPDF(playlistName) {
         const songIds = playlists[playlistName];
         if (!songIds || songIds.length === 0) return;
@@ -1839,10 +1741,8 @@
 
         try {
             const { jsPDF } = window.jspdf;
-            
             const doc = new jsPDF({ unit: 'px' }); 
             doc.deletePage(1); 
-            
             doc.setDisplayMode('fullpage', 'single');
             
             let hasImages = false;
@@ -1913,7 +1813,6 @@
         });
     }
 
-    // --- ជម្រើសទី ២៖ Share ជារូបភាពសុទ្ធធម្មតា ---
     async function sharePlaylistAsImages(playlistName) {
         const songIds = playlists[playlistName];
         if (!songIds || songIds.length === 0) return;
