@@ -86,8 +86,8 @@
         body.dark-mode .chip-btn { box-shadow: 4px 4px 10px rgba(0,0,0,0.4), -4px -4px 10px rgba(255,255,255,0.05); }
         .chip-btn.active { background: var(--primary); color: white; box-shadow: inset 3px 3px 6px rgba(0,0,0,0.2), inset -3px -3px 6px rgba(255,255,255,0.2); }
         
-        .app-view { display: none; }
-        .app-view.active { display: block; }
+        .app-view { display: none; opacity: 0; transition: opacity 0.25s ease-in-out; }
+        .app-view.active { display: block; opacity: 1; }
 
         .controls { z-index: 1000; background: transparent; padding: 4px 0; margin-bottom: 4px; display: flex; align-items: center; gap: 8px; }
         .sticky-action-bar { position: sticky; top: 0; z-index: 1200; background: var(--bg-glass); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); margin: 0 -12px; padding: 10px 12px 0 12px; border-bottom: 1px solid rgba(255, 255, 255, 0.5); box-shadow: 0 4px 15px rgba(0, 0, 0, 0.03); }
@@ -110,9 +110,6 @@
         .search-dropdown-title { font-weight: 600; color: var(--text); }
         .search-dropdown-artist { font-size: 0.72rem; color: var(--text-muted); }
         .highlight { color: var(--primary); font-weight: 800; background: transparent; }
-
-        .theme-toggle-btn { background: var(--card-bg); border: none; color: var(--text); width: 44px; height: 44px; border-radius: 50%; font-size: 1.1rem; cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: 4px 4px 10px rgba(180, 185, 200, 0.3), -4px -4px 10px rgba(255, 255, 255, 0.9); }
-        body.dark-mode .theme-toggle-btn { box-shadow: 4px 4px 10px rgba(0,0,0,0.4), -4px -4px 10px rgba(255,255,255,0.05); }
 
         .section-title-wrapper { display: flex; align-items: center; margin: 4px 0 10px 0; gap: 12px; }
         .section-title { font-size: 1.1rem; font-weight: 700; color: var(--text); margin: 0; display: flex; align-items: center; gap: 10px; white-space: nowrap; }
@@ -198,6 +195,31 @@
         .sub-settings-view { display: none; }
         .sub-settings-view.active { display: block; }
 
+        /* 💡 អក្សរអណ្តែតឡើង (Floating Status Text) គ្មាន Background */
+        .offline-sync-badge {
+            position: fixed;
+            bottom: calc(75px + env(safe-area-inset-bottom));
+            right: 16px;
+            font-size: 0.78rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            z-index: 1100;
+            opacity: 0;
+            transform: translateY(15px);
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            pointer-events: none;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+        .offline-sync-badge.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        .status-dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
+        .status-online { background-color: #10b981; box-shadow: 0 0 8px #10b981; }
+        .status-offline { background-color: #ef4444; box-shadow: 0 0 8px #ef4444; }
+
         /* Bottom Nav */
         .bottom-nav { position: fixed; bottom: 1%; left: 0; right: 0; height: 62px; background: var(--card-bg); border-top: 1px solid var(--border); display: flex; align-items: center; justify-content: space-around; z-index: 1000; box-shadow: 0 -2px 8px rgba(0,0,0,0.08); border-radius: 20px; backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); }
         .bottom-nav-item { display: flex; flex-direction: column; align-items: center; justify-content: center; flex: 1; height: 100%; color: var(--text-muted); text-decoration: none; font-size: 0.65rem; font-weight: 600; cursor: pointer; border: none; background: transparent; gap: 2px; position: relative; }
@@ -260,11 +282,6 @@
         .media-play-btn { position: absolute; top: calc(60px + env(safe-area-inset-top)); right: 16px; background: #ef4444; color: white; border: none; border-radius: 50%; width: 44px; height: 44px; display: none; align-items: center; justify-content: center; font-size: 1.2rem; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.3); z-index: 3020; transition: 0.2s; }
         .media-play-btn:active { transform: scale(0.9); }
 
-        .offline-sync-badge { position: fixed; bottom: calc(62px + env(safe-area-inset-bottom)); right: 12px; background: var(--card-bg); border: 1px solid var(--border); padding: 4px 10px; border-radius: 16px; font-size: 0.7rem; font-weight: 600; display: flex; align-items: center; gap: 4px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); z-index: 1100; }
-        .status-dot { width: 6px; height: 6px; border-radius: 50%; display: inline-block; }
-        .status-online { background-color: #10b981; }
-        .status-offline { background-color: #ef4444; }
-
         .toast-container { position: fixed; bottom: calc(75px + env(safe-area-inset-bottom)); left: 50%; transform: translateX(-50%); z-index: 9999; display: flex; flex-direction: column; gap: 8px; align-items: center; pointer-events: none; width: 90%; max-width: 400px; }
         .toast { background: rgba(30, 41, 59, 0.95); color: white; padding: 12px 20px; border-radius: 25px; font-size: 0.85rem; font-weight: 500; opacity: 0; transform: translateY(20px); transition: all 0.3s ease; text-align: center; box-shadow: 0 4px 12px rgba(0,0,0,0.2); display: flex; align-items: center; gap: 8px; }
         .toast.show { opacity: 1; transform: translateY(0); }
@@ -298,7 +315,6 @@
             .bottom-nav-item:hover { background: rgba(37, 99, 235, 0.08); }
             body.dark-mode .bottom-nav-item:hover { background: rgba(59, 130, 246, 0.15); }
             .main-content { margin-left: 260px; max-width: calc(100% - 260px); padding: 30px 40px; }
-            .offline-sync-badge { bottom: 20px; right: 20px; }
             .modal { align-items: center; }
             .modal-content { border-radius: 20px; transform: translateY(-20px) scale(0.95); border: 1px solid var(--border); box-shadow: 0 10px 40px rgba(0,0,0,0.2); }
             .modal.active .modal-content { transform: translateY(0) scale(1); }
@@ -411,7 +427,7 @@
 
     <!-- ទីតាំង Settings (ការកំណត់) -->
     <div class="app-view" id="viewSettings">
-        <div class="profile-container" style="padding: 10px 16px;" id="mainSettingsContainer">
+        <div class="profile-container" style="padding: 10px 16px;">
             
             <div class="settings-section-title">គណនី (Account)</div>
             <div class="settings-card" id="settingsAccountArea">
@@ -507,6 +523,7 @@
     </button>
 </div>
 
+<!-- 💡 អក្សរអណ្តែតឡើង (Floating Status Text) គ្មាន Background -->
 <div class="offline-sync-badge" id="offlineSyncBadge">
     <span class="status-dot status-online" id="statusDot"></span>
     <span id="statusText">អនឡាញ</span>
@@ -576,7 +593,7 @@
             <div class="form-group">
                 <label>រូបភាពបទចម្រៀង *</label>
                 <div class="image-drop-zone" id="dropZone" tabindex="0" onclick="document.getElementById('songImageFile').click()">
-                    <p>📁 ចុចជ្រើសរើស / អូសរូបភាព<br>ឬ 📋 Paste (Ctrl+V) នៅទីនេះ</p>
+                    <p>📁 ចុចជ្រើសរើស / អូសរូបភាពភ្លាមៗ<br>ឬ 📋 Paste (Ctrl+V) នៅទីនេះ</p>
                     <input type="file" id="songImageFile" accept="image/*" onchange="handleFileSelect(event)" style="display: none;">
                     <div class="preview-container" id="previewContainer">
                         <img id="previewImg" src="" alt="Preview">
@@ -664,7 +681,7 @@
                 </div>
             </div>
             <div style="text-align: right; margin-top: 18px; display: flex; gap: 10px; justify-content: flex-end;">
-                <button type="button" onclick="closeModal('editSongModal')" style="background: var(--border); color: var(--text); padding: 10px 16px; border-radius:8px; border:none; font-size:0.9rem; font-weight: 600;">បោះបង់</button>
+                <button type="button" onclick="closeModal('editSongModal')" style="background: var(--border); color: var(--text); padding: 10px 16px; border-radius:8px; border:none; font-size: 0.9rem; font-weight: 600;">បោះបង់</button>
                 <button type="submit" id="updateBtn" style="padding: 10px 20px; border-radius: 8px; border: none; font-weight: 600; background: var(--primary); color: white; font-size:0.9rem;">រក្សាទុក</button>
             </div>
         </form>
@@ -757,16 +774,13 @@
     let dragSrcId = null;
     let wakeLock = null;
 
-    // --- Auto Scroll Variables ---
     let isAutoScrolling = false;
     let autoScrollSpeed = 0.5;
     let autoScrollFrameReq = null;
 
-    // --- Secret Tap Variables ---
     let tapCount = 0;
     let tapTimeout = null;
 
-    // --- Cloud Sync Function ---
     async function syncPlaylistsToCloud() {
         if (currentUser) {
             try {
@@ -941,8 +955,8 @@
         listenToAlbums();
         renderSongsListOnly();
         checkAndShowIosInstallGuide();
+        updateOnlineStatus();
 
-        // មុខងារ Secret Tap
         const tapArea = document.getElementById('versionTapArea');
         if (tapArea) {
             tapArea.addEventListener('click', function() {
@@ -1278,7 +1292,6 @@
                         isAdmin = userData.role === 'admin'; 
                         isEditor = isAdmin || userData.role === 'editor'; 
                         
-                        // Cloud Sync: Merge cloud playlists with local
                         if (userData.playlists) {
                             playlists = Object.assign({}, playlists, userData.playlists);
                             localStorage.setItem('user_playlists', JSON.stringify(playlists));
@@ -1300,7 +1313,6 @@
             body.classList.add('editor-authorized'); 
         } else {
             body.classList.remove('editor-authorized');
-            // លាក់ Admin Panel ប្រសិនបើបាត់សិទ្ធិ
             const adminPanel = document.getElementById('secretAdminPanel');
             if(adminPanel) adminPanel.style.display = 'none';
         }
@@ -1747,21 +1759,56 @@
         const container = document.getElementById('fullScreenImgContainer'); const img = document.getElementById('fullScreenImg');
         if (!container || !img) return;
         function getDistance(touches) { return Math.hypot(touches[0].clientX - touches[1].clientX, touches[0].clientY - touches[1].clientY); }
+        
         container.addEventListener('touchstart', (e) => {
-            if (e.touches.length === 2) { isPinching = true; isDragging = false; initialDist = getDistance(e.touches); } 
-            else if (e.touches.length === 1) { if (scale > 1) { isDragging = true; startX = e.touches[0].clientX - pointX; startY = e.touches[0].clientY - pointY; } else { startX = e.touches[0].clientX; } }
+            if (e.touches.length === 2) { 
+                isPinching = true; 
+                isDragging = false; 
+                initialDist = getDistance(e.touches); 
+            } else if (e.touches.length === 1) { 
+                if (scale > 1) { 
+                    isDragging = true; 
+                    startX = e.touches[0].clientX - pointX; 
+                    startY = e.touches[0].clientY - pointY; 
+                } else { 
+                    startX = e.touches[0].clientX; 
+                } 
+            }
         }, { passive: true });
-        container.addEventListener('touchmove', (e) => {
-            if(isAutoScrolling) { e.preventDefault(); return; }
 
-            if (isPinching && e.touches.length === 2) { const newDist = getDistance(e.touches); if (initialDist > 0) { scale = Math.min(Math.max(1, scale * (newDist / initialDist)), 4); initialDist = newDist; if (scale === 1) { pointX = 0; pointY = 0; } updateTransform(); } } 
-            else if (isDragging && e.touches.length === 1 && scale > 1) { pointX = e.touches[0].clientX - startX; pointY = e.touches[0].clientY - startY; updateTransform(); }
+        container.addEventListener('touchmove', (e) => {
+            if (isAutoScrolling) { e.preventDefault(); return; }
+
+            if (isPinching && e.touches.length === 2) { 
+                const newDist = getDistance(e.touches); 
+                if (initialDist > 0) { 
+                    scale = Math.min(Math.max(1, scale * (newDist / initialDist)), 4); 
+                    initialDist = newDist; 
+                    if (scale === 1) { pointX = 0; pointY = 0; } 
+                    updateTransform(); 
+                } 
+            } else if (isDragging && e.touches.length === 1 && scale > 1) { 
+                pointX = e.touches[0].clientX - startX; 
+                pointY = e.touches[0].clientY - startY; 
+                updateTransform(); 
+            }
         }, { passive: true });
+
         container.addEventListener('touchend', (e) => {
-            if (e.touches.length < 2) isPinching = false; if (e.touches.length === 0) { if (scale <= 1) resetZoomState(); isDragging = false; }
-            if (e.changedTouches.length === 1 && scale === 1 && !isPinching) { const diffX = e.changedTouches[0].clientX - startX; if (Math.abs(diffX) > 60) diffX < 0 ? slideFullScreen(1) : slideFullScreen(-1); }
+            if (e.touches.length < 2) isPinching = false; 
+            if (e.touches.length === 0) { 
+                if (scale <= 1) resetZoomState(); 
+                isDragging = false; 
+            }
+            if (e.changedTouches.length === 1 && scale === 1 && !isPinching) { 
+                const diffX = e.changedTouches[0].clientX - startX; 
+                if (Math.abs(diffX) > 60) diffX < 0 ? slideFullScreen(1) : slideFullScreen(-1); 
+            }
             const now = new Date().getTime(); const tapGap = now - lastTapTime;
-            if (tapGap < 300 && tapGap > 0) { if (scale > 1) resetZoomState(); else { scale = 2.5; pointX = 0; pointY = 0; updateTransform(); } }
+            if (tapGap < 300 && tapGap > 0) { 
+                if (scale > 1) resetZoomState(); 
+                else { scale = 2.5; pointX = 0; pointY = 0; updateTransform(); } 
+            }
             lastTapTime = now;
         });
     }
@@ -1981,10 +2028,27 @@
 
     function deleteSong(songId) { if (confirm('តើអ្នកពិតជាចង់លុបបទចម្រៀងនេះមែនទេ?')) { db.collection("songs").doc(songId).delete(); showToast('បានលុបរួចរាល់', 'info'); } }
 
-    window.addEventListener('online', () => updateOnlineStatus()); window.addEventListener('offline', () => updateOnlineStatus());
+    window.addEventListener('online', () => updateOnlineStatus()); 
+    window.addEventListener('offline', () => updateOnlineStatus());
+    
     function updateOnlineStatus() {
-        const dot = document.getElementById('statusDot'); const text = document.getElementById('statusText');
-        if (navigator.onLine) { dot.className = 'status-dot status-online'; text.innerText = 'អនឡាញ'; } else { dot.className = 'status-dot status-offline'; text.innerText = 'Offline'; }
+        const badge = document.getElementById('offlineSyncBadge');
+        const dot = document.getElementById('statusDot'); 
+        const text = document.getElementById('statusText');
+        if (!badge || !dot || !text) return;
+        
+        if (navigator.onLine) { 
+            dot.className = 'status-dot status-online'; 
+            text.innerText = 'អនឡាញ'; 
+        } else { 
+            dot.className = 'status-dot status-offline'; 
+            text.innerText = 'បាត់ការតភ្ជាប់ (Offline)'; 
+        }
+
+        badge.classList.add('show');
+        setTimeout(() => {
+            badge.classList.remove('show');
+        }, 3000);
     }
 
     function handleGoogleLogin() { const provider = new firebase.auth.GoogleAuthProvider(); auth.signInWithPopup(provider); }
