@@ -252,10 +252,6 @@
         .media-play-btn { position: absolute; top: calc(60px + env(safe-area-inset-top)); right: 16px; background: #ef4444; color: white; border: none; border-radius: 50%; width: 44px; height: 44px; display: none; align-items: center; justify-content: center; font-size: 1.2rem; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.3); z-index: 3020; transition: 0.2s; }
         .media-play-btn:active { transform: scale(0.9); }
 
-        .editor-only { display: none !important; }
-        .editor-authorized .editor-only { display: inline-flex !important; }
-        .editor-authorized button.editor-only { display: inline-flex !important; }
-
         .offline-sync-badge { position: fixed; bottom: calc(62px + env(safe-area-inset-bottom)); right: 12px; background: var(--card-bg); border: 1px solid var(--border); padding: 4px 10px; border-radius: 16px; font-size: 0.7rem; font-weight: 600; display: flex; align-items: center; gap: 4px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); z-index: 1100; }
         .status-dot { width: 6px; height: 6px; border-radius: 50%; display: inline-block; }
         .status-online { background-color: #10b981; }
@@ -337,6 +333,7 @@
             <div class="controls">
                 <div class="search-box">
                     <input type="text" id="searchInput" placeholder="ស្វែងរកបទចម្រៀង..." oninput="handleSearchInput()" onfocus="handleSearchInput()" autocomplete="off">
+                    
                     <button class="voice-btn" id="voiceSearchBtn" onclick="startVoiceSearch()" title="ស្វែងរកដោយសំឡេង">
                         <i class="fa-solid fa-microphone"></i>
                     </button>
@@ -344,6 +341,7 @@
                     <button class="clear-btn" id="clearSearchBtn" onclick="clearSearchInput()" title="លុបអក្សរ">
                         <i class="fa-solid fa-circle-xmark"></i>
                     </button>
+                   
                     <button class="search-btn" onclick="renderSongs()">🔍</button>
                     <div class="search-dropdown" id="searchDropdown"></div>
                 </div>
@@ -407,14 +405,15 @@
     <div class="app-view" id="viewSettings">
         <div class="profile-container" style="padding: 10px 16px;">
             
+            <!-- ផ្នែកគណនី (Account) បង្ហាញតែទិន្នន័យ (គ្មានប៊ូតុង Logout) -->
             <div class="settings-section-title">គណនី (Account)</div>
             <div class="settings-card" id="settingsAccountArea">
-                <!-- User Profile or Login Button Injected Here -->
+                <!-- User Profile or Login Placeholder -->
             </div>
 
-            <!-- ផ្ទាំងនេះលោតមកតែពេល Admin/Editor ឡុកចូលទេ -->
-            <div class="editor-only" style="width: 100%; display: block;">
-                <div class="settings-section-title">គ្រប់គ្រងទិន្នន័យ (Admin)</div>
+            <!-- ផ្ទាំងគ្រប់គ្រងទិន្នន័យ (Admin) - លាក់ជានិច្ច ទាល់តែមានសិទ្ធិ និងចុច ៣ដង -->
+            <div id="secretAdminPanel" style="display: none; width: 100%;">
+                <div class="settings-section-title" style="color: var(--primary);">គ្រប់គ្រងទិន្នន័យ (Admin) 🔓</div>
                 <div class="settings-card">
                     <button class="settings-item" onclick="openModal('addSongModal')">
                         <div class="settings-item-left"><i class="fa-solid fa-plus-circle"></i> បញ្ចូលបទចម្រៀងថ្មី</div>
@@ -449,31 +448,35 @@
                     <div class="settings-item-left"><i class="fa-brands fa-telegram" style="color: #0088cc;"></i> ឆានែល Telegram</div>
                     <i class="fa-solid fa-arrow-up-right-from-square" style="color: var(--text-muted); font-size: 0.8rem;"></i>
                 </a>
-                <!-- អ្នកអាចដាក់ Link Facebook ពិតនៅទីនេះ -->
-                <a href="https://www.facebook.com/Phallakhum" class="settings-item">
+                <a href="https://www.facebook.com/Phallakhum" target="_blank" class="settings-item">
                     <div class="settings-item-left"><i class="fa-brands fa-facebook" style="color: #1877F2;"></i> ទំព័រ Facebook</div>
                     <i class="fa-solid fa-arrow-up-right-from-square" style="color: var(--text-muted); font-size: 0.8rem;"></i>
                 </a>
-                <!-- អ្នកអាចដាក់ Link YouTube ពិតនៅទីនេះ -->
-                <a href="https://www.youtube.com/@khumphalla" class="settings-item">
+                <a href="https://www.youtube.com/@khumphalla" target="_blank" class="settings-item">
                     <div class="settings-item-left"><i class="fa-brands fa-youtube" style="color: #FF0000;"></i> ឆានែល YouTube</div>
                     <i class="fa-solid fa-arrow-up-right-from-square" style="color: var(--text-muted); font-size: 0.8rem;"></i>
                 </a>
                 <a href="tel:+855884362366" class="settings-item">
-                    <div class="settings-item-left"><i class="fa-solid fa-phone" style="color: #28a745;"></i> ទូរសព្ទ</div>
+                    <div class="settings-item-left"><i class="fa-solid fa-phone" style="color: #16a34a;"></i> ទូរសព្ទ</div>
                     <i class="fa-solid fa-arrow-up-right-from-square" style="color: var(--text-muted); font-size: 0.8rem;"></i>
                 </a>
             </div>
 
             <div class="settings-section-title">អំពីកម្មវិធី (About)</div>
-            <div class="settings-card" style="margin-bottom: 30px;">
+            <div class="settings-card">
                 <button class="settings-item" onclick="shareAppDirectly()">
                     <div class="settings-item-left"><i class="fa-solid fa-share-nodes"></i> ចែករំលែកកម្មវិធីនេះ</div>
                 </button>
-                <div class="settings-item" style="cursor: default; background: transparent;">
+                <!-- កន្លែងចុច ៣ដង ដើម្បីបើកមុខងារ Admin -->
+                <div class="settings-item" id="versionTapArea" style="cursor: pointer; background: transparent;">
                     <div class="settings-item-left"><i class="fa-solid fa-code-branch" style="color: var(--text-muted);"></i> ជំនាន់ (Version)</div>
                     <span style="color: var(--text-muted); font-size: 0.85rem;">1.0.0</span>
                 </div>
+            </div>
+            
+            <!-- ប៊ូតុង Login / Logout ដាច់ដោយឡែកនៅខាងក្រោមគេ -->
+            <div id="bottomAuthArea" style="margin-top: 24px; margin-bottom: 30px;">
+                <!-- នឹងរៀបចំដោយ JS -->
             </div>
 
         </div>
@@ -516,7 +519,6 @@
         <button onclick="closeFullScreenModalDirect()" style="background:none; border:none; color:white; font-size:1.5rem; cursor:pointer; padding: 4px;">✖</button>
     </div>
     
-    <!-- ប៊ូតុង Play (សម្រាប់ចម្រៀងមាន YouTube/Media) -->
     <button class="media-play-btn" id="fsMediaPlayBtn" title="ចាក់សំឡេង/វីដេអូ">
         <i class="fa-brands fa-youtube"></i>
     </button>
@@ -755,6 +757,10 @@
     let autoScrollSpeed = 0.5;
     let autoScrollFrameReq = null;
 
+    // --- Secret Tap Variables ---
+    let tapCount = 0;
+    let tapTimeout = null;
+
     // --- Cloud Sync Function ---
     async function syncPlaylistsToCloud() {
         if (currentUser) {
@@ -925,11 +931,39 @@
 
         applyStoredTheme();
         applyStoredViewMode();
-        applySettingsToggles(); // ថ្មី: Setup Toggles ពេល Load
+        applySettingsToggles(); 
         listenToAuth();
         listenToAlbums();
         renderSongsListOnly();
         checkAndShowIosInstallGuide();
+
+        // មុខងារ Secret Tap
+        const tapArea = document.getElementById('versionTapArea');
+        if (tapArea) {
+            tapArea.addEventListener('click', function() {
+                tapCount++;
+                if (tapTimeout) clearTimeout(tapTimeout);
+                
+                if (tapCount >= 3) {
+                    if (isEditor) {
+                        const adminPanel = document.getElementById('secretAdminPanel');
+                        if (adminPanel.style.display === 'none') {
+                            adminPanel.style.display = 'block';
+                            showToast('មុខងារ Admin បានបើក', 'success');
+                            vibratePhone(100);
+                        } else {
+                            adminPanel.style.display = 'none';
+                            showToast('មុខងារ Admin ត្រូវបានលាក់', 'info');
+                        }
+                    } else {
+                        showToast('អ្នកគ្មានសិទ្ធិជា Admin ទេ', 'error');
+                    }
+                    tapCount = 0;
+                } else {
+                    tapTimeout = setTimeout(() => { tapCount = 0; }, 600);
+                }
+            });
+        }
 
         try {
             await initIndexedDB();
@@ -1246,7 +1280,7 @@
                             renderPlaylistsView();
                             renderSongsListOnly();
                         } else {
-                            syncPlaylistsToCloud(); // upload local to cloud if cloud is empty
+                            syncPlaylistsToCloud();
                         }
                     } else { isAdmin = false; isEditor = false; }
                     updateUIRoles();
@@ -1257,7 +1291,14 @@
 
     function updateUIRoles() {
         const body = document.getElementById('bodyContainer');
-        if (isEditor) body.classList.add('editor-authorized'); else body.classList.remove('editor-authorized');
+        if (isEditor) {
+            body.classList.add('editor-authorized'); 
+        } else {
+            body.classList.remove('editor-authorized');
+            // លាក់ Admin Panel ប្រសិនបើបាត់សិទ្ធិ
+            const adminPanel = document.getElementById('secretAdminPanel');
+            if(adminPanel) adminPanel.style.display = 'none';
+        }
         if (document.getElementById('viewSettings').classList.contains('active')) renderSettingsView();
         renderSongsListOnly();
     }
@@ -1570,10 +1611,13 @@
 
     // --- ទំព័រការកំណត់ (Settings View) ---
     function renderSettingsView() {
-        const container = document.getElementById('settingsAccountArea'); if (!container) return;
+        const accountContainer = document.getElementById('settingsAccountArea'); 
+        const authBottomContainer = document.getElementById('bottomAuthArea');
+        if (!accountContainer || !authBottomContainer) return;
 
         if (currentUser) {
-            container.innerHTML = `
+            // បង្ហាញតែទិន្នន័យ Profile គ្មានប៊ូតុង Logout ក្នុងប្រអប់នេះ
+            accountContainer.innerHTML = `
                 <div style="display:flex; align-items:center; gap:12px; padding: 14px 16px;">
                     <img src="${currentUser.photoURL || 'https://via.placeholder.com/100'}" style="width:50px; height:50px; border-radius:50%; object-fit:cover; border:2px solid var(--primary);" alt="User">
                     <div>
@@ -1582,13 +1626,23 @@
                         <span style="display:inline-block; font-size:0.68rem; color:#16a34a; font-weight:700; margin-top:2px;">${isAdmin ? '👑 Admin' : (isEditor ? '✏️ Editor' : '👤 សមាជិក')}</span>
                     </div>
                 </div>
-                <button class="settings-item danger" style="width:100%; border-top: 1px solid var(--border);" onclick="handleLogout()">
+            `;
+            // ប៊ូតុង Logout ធំៗនៅខាងក្រោមគេ
+            authBottomContainer.innerHTML = `
+                <button class="settings-card settings-item danger" style="width:100%; justify-content:center; padding: 16px; margin-bottom: 0;" onclick="handleLogout()">
                     <div class="settings-item-left"><i class="fa-solid fa-right-from-bracket"></i> ចាកចេញ (Logout)</div>
                 </button>
             `;
         } else {
-            container.innerHTML = `
-                <button class="settings-item" onclick="handleGoogleLogin()" style="width:100%; justify-content:center; color: var(--primary);">
+            // ពេលមិនទាន់ Login បង្ហាញកន្លែង Account ទទេស្អាត ឬបិទចោល
+            accountContainer.innerHTML = `
+                <div style="padding: 16px; text-align: center; color: var(--text-muted); font-size: 0.85rem;">
+                    អ្នកមិនទាន់បានចូលប្រព័ន្ធទេ
+                </div>
+            `;
+            // ប៊ូតុង Login នៅខាងក្រោមគេ
+            authBottomContainer.innerHTML = `
+                <button class="settings-card settings-item" style="width:100%; justify-content:center; color: var(--primary); padding: 16px; margin-bottom: 0;" onclick="handleGoogleLogin()">
                     <div class="settings-item-left"><i class="fa-brands fa-google"></i> ចូលប្រព័ន្ធ (Login)</div>
                 </button>
             `;
