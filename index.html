@@ -111,6 +111,9 @@
         .search-dropdown-artist { font-size: 0.72rem; color: var(--text-muted); }
         .highlight { color: var(--primary); font-weight: 800; background: transparent; }
 
+        .theme-toggle-btn { background: var(--card-bg); border: none; color: var(--text); width: 44px; height: 44px; border-radius: 50%; font-size: 1.1rem; cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: 4px 4px 10px rgba(180, 185, 200, 0.3), -4px -4px 10px rgba(255, 255, 255, 0.9); }
+        body.dark-mode .theme-toggle-btn { box-shadow: 4px 4px 10px rgba(0,0,0,0.4), -4px -4px 10px rgba(255,255,255,0.05); }
+
         .section-title-wrapper { display: flex; align-items: center; margin: 4px 0 10px 0; gap: 12px; }
         .section-title { font-size: 1.1rem; font-weight: 700; color: var(--text); margin: 0; display: flex; align-items: center; gap: 10px; white-space: nowrap; }
         .icon-circle { display: flex; align-items: center; justify-content: center; width: 30px; height: 30px; background: var(--card-bg); color: var(--primary); border-radius: 50%; font-size: 0.8rem; box-shadow: 3px 3px 8px rgba(180, 185, 200, 0.4), -3px -3px 8px rgba(255, 255, 255, 0.9); }
@@ -119,7 +122,7 @@
         body.dark-mode .song-count-badge { box-shadow: 2px 2px 6px rgba(0,0,0,0.4), -2px -2px 6px rgba(255,255,255,0.05); }
         .section-divider { flex-grow: 1; height: 2px; background: linear-gradient(90deg, rgba(37,99,235,0.4) 0%, rgba(255,255,255,0) 100%); border-radius: 2px; }
         
-        .selectable-text { user-select: text !important; -webkit-user-select: text !important; cursor: text; }
+        .song-title, .song-artist, .folder-name, .main-title { user-select: none !important; -webkit-user-select: none !important; }
 
         .song-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 18px; }
         .song-grid.list-view { display: flex; flex-direction: column; gap: 12px; }
@@ -415,18 +418,6 @@
                 <!-- User Profile or Login Placeholder -->
             </div>
 
-            <!-- ប៊ូតុងចូលទៅមើលការជូនដំណឹង (ដាច់ដោយឡែក) -->
-            <div class="settings-section-title">ព័ត៌មានថ្មីៗ</div>
-            <div class="settings-card">
-                <button class="settings-item" onclick="openNotificationsSubView()">
-                    <div class="settings-item-left"><i class="fa-solid fa-bell" style="color: #f59e0b;"></i> ការជូនដំណឹងបទចម្រៀងថ្មី</div>
-                    <div style="display: flex; align-items: center; gap: 8px;">
-                        <span class="settings-badge-count" id="settingsNotifBadge">0 ថ្មី</span>
-                        <i class="fa-solid fa-chevron-right" style="color: var(--border);"></i>
-                    </div>
-                </button>
-            </div>
-
             <!-- ផ្ទាំងគ្រប់គ្រងទិន្នន័យ (Admin) - លាក់ជានិច្ច ទាល់តែមានសិទ្ធិ និងចុច ៣ដង -->
             <div id="secretAdminPanel" style="display: none; width: 100%;">
                 <div class="settings-section-title" style="color: var(--primary);">គ្រប់គ្រងទិន្នន័យ (Admin) 🔓</div>
@@ -494,19 +485,6 @@
             </div>
 
         </div>
-
-        <!-- ផ្ទាំងរង (Sub-view) សម្រាប់ការជូនដំណឹង -->
-        <div class="sub-settings-view" id="subViewNotifications" style="padding: 10px 16px;">
-            <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 16px;">
-                <button onclick="closeNotificationsSubView()" style="background: var(--card-bg); border: 1px solid var(--border); color: var(--text); width: 38px; height: 38px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 1rem;">
-                    <i class="fa-solid fa-arrow-left"></i>
-                </button>
-                <h2 style="font-size: 1.1rem; font-weight: 700;">🔔 ការជូនដំណឹងបទចម្រៀងថ្មី</h2>
-            </div>
-            <div class="settings-card" id="settingsNotificationsList">
-                <!-- បញ្ជីបទចម្រៀងថ្មីៗនឹងលោតមកទីនេះ -->
-            </div>
-        </div>
     </div>
 </div>
 
@@ -526,7 +504,6 @@
     <button class="bottom-nav-item" id="navProfileBtn" onclick="switchTab('settings')">
         <i class="fa-solid fa-gear"></i>
         <span>ការកំណត់</span>
-        <span class="nav-badge-dot" id="navNotifDot"></span>
     </button>
 </div>
 
@@ -557,6 +534,7 @@
     </div>
     <button class="fullscreen-nav-btn fullscreen-next" onclick="slideFullScreen(1, event)">❯</button>
     
+    <!-- ផ្ទាំងបញ្ជា Auto-Scroll -->
     <div class="fullscreen-controls" id="fsScrollControls">
         <button class="fs-scroll-toggle" id="autoScrollBtn" onclick="toggleAutoScroll()">
             <i class="fa-solid fa-angles-down"></i> Auto-Scroll
@@ -963,7 +941,6 @@
         listenToAlbums();
         renderSongsListOnly();
         checkAndShowIosInstallGuide();
-        checkNewSongsNotification();
 
         // មុខងារ Secret Tap
         const tapArea = document.getElementById('versionTapArea');
@@ -1002,7 +979,6 @@
                 renderSongs();
                 updateTotalSongCount();
                 markFetchCompleted();
-                checkNewSongsNotification();
             } else {
                 fetchAllSongsSilently();
             }
@@ -1112,7 +1088,6 @@
                 renderSongs();
                 updateTotalSongCount();
                 saveSongsToIndexedDB(songsList);
-                checkNewSongsNotification();
             }
         }, (error) => {});
     }
@@ -1142,50 +1117,7 @@
             if (mainHeader) mainHeader.style.display = 'none';
             document.getElementById('viewSettings').classList.add('active');
             document.getElementById('navProfileBtn').classList.add('active');
-            
-            closeNotificationsSubView();
             renderSettingsView();
-        }
-    }
-
-    function openNotificationsSubView() {
-        document.getElementById('mainSettingsContainer').style.display = 'none';
-        document.getElementById('subViewNotifications').classList.add('active');
-        markNotificationsAsRead();
-    }
-
-    function closeNotificationsSubView() {
-        document.getElementById('mainSettingsContainer').style.display = 'block';
-        document.getElementById('subViewNotifications').classList.remove('active');
-    }
-
-    function checkNewSongsNotification() {
-        if (!songsList || songsList.length === 0) return;
-        const lastChecked = localStorage.getItem('last_seen_song_time') || 0;
-        
-        const newSongs = songsList.filter(s => s.createdAt && s.createdAt.seconds > lastChecked);
-        
-        const dot = document.getElementById('navNotifDot');
-        const badge = document.getElementById('settingsNotifBadge');
-        if (newSongs.length > 0) {
-            if(dot) dot.style.display = 'block';
-            if(badge) {
-                badge.innerText = `${newSongs.length} ថ្មី`;
-                badge.style.display = 'inline-block';
-            }
-        } else {
-            if(dot) dot.style.display = 'none';
-            if(badge) badge.style.display = 'none';
-        }
-    }
-
-    function markNotificationsAsRead() {
-        if (songsList && songsList.length > 0 && songsList[0].createdAt) {
-            localStorage.setItem('last_seen_song_time', songsList[0].createdAt.seconds);
-            const dot = document.getElementById('navNotifDot');
-            if(dot) dot.style.display = 'none';
-            const badge = document.getElementById('settingsNotifBadge');
-            if(badge) badge.style.display = 'none';
         }
     }
 
@@ -1274,7 +1206,6 @@
             renderSongs();
             updateTotalSongCount();
             saveSongsToIndexedDB(songsList);
-            checkNewSongsNotification();
         }).catch(err => {
             const grid = document.getElementById('songGrid');
             if (grid && songsList.length === 0) {
@@ -1317,7 +1248,6 @@
             renderSongs();
             updateTotalSongCount();
             saveSongsToIndexedDB(songsList);
-            checkNewSongsNotification();
 
             setTimeout(() => markFetchCompleted(), 300);
             vibratePhone(100);
@@ -1348,6 +1278,7 @@
                         isAdmin = userData.role === 'admin'; 
                         isEditor = isAdmin || userData.role === 'editor'; 
                         
+                        // Cloud Sync: Merge cloud playlists with local
                         if (userData.playlists) {
                             playlists = Object.assign({}, playlists, userData.playlists);
                             localStorage.setItem('user_playlists', JSON.stringify(playlists));
@@ -1369,6 +1300,7 @@
             body.classList.add('editor-authorized'); 
         } else {
             body.classList.remove('editor-authorized');
+            // លាក់ Admin Panel ប្រសិនបើបាត់សិទ្ធិ
             const adminPanel = document.getElementById('secretAdminPanel');
             if(adminPanel) adminPanel.style.display = 'none';
         }
@@ -1525,13 +1457,13 @@
                     </div>
                     <div class="song-info">
                         <div class="song-title-row">
-                            <span class="song-title selectable-text" title="${escapeHtml(song.title)}">${escapeHtml(song.title)}</span>
+                            <span class="song-title" title="${escapeHtml(song.title)}">${escapeHtml(song.title)}</span>
                             <button class="btn-more-options" onclick="toggleSongMenu(event, '${song.id}')">
                                 <i class="fa-solid fa-ellipsis-vertical"></i>
                             </button>
                         </div>
                         <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 4px;">
-                            <div class="song-artist selectable-text">🎤 ${escapeHtml(song.artist || 'មិនស្គាល់')} ${keyHtml}</div>
+                            <div class="song-artist">🎤 ${escapeHtml(song.artist || 'មិនស្គាល់')} ${keyHtml}</div>
                             <button class="btn-add-playlist-title" onclick="openPlaylistChooserModal('${song.id}')">
                                 <i class="fa-solid fa-plus"></i> Playlist
                             </button>
@@ -1685,8 +1617,7 @@
     function renderSettingsView() {
         const accountContainer = document.getElementById('settingsAccountArea'); 
         const authBottomContainer = document.getElementById('bottomAuthArea');
-        const notifContainer = document.getElementById('settingsNotificationsList');
-        if (!accountContainer || !authBottomContainer || !notifContainer) return;
+        if (!accountContainer || !authBottomContainer) return;
 
         if (currentUser) {
             accountContainer.innerHTML = `
@@ -1715,24 +1646,6 @@
                     <div class="settings-item-left"><i class="fa-brands fa-google"></i> Login Email </div>
                 </button>
             `;
-        }
-
-        if (songsList && songsList.length > 0) {
-            const latestSongs = songsList.slice(0, 10);
-            notifContainer.innerHTML = latestSongs.map(song => `
-                <div class="settings-item" onclick="openFullScreenModal('${song.id}')">
-                    <div class="settings-item-left">
-                        <i class="fa-solid fa-music" style="color: var(--primary);"></i>
-                        <div>
-                            <div style="font-weight: 600; font-size: 0.88rem;">${escapeHtml(song.title)}</div>
-                            <div style="font-size: 0.72rem; color: var(--text-muted);">អាល់ប៊ុម៖ ${escapeHtml(song.album || 'ទូទៅ')}</div>
-                        </div>
-                    </div>
-                    <i class="fa-solid fa-chevron-right" style="color: var(--border);"></i>
-                </div>
-            `).join('');
-        } else {
-            notifContainer.innerHTML = `<div style="padding: 14px 16px; font-size: 0.85rem; color: var(--text-muted); text-align: center;">គ្មានការជូនដំណឹងថ្មីទេ</div>`;
         }
     }
 
