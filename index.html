@@ -172,9 +172,9 @@
         body.dark-mode .folder-delete-btn { background: rgba(239, 68, 68, 0.2); }
         .folder-delete-btn:active { transform: scale(0.85); background: var(--danger); color: white; }
 
-        /* Settings (Formerly Profile) CSS */
+        /* Settings CSS */
         .settings-section-title { font-size: 0.85rem; color: var(--text-muted); font-weight: 700; margin: 16px 0 8px 10px; text-transform: uppercase; }
-        .settings-card { background: var(--card-bg); border-radius: 12px; border: 1px solid var(--border); overflow: hidden; margin-bottom: 16px; box-shadow: 4px 4px 10px rgba(180, 185, 200, 0.15), -4px -4px 10px rgba(255, 255, 255, 0.9); }
+        .settings-card { background: var(--card-bg); border-radius: 12px; border: 2px solid var(--border); overflow: hidden; margin-bottom: 16px; box-shadow: 4px 4px 10px rgba(38, 60, 129, 0.15), -4px -4px 10px rgba(255, 255, 255, 0.9); }
         body.dark-mode .settings-card { box-shadow: 4px 4px 10px rgba(0,0,0,0.3), -4px -4px 10px rgba(255,255,255,0.02); }
         .settings-item { display: flex; justify-content: space-between; align-items: center; padding: 14px 16px; border-bottom: 1px solid var(--border); color: var(--text); text-decoration: none; font-weight: 500; font-size: 0.9rem; cursor: pointer; background: transparent; border-left: none; border-right: none; border-top: none; width: 100%; text-align: left; }
         .settings-item:last-child { border-bottom: none; }
@@ -190,9 +190,17 @@
         .toggle-switch.active { background: #10b981; }
         .toggle-switch.active::after { left: 22px; }
 
+        /* Notification Badge on Bottom Nav & Settings Button */
+        .nav-badge-dot { position: absolute; top: 10px; right: calc(50% - 16px); width: 8px; height: 8px; background: var(--danger); border-radius: 50%; display: none; }
+        .settings-badge-count { background: var(--danger); color: white; font-size: 0.68rem; font-weight: 700; padding: 2px 8px; border-radius: 12px; display: none; }
+
+        /* Sub-views inside Settings */
+        .sub-settings-view { display: none; }
+        .sub-settings-view.active { display: block; }
+
         /* Bottom Nav */
         .bottom-nav { position: fixed; bottom: 1%; left: 0; right: 0; height: 62px; background: var(--card-bg); border-top: 1px solid var(--border); display: flex; align-items: center; justify-content: space-around; z-index: 1000; box-shadow: 0 -2px 8px rgba(0,0,0,0.08); border-radius: 20px; backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); }
-        .bottom-nav-item { display: flex; flex-direction: column; align-items: center; justify-content: center; flex: 1; height: 100%; color: var(--text-muted); text-decoration: none; font-size: 0.65rem; font-weight: 600; cursor: pointer; border: none; background: transparent; gap: 2px; }
+        .bottom-nav-item { display: flex; flex-direction: column; align-items: center; justify-content: center; flex: 1; height: 100%; color: var(--text-muted); text-decoration: none; font-size: 0.65rem; font-weight: 600; cursor: pointer; border: none; background: transparent; gap: 2px; position: relative; }
         .bottom-nav-item i { font-size: 1.05rem; }
         .bottom-nav-item.active { color: var(--primary); }
 
@@ -401,14 +409,25 @@
         <div class="section-grid" id="playlistsGrid"></div>
     </div>
 
-    <!-- ទីតាំង Settings (ការកំណត់) ថ្មី -->
+    <!-- ទីតាំង Settings (ការកំណត់) -->
     <div class="app-view" id="viewSettings">
-        <div class="profile-container" style="padding: 10px 16px;">
+        <div class="profile-container" style="padding: 10px 16px;" id="mainSettingsContainer">
             
-            <!-- ផ្នែកគណនី (Account) បង្ហាញតែទិន្នន័យ (គ្មានប៊ូតុង Logout) -->
             <div class="settings-section-title">គណនី (Account)</div>
             <div class="settings-card" id="settingsAccountArea">
                 <!-- User Profile or Login Placeholder -->
+            </div>
+
+            <!-- ប៊ូតុងចូលទៅមើលការជូនដំណឹង (ដាច់ដោយឡែក) -->
+            <div class="settings-section-title">ព័ត៌មានថ្មីៗ</div>
+            <div class="settings-card">
+                <button class="settings-item" onclick="openNotificationsSubView()">
+                    <div class="settings-item-left"><i class="fa-solid fa-bell" style="color: #f59e0b;"></i> ការជូនដំណឹងបទចម្រៀងថ្មី</div>
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <span class="settings-badge-count" id="settingsNotifBadge">0 ថ្មី</span>
+                        <i class="fa-solid fa-chevron-right" style="color: var(--border);"></i>
+                    </div>
+                </button>
             </div>
 
             <!-- ផ្ទាំងគ្រប់គ្រងទិន្នន័យ (Admin) - លាក់ជានិច្ច ទាល់តែមានសិទ្ធិ និងចុច ៣ដង -->
@@ -457,8 +476,8 @@
                     <i class="fa-solid fa-arrow-up-right-from-square" style="color: var(--text-muted); font-size: 0.8rem;"></i>
                 </a>
                 <a href="tel:+855884362366" class="settings-item">
-                    <div class="settings-item-left"><i class="fa-solid fa-phone" style="color: #16a34a;"></i> ទូរសព្ទ</div>
-                    <i class="fa-solid fa-arrow-up-right-from-square" style="color: var(--text-muted); font-size: 0.8rem;"></i>
+                    <div class="settings-item-left"><i class="fa-solid fa-phone" style="color: #16a34a;"></i> លេខទូរស័ព្ទ</div>
+                    <span style="color: var(--primary); font-size: 0.9rem; font-weight: 700;">088 43 62 366</span>
                 </a>
             </div>
 
@@ -467,18 +486,29 @@
                 <button class="settings-item" onclick="shareAppDirectly()">
                     <div class="settings-item-left"><i class="fa-solid fa-share-nodes"></i> ចែករំលែកកម្មវិធីនេះ</div>
                 </button>
-                <!-- កន្លែងចុច ៣ដង ដើម្បីបើកមុខងារ Admin -->
                 <div class="settings-item" id="versionTapArea" style="cursor: pointer; background: transparent;">
                     <div class="settings-item-left"><i class="fa-solid fa-code-branch" style="color: var(--text-muted);"></i> ជំនាន់ (Version)</div>
                     <span style="color: var(--text-muted); font-size: 0.85rem;">1.0.0</span>
                 </div>
             </div>
             
-            <!-- ប៊ូតុង Login / Logout ដាច់ដោយឡែកនៅខាងក្រោមគេ -->
             <div id="bottomAuthArea" style="margin-top: 24px; margin-bottom: 30px;">
-                <!-- នឹងរៀបចំដោយ JS -->
+                <!-- Login/Logout Button -->
             </div>
 
+        </div>
+
+        <!-- ផ្ទាំងរង (Sub-view) សម្រាប់ការជូនដំណឹង -->
+        <div class="sub-settings-view" id="subViewNotifications" style="padding: 10px 16px;">
+            <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 16px;">
+                <button onclick="closeNotificationsSubView()" style="background: var(--card-bg); border: 1px solid var(--border); color: var(--text); width: 38px; height: 38px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 1rem;">
+                    <i class="fa-solid fa-arrow-left"></i>
+                </button>
+                <h2 style="font-size: 1.1rem; font-weight: 700;">🔔 ការជូនដំណឹងបទចម្រៀងថ្មី</h2>
+            </div>
+            <div class="settings-card" id="settingsNotificationsList">
+                <!-- បញ្ជីបទចម្រៀងថ្មីៗនឹងលោតមកទីនេះ -->
+            </div>
         </div>
     </div>
 </div>
@@ -499,6 +529,7 @@
     <button class="bottom-nav-item" id="navProfileBtn" onclick="switchTab('settings')">
         <i class="fa-solid fa-gear"></i>
         <span>ការកំណត់</span>
+        <span class="nav-badge-dot" id="navNotifDot"></span>
     </button>
 </div>
 
@@ -529,7 +560,6 @@
     </div>
     <button class="fullscreen-nav-btn fullscreen-next" onclick="slideFullScreen(1, event)">❯</button>
     
-    <!-- ផ្ទាំងបញ្ជា Auto-Scroll -->
     <div class="fullscreen-controls" id="fsScrollControls">
         <button class="fs-scroll-toggle" id="autoScrollBtn" onclick="toggleAutoScroll()">
             <i class="fa-solid fa-angles-down"></i> Auto-Scroll
@@ -936,6 +966,7 @@
         listenToAlbums();
         renderSongsListOnly();
         checkAndShowIosInstallGuide();
+        checkNewSongsNotification();
 
         // មុខងារ Secret Tap
         const tapArea = document.getElementById('versionTapArea');
@@ -974,6 +1005,7 @@
                 renderSongs();
                 updateTotalSongCount();
                 markFetchCompleted();
+                checkNewSongsNotification();
             } else {
                 fetchAllSongsSilently();
             }
@@ -1083,6 +1115,7 @@
                 renderSongs();
                 updateTotalSongCount();
                 saveSongsToIndexedDB(songsList);
+                checkNewSongsNotification();
             }
         }, (error) => {});
     }
@@ -1112,7 +1145,50 @@
             if (mainHeader) mainHeader.style.display = 'none';
             document.getElementById('viewSettings').classList.add('active');
             document.getElementById('navProfileBtn').classList.add('active');
+            
+            closeNotificationsSubView();
             renderSettingsView();
+        }
+    }
+
+    function openNotificationsSubView() {
+        document.getElementById('mainSettingsContainer').style.display = 'none';
+        document.getElementById('subViewNotifications').classList.add('active');
+        markNotificationsAsRead();
+    }
+
+    function closeNotificationsSubView() {
+        document.getElementById('mainSettingsContainer').style.display = 'block';
+        document.getElementById('subViewNotifications').classList.remove('active');
+    }
+
+    function checkNewSongsNotification() {
+        if (!songsList || songsList.length === 0) return;
+        const lastChecked = localStorage.getItem('last_seen_song_time') || 0;
+        
+        const newSongs = songsList.filter(s => s.createdAt && s.createdAt.seconds > lastChecked);
+        
+        const dot = document.getElementById('navNotifDot');
+        const badge = document.getElementById('settingsNotifBadge');
+        if (newSongs.length > 0) {
+            if(dot) dot.style.display = 'block';
+            if(badge) {
+                badge.innerText = `${newSongs.length} ថ្មី`;
+                badge.style.display = 'inline-block';
+            }
+        } else {
+            if(dot) dot.style.display = 'none';
+            if(badge) badge.style.display = 'none';
+        }
+    }
+
+    function markNotificationsAsRead() {
+        if (songsList && songsList.length > 0 && songsList[0].createdAt) {
+            localStorage.setItem('last_seen_song_time', songsList[0].createdAt.seconds);
+            const dot = document.getElementById('navNotifDot');
+            if(dot) dot.style.display = 'none';
+            const badge = document.getElementById('settingsNotifBadge');
+            if(badge) badge.style.display = 'none';
         }
     }
 
@@ -1201,6 +1277,7 @@
             renderSongs();
             updateTotalSongCount();
             saveSongsToIndexedDB(songsList);
+            checkNewSongsNotification();
         }).catch(err => {
             const grid = document.getElementById('songGrid');
             if (grid && songsList.length === 0) {
@@ -1243,6 +1320,7 @@
             renderSongs();
             updateTotalSongCount();
             saveSongsToIndexedDB(songsList);
+            checkNewSongsNotification();
 
             setTimeout(() => markFetchCompleted(), 300);
             vibratePhone(100);
@@ -1273,7 +1351,6 @@
                         isAdmin = userData.role === 'admin'; 
                         isEditor = isAdmin || userData.role === 'editor'; 
                         
-                        // Cloud Sync: Merge cloud playlists with local
                         if (userData.playlists) {
                             playlists = Object.assign({}, playlists, userData.playlists);
                             localStorage.setItem('user_playlists', JSON.stringify(playlists));
@@ -1295,7 +1372,6 @@
             body.classList.add('editor-authorized'); 
         } else {
             body.classList.remove('editor-authorized');
-            // លាក់ Admin Panel ប្រសិនបើបាត់សិទ្ធិ
             const adminPanel = document.getElementById('secretAdminPanel');
             if(adminPanel) adminPanel.style.display = 'none';
         }
@@ -1487,7 +1563,7 @@
     function highlightSearchText(text, query) {
         if (!query) return escapeHtml(text);
         const safeText = escapeHtml(text);
-        const safeQuery = query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        const safeQuery = query.replace(/[^.*+?^${}()|[\]\\]/g, '\\$&');
         const regex = new RegExp(`(${safeQuery})`, 'gi');
         return safeText.replace(regex, '<span class="highlight">$1</span>');
     }
@@ -1609,14 +1685,13 @@
         }).join('');
     }
 
-    // --- ទំព័រការកំណត់ (Settings View) ---
     function renderSettingsView() {
         const accountContainer = document.getElementById('settingsAccountArea'); 
         const authBottomContainer = document.getElementById('bottomAuthArea');
-        if (!accountContainer || !authBottomContainer) return;
+        const notifContainer = document.getElementById('settingsNotificationsList');
+        if (!accountContainer || !authBottomContainer || !notifContainer) return;
 
         if (currentUser) {
-            // បង្ហាញតែទិន្នន័យ Profile គ្មានប៊ូតុង Logout ក្នុងប្រអប់នេះ
             accountContainer.innerHTML = `
                 <div style="display:flex; align-items:center; gap:12px; padding: 14px 16px;">
                     <img src="${currentUser.photoURL || 'https://via.placeholder.com/100'}" style="width:50px; height:50px; border-radius:50%; object-fit:cover; border:2px solid var(--primary);" alt="User">
@@ -1627,25 +1702,40 @@
                     </div>
                 </div>
             `;
-            // ប៊ូតុង Logout ធំៗនៅខាងក្រោមគេ
             authBottomContainer.innerHTML = `
                 <button class="settings-card settings-item danger" style="width:100%; justify-content:center; padding: 16px; margin-bottom: 0;" onclick="handleLogout()">
                     <div class="settings-item-left"><i class="fa-solid fa-right-from-bracket"></i> ចាកចេញ (Logout)</div>
                 </button>
             `;
         } else {
-            // ពេលមិនទាន់ Login បង្ហាញកន្លែង Account ទទេស្អាត ឬបិទចោល
             accountContainer.innerHTML = `
                 <div style="padding: 16px; text-align: center; color: var(--text-muted); font-size: 0.85rem;">
                     អ្នកមិនទាន់បានចូលប្រព័ន្ធទេ
                 </div>
             `;
-            // ប៊ូតុង Login នៅខាងក្រោមគេ
             authBottomContainer.innerHTML = `
                 <button class="settings-card settings-item" style="width:100%; justify-content:center; color: var(--primary); padding: 16px; margin-bottom: 0;" onclick="handleGoogleLogin()">
-                    <div class="settings-item-left"><i class="fa-brands fa-google"></i> ចូលប្រព័ន្ធ (Login)</div>
+                    <div class="settings-item-left"><i class="fa-brands fa-google"></i> Login Email </div>
                 </button>
             `;
+        }
+
+        if (songsList && songsList.length > 0) {
+            const latestSongs = songsList.slice(0, 10);
+            notifContainer.innerHTML = latestSongs.map(song => `
+                <div class="settings-item" onclick="openFullScreenModal('${song.id}')">
+                    <div class="settings-item-left">
+                        <i class="fa-solid fa-music" style="color: var(--primary);"></i>
+                        <div>
+                            <div style="font-weight: 600; font-size: 0.88rem;">${escapeHtml(song.title)}</div>
+                            <div style="font-size: 0.72rem; color: var(--text-muted);">អាល់ប៊ុម៖ ${escapeHtml(song.album || 'ទូទៅ')}</div>
+                        </div>
+                    </div>
+                    <i class="fa-solid fa-chevron-right" style="color: var(--border);"></i>
+                </div>
+            `).join('');
+        } else {
+            notifContainer.innerHTML = `<div style="padding: 14px 16px; font-size: 0.85rem; color: var(--text-muted); text-align: center;">គ្មានការជូនដំណឹងថ្មីទេ</div>`;
         }
     }
 
@@ -1661,7 +1751,6 @@
         }
     }
 
-    // --- Auto Scroll Functions ---
     function toggleAutoScrollSetting(el) {
         el.classList.toggle('active');
         const isActive = el.classList.contains('active');
@@ -1703,7 +1792,6 @@
         document.getElementById('fullScreenImg').src = song.imageUrl || ''; 
         document.getElementById('pageCounter').innerText = `${currentFullscreenIndex + 1} / ${currentFilteredSongs.length}`;
         
-        // បង្ហាញ ឬលាក់ប៊ូតុង Play Media
         const mediaBtn = document.getElementById('fsMediaPlayBtn');
         if(song.mediaUrl) {
             mediaBtn.style.display = 'flex';
@@ -1712,11 +1800,9 @@
             mediaBtn.style.display = 'none';
         }
 
-        // បង្ហាញឬលាក់ផ្ទាំង Auto Scroll តាមការកំណត់
         const showScroll = localStorage.getItem('setting_autoscroll') === 'true';
         document.getElementById('fsScrollControls').style.display = showScroll ? 'flex' : 'none';
 
-        // បិទ Auto Scroll វិញពេលដូររូប
         if(isAutoScrolling) toggleAutoScroll();
         resetZoomState();
     }
@@ -1756,7 +1842,6 @@
             else if (e.touches.length === 1) { if (scale > 1) { isDragging = true; startX = e.touches[0].clientX - pointX; startY = e.touches[0].clientY - pointY; } else { startX = e.touches[0].clientX; } }
         }, { passive: true });
         container.addEventListener('touchmove', (e) => {
-            // ហាមមិនឱ្យអ្នកប្រើអូសដោយដៃ ពេលកំពុង Auto-Scroll
             if(isAutoScrolling) { e.preventDefault(); return; }
 
             if (isPinching && e.touches.length === 2) { const newDist = getDistance(e.touches); if (initialDist > 0) { scale = Math.min(Math.max(1, scale * (newDist / initialDist)), 4); initialDist = newDist; if (scale === 1) { pointX = 0; pointY = 0; } updateTransform(); } } 
