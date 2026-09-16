@@ -1,10 +1,10 @@
 {
-  "name": "W.BKC",
+  "name": "ចម្រៀងសរសើរដំកើងព្រះ",
   "short_name": "W.BKC",
   "start_url": "./",
   "display": "standalone",
   "background_color": "#ffffff",
-  "theme_color": "#ffffff",
+  "theme_color": "#2563eb",
   "icons": [
     {
       "src": "icon.jpg",
