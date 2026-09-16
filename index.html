@@ -82,14 +82,12 @@
 
         .filter-chips { display: flex; gap: 6px; overflow-x: auto; padding-bottom: 4px; margin-bottom: 4px; scrollbar-width: none; }
         .filter-chips::-webkit-scrollbar { display: none; }
-        .chip-btn.bg-telegram { text-decoration: none; display: inline-flex; align-items: center; justify-content: center; gap: 6px; background-color: #0088cc; color: #ffffff; padding: 6px 12px; border:none }
         .chip-btn { background: var(--card-bg); border: none; color: var(--text-muted); padding: 8px 16px; border-radius: 20px; font-size: 0.7rem; font-weight: 600; white-space: nowrap; cursor: pointer; transition: all 0.2s; box-shadow: 4px 4px 10px rgba(180, 185, 200, 0.3), -4px -4px 10px rgba(255, 255, 255, 0.9); margin-bottom: 6px; }
         body.dark-mode .chip-btn { box-shadow: 4px 4px 10px rgba(0,0,0,0.4), -4px -4px 10px rgba(255,255,255,0.05); }
         .chip-btn.active { background: var(--primary); color: white; box-shadow: inset 3px 3px 6px rgba(0,0,0,0.2), inset -3px -3px 6px rgba(255,255,255,0.2); }
-
+        
         .app-view { display: none; }
         .app-view.active { display: block; }
-        input[type="text"], input[type="url"], select, textarea { font-size: 16px !important; }
 
         .controls { z-index: 1000; background: transparent; padding: 4px 0; margin-bottom: 4px; display: flex; align-items: center; gap: 8px; }
         .sticky-action-bar { position: sticky; top: 0; z-index: 1200; background: var(--bg-glass); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); margin: 0 -12px; padding: 10px 12px 0 12px; border-bottom: 1px solid rgba(255, 255, 255, 0.5); box-shadow: 0 4px 15px rgba(0, 0, 0, 0.03); }
@@ -100,9 +98,9 @@
         .search-box input:focus { box-shadow: inset 6px 6px 12px rgba(180, 185, 200, 0.5), inset -6px -6px 12px rgba(255, 255, 255, 1), 0 0 0 2px rgba(37,99,235,0.2); }
         body.dark-mode .search-box input:focus { box-shadow: inset 6px 6px 12px rgba(0,0,0,0.6), inset -6px -6px 12px rgba(255,255,255,0.1), 0 0 0 2px rgba(59,130,246,0.3); }
         
-        .voice-btn { position: absolute; right: 65px; background: none; border: none; color: var(--primary); font-size: 1.1rem; cursor: pointer; padding: 4px; display: flex; align-items: center; justify-content: center; transition: color 0.3s; }
+        .voice-btn { position: absolute; right: 38px; background: none; border: none; color: var(--primary); font-size: 1.1rem; cursor: pointer; padding: 4px; display: flex; align-items: center; justify-content: center; transition: color 0.3s; }
         .voice-btn:active { transform: scale(0.9); }
-        .clear-btn { position: absolute; right: 38px; background: none; border: none; color: var(--text-muted); font-size: 0.85rem; cursor: pointer; padding: 4px; display: none; align-items: center; justify-content: center; }
+        .clear-btn { position: absolute; right: 68px; background: none; border: none; color: var(--text-muted); font-size: 0.85rem; cursor: pointer; padding: 4px; display: none; align-items: center; justify-content: center; }
         .search-btn { position: absolute; right: 8px; background: none; border: none; font-size: 0.9rem; cursor: pointer; padding: 4px; }
         
         .search-dropdown { position: absolute; top: 100%; left: 0; right: 0; background: var(--card-bg); border: 1px solid var(--border); border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); max-height: 250px; overflow-y: auto; z-index: 1001; display: none; margin-top: 4px; }
@@ -116,7 +114,6 @@
         .theme-toggle-btn { background: var(--card-bg); border: none; color: var(--text); width: 44px; height: 44px; border-radius: 50%; font-size: 1.1rem; cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: 4px 4px 10px rgba(180, 185, 200, 0.3), -4px -4px 10px rgba(255, 255, 255, 0.9); }
         body.dark-mode .theme-toggle-btn { box-shadow: 4px 4px 10px rgba(0,0,0,0.4), -4px -4px 10px rgba(255,255,255,0.05); }
 
-        .song-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 18px; }
         .section-title-wrapper { display: flex; align-items: center; margin: 4px 0 10px 0; gap: 12px; }
         .section-title { font-size: 1.1rem; font-weight: 700; color: var(--text); margin: 0; display: flex; align-items: center; gap: 10px; white-space: nowrap; }
         .icon-circle { display: flex; align-items: center; justify-content: center; width: 30px; height: 30px; background: var(--card-bg); color: var(--primary); border-radius: 50%; font-size: 0.8rem; box-shadow: 3px 3px 8px rgba(180, 185, 200, 0.4), -3px -3px 8px rgba(255, 255, 255, 0.9); }
@@ -125,12 +122,23 @@
         body.dark-mode .song-count-badge { box-shadow: 2px 2px 6px rgba(0,0,0,0.4), -2px -2px 6px rgba(255,255,255,0.05); }
         .section-divider { flex-grow: 1; height: 2px; background: linear-gradient(90deg, rgba(37,99,235,0.4) 0%, rgba(255,255,255,0) 100%); border-radius: 2px; }
         
+        .selectable-text { user-select: text !important; -webkit-user-select: text !important; cursor: text; }
+
+        .song-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 18px; }
+        .song-grid.list-view { display: flex; flex-direction: column; gap: 12px; }
+        .song-grid.list-view .song-card { flex-direction: row; height: 110px; align-items: center; }
+        .song-grid.list-view .song-img-container { width: 110px; height: 100%; min-height: unset; flex-shrink: 0; }
+        .song-grid.list-view .song-info { flex: 1; padding: 8px 12px; display: flex; flex-direction: column; justify-content: center; }
+        .song-grid.list-view .card-dropdown { bottom: auto; top: 40px; right: 15px; }
+
         .song-card { background: var(--card-bg); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border: 1px solid rgba(255,255,255,0.5); border-radius: 20px; overflow: hidden; display: flex; flex-direction: column; position: relative; box-shadow: 6px 6px 15px rgba(180, 185, 200, 0.4), -6px -6px 15px rgba(255, 255, 255, 0.9); transition: transform 0.2s, border-color 0.2s; }
         body.dark-mode .song-card { border-color: rgba(51, 65, 85, 0.5); box-shadow: 4px 4px 15px rgba(0,0,0,0.5), -4px -4px 15px rgba(255,255,255,0.02); }
-        
-        /* Drag and Drop UI */
         .song-card.dragging { opacity: 0.4; transform: scale(0.98); border: 2px dashed var(--primary); }
         .song-card.drag-over { border-top: 4px solid var(--primary); }
+
+        /* Key Badge CSS */
+        .song-key-badge { background: #e2e8f0; color: #334155; padding: 2px 6px; border-radius: 6px; font-size: 0.65rem; font-weight: 800; border: 1px solid #cbd5e1; margin-left: 6px; vertical-align: middle; }
+        body.dark-mode .song-key-badge { background: #334155; color: #e2e8f0; border-color: #475569; }
 
         .song-img-container { width: 100%; min-height: 220px; background: #eaebe7; display: flex; align-items: center; justify-content: center; overflow: hidden; cursor: pointer; position: relative; }
         body.dark-mode .song-img-container { background: #0f172a; }
@@ -142,11 +150,10 @@
         .song-info { padding: 10px 12px; flex: 1; display: flex; flex-direction: column; justify-content: space-between; }
         .song-title-row { display: flex; align-items: center; justify-content: space-between; gap: 6px; margin-bottom: 2px; }
         .song-title { font-size: 0.9rem; font-weight: 700; color: var(--text); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; flex: 1; }
-        .song-artist { font-size: 0.78rem; color: var(--text-muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .song-artist { font-size: 0.78rem; color: var(--text-muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; display: flex; align-items: center; }
 
         .btn-add-playlist-title { background: var(--bg); border: 1px solid var(--border); color: var(--primary); padding: 2px 8px; border-radius: 12px; font-size: 0.7rem; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: 2px; white-space: nowrap; }
         .btn-add-playlist-title:hover { background: var(--primary); color: white; }
-
         .btn-share-custom { background-color: #d1fae5; color: #047857; border-color: #a7f3d0; }
         body.dark-mode .btn-share-custom { background-color: #065f46; color: #d1fae5; border-color: #047857; }
 
@@ -165,16 +172,23 @@
         body.dark-mode .folder-delete-btn { background: rgba(239, 68, 68, 0.2); }
         .folder-delete-btn:active { transform: scale(0.85); background: var(--danger); color: white; }
 
-        /* Profile & Stats */
-        .profile-container { max-width: 450px; margin: 10px auto; background: var(--card-bg); border: 1px solid var(--border); border-radius: 12px; padding: 16px; box-shadow: 4px 4px 10px rgba(180, 185, 200, 0.2), -4px -4px 10px rgba(255, 255, 255, 0.9); }
-        body.dark-mode .profile-container { box-shadow: 4px 4px 10px rgba(0,0,0,0.3), -4px -4px 10px rgba(255,255,255,0.02); }
-        .profile-stats { display: flex; gap: 12px; margin-bottom: 18px; }
-        .stat-box { flex: 1; background: var(--bg); border: 1px solid var(--border); padding: 12px 10px; border-radius: 12px; text-align: center; }
-        .stat-num { font-size: 1.3rem; font-weight: 800; color: var(--primary); line-height: 1.1; }
-        .stat-label { font-size: 0.72rem; color: var(--text-muted); font-weight: 600; margin-top: 4px; }
-        .action-list { display: flex; flex-direction: column; gap: 8px; }
-        .action-btn-item { display: flex; align-items: center; justify-content: space-between; padding: 12px 14px; background: var(--bg); border: 1px solid var(--border); border-radius: 10px; font-weight: 600; font-size: 0.85rem; cursor: pointer; color: var(--text); }
-        .action-btn-item.danger { color: var(--danger); }
+        /* Settings (Formerly Profile) CSS */
+        .settings-section-title { font-size: 0.85rem; color: var(--text-muted); font-weight: 700; margin: 16px 0 8px 10px; text-transform: uppercase; }
+        .settings-card { background: var(--card-bg); border-radius: 12px; border: 1px solid var(--border); overflow: hidden; margin-bottom: 16px; box-shadow: 4px 4px 10px rgba(180, 185, 200, 0.15), -4px -4px 10px rgba(255, 255, 255, 0.9); }
+        body.dark-mode .settings-card { box-shadow: 4px 4px 10px rgba(0,0,0,0.3), -4px -4px 10px rgba(255,255,255,0.02); }
+        .settings-item { display: flex; justify-content: space-between; align-items: center; padding: 14px 16px; border-bottom: 1px solid var(--border); color: var(--text); text-decoration: none; font-weight: 500; font-size: 0.9rem; cursor: pointer; background: transparent; border-left: none; border-right: none; border-top: none; width: 100%; text-align: left; }
+        .settings-item:last-child { border-bottom: none; }
+        .settings-item:active { background: var(--bg); }
+        .settings-item-left { display: flex; align-items: center; gap: 12px; }
+        .settings-item-left i { width: 20px; text-align: center; color: var(--primary); font-size: 1.1rem; }
+        .settings-item.danger .settings-item-left i, .settings-item.danger { color: var(--danger); }
+        
+        /* Toggle Switch CSS */
+        .toggle-switch { width: 44px; height: 24px; background: #cbd5e1; border-radius: 20px; position: relative; cursor: pointer; transition: 0.3s; flex-shrink: 0; }
+        body.dark-mode .toggle-switch { background: #475569; }
+        .toggle-switch::after { content: ''; position: absolute; width: 20px; height: 20px; background: white; border-radius: 50%; top: 2px; left: 2px; transition: 0.3s; box-shadow: 0 2px 4px rgba(0,0,0,0.2); }
+        .toggle-switch.active { background: #10b981; }
+        .toggle-switch.active::after { left: 22px; }
 
         /* Bottom Nav */
         .bottom-nav { position: fixed; bottom: 1%; left: 0; right: 0; height: 62px; background: var(--card-bg); border-top: 1px solid var(--border); display: flex; align-items: center; justify-content: space-around; z-index: 1000; box-shadow: 0 -2px 8px rgba(0,0,0,0.08); border-radius: 20px; backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); }
@@ -216,7 +230,7 @@
         .preview-container img { width: 100%; max-height: 110px; object-fit: contain; }
         .remove-img-btn { position: absolute; top: 4px; right: 4px; background: rgba(239, 68, 68, 0.9); color: white; border: none; border-radius: 50%; width: 24px; height: 24px; font-size: 0.75rem; cursor: pointer; }
 
-        /* Fullscreen */
+        /* Fullscreen & Advanced Features */
         .fullscreen-modal { display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0, 0, 0, 0.95); z-index: 3000; flex-direction: column; align-items: center; justify-content: center; }
         .fullscreen-modal.active { display: flex; }
         .fullscreen-header { position: absolute; top: calc(10px + env(safe-area-inset-top)); left: 16px; right: 16px; display: flex; justify-content: space-between; align-items: center; color: white; z-index: 3010; }
@@ -225,6 +239,18 @@
         .fullscreen-nav-btn { position: absolute; top: 50%; transform: translateY(-50%); background: rgba(255, 255, 255, 0.2); color: white; border: none; font-size: 1.2rem; padding: 12px 8px; cursor: pointer; border-radius: 6px; z-index: 3010; }
         .fullscreen-prev { left: 8px; }
         .fullscreen-next { right: 8px; }
+        
+        /* Auto Scroll UI */
+        .fullscreen-controls { position: absolute; bottom: 30px; left: 50%; transform: translateX(-50%); display: none; gap: 12px; background: rgba(0,0,0,0.6); padding: 8px 16px; border-radius: 20px; backdrop-filter: blur(8px); z-index: 3020; align-items: center; }
+        .fs-control-btn { background: rgba(255,255,255,0.2); color: white; border: none; border-radius: 50%; width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; font-size: 1rem; cursor: pointer; transition: 0.2s; }
+        .fs-control-btn:active, .fs-control-btn.active { background: var(--primary); transform: scale(0.95); }
+        .fs-speed-label { color: white; font-weight: bold; font-size: 0.8rem; min-width: 30px; text-align: center; }
+        .fs-scroll-toggle { background: transparent; color: white; border: none; font-weight: 600; font-size: 0.85rem; padding: 6px 10px; border-radius: 8px; cursor: pointer; display: flex; align-items: center; gap: 6px; }
+        .fs-scroll-toggle.active { color: #10b981; }
+        
+        /* Floating Play Button */
+        .media-play-btn { position: absolute; top: calc(60px + env(safe-area-inset-top)); right: 16px; background: #ef4444; color: white; border: none; border-radius: 50%; width: 44px; height: 44px; display: none; align-items: center; justify-content: center; font-size: 1.2rem; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.3); z-index: 3020; transition: 0.2s; }
+        .media-play-btn:active { transform: scale(0.9); }
 
         .editor-only { display: none !important; }
         .editor-authorized .editor-only { display: inline-flex !important; }
@@ -311,26 +337,25 @@
             <div class="controls">
                 <div class="search-box">
                     <input type="text" id="searchInput" placeholder="ស្វែងរកបទចម្រៀង..." oninput="handleSearchInput()" onfocus="handleSearchInput()" autocomplete="off">
-                    
+                    <button class="voice-btn" id="voiceSearchBtn" onclick="startVoiceSearch()" title="ស្វែងរកដោយសំឡេង">
+                        <i class="fa-solid fa-microphone"></i>
+                    </button>
                     <!-- ប៊ូតុងលុបអក្សរ -->
                     <button class="clear-btn" id="clearSearchBtn" onclick="clearSearchInput()" title="លុបអក្សរ">
                         <i class="fa-solid fa-circle-xmark"></i>
                     </button>
-                   
                     <button class="search-btn" onclick="renderSongs()">🔍</button>
                     <div class="search-dropdown" id="searchDropdown"></div>
                 </div>
-                <button class="theme-toggle-btn" id="themeToggleBtn" onclick="toggleDarkMode()">🌙</button>
             </div>
 
            <div class="filter-chips">
                 <button class="chip-btn active" onclick="setQuickFilter('ALL', this)">🎵 បទទាំងអស់</button>
                 <button class="chip-btn" onclick="setQuickFilter('RECENT', this)">✨ បទថ្មីៗ</button>
                 <button class="chip-btn" onclick="setQuickFilter('FAV', this)">❤️ ចូលចិត្ត</button>
-                
-                <a href="https://t.me/phallakhum" target="_blank" class="chip-btn bg-telegram">
-                    <i class="fa-brands fa-telegram"></i> Telegram
-                </a>
+                <button class="chip-btn" id="viewToggleBtn" onclick="toggleViewMode()">
+                    <i class="fa-solid fa-list"></i> ទម្រង់ List
+                </button>
             </div>
             
             <div class="section-title-wrapper">
@@ -378,8 +403,80 @@
         <div class="section-grid" id="playlistsGrid"></div>
     </div>
 
-    <div class="app-view" id="viewProfile">
-        <div class="profile-container" id="profileCardContent"></div>
+    <!-- ទីតាំង Settings (ការកំណត់) ថ្មី -->
+    <div class="app-view" id="viewSettings">
+        <div class="profile-container" style="padding: 10px 16px;">
+            
+            <div class="settings-section-title">គណនី (Account)</div>
+            <div class="settings-card" id="settingsAccountArea">
+                <!-- User Profile or Login Button Injected Here -->
+            </div>
+
+            <!-- ផ្ទាំងនេះលោតមកតែពេល Admin/Editor ឡុកចូលទេ -->
+            <div class="editor-only" style="width: 100%; display: block;">
+                <div class="settings-section-title">គ្រប់គ្រងទិន្នន័យ (Admin)</div>
+                <div class="settings-card">
+                    <button class="settings-item" onclick="openModal('addSongModal')">
+                        <div class="settings-item-left"><i class="fa-solid fa-plus-circle"></i> បញ្ចូលបទចម្រៀងថ្មី</div>
+                        <i class="fa-solid fa-chevron-right" style="color: var(--border);"></i>
+                    </button>
+                    <button class="settings-item" onclick="openModal('batchAddModal')">
+                        <div class="settings-item-left"><i class="fa-solid fa-layer-group"></i> បញ្ចូលរូបភាពច្រើន (Batch)</div>
+                        <i class="fa-solid fa-chevron-right" style="color: var(--border);"></i>
+                    </button>
+                </div>
+            </div>
+
+            <div class="settings-section-title">ការកំណត់ទូទៅ (Preferences)</div>
+            <div class="settings-card">
+                <div class="settings-item">
+                    <div class="settings-item-left"><i class="fa-solid fa-moon"></i> អេក្រង់ងងឹត (Dark Mode)</div>
+                    <div class="toggle-switch" id="settingThemeToggle" onclick="toggleDarkModeSetting(this)"></div>
+                </div>
+                <div class="settings-item">
+                    <div class="settings-item-left"><i class="fa-solid fa-angles-down"></i> ប៊ូតុងរំកិលស្វ័យប្រវត្តិ (Auto Scroll)</div>
+                    <div class="toggle-switch" id="settingScrollToggle" onclick="toggleAutoScrollSetting(this)"></div>
+                </div>
+                <button class="settings-item" onclick="clearOfflineData()">
+                    <div class="settings-item-left"><i class="fa-solid fa-broom"></i> ជម្រះទិន្នន័យ (Clear Cache)</div>
+                    <i class="fa-solid fa-chevron-right" style="color: var(--border);"></i>
+                </button>
+            </div>
+
+            <div class="settings-section-title">បណ្តាញសង្គម (Connect)</div>
+            <div class="settings-card">
+                <a href="https://t.me/phallakhum" target="_blank" class="settings-item">
+                    <div class="settings-item-left"><i class="fa-brands fa-telegram" style="color: #0088cc;"></i> ឆានែល Telegram</div>
+                    <i class="fa-solid fa-arrow-up-right-from-square" style="color: var(--text-muted); font-size: 0.8rem;"></i>
+                </a>
+                <!-- អ្នកអាចដាក់ Link Facebook ពិតនៅទីនេះ -->
+                <a href="https://www.facebook.com/Phallakhum" class="settings-item">
+                    <div class="settings-item-left"><i class="fa-brands fa-facebook" style="color: #1877F2;"></i> ទំព័រ Facebook</div>
+                    <i class="fa-solid fa-arrow-up-right-from-square" style="color: var(--text-muted); font-size: 0.8rem;"></i>
+                </a>
+                <!-- អ្នកអាចដាក់ Link YouTube ពិតនៅទីនេះ -->
+                <a href="https://www.youtube.com/@khumphalla" class="settings-item">
+                    <div class="settings-item-left"><i class="fa-brands fa-youtube" style="color: #FF0000;"></i> ឆានែល YouTube</div>
+                    <i class="fa-solid fa-arrow-up-right-from-square" style="color: var(--text-muted); font-size: 0.8rem;"></i>
+                </a>
+                <a href="tel:+855884362366" class="settings-item">
+                    <div class="settings-item-left"><i class="fa-solid fa-phone" style="color: #28a745;"></i> ទូរសព្ទ</div>
+                    <i class="fa-solid fa-arrow-up-right-from-square" style="color: var(--text-muted); font-size: 0.8rem;"></i>
+                </a>
+            </div>
+
+            <div class="settings-section-title">អំពីកម្មវិធី (About)</div>
+            <div class="settings-card" style="margin-bottom: 30px;">
+                <button class="settings-item" onclick="shareAppDirectly()">
+                    <div class="settings-item-left"><i class="fa-solid fa-share-nodes"></i> ចែករំលែកកម្មវិធីនេះ</div>
+                </button>
+                <div class="settings-item" style="cursor: default; background: transparent;">
+                    <div class="settings-item-left"><i class="fa-solid fa-code-branch" style="color: var(--text-muted);"></i> ជំនាន់ (Version)</div>
+                    <span style="color: var(--text-muted); font-size: 0.85rem;">1.0.0</span>
+                </div>
+            </div>
+
+        </div>
     </div>
 </div>
 
@@ -396,9 +493,9 @@
         <i class="fa-solid fa-list-ul"></i>
         <span>Playlist</span>
     </button>
-    <button class="bottom-nav-item" id="navProfileBtn" onclick="switchTab('profile')">
-        <i class="fa-solid fa-user"></i>
-        <span>Profile</span>
+    <button class="bottom-nav-item" id="navProfileBtn" onclick="switchTab('settings')">
+        <i class="fa-solid fa-gear"></i>
+        <span>ការកំណត់</span>
     </button>
 </div>
 
@@ -409,7 +506,7 @@
 
 <div id="toastContainer" class="toast-container"></div>
 
-<!-- Fullscreen Viewer ថ្មី -->
+<!-- Fullscreen Viewer -->
 <div class="fullscreen-modal" id="fullScreenModal">
     <div class="fullscreen-header">
         <div style="display: flex; align-items: center; gap: 10px; max-width: 80%;">
@@ -418,11 +515,27 @@
         </div>
         <button onclick="closeFullScreenModalDirect()" style="background:none; border:none; color:white; font-size:1.5rem; cursor:pointer; padding: 4px;">✖</button>
     </div>
+    
+    <!-- ប៊ូតុង Play (សម្រាប់ចម្រៀងមាន YouTube/Media) -->
+    <button class="media-play-btn" id="fsMediaPlayBtn" title="ចាក់សំឡេង/វីដេអូ">
+        <i class="fa-brands fa-youtube"></i>
+    </button>
+
     <button class="fullscreen-nav-btn fullscreen-prev" onclick="slideFullScreen(-1, event)">❮</button>
     <div class="fullscreen-img-container" id="fullScreenImgContainer">
         <img src="" id="fullScreenImg" class="fullscreen-img" alt="Song">
     </div>
     <button class="fullscreen-nav-btn fullscreen-next" onclick="slideFullScreen(1, event)">❯</button>
+    
+    <!-- ផ្ទាំងបញ្ជា Auto-Scroll -->
+    <div class="fullscreen-controls" id="fsScrollControls">
+        <button class="fs-scroll-toggle" id="autoScrollBtn" onclick="toggleAutoScroll()">
+            <i class="fa-solid fa-angles-down"></i> Auto-Scroll
+        </button>
+        <button class="fs-control-btn" onclick="adjustScrollSpeed(-0.2)">-</button>
+        <div class="fs-speed-label" id="scrollSpeedLabel">0.5x</div>
+        <button class="fs-control-btn" onclick="adjustScrollSpeed(0.2)">+</button>
+    </div>
 </div>
 
 <!-- Modals ... -->
@@ -439,9 +552,19 @@
                 <label>ចំណងជើងបទចម្រៀង *</label>
                 <input type="text" id="songTitle" required placeholder="ឧទាហរណ៍៖ ព្រះគុណព្រះអង្គ">
             </div>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                <div class="form-group">
+                    <label>ឈ្មោះអ្នកចម្រៀង</label>
+                    <input type="text" id="songArtist" placeholder="ឈ្មោះអ្នកចម្រៀង">
+                </div>
+                <div class="form-group">
+                    <label>Key ភ្លេង (បើមាន)</label>
+                    <input type="text" id="songKey" placeholder="ឧ. G, Am, D">
+                </div>
+            </div>
             <div class="form-group">
-                <label>ឈ្មោះអ្នកចម្រៀង</label>
-                <input type="text" id="songArtist" placeholder="ឈ្មោះអ្នកចម្រៀង">
+                <label>តំណភ្ជាប់វីដេអូ ឬសំឡេង (YouTube/MP3)</label>
+                <input type="url" id="songMediaUrl" placeholder="ដាក់ Link បើមាន">
             </div>
             <div class="form-group">
                 <label>រូបភាពបទចម្រៀង *</label>
@@ -505,9 +628,19 @@
                 <label>ចំណងជើងបទចម្រៀង *</label>
                 <input type="text" id="editSongTitle" required>
             </div>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                <div class="form-group">
+                    <label>ឈ្មោះអ្នកចម្រៀង</label>
+                    <input type="text" id="editSongArtist">
+                </div>
+                <div class="form-group">
+                    <label>Key ភ្លេង</label>
+                    <input type="text" id="editSongKey" placeholder="ឧ. G, Am">
+                </div>
+            </div>
             <div class="form-group">
-                <label>ឈ្មោះអ្នកចម្រៀង</label>
-                <input type="text" id="editSongArtist">
+                <label>តំណភ្ជាប់វីដេអូ ឬសំឡេង</label>
+                <input type="url" id="editSongMediaUrl" placeholder="ដាក់ Link បើមាន">
             </div>
             <div class="form-group">
                 <label>ប្ដូររូបភាពថ្មី</label>
@@ -615,25 +748,31 @@
     let scrollObserver = null;
     
     let dragSrcId = null;
-
     let wakeLock = null;
 
-async function requestWakeLock() {
-    try {
-        if ('wakeLock' in navigator) {
-            wakeLock = await navigator.wakeLock.request('screen');
-        }
-    } catch (err) {
-        console.log('Wake Lock Error:', err);
-    }
-}
+    // --- Auto Scroll Variables ---
+    let isAutoScrolling = false;
+    let autoScrollSpeed = 0.5;
+    let autoScrollFrameReq = null;
 
-function releaseWakeLock() {
-    if (wakeLock !== null) {
-        wakeLock.release();
-        wakeLock = null;
+    // --- Cloud Sync Function ---
+    async function syncPlaylistsToCloud() {
+        if (currentUser) {
+            try {
+                await db.collection("users").doc(currentUser.uid).set({ playlists: playlists }, { merge: true });
+            } catch (err) { console.error("Cloud Sync Error", err); }
+        }
     }
-}
+
+    async function requestWakeLock() {
+        try { if ('wakeLock' in navigator) wakeLock = await navigator.wakeLock.request('screen'); } 
+        catch (err) { console.log('Wake Lock Error:', err); }
+    }
+
+    function releaseWakeLock() {
+        if (wakeLock !== null) { wakeLock.release(); wakeLock = null; }
+    }
+
     if ('serviceWorker' in navigator) {
         window.addEventListener('load', () => navigator.serviceWorker.register('sw.js').catch(err => {}));
     }
@@ -785,10 +924,12 @@ function releaseWakeLock() {
         }, 1200);
 
         applyStoredTheme();
+        applyStoredViewMode();
+        applySettingsToggles(); // ថ្មី: Setup Toggles ពេល Load
         listenToAuth();
         listenToAlbums();
         renderSongsListOnly();
-        checkAndShowIosInstallGuide(); // Add iOS guide check
+        checkAndShowIosInstallGuide();
 
         try {
             await initIndexedDB();
@@ -811,12 +952,10 @@ function releaseWakeLock() {
         setupIntersectionObserver();
         setupDropZoneHandlers();
 
-        // មុខងារចុចលើកន្លែងផ្សេង ដើម្បីបិទ Dropdown ផ្សេងៗ
         document.addEventListener('click', function(e) {
             const searchBox = document.querySelector('.search-box');
             if (searchBox && !searchBox.contains(e.target)) hideSearchDropdown();
 
-            // បិទ Kebab Menus
             if (!e.target.closest('.card-dropdown') && !e.target.closest('.btn-more-options')) {
                 document.querySelectorAll('.card-dropdown').forEach(el => el.classList.remove('show'));
             }
@@ -935,11 +1074,11 @@ function releaseWakeLock() {
             document.getElementById('viewPlaylists').classList.add('active');
             document.getElementById('navPlaylistsBtn').classList.add('active');
             renderPlaylistsView();
-        } else if (tabName === 'profile') {
+        } else if (tabName === 'settings') {
             if (mainHeader) mainHeader.style.display = 'none';
-            document.getElementById('viewProfile').classList.add('active');
+            document.getElementById('viewSettings').classList.add('active');
             document.getElementById('navProfileBtn').classList.add('active');
-            renderProfileView();
+            renderSettingsView();
         }
     }
 
@@ -1095,8 +1234,21 @@ function releaseWakeLock() {
             currentUser = user;
             if (user) {
                 db.collection("users").doc(user.uid).get().then((doc) => {
-                    if (doc.exists) { const userData = doc.data(); isAdmin = userData.role === 'admin'; isEditor = isAdmin || userData.role === 'editor'; } 
-                    else { isAdmin = false; isEditor = false; }
+                    if (doc.exists) { 
+                        const userData = doc.data(); 
+                        isAdmin = userData.role === 'admin'; 
+                        isEditor = isAdmin || userData.role === 'editor'; 
+                        
+                        // Cloud Sync: Merge cloud playlists with local
+                        if (userData.playlists) {
+                            playlists = Object.assign({}, playlists, userData.playlists);
+                            localStorage.setItem('user_playlists', JSON.stringify(playlists));
+                            renderPlaylistsView();
+                            renderSongsListOnly();
+                        } else {
+                            syncPlaylistsToCloud(); // upload local to cloud if cloud is empty
+                        }
+                    } else { isAdmin = false; isEditor = false; }
                     updateUIRoles();
                 }).catch(() => { isAdmin = false; isEditor = false; updateUIRoles(); });
             } else { isAdmin = false; isEditor = false; updateUIRoles(); }
@@ -1106,7 +1258,7 @@ function releaseWakeLock() {
     function updateUIRoles() {
         const body = document.getElementById('bodyContainer');
         if (isEditor) body.classList.add('editor-authorized'); else body.classList.remove('editor-authorized');
-        if (document.getElementById('viewProfile').classList.contains('active')) renderProfileView();
+        if (document.getElementById('viewSettings').classList.contains('active')) renderSettingsView();
         renderSongsListOnly();
     }
 
@@ -1146,10 +1298,8 @@ function releaseWakeLock() {
         }
 
         currentFilteredSongs = filtered.filter(song => {
-            const matchSearch = !searchVal || 
-                (song.title && song.title.toLowerCase().includes(searchVal)) ||
-                (song.artist && song.artist.toLowerCase().includes(searchVal)) ||
-                (song.album && song.album.toLowerCase().includes(searchVal));
+            const searchString = `${song.title} ${song.artist} ${song.album} ${song.songKey || ''}`.toLowerCase();
+            const matchSearch = !searchVal || searchString.includes(searchVal);
 
             let matchFilter = true;
             if (currentFilterType === 'ALBUM') matchFilter = song.album === currentFilterValue;
@@ -1207,13 +1357,13 @@ function releaseWakeLock() {
                 list.splice(toIdx, 0, dragSrcId);
                 localStorage.setItem('user_playlists', JSON.stringify(playlists));
                 vibratePhone(50);
+                syncPlaylistsToCloud();
                 renderSongs();
             }
         }
         return false;
     }
 
-    // បិទបើក Menu លើកាត (Kebab)
     function toggleSongMenu(event, songId) {
         event.stopPropagation();
         document.querySelectorAll('.card-dropdown').forEach(el => {
@@ -1247,6 +1397,7 @@ function releaseWakeLock() {
         let html = itemsToDisplay.map((song) => {
             const imgUrl = song.imageUrl || 'https://via.placeholder.com/300x400?text=No+Image';
             const inFav = (playlists['Favorite'] || []).includes(song.id);
+            const keyHtml = song.songKey ? `<span class="song-key-badge">${escapeHtml(song.songKey)}</span>` : '';
 
             return `
                 <div class="song-card" id="song-card-${song.id}"
@@ -1260,20 +1411,20 @@ function releaseWakeLock() {
                     </div>
                     <div class="song-info">
                         <div class="song-title-row">
-                            <span class="song-title" title="${escapeHtml(song.title)}">${escapeHtml(song.title)}</span>
+                            <span class="song-title selectable-text" title="${escapeHtml(song.title)}">${escapeHtml(song.title)}</span>
                             <button class="btn-more-options" onclick="toggleSongMenu(event, '${song.id}')">
                                 <i class="fa-solid fa-ellipsis-vertical"></i>
                             </button>
                         </div>
                         <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 4px;">
-                            <div class="song-artist">🎤 ${escapeHtml(song.artist || 'មិនស្គាល់')}</div>
+                            <div class="song-artist selectable-text">🎤 ${escapeHtml(song.artist || 'មិនស្គាល់')} ${keyHtml}</div>
                             <button class="btn-add-playlist-title" onclick="openPlaylistChooserModal('${song.id}')">
                                 <i class="fa-solid fa-plus"></i> Playlist
                             </button>
                         </div>
                         
-                        <!-- Dropdown Menu -->
                         <div class="card-dropdown" id="dropdown-${song.id}">
+                            ${song.mediaUrl ? `<button class="card-dropdown-item" onclick="window.open('${song.mediaUrl}', '_blank')"><i class="fa-solid fa-play"></i> ស្តាប់ភ្លេង</button>` : ''}
                             <button class="card-dropdown-item" onclick="shareSongImage('${song.id}')"><i class="fa-solid fa-share-nodes"></i> Share ចម្រៀង</button>
                             <button class="card-dropdown-item" onclick="downloadSongImage('${imgUrl}', '${escapeHtml(song.title)}')"><i class="fa-solid fa-download"></i> Save ទុក</button>
                             <button class="card-dropdown-item editor-only" onclick="openEditSongModal('${song.id}')"><i class="fa-solid fa-pen"></i> កែប្រែ (Edit)</button>
@@ -1417,51 +1568,31 @@ function releaseWakeLock() {
         }).join('');
     }
 
-    function renderProfileView() {
-        const container = document.getElementById('profileCardContent'); if (!container) return;
-        const favCount = (playlists['Favorite'] || []).length;
-        const playlistCount = Object.keys(playlists).filter(k => k !== 'Favorite').length;
+    // --- ទំព័រការកំណត់ (Settings View) ---
+    function renderSettingsView() {
+        const container = document.getElementById('settingsAccountArea'); if (!container) return;
 
-        let profileHtml = '';
         if (currentUser) {
-            profileHtml = `
-                <div style="display:flex; align-items:center; gap:12px; margin-bottom:16px;">
+            container.innerHTML = `
+                <div style="display:flex; align-items:center; gap:12px; padding: 14px 16px;">
                     <img src="${currentUser.photoURL || 'https://via.placeholder.com/100'}" style="width:50px; height:50px; border-radius:50%; object-fit:cover; border:2px solid var(--primary);" alt="User">
                     <div>
                         <div style="font-size:0.95rem; font-weight:700; color:var(--text);">${escapeHtml(currentUser.displayName || 'អ្នកប្រើប្រាស់')}</div>
                         <div style="font-size:0.75rem; color:var(--text-muted);">${escapeHtml(currentUser.email || '')}</div>
                         <span style="display:inline-block; font-size:0.68rem; color:#16a34a; font-weight:700; margin-top:2px;">${isAdmin ? '👑 Admin' : (isEditor ? '✏️ Editor' : '👤 សមាជិក')}</span>
                     </div>
-                </div>`;
+                </div>
+                <button class="settings-item danger" style="width:100%; border-top: 1px solid var(--border);" onclick="handleLogout()">
+                    <div class="settings-item-left"><i class="fa-solid fa-right-from-bracket"></i> ចាកចេញ (Logout)</div>
+                </button>
+            `;
         } else {
-            profileHtml = `
-                <div style="text-align:center; padding: 10px 0; margin-bottom: 16px;">
-                    <i class="fa-solid fa-user-lock" style="font-size: 2.5rem; color: var(--primary); margin-bottom: 10px;"></i>
-                    <h3 style="font-size: 1rem;">ចូលប្រព័ន្ធ (Login)</h3>
-                    <p style="color:var(--text-muted); font-size:0.78rem; margin-top:4px; margin-bottom: 16px;">ចូលប្រព័ន្ធដើម្បីទទួលបានសិទ្ធិគ្រប់គ្រងបន្ថែម</p>
-                    <button class="action-btn-item" onclick="handleGoogleLogin()" style="justify-content: center; gap: 8px; background: var(--primary); color: white;"><i class="fa-brands fa-google"></i> ចូលតាម Google</button>
-                </div>`;
+            container.innerHTML = `
+                <button class="settings-item" onclick="handleGoogleLogin()" style="width:100%; justify-content:center; color: var(--primary);">
+                    <div class="settings-item-left"><i class="fa-brands fa-google"></i> ចូលប្រព័ន្ធ (Login)</div>
+                </button>
+            `;
         }
-
-        container.innerHTML = profileHtml + `
-            <div class="profile-stats">
-                <div class="stat-box">
-                    <div class="stat-num">${favCount}</div>
-                    <div class="stat-label">❤️ បេះដូង</div>
-                </div>
-                <div class="stat-box">
-                    <div class="stat-num">${playlistCount}</div>
-                    <div class="stat-label">📂 Playlist</div>
-                </div>
-            </div>
-            <div class="action-list">
-                ${isEditor && currentUser ? `
-                    <button class="action-btn-item" onclick="openModal('addSongModal')"><span>➕ បញ្ចូលបទចម្រៀង</span> <i class="fa-solid fa-chevron-right"></i></button>
-                    <button class="action-btn-item" onclick="openModal('batchAddModal')"><span>📚 បញ្ចូលរូបភាពច្រើន</span> <i class="fa-solid fa-chevron-right"></i></button>
-                ` : ''}
-                <button class="action-btn-item" onclick="clearOfflineData()"><span>🧹 ជម្រះទិន្នន័យអុហ្វឡាញ (Clear Cache)</span> <i class="fa-solid fa-broom"></i></button>
-                ${currentUser ? `<button class="action-btn-item danger" onclick="handleLogout()"><span>🚪 ចាកចេញ</span> <i class="fa-solid fa-right-from-bracket"></i></button>` : ''}
-            </div>`;
     }
 
     async function clearOfflineData() {
@@ -1476,25 +1607,71 @@ function releaseWakeLock() {
         }
     }
 
-   function openFullScreenModal(songId) {
-    const songIndex = currentFilteredSongs.findIndex(s => s.id === songId); if (songIndex === -1) return;
-    currentFullscreenIndex = songIndex; updateFullScreenContent(); document.getElementById('fullScreenModal').classList.add('active');
-    requestWakeLock(); // បន្ថែមនៅទីនេះ ដើម្បីឱ្យអេក្រង់ភ្លឺរហូតពេលបើកមើលចម្រៀង
+    // --- Auto Scroll Functions ---
+    function toggleAutoScrollSetting(el) {
+        el.classList.toggle('active');
+        const isActive = el.classList.contains('active');
+        localStorage.setItem('setting_autoscroll', isActive ? 'true' : 'false');
+    }
+
+    function toggleAutoScroll() {
+        isAutoScrolling = !isAutoScrolling;
+        const btn = document.getElementById('autoScrollBtn');
+        if (isAutoScrolling) {
+            btn.classList.add('active');
+            requestAnimationFrame(autoScrollLoop);
+        } else {
+            btn.classList.remove('active');
+        }
+    }
+    function adjustScrollSpeed(delta) {
+        autoScrollSpeed += delta;
+        if (autoScrollSpeed < 0.1) autoScrollSpeed = 0.1;
+        if (autoScrollSpeed > 3.0) autoScrollSpeed = 3.0;
+        document.getElementById('scrollSpeedLabel').innerText = autoScrollSpeed.toFixed(1) + 'x';
+    }
+    function autoScrollLoop() {
+        if (!isAutoScrolling) return;
+        pointY -= autoScrollSpeed;
+        updateTransform();
+        requestAnimationFrame(autoScrollLoop);
+    }
+
+    function openFullScreenModal(songId) {
+        const songIndex = currentFilteredSongs.findIndex(s => s.id === songId); if (songIndex === -1) return;
+        currentFullscreenIndex = songIndex; updateFullScreenContent(); document.getElementById('fullScreenModal').classList.add('active');
+        requestWakeLock(); 
     }
     
-    // បង្ហាញលេខរៀងនៅពេលបើក Fullscreen
     function updateFullScreenContent() {
         const song = currentFilteredSongs[currentFullscreenIndex]; if (!song) return;
         document.getElementById('fullScreenTitle').innerText = song.title || 'រូបភាព';
         document.getElementById('fullScreenImg').src = song.imageUrl || ''; 
         document.getElementById('pageCounter').innerText = `${currentFullscreenIndex + 1} / ${currentFilteredSongs.length}`;
+        
+        // បង្ហាញ ឬលាក់ប៊ូតុង Play Media
+        const mediaBtn = document.getElementById('fsMediaPlayBtn');
+        if(song.mediaUrl) {
+            mediaBtn.style.display = 'flex';
+            mediaBtn.onclick = () => window.open(song.mediaUrl, '_blank');
+        } else {
+            mediaBtn.style.display = 'none';
+        }
+
+        // បង្ហាញឬលាក់ផ្ទាំង Auto Scroll តាមការកំណត់
+        const showScroll = localStorage.getItem('setting_autoscroll') === 'true';
+        document.getElementById('fsScrollControls').style.display = showScroll ? 'flex' : 'none';
+
+        // បិទ Auto Scroll វិញពេលដូររូប
+        if(isAutoScrolling) toggleAutoScroll();
         resetZoomState();
     }
     
     function closeFullScreenModalDirect() { 
         document.getElementById('fullScreenModal').classList.remove('active'); 
+        if(isAutoScrolling) toggleAutoScroll();
         resetZoomState(); 
-        releaseWakeLock(); // បន្ថែមនៅទីនេះ ដើម្បីឱ្យអេក្រង់អាចលត់វិញតាមធម្មតាពេលបិទ
+        releaseWakeLock(); 
     }
     
     function slideFullScreen(direction, event) {
@@ -1525,6 +1702,9 @@ function releaseWakeLock() {
             else if (e.touches.length === 1) { if (scale > 1) { isDragging = true; startX = e.touches[0].clientX - pointX; startY = e.touches[0].clientY - pointY; } else { startX = e.touches[0].clientX; } }
         }, { passive: true });
         container.addEventListener('touchmove', (e) => {
+            // ហាមមិនឱ្យអ្នកប្រើអូសដោយដៃ ពេលកំពុង Auto-Scroll
+            if(isAutoScrolling) { e.preventDefault(); return; }
+
             if (isPinching && e.touches.length === 2) { const newDist = getDistance(e.touches); if (initialDist > 0) { scale = Math.min(Math.max(1, scale * (newDist / initialDist)), 4); initialDist = newDist; if (scale === 1) { pointX = 0; pointY = 0; } updateTransform(); } } 
             else if (isDragging && e.touches.length === 1 && scale > 1) { pointX = e.touches[0].clientX - startX; pointY = e.touches[0].clientY - startY; updateTransform(); }
         }, { passive: true });
@@ -1559,13 +1739,27 @@ function releaseWakeLock() {
         } catch (err) {}
     }
 
+    function shareAppDirectly() {
+        if (navigator.share) {
+            navigator.share({
+                title: 'ចម្រៀងសរសើរដំកើងព្រះ',
+                text: 'សូមចូលរួមប្រើប្រាស់កម្មវិធីចម្រៀងសរសើរដំកើងព្រះជាមួយយើងខ្ញុំ។',
+                url: window.location.href
+            }).catch(console.error);
+        } else {
+            showToast('ការចែករំលែកមិនដំណើរការលើ Browser នេះទេ', 'warning');
+        }
+    }
+
     function toggleFavorite(songId, event) {
         if(event) event.stopPropagation();
         vibratePhone(50);
         if (!playlists['Favorite']) playlists['Favorite'] = [];
         const index = playlists['Favorite'].indexOf(songId);
         if (index === -1) playlists['Favorite'].push(songId); else playlists['Favorite'].splice(index, 1);
-        localStorage.setItem('user_playlists', JSON.stringify(playlists)); renderSongsListOnly();
+        localStorage.setItem('user_playlists', JSON.stringify(playlists)); 
+        syncPlaylistsToCloud();
+        renderSongsListOnly();
     }
 
     function openModal(modalId) { document.getElementById(modalId).classList.add('active'); }
@@ -1583,15 +1777,37 @@ function releaseWakeLock() {
     function addSongToPlaylist(playlistName) {
         const songId = document.getElementById('playlistTargetSongId').value;
         if (!playlists[playlistName]) playlists[playlistName] = [];
-        if (!playlists[playlistName].includes(songId)) { playlists[playlistName].push(songId); localStorage.setItem('user_playlists', JSON.stringify(playlists)); showToast('បានបញ្ចូលទៅ Playlist ជោគជ័យ', 'success'); }
+        if (!playlists[playlistName].includes(songId)) { 
+            playlists[playlistName].push(songId); 
+            localStorage.setItem('user_playlists', JSON.stringify(playlists)); 
+            syncPlaylistsToCloud();
+            showToast('បានបញ្ចូលទៅ Playlist ជោគជ័យ', 'success'); 
+        }
         closeModal('playlistModal');
     }
     function saveNewPlaylist() {
         const input = document.getElementById('newPlaylistName'); const songId = document.getElementById('playlistTargetSongId').value; const name = input.value.trim();
         if (!name) return;
-        if (!playlists[name]) { playlists[name] = songId ? [songId] : []; localStorage.setItem('user_playlists', JSON.stringify(playlists)); input.value = ''; closeModal('playlistModal'); renderPlaylistsView(); showToast('បង្កើត Playlist ថ្មីជោគជ័យ', 'success'); }
+        if (!playlists[name]) { 
+            playlists[name] = songId ? [songId] : []; 
+            localStorage.setItem('user_playlists', JSON.stringify(playlists)); 
+            syncPlaylistsToCloud();
+            input.value = ''; 
+            closeModal('playlistModal'); 
+            renderPlaylistsView(); 
+            showToast('បង្កើត Playlist ថ្មីជោគជ័យ', 'success'); 
+        }
     }
-    function deletePlaylist(event, pName) { event.stopPropagation(); if (confirm(`លុប Playlist "${pName}"?`)) { delete playlists[pName]; localStorage.setItem('user_playlists', JSON.stringify(playlists)); renderPlaylistsView(); showToast('លុប Playlist រួចរាល់', 'info'); } }
+    function deletePlaylist(event, pName) { 
+        event.stopPropagation(); 
+        if (confirm(`លុប Playlist "${pName}"?`)) { 
+            delete playlists[pName]; 
+            localStorage.setItem('user_playlists', JSON.stringify(playlists)); 
+            syncPlaylistsToCloud();
+            renderPlaylistsView(); 
+            showToast('លុប Playlist រួចរាល់', 'info'); 
+        } 
+    }
 
     function addNewAlbum() { const albumName = prompt("បញ្ចូលឈ្មោះ Album ថ្មី៖"); if (albumName && albumName.trim() !== "") { db.collection("albums").add({ name: albumName.trim() }); showToast('បង្កើត Album រួចរាល់', 'success'); } }
     function deleteAlbum(event, albumName) { event.stopPropagation(); if (confirm(`លុប Album "${albumName}"?`)) { db.collection("albums").where("name", "==", albumName).get().then((snapshot) => { snapshot.forEach((doc) => doc.ref.delete()); showToast('លុប Album រួចរាល់', 'info'); }); } }
@@ -1627,12 +1843,18 @@ function releaseWakeLock() {
 
     async function handleAddSong(e) {
         e.preventDefault();
-        const album = document.getElementById('songAlbumSelect').value; const title = document.getElementById('songTitle').value.trim(); const artist = document.getElementById('songArtist').value.trim(); const directUrl = document.getElementById('songImageUrlDirect').value.trim();
+        const album = document.getElementById('songAlbumSelect').value; 
+        const title = document.getElementById('songTitle').value.trim(); 
+        const artist = document.getElementById('songArtist').value.trim(); 
+        const songKey = document.getElementById('songKey').value.trim(); 
+        const mediaUrl = document.getElementById('songMediaUrl').value.trim(); 
+        const directUrl = document.getElementById('songImageUrlDirect').value.trim();
+        
         if (!selectedImageBase64 && !directUrl) { showToast('សូមជ្រើសរើសរូបភាព ឬបញ្ចូល Link', 'warning'); return; }
         const saveBtn = document.getElementById('saveBtn'); saveBtn.disabled = true; saveBtn.innerText = 'កំពុងរក្សាទុក...';
         try {
             let finalImageUrl = directUrl; if (selectedImageBase64) finalImageUrl = await uploadToCloudinary(selectedImageBase64);
-            await db.collection("songs").add({ album: album, title: title, artist: artist, imageUrl: finalImageUrl, createdAt: firebase.firestore.FieldValue.serverTimestamp() });
+            await db.collection("songs").add({ album, title, artist, songKey, mediaUrl, imageUrl: finalImageUrl, createdAt: firebase.firestore.FieldValue.serverTimestamp() });
             document.getElementById('addSongForm').reset(); removeSelectedImage(null); closeModal('addSongModal'); showToast('បញ្ចូលបទចម្រៀងរួចរាល់', 'success');
         } catch (err) { showToast('មានបញ្ហា៖ ' + err.message, 'error'); } 
         finally { saveBtn.disabled = false; saveBtn.innerText = 'រក្សាទុក'; }
@@ -1668,7 +1890,7 @@ function releaseWakeLock() {
             for (const item of batchImagesArray) {
                 count++; previewInfo.innerText = `Upload (${count}/${batchImagesArray.length})...`;
                 const cloudUrl = await uploadToCloudinary(item.base64);
-                batch.set(db.collection("songs").doc(), { album: album, title: item.name, artist: artist, imageUrl: cloudUrl, createdAt: firebase.firestore.FieldValue.serverTimestamp() });
+                batch.set(db.collection("songs").doc(), { album: album, title: item.name, artist: artist, songKey: "", mediaUrl: "", imageUrl: cloudUrl, createdAt: firebase.firestore.FieldValue.serverTimestamp() });
             }
             previewInfo.innerText = 'កំពុងរក្សាទុក...'; await batch.commit();
             document.getElementById('batchImageFiles').value = ''; document.getElementById('batchPreviewInfo').innerText = ''; batchImagesArray = []; closeModal('batchAddModal'); showToast('បញ្ចូលជោគជ័យទាំងអស់', 'success');
@@ -1678,17 +1900,30 @@ function releaseWakeLock() {
 
     function openEditSongModal(songId) {
         const song = songsList.find(s => s.id === songId); if (!song) return;
-        document.getElementById('editSongId').value = song.id; document.getElementById('editSongAlbumSelect').value = song.album || customAlbums[0]; document.getElementById('editSongTitle').value = song.title || ''; document.getElementById('editSongArtist').value = song.artist || ''; document.getElementById('editSongImageUrlDirect').value = song.imageUrl && !song.imageUrl.startsWith('data:') ? song.imageUrl : '';
+        document.getElementById('editSongId').value = song.id; 
+        document.getElementById('editSongAlbumSelect').value = song.album || customAlbums[0]; 
+        document.getElementById('editSongTitle').value = song.title || ''; 
+        document.getElementById('editSongArtist').value = song.artist || ''; 
+        document.getElementById('editSongKey').value = song.songKey || ''; 
+        document.getElementById('editSongMediaUrl').value = song.mediaUrl || ''; 
+        document.getElementById('editSongImageUrlDirect').value = song.imageUrl && !song.imageUrl.startsWith('data:') ? song.imageUrl : '';
         if (song.imageUrl && song.imageUrl.startsWith('data:')) { selectedEditImageBase64 = song.imageUrl; document.getElementById('editPreviewImg').src = song.imageUrl; document.getElementById('editPreviewContainer').style.display = 'block'; } else removeSelectedEditImage(null);
         openModal('editSongModal');
     }
 
     async function handleUpdateSong(e) {
         e.preventDefault();
-        const id = document.getElementById('editSongId').value; const album = document.getElementById('editSongAlbumSelect').value; const title = document.getElementById('editSongTitle').value.trim(); const artist = document.getElementById('editSongArtist').value.trim(); const directUrl = document.getElementById('editSongImageUrlDirect').value.trim();
+        const id = document.getElementById('editSongId').value; 
+        const album = document.getElementById('editSongAlbumSelect').value; 
+        const title = document.getElementById('editSongTitle').value.trim(); 
+        const artist = document.getElementById('editSongArtist').value.trim(); 
+        const songKey = document.getElementById('editSongKey').value.trim(); 
+        const mediaUrl = document.getElementById('editSongMediaUrl').value.trim(); 
+        const directUrl = document.getElementById('editSongImageUrlDirect').value.trim();
+        
         const updateBtn = document.getElementById('updateBtn'); updateBtn.disabled = true; updateBtn.innerText = 'កំពុងរក្សាទុក...';
         try {
-            const updateData = { album: album, title: title, artist: artist, updatedAt: firebase.firestore.FieldValue.serverTimestamp() };
+            const updateData = { album, title, artist, songKey, mediaUrl, updatedAt: firebase.firestore.FieldValue.serverTimestamp() };
             if (selectedEditImageBase64) { updateBtn.innerText = 'Upload រូបភាពថ្មី...'; updateData.imageUrl = await uploadToCloudinary(selectedEditImageBase64); } else if (directUrl) updateData.imageUrl = directUrl;
             await db.collection("songs").doc(id).update(updateData); closeModal('editSongModal'); showToast('កែប្រែបានជោគជ័យ', 'success');
         } catch (err) { showToast('កែប្រែមិនបានសម្រេច៖ ' + err.message, 'error'); } 
@@ -1706,11 +1941,57 @@ function releaseWakeLock() {
     function handleGoogleLogin() { const provider = new firebase.auth.GoogleAuthProvider(); auth.signInWithPopup(provider); }
     function handleLogout() { auth.signOut(); showToast('បានចាកចេញ', 'info'); }
 
+    function toggleDarkModeSetting(el) {
+        el.classList.toggle('active');
+        toggleDarkMode();
+    }
+    
     function toggleDarkMode() {
         document.body.classList.toggle('dark-mode'); const isDark = document.body.classList.contains('dark-mode');
-        localStorage.setItem('theme_mode', isDark ? 'dark' : 'light'); document.getElementById('themeToggleBtn').innerText = isDark ? '☀️' : '🌙';
+        localStorage.setItem('theme_mode', isDark ? 'dark' : 'light');
     }
-    function applyStoredTheme() { if (localStorage.getItem('theme_mode') === 'dark') { document.body.classList.add('dark-mode'); document.getElementById('themeToggleBtn').innerText = '☀️'; } }
+    
+    function applySettingsToggles() {
+        if (localStorage.getItem('theme_mode') === 'dark') {
+            const themeToggle = document.getElementById('settingThemeToggle');
+            if (themeToggle) themeToggle.classList.add('active');
+        }
+        if (localStorage.getItem('setting_autoscroll') === 'true') {
+            const scrollToggle = document.getElementById('settingScrollToggle');
+            if (scrollToggle) scrollToggle.classList.add('active');
+        }
+    }
+
+    function applyStoredTheme() { 
+        if (localStorage.getItem('theme_mode') === 'dark') { 
+            document.body.classList.add('dark-mode'); 
+        } 
+    }
+    
+    function toggleViewMode() {
+        const grid = document.getElementById('songGrid');
+        grid.classList.toggle('list-view');
+        const isListView = grid.classList.contains('list-view');
+        
+        localStorage.setItem('app_view_mode', isListView ? 'list' : 'grid');
+        
+        const btn = document.getElementById('viewToggleBtn');
+        if (btn) {
+            btn.innerHTML = isListView 
+                ? '<i class="fa-solid fa-table-cells-large"></i> ទម្រង់ Grid' 
+                : '<i class="fa-solid fa-list"></i> ទម្រង់ List';
+        }
+    }
+
+    function applyStoredViewMode() {
+        if (localStorage.getItem('app_view_mode') === 'list') {
+            const grid = document.getElementById('songGrid');
+            if (grid) grid.classList.add('list-view');
+            const btn = document.getElementById('viewToggleBtn');
+            if (btn) btn.innerHTML = '<i class="fa-solid fa-table-cells-large"></i> ទម្រង់ Grid';
+        }
+    }
+
     function escapeHtml(str) { if (!str) return ''; return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;"); }
 
     let pendingSharePlaylistName = "";
