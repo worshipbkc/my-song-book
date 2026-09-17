@@ -133,7 +133,6 @@
         <div class="section-grid" id="playlistsGrid"></div>
     </div>
 
-    <!-- ទីតាំង Settings (ការកំណត់) ថ្មី -->
     <div class="app-view" id="viewSettings">
         <div class="profile-container" style="padding: 10px 16px;" id="mainSettingsContainer">
             
@@ -293,7 +292,7 @@
     </div>
 </div>
 
-<!-- Modals ... -->
+<!-- Modal បញ្ចូលបទចម្រៀងថ្មី -->
 <div class="modal" id="addSongModal">
     <div class="modal-content">
         <div class="modal-drag-handle"></div>
@@ -321,20 +320,38 @@
                 <label>តំណភ្ជាប់វីដេអូ ឬសំឡេង (YouTube/MP3)</label>
                 <input type="url" id="songMediaUrl" placeholder="ដាក់ Link បើមាន">
             </div>
+
+            <!-- 💡 ជម្រើសបញ្ចូលទិន្នន័យ (រូបភាព ឬ អត្ថបទ) -->
             <div class="form-group">
-                <label>រូបភាពបទចម្រៀង *</label>
-                <div class="image-drop-zone" id="dropZone" tabindex="0" onclick="document.getElementById('songImageFile').click()">
-                    <p>📁 ចុចជ្រើសរើស / អូសរូបភាព<br>ឬ 📋 Paste (Ctrl+V) នៅទីនេះ</p>
-                    <input type="file" id="songImageFile" accept="image/*" onchange="handleFileSelect(event)" style="display: none;">
-                    <div class="preview-container" id="previewContainer">
-                        <img id="previewImg" src="" alt="Preview">
-                        <button type="button" class="remove-img-btn" onclick="removeSelectedImage(event)">✖</button>
+                <div class="input-method-tabs">
+                    <button type="button" class="tab-btn active" id="tabAddImg" onclick="switchInputType('add', 'image')">🖼️ ប្រើរូបភាព</button>
+                    <button type="button" class="tab-btn" id="tabAddText" onclick="switchInputType('add', 'text')">📝 វាយអត្ថបទ</button>
+                </div>
+
+                <!-- ផ្នែកបញ្ចូលរូបភាព -->
+                <div id="addSectionImage">
+                    <div class="image-drop-zone" id="dropZone" tabindex="0" onclick="document.getElementById('songImageFile').click()">
+                        <p>📁 ចុចជ្រើសរើស / អូសរូបភាព<br>ឬ 📋 Paste (Ctrl+V) នៅទីនេះ</p>
+                        <input type="file" id="songImageFile" accept="image/*" onchange="handleFileSelect(event)" style="display: none;">
+                        <div class="preview-container" id="previewContainer">
+                            <img id="previewImg" src="" alt="Preview">
+                            <button type="button" class="remove-img-btn" onclick="removeSelectedImage(event)">✖</button>
+                        </div>
+                    </div>
+                    <div style="margin-top: 6px;">
+                        <input type="url" id="songImageUrlDirect" placeholder="ឬដាក់ Image URL ផ្ទាល់">
                     </div>
                 </div>
-                <div style="margin-top: 6px;">
-                    <input type="url" id="songImageUrlDirect" placeholder="ឬដាក់ Image URL ផ្ទាល់">
+
+                <!-- ផ្នែកវាយអត្ថបទ (អត្ថបទ និង Chord) -->
+                <div id="addSectionText" style="display: none;">
+                    <div style="font-size: 0.72rem; color: var(--primary); margin-bottom: 8px; font-weight: 600;">
+                        💡 គន្លឹះ៖ ចុច Spacebar រុញ Chord ឱ្យចំពីលើពាក្យចម្រៀងដែលចង់ដូរ។
+                    </div>
+                    <textarea id="songLyricsInput" class="lyric-textarea" rows="10" placeholder="G                D&#10;ឱព្រះអើយ ទូលបង្គំស្រឡាញ់ទ្រង់&#10;Em               C&#10;សូមសរសើរតម្កើងព្រះនាមបរិសុទ្ធ..."></textarea>
                 </div>
             </div>
+
             <div style="text-align: right; margin-top: 18px; display: flex; gap: 10px; justify-content: flex-end;">
                 <button type="button" onclick="closeModal('addSongModal')" style="background: var(--border); color: var(--text); padding: 10px 16px; border-radius:8px; border:none; font-size: 0.9rem; font-weight: 600;">បោះបង់</button>
                 <button type="submit" id="saveBtn" style="padding: 10px 20px; border-radius: 8px; border: none; font-weight: 600; background: var(--primary); color: white; font-size: 0.9rem;">រក្សាទុក</button>
@@ -369,6 +386,7 @@
     </div>
 </div>
 
+<!-- Modal កែប្រែបទចម្រៀង -->
 <div class="modal" id="editSongModal">
     <div class="modal-content">
         <div class="modal-drag-handle"></div>
@@ -397,20 +415,35 @@
                 <label>តំណភ្ជាប់វីដេអូ ឬសំឡេង</label>
                 <input type="url" id="editSongMediaUrl" placeholder="ដាក់ Link បើមាន">
             </div>
+
+            <!-- 💡 ជម្រើសកែប្រែទិន្នន័យ (រូបភាព ឬ អត្ថបទ) -->
             <div class="form-group">
-                <label>ប្ដូររូបភាពថ្មី</label>
-                <div class="image-drop-zone" id="editDropZone" tabindex="0" onclick="document.getElementById('editSongImageFile').click()">
-                    <p>📁 ចុចជ្រើសរើស / អូសរូបភាពថ្មី<br>ឬ 📋 Paste (Ctrl+V) នៅទីនេះ</p>
-                    <input type="file" id="editSongImageFile" accept="image/*" onchange="handleEditFileSelect(event)" style="display: none;">
-                    <div class="preview-container" id="editPreviewContainer">
-                        <img id="editPreviewImg" src="" alt="Preview">
-                        <button type="button" class="remove-img-btn" onclick="removeSelectedEditImage(event)">✖</button>
+                <div class="input-method-tabs">
+                    <button type="button" class="tab-btn active" id="tabEditImg" onclick="switchInputType('edit', 'image')">🖼️ ប្រើរូបភាព</button>
+                    <button type="button" class="tab-btn" id="tabEditText" onclick="switchInputType('edit', 'text')">📝 វាយអត្ថបទ</button>
+                </div>
+
+                <!-- ផ្នែកកែប្រែរូបភាព -->
+                <div id="editSectionImage">
+                    <div class="image-drop-zone" id="editDropZone" tabindex="0" onclick="document.getElementById('editSongImageFile').click()">
+                        <p>📁 ចុចជ្រើសរើស / អូសរូបភាពថ្មី<br>ឬ 📋 Paste (Ctrl+V) នៅទីនេះ</p>
+                        <input type="file" id="editSongImageFile" accept="image/*" onchange="handleEditFileSelect(event)" style="display: none;">
+                        <div class="preview-container" id="editPreviewContainer">
+                            <img id="editPreviewImg" src="" alt="Preview">
+                            <button type="button" class="remove-img-btn" onclick="removeSelectedEditImage(event)">✖</button>
+                        </div>
+                    </div>
+                    <div style="margin-top: 6px;">
+                        <input type="url" id="editSongImageUrlDirect" placeholder="ឬដាក់ Image URL ថ្មី">
                     </div>
                 </div>
-                <div style="margin-top: 6px;">
-                    <input type="url" id="editSongImageUrlDirect" placeholder="ឬដាក់ Image URL ថ្មី">
+
+                <!-- ផ្នែកកែប្រែអត្ថបទ -->
+                <div id="editSectionText" style="display: none;">
+                    <textarea id="editSongLyricsInput" class="lyric-textarea" rows="10" placeholder="G                D&#10;ឱព្រះអើយ ទូលបង្គំស្រឡាញ់ទ្រង់..."></textarea>
                 </div>
             </div>
+
             <div style="text-align: right; margin-top: 18px; display: flex; gap: 10px; justify-content: flex-end;">
                 <button type="button" onclick="closeModal('editSongModal')" style="background: var(--border); color: var(--text); padding: 10px 16px; border-radius:8px; border:none; font-size:0.9rem; font-weight: 600;">បោះបង់</button>
                 <button type="submit" id="updateBtn" style="padding: 10px 20px; border-radius: 8px; border: none; font-weight: 600; background: var(--primary); color: white; font-size:0.9rem;">រក្សាទុក</button>
