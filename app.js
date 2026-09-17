@@ -1082,6 +1082,148 @@ function initPinchToZoom() {
     });
 }
 
+// ---------------------------------------------------------
+// ម៉ាស៊ីនបំប្លែង Lyrics ទៅជារូបភាព (Canvas សាមញ្ញ ដើរ១០០%)
+// ---------------------------------------------------------
+function generateLyricsImage(song) {
+    return new Promise((resolve) => {
+        try {
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+            
+            const width = 800; 
+            let height = 180; 
+            
+            const lines = (song.lyrics || '').split('\n');
+            
+            // វាស់កម្ពស់ផ្ទាំងរូបភាព
+            lines.forEach(line => {
+                if (line.trim() === '') height += 30;
+                else height += 40; 
+            });
+            
+            canvas.width = width;
+            canvas.height = height + 40; 
+            
+            // គូរផ្ទៃខាងក្រោយពណ៌ស
+            ctx.fillStyle = '#ffffff';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            // គូរចំណងជើង
+            ctx.fillStyle = '#0f172a';
+            ctx.font = 'bold 32px "Kantumruy Pro", sans-serif';
+            ctx.fillText(song.title || 'គ្មានចំណងជើង', 40, 60);
+            
+            ctx.fillStyle = '#64748b';
+            ctx.font = '22px "Kantumruy Pro", sans-serif';
+            let printKey = song.songKey || 'C';
+            printKey = printKey.split(/[\s,/-]+/)[0].trim();
+            ctx.fillText(`អ្នកចម្រៀង៖ ${song.artist || 'មិនស្គាល់'}  |  Key: ${printKey || 'C'}`, 40, 100);
+            
+            ctx.strokeStyle = '#d4d8e5';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(40, 130);
+            ctx.lineTo(width - 40, 130);
+            ctx.stroke();
+            
+            // គូរអក្សរចូលរូបភាព
+            let y = 180;
+            lines.forEach(line => {
+                const trimmed = line.trim();
+                if (trimmed === '') {
+                    y += 30;
+                } else {
+                    let isHeader = /^(Intro|I\.|II\.|III\.|IV\.|V\.|Pre|R1\.|R2\.|Chorus|Bridge|Instr\.)/i.test(trimmed);
+                    
+                    let displayLine = line;
+                    if (line.includes('[')) {
+                        displayLine = line.replace(/\[(.*?)\]/g, (match, chord) => {
+                            return `[${transposeSingleChord(chord, 0)}]`; 
+                        });
+                    }
+
+                    let currentX = 40;
+                    if (!displayLine.includes('[')) {
+                        ctx.fillStyle = isHeader ? '#2563eb' : '#0f172a';
+                        ctx.font = isHeader ? 'bold 26px "Kantumruy Pro", sans-serif' : '24px "Kantumruy Pro", sans-serif';
+                        ctx.fillText(displayLine, currentX, y);
+                    } else {
+                        const parts = displayLine.split(/(\[.*?\])/g);
+                        parts.forEach(part => {
+                            if (part.startsWith('[')) {
+                                ctx.fillStyle = '#ef4444'; 
+                                ctx.font = 'bold 24px Arial, sans-serif';
+                                ctx.fillText(part, currentX, y);
+                                currentX += ctx.measureText(part).width;
+                            } else {
+                                ctx.fillStyle = isHeader ? '#2563eb' : '#0f172a';
+                                ctx.font = isHeader ? 'bold 26px "Kantumruy Pro", sans-serif' : '24px "Kantumruy Pro", sans-serif';
+                                ctx.fillText(part, currentX, y);
+                                currentX += ctx.measureText(part).width;
+                            }
+                        });
+                    }
+                    y += 40;
+                }
+            });
+            
+            resolve(canvas.toDataURL('image/jpeg', 0.9));
+        } catch (e) {
+            console.error("Canvas Error:", e);
+            resolve(null);
+        }
+    });
+}
+
+async function getSongBlobOrDataUrl(song) {
+    if (song.lyrics && (!song.imageUrl || song.imageUrl.length < 10)) {
+        return await generateLyricsImage(song);
+    }
+    return song.imageUrl;
+}
+
+async function downloadSongAction(songId) {
+    const song = songsList.find(s => s.id === songId); if (!song) return;
+    try {
+        showToast('កំពុងរៀបចំទាញយក...', 'info');
+        const imgData = await getSongBlobOrDataUrl(song);
+        if(!imgData) { showToast('គ្មានទិន្នន័យសម្រាប់ទាញយកទេ', 'warning'); return; }
+
+        const fileName = `${song.title.replace(/[^a-zA-Z0-9]/g, "_")}.jpg`;
+        if (imgData.startsWith('data:image')) { 
+            const a = document.createElement('a'); a.href = imgData; a.download = fileName; document.body.appendChild(a); a.click(); document.body.removeChild(a); 
+        } else { 
+            const res = await fetch(imgData); const blob = await res.blob(); const blobUrl = window.URL.createObjectURL(blob); const a = document.createElement('a'); a.href = blobUrl; a.download = fileName; document.body.appendChild(a); a.click(); document.body.removeChild(a); window.URL.revokeObjectURL(blobUrl); 
+        }
+        showToast('ទាញយករួចរាល់', 'success');
+    } catch (e) { console.log(e); showToast('បរាជ័យក្នុងការទាញយក', 'error'); }
+}
+
+async function shareSongImage(songId) {
+    const song = songsList.find(s => s.id === songId); if (!song) return;
+    const shareTitle = song.title || 'ចម្រៀងសរសើរដំកើង'; const shareText = `🎵 ${song.title || ''}`;
+    try {
+        showToast('កំពុងរៀបចំទិន្នន័យ...', 'info');
+        const imgData = await getSongBlobOrDataUrl(song);
+        if (!imgData) { showToast('មិនមានរូបភាពទេ', 'warning'); return; }
+
+        let fileObj = null;
+        if (imgData.startsWith('data:image')) {
+            const arr = imgData.split(','); const mime = (arr[0].match(/:(.*?);/) || [])[1] || 'image/jpeg'; const bstr = atob(arr[1]); let n = bstr.length; const u8arr = new Uint8Array(n); while (n--) u8arr[n] = bstr.charCodeAt(n);
+            fileObj = new File([new Blob([u8arr], { type: mime })], `${shareTitle.replace(/[^a-zA-Z0-9]/g, "_")}.jpg`, { type: mime });
+        } else { 
+            const res = await fetch(imgData); const blob = await res.blob(); fileObj = new File([blob], `${shareTitle.replace(/[^a-zA-Z0-9]/g, "_")}.jpg`, { type: blob.type || 'image/jpeg' }); 
+        }
+        
+        if (fileObj) {
+            if (navigator.canShare && navigator.canShare({ files: [fileObj] })) await navigator.share({ title: shareTitle, text: shareText, files: [fileObj] });
+            else if (navigator.share) await navigator.share({ title: shareTitle, text: shareText, url: imgData });
+            else { downloadSongAction(songId); showToast('Save ជំនួសការ Share', 'info'); }
+        }
+    } catch (err) { showToast('មានបញ្ហាក្នុងការ Share', 'error'); }
+}
+
 function shareAppDirectly() {
     if (navigator.share) {
         navigator.share({
@@ -1424,11 +1566,11 @@ async function sharePlaylistAsImages(playlistName) {
 
         try {
             let fileObj = null;
-            const imgData = await getSongBlobOrDataUrl(song);
-            if (!imgData) continue;
+            const urlToUse = await getSongBlobOrDataUrl(song);
+            if (!urlToUse) continue;
 
-            if (imgData.startsWith('data:image')) {
-                const arr = imgData.split(','); 
+            if (urlToUse.startsWith('data:image')) {
+                const arr = urlToUse.split(','); 
                 const mime = (arr[0].match(/:(.*?);/) || [])[1] || 'image/jpeg'; 
                 const bstr = atob(arr[1]); 
                 let n = bstr.length; 
@@ -1436,7 +1578,7 @@ async function sharePlaylistAsImages(playlistName) {
                 while (n--) u8arr[n] = bstr.charCodeAt(n);
                 fileObj = new File([new Blob([u8arr], { type: mime })], fileName, { type: mime });
             } else {
-                const res = await fetch(imgData);
+                const res = await fetch(urlToUse);
                 const blob = await res.blob();
                 fileObj = new File([blob], fileName, { type: blob.type || 'image/jpeg' });
             }
@@ -1456,206 +1598,9 @@ async function sharePlaylistAsImages(playlistName) {
                 });
             } catch (err) {}
         } else {
-            showToast('Browser របស់អ្នកមិនគាំទ្រការ Share ទេ។', 'warning');
+            showToast('Browser របស់អ្នកមិនគាំទ្រការ Share ទេ', 'warning');
         }
     }
-}
-
-function changeTranspose(delta) {
-    currentTransposeStep += delta;
-    let startIdx = keysSharp.indexOf(baseSongKey);
-    if (startIdx === -1) startIdx = keysFlat.indexOf(baseSongKey);
-    
-    if (startIdx !== -1) {
-        let newIdx = (startIdx + currentTransposeStep) % 12;
-        if (newIdx < 0) newIdx += 12;
-        document.getElementById('transposeLabel').innerText = keysSharp[newIdx];
-    } else {
-        document.getElementById('transposeLabel').innerText = currentTransposeStep > 0 ? `+${currentTransposeStep}` : currentTransposeStep;
-    }
-    
-    const song = currentFilteredSongs[currentFullscreenIndex];
-    if(song && song.lyrics) {
-        renderLyricsToHTML(song.lyrics);
-    }
-    vibratePhone(20);
-}
-
-function transposeSingleChord(chord, steps) {
-    if (steps === 0) return chord;
-    const match = chord.match(/^([A-G][#b]?)(.*)$/i);
-    if (!match) return chord; 
-
-    let root = match[1].charAt(0).toUpperCase() + match[1].slice(1);
-    let modifier = match[2];
-
-    let index = keysSharp.indexOf(root);
-    let useSharp = true;
-    if (index === -1) {
-        index = keysFlat.indexOf(root);
-        useSharp = false;
-    }
-    if (index === -1) return chord;
-
-    let newIndex = (index + steps) % 12;
-    if (newIndex < 0) newIndex += 12;
-
-    let newRoot = useSharp ? keysSharp[newIndex] : keysFlat[newIndex];
-    return newRoot + modifier;
-}
-
-// ---------------------------------------------------------
-// ម៉ាស៊ីនបំប្លែង Lyrics ទៅជារូបភាព (Canvas សុទ្ធ អណ្តែត Chord ស្អាត)
-// ---------------------------------------------------------
-function generateLyricsImage(song) {
-    return new Promise((resolve) => {
-        const canvas = document.createElement('canvas');
-        const ctx = canvas.getContext('2d');
-        
-        const width = 800; 
-        let height = 180; 
-        
-        const lines = (song.lyrics || '').split('\n');
-        const parsedLines = [];
-        
-        lines.forEach(line => {
-            const trimmed = line.trim();
-            if (trimmed === '') { height += 30; parsedLines.push({ type: 'empty' }); return; }
-            
-            let isHeader = /^(Intro|I\.|II\.|III\.|IV\.|V\.|Pre|R1\.|R2\.|Chorus|Bridge|Instr\.)/i.test(trimmed);
-            
-            if (isHeader) {
-                height += 70; parsedLines.push({ type: 'header', text: line });
-            } else if (!line.includes('[')) {
-                height += 40; parsedLines.push({ type: 'text-only', text: line });
-            } else {
-                height += 70; parsedLines.push({ type: 'lyric-with-chord', raw: line });
-            }
-        });
-        
-        canvas.width = width;
-        canvas.height = height + 60; 
-        
-        // Background
-        ctx.fillStyle = '#ffffff';
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
-        
-        // Header Info
-        ctx.fillStyle = '#0f172a';
-        ctx.font = 'bold 32px "Kantumruy Pro", sans-serif';
-        ctx.fillText(song.title || 'គ្មានចំណងជើង', 40, 60);
-        
-        ctx.fillStyle = '#64748b';
-        ctx.font = '22px "Kantumruy Pro", sans-serif';
-        let printKey = baseSongKey;
-        if(!printKey || printKey === "") printKey = (song.songKey || 'C').split(/[\s,/-]+/)[0].trim();
-        ctx.fillText(`អ្នកចម្រៀង៖ ${song.artist || 'មិនស្គាល់'}  |  Key: ${printKey || 'C'}`, 40, 100);
-        
-        ctx.strokeStyle = '#d4d8e5';
-        ctx.lineWidth = 2;
-        ctx.beginPath();
-        ctx.moveTo(40, 130);
-        ctx.lineTo(width - 40, 130);
-        ctx.stroke();
-        
-        let y = 180;
-        parsedLines.forEach(pl => {
-            if (pl.type === 'empty') {
-                y += 30;
-            } else if (pl.type === 'header') {
-                const parts = pl.text.split(/\[(.*?)\]/g);
-                let currentX = 40;
-                
-                if (parts.length === 1 && !pl.text.includes('[')) {
-                    ctx.fillStyle = '#2563eb';
-                    ctx.font = 'bold 26px "Kantumruy Pro", sans-serif';
-                    ctx.fillText(pl.text, 40, y + 35);
-                } else {
-                    for(let i=0; i<parts.length; i++) {
-                        if(i % 2 === 0) {
-                            if (parts[i]) {
-                                ctx.fillStyle = '#2563eb';
-                                ctx.font = 'bold 26px "Kantumruy Pro", sans-serif';
-                                ctx.fillText(parts[i], currentX, y + 35);
-                                currentX += ctx.measureText(parts[i]).width;
-                            }
-                        } else {
-                            let chord = transposeSingleChord(parts[i], currentTransposeStep || 0);
-                            ctx.fillStyle = '#ef4444';
-                            ctx.font = 'bold 22px Arial, sans-serif';
-                            ctx.fillText(chord, currentX, y); // Chord Y
-                            
-                            let nextText = parts[i+1] || '';
-                            ctx.fillStyle = '#2563eb';
-                            ctx.font = 'bold 26px "Kantumruy Pro", sans-serif';
-                            ctx.fillText(nextText, currentX, y + 35); // Text Y
-                            currentX += ctx.measureText(nextText).width;
-                            i++;
-                        }
-                    }
-                }
-                y += 70;
-            } else if (pl.type === 'text-only') {
-                ctx.fillStyle = '#0f172a';
-                ctx.font = '24px "Kantumruy Pro", sans-serif';
-                ctx.fillText(pl.text, 40, y + 35);
-                y += 40;
-            } else if (pl.type === 'lyric-with-chord') {
-                const parts = pl.raw.split(/\[(.*?)\]/g);
-                let currentX = 40;
-
-                for(let i=0; i<parts.length; i++) {
-                    if(i % 2 === 0) {
-                        if (parts[i]) {
-                            ctx.fillStyle = '#0f172a';
-                            ctx.font = '24px "Kantumruy Pro", sans-serif';
-                            ctx.fillText(parts[i], currentX, y + 35); // Text Y
-                            currentX += ctx.measureText(parts[i]).width;
-                        }
-                    } else {
-                        let chord = transposeSingleChord(parts[i], currentTransposeStep || 0);
-                        ctx.fillStyle = '#ef4444';
-                        ctx.font = 'bold 22px Arial, sans-serif';
-                        ctx.fillText(chord, currentX, y); // Chord Y
-                        
-                        let nextText = parts[i+1] || '';
-                        ctx.fillStyle = '#0f172a';
-                        ctx.font = '24px "Kantumruy Pro", sans-serif';
-                        ctx.fillText(nextText, currentX, y + 35); // Text Y
-                        currentX += ctx.measureText(nextText).width;
-                        i++;
-                    }
-                }
-                y += 70;
-            }
-        });
-        
-        resolve(canvas.toDataURL('image/jpeg', 0.9));
-    });
-}
-
-async function getSongBlobOrDataUrl(song) {
-    if (song.lyrics && (!song.imageUrl || song.imageUrl.length < 10)) {
-        return await generateLyricsImage(song);
-    }
-    return song.imageUrl;
-}
-
-async function downloadSongAction(songId) {
-    const song = songsList.find(s => s.id === songId); if (!song) return;
-    try {
-        showToast('កំពុងរៀបចំទាញយក...', 'info');
-        const imgData = await getSongBlobOrDataUrl(song);
-        if(!imgData) { showToast('គ្មានទិន្នន័យសម្រាប់ទាញយកទេ', 'warning'); return; }
-
-        const fileName = `${song.title.replace(/[^a-zA-Z0-9]/g, "_")}.jpg`;
-        if (imgData.startsWith('data:image')) { 
-            const a = document.createElement('a'); a.href = imgData; a.download = fileName; document.body.appendChild(a); a.click(); document.body.removeChild(a); 
-        } else { 
-            const res = await fetch(imgData); const blob = await res.blob(); const blobUrl = window.URL.createObjectURL(blob); const a = document.createElement('a'); a.href = blobUrl; a.download = fileName; document.body.appendChild(a); a.click(); document.body.removeChild(a); window.URL.revokeObjectURL(blobUrl); 
-        }
-        showToast('ទាញយករួចរាល់', 'success');
-    } catch (e) { console.log(e); showToast('បរាជ័យក្នុងការទាញយក', 'error'); }
 }
 
 function renderLyricsToHTML(rawText) {
