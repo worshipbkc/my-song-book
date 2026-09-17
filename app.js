@@ -1595,7 +1595,166 @@ async function sharePlaylistAsImages(playlistName) {
         }
     }
 }
-// មុខងារសម្រាប់ប្តូរ Tab រវាង រូបភាព និង អត្ថបទ
+// --- [រក្សាកូដដើមពីបន្ទាត់ទី ១ ដល់ ៦២៥ ដដែល] ---
+// កូដ Firebase Initialization, auth, renderSongs ទុកដដែលទាំងអស់...
+// (ដោយសារទំហំសារខ្លី ខ្ញុំសូមបង្ហាញតែកូដដែលត្រូវ Update ថ្មី)
+
+// ---------------------------------------------------------
+// ១. ម៉ាស៊ីន Transpose & Render Lyrics (ដាក់នៅផ្នែកខាងក្រោម)
+// ---------------------------------------------------------
+let currentTransposeStep = 0;
+let baseSongKey = "C";
+
+const keysSharp = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"];
+const keysFlat  = ["C", "Db", "D", "Eb", "E", "F", "Gb", "G", "Ab", "A", "Bb", "B"];
+
+// មុខងារដូរ Key + ឬ -
+function changeTranspose(delta) {
+    currentTransposeStep += delta;
+    // គណនា Key សរុបសម្រាប់បង្ហាញលើ Label
+    let startIdx = keysSharp.indexOf(baseSongKey);
+    if (startIdx === -1) startIdx = keysFlat.indexOf(baseSongKey);
+    if (startIdx !== -1) {
+        let newIdx = (startIdx + currentTransposeStep) % 12;
+        if (newIdx < 0) newIdx += 12;
+        document.getElementById('transposeLabel').innerText = keysSharp[newIdx];
+    } else {
+        document.getElementById('transposeLabel').innerText = currentTransposeStep > 0 ? `+${currentTransposeStep}` : currentTransposeStep;
+    }
+    
+    // បង្ហាញអត្ថបទសារជាថ្មីជាមួយនឹង Chord ថ្មី
+    const song = currentFilteredSongs[currentFullscreenIndex];
+    if(song && song.lyrics) {
+        renderLyricsToHTML(song.lyrics);
+    }
+    vibratePhone(20);
+}
+
+// មុខងារគណនា Chord នីមួយៗ
+function transposeSingleChord(chord, steps) {
+    if (steps === 0) return chord;
+    const match = chord.match(/^([A-G][#b]?)(.*)$/);
+    if (!match) return chord; 
+
+    let root = match[1];
+    let modifier = match[2];
+
+    let index = keysSharp.indexOf(root);
+    let useSharp = true;
+    if (index === -1) {
+        index = keysFlat.indexOf(root);
+        useSharp = false;
+    }
+    if (index === -1) return chord;
+
+    let newIndex = (index + steps) % 12;
+    if (newIndex < 0) newIndex += 12;
+
+    let newRoot = useSharp ? keysSharp[newIndex] : keysFlat[newIndex];
+    return newRoot + modifier;
+}
+
+// មុខងារបំប្លែង [G]អក្សរ ទៅជា HTML
+function renderLyricsToHTML(rawText) {
+    if(!rawText) return;
+    const container = document.getElementById('fullScreenLyrics');
+    const lines = rawText.split('\n');
+    let html = '';
+
+    lines.forEach(line => {
+        if (line.trim() === '') {
+            html += '<br>'; return;
+        }
+        
+        // បើមានពាក្យ Intro, I, Chorus លាបពណ៌ឱ្យដិត
+        if (/^(Intro|I\.|II\.|III\.|IV\.|Pre|R1\.|R2\.|Chorus|Bridge|Instr\.)/i.test(line)) {
+            html += `<div style="font-weight: 800; color: #60a5fa; margin-top: 15px; font-size: 1rem;">${escapeHtml(line)}</div>`;
+            return;
+        }
+
+        // បំបែកអក្សរតាមសញ្ញា [ ]
+        let lineHtml = '<div class="lyric-line">';
+        const parts = line.split(/\[(.*?)\]/g);
+
+        if (parts.length === 1 && !line.includes('[')) { 
+            // គ្មាន Chord
+            lineHtml += `<span class="lyric">${escapeHtml(line)}</span>`;
+        } else {
+            for(let i=0; i<parts.length; i++) {
+                if(i % 2 === 0) { 
+                    // អក្សរធម្មតា
+                    if(parts[i]) {
+                        if(i === 0) {
+                            lineHtml += `<span class="chord-word"><span class="chord">&nbsp;</span><span class="lyric">${escapeHtml(parts[i])}</span></span>`;
+                        } else {
+                            lineHtml += `<span class="lyric">${escapeHtml(parts[i])}</span>`;
+                        }
+                    }
+                } else { 
+                    // នេះគឺជា Chord
+                    let chord = parts[i];
+                    let transChord = transposeSingleChord(chord, currentTransposeStep);
+                    let nextText = parts[i+1] || '\u00A0\u00A0'; // ថែម Space បើគ្មានអក្សរតាមក្រោយ
+                    
+                    lineHtml += `<span class="chord-word"><span class="chord">${escapeHtml(transChord)}</span><span class="lyric">${escapeHtml(nextText)}</span></span>`;
+                    i++; // រំលងអក្សរតាមក្រោយ ព្រោះយើងសរសេរចូលហើយ
+                }
+            }
+        }
+        lineHtml += '</div>';
+        html += lineHtml;
+    });
+
+    container.innerHTML = html;
+}
+
+// ---------------------------------------------------------
+// ២. ធ្វើបច្ចុប្បន្នភាពមុខងារបើក Fullscreen
+// ---------------------------------------------------------
+function updateFullScreenContent() {
+    const song = currentFilteredSongs[currentFullscreenIndex]; if (!song) return;
+    document.getElementById('fullScreenTitle').innerText = song.title || 'រូបភាព';
+    document.getElementById('pageCounter').innerText = `${currentFullscreenIndex + 1} / ${currentFilteredSongs.length}`;
+    
+    // បង្ហាញ ឬលាក់ប៊ូតុង Play Media
+    const mediaBtn = document.getElementById('fsMediaPlayBtn');
+    if(song.mediaUrl) { mediaBtn.style.display = 'flex'; mediaBtn.onclick = () => window.open(song.mediaUrl, '_blank'); } 
+    else { mediaBtn.style.display = 'none'; }
+
+    // ពិនិត្យមើលថាតើបទនេះជារូបភាព ឬជាអត្ថបទ (Lyrics)
+    const imgEl = document.getElementById('fullScreenImg');
+    const lyricsEl = document.getElementById('fullScreenLyrics');
+    const transposeEl = document.getElementById('transposeControls');
+    const scrollControls = document.getElementById('fsScrollControls');
+
+    currentTransposeStep = 0; // Reset
+    baseSongKey = song.songKey || "C";
+    document.getElementById('transposeLabel').innerText = baseSongKey;
+
+    if (song.lyrics && song.lyrics.length > 5) {
+        // បើមានអត្ថបទ -> បង្ហាញអត្ថបទ, បិទរូបភាព, បង្ហាញ Transpose
+        imgEl.style.display = 'none';
+        lyricsEl.style.display = 'block';
+        transposeEl.style.display = 'flex';
+        renderLyricsToHTML(song.lyrics);
+    } else {
+        // បើជារូបភាព -> បង្ហាញរូបភាព, បិទអត្ថបទ, បិទ Transpose
+        imgEl.style.display = 'block';
+        imgEl.src = song.imageUrl || ''; 
+        lyricsEl.style.display = 'none';
+        transposeEl.style.display = 'none';
+    }
+
+    const showScroll = localStorage.getItem('setting_autoscroll') === 'true';
+    scrollControls.style.display = showScroll ? 'flex' : 'none';
+
+    if(isAutoScrolling) toggleAutoScroll();
+    resetZoomState();
+}
+
+// ---------------------------------------------------------
+// ៣. មុខងារប្តូរ Tab ពេល Add/Edit Song
+// ---------------------------------------------------------
 function switchInputType(modalType, inputType) {
     if (modalType === 'add') {
         document.getElementById('tabAddImg').classList.toggle('active', inputType === 'image');
@@ -1608,4 +1767,98 @@ function switchInputType(modalType, inputType) {
         document.getElementById('editSectionImage').style.display = inputType === 'image' ? 'block' : 'none';
         document.getElementById('editSectionText').style.display = inputType === 'text' ? 'block' : 'none';
     }
+}
+
+// ---------------------------------------------------------
+// ៤. ធ្វើបច្ចុប្បន្នភាពមុខងារ Save បទចម្រៀង ដើម្បីបញ្ជូន Lyrics
+// ---------------------------------------------------------
+async function handleAddSong(e) {
+    e.preventDefault();
+    const album = document.getElementById('songAlbumSelect').value; 
+    const title = document.getElementById('songTitle').value.trim(); 
+    const artist = document.getElementById('songArtist').value.trim(); 
+    const songKey = document.getElementById('songKey').value.trim(); 
+    const mediaUrl = document.getElementById('songMediaUrl').value.trim(); 
+    const directUrl = document.getElementById('songImageUrlDirect').value.trim();
+    
+    // ចាប់យកអត្ថបទពី Textarea
+    const lyrics = document.getElementById('songLyricsInput').value.trim();
+    
+    // លក្ខខណ្ឌ៖ ត្រូវមានរូបភាព ឬមានអត្ថបទ មួយណាក៏បាន
+    if (!selectedImageBase64 && !directUrl && !lyrics) { 
+        showToast('សូមជ្រើសរើសរូបភាព ឬវាយអត្ថបទបញ្ជូល', 'warning'); return; 
+    }
+    
+    const saveBtn = document.getElementById('saveBtn'); saveBtn.disabled = true; saveBtn.innerText = 'កំពុងរក្សាទុក...';
+    try {
+        let finalImageUrl = directUrl; 
+        if (selectedImageBase64) finalImageUrl = await uploadToCloudinary(selectedImageBase64);
+        
+        await db.collection("songs").add({ 
+            album, title, artist, songKey, mediaUrl, 
+            imageUrl: finalImageUrl, 
+            lyrics: lyrics, // Save Lyrics
+            createdAt: firebase.firestore.FieldValue.serverTimestamp() 
+        });
+        
+        document.getElementById('addSongForm').reset(); 
+        document.getElementById('songLyricsInput').value = '';
+        removeSelectedImage(null); 
+        closeModal('addSongModal'); 
+        showToast('បញ្ចូលបទចម្រៀងរួចរាល់', 'success');
+    } catch (err) { showToast('មានបញ្ហា៖ ' + err.message, 'error'); } 
+    finally { saveBtn.disabled = false; saveBtn.innerText = 'រក្សាទុក'; }
+}
+
+function openEditSongModal(songId) {
+    const song = songsList.find(s => s.id === songId); if (!song) return;
+    document.getElementById('editSongId').value = song.id; 
+    document.getElementById('editSongAlbumSelect').value = song.album || customAlbums[0]; 
+    document.getElementById('editSongTitle').value = song.title || ''; 
+    document.getElementById('editSongArtist').value = song.artist || ''; 
+    document.getElementById('editSongKey').value = song.songKey || ''; 
+    document.getElementById('editSongMediaUrl').value = song.mediaUrl || ''; 
+    document.getElementById('editSongImageUrlDirect').value = song.imageUrl && !song.imageUrl.startsWith('data:') ? song.imageUrl : '';
+    document.getElementById('editSongLyricsInput').value = song.lyrics || ''; // បង្ហាញ Lyrics ចាស់
+    
+    if (song.imageUrl && song.imageUrl.startsWith('data:')) { 
+        selectedEditImageBase64 = song.imageUrl; 
+        document.getElementById('editPreviewImg').src = song.imageUrl; 
+        document.getElementById('editPreviewContainer').style.display = 'block'; 
+    } else removeSelectedEditImage(null);
+
+    // បើមាន Lyrics បើក Tab អត្ថបទមុនគេ
+    if (song.lyrics && song.lyrics.length > 0) {
+        switchInputType('edit', 'text');
+    } else {
+        switchInputType('edit', 'image');
+    }
+    openModal('editSongModal');
+}
+
+async function handleUpdateSong(e) {
+    e.preventDefault();
+    const id = document.getElementById('editSongId').value; 
+    const album = document.getElementById('editSongAlbumSelect').value; 
+    const title = document.getElementById('editSongTitle').value.trim(); 
+    const artist = document.getElementById('editSongArtist').value.trim(); 
+    const songKey = document.getElementById('editSongKey').value.trim(); 
+    const mediaUrl = document.getElementById('editSongMediaUrl').value.trim(); 
+    const directUrl = document.getElementById('editSongImageUrlDirect').value.trim();
+    const lyrics = document.getElementById('editSongLyricsInput').value.trim(); // យក Lyrics ថ្មី
+    
+    const updateBtn = document.getElementById('updateBtn'); updateBtn.disabled = true; updateBtn.innerText = 'កំពុងរក្សាទុក...';
+    try {
+        const updateData = { album, title, artist, songKey, mediaUrl, lyrics, updatedAt: firebase.firestore.FieldValue.serverTimestamp() };
+        if (selectedEditImageBase64) { 
+            updateBtn.innerText = 'Upload រូបភាពថ្មី...'; 
+            updateData.imageUrl = await uploadToCloudinary(selectedEditImageBase64); 
+        } else if (directUrl) {
+            updateData.imageUrl = directUrl;
+        }
+        await db.collection("songs").doc(id).update(updateData); 
+        closeModal('editSongModal'); 
+        showToast('កែប្រែបានជោគជ័យ', 'success');
+    } catch (err) { showToast('កែប្រែមិនបានសម្រេច៖ ' + err.message, 'error'); } 
+    finally { updateBtn.disabled = false; updateBtn.innerText = 'រក្សាទុក'; }
 }
