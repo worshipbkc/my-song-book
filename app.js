@@ -1595,3 +1595,17 @@ async function sharePlaylistAsImages(playlistName) {
         }
     }
 }
+// មុខងារសម្រាប់ប្តូរ Tab រវាង រូបភាព និង អត្ថបទ
+function switchInputType(modalType, inputType) {
+    if (modalType === 'add') {
+        document.getElementById('tabAddImg').classList.toggle('active', inputType === 'image');
+        document.getElementById('tabAddText').classList.toggle('active', inputType === 'text');
+        document.getElementById('addSectionImage').style.display = inputType === 'image' ? 'block' : 'none';
+        document.getElementById('addSectionText').style.display = inputType === 'text' ? 'block' : 'none';
+    } else if (modalType === 'edit') {
+        document.getElementById('tabEditImg').classList.toggle('active', inputType === 'image');
+        document.getElementById('tabEditText').classList.toggle('active', inputType === 'text');
+        document.getElementById('editSectionImage').style.display = inputType === 'image' ? 'block' : 'none';
+        document.getElementById('editSectionText').style.display = inputType === 'text' ? 'block' : 'none';
+    }
+}
