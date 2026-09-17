@@ -218,6 +218,14 @@ window.onload = async function() {
         if (splash) splash.classList.add('hide');
     }, 1200);
 
+    window.oncontextmenu = function(event) {
+        if (event.target.tagName !== 'INPUT' && event.target.tagName !== 'TEXTAREA') {
+            event.preventDefault(); 
+            event.stopPropagation();
+            return false;
+        }
+    };
+
     applyStoredTheme();
     applyStoredViewMode();
     applySettingsToggles(); 
@@ -749,76 +757,6 @@ function toggleSongMenu(event, songId) {
     if(menu) menu.classList.toggle('show');
 }
 
-function renderSongsListOnly() {
-    const grid = document.getElementById('songGrid');
-    if (!grid) return;
-
-    if (!isDataLoaded) {
-        grid.innerHTML = getSkeletonHTML(8);
-        return;
-    }
-
-    if (currentFilteredSongs.length === 0) {
-        grid.innerHTML = `<div class="empty-state">
-            <i class="fa-solid fa-magnifying-glass empty-icon"></i>
-            <div class="empty-title">រកមិនឃើញចម្រៀងឡើយ</div>
-            <div class="empty-desc">សូមសាកល្បងស្វែងរកដោយប្រើពាក្យផ្សេង ឬពិនិត្យអក្ខរាវិរុទ្ធឡើងវិញ។</div>
-        </div>`;
-        return;
-    }
-
-    const isCustomPlaylist = currentFilterType === 'PLAYLIST' && currentFilterValue !== 'Favorite';
-    const itemsToDisplay = currentFilteredSongs.slice(0, displayedItemCount);
-
-    let html = itemsToDisplay.map((song) => {
-        const imgUrl = song.imageUrl || 'https://via.placeholder.com/300x400?text=No+Image';
-        const inFav = (playlists['Favorite'] || []).includes(song.id);
-        const keyHtml = song.songKey ? `<span class="song-key-badge">${escapeHtml(song.songKey)}</span>` : '';
-
-        return `
-            <div class="song-card" id="song-card-${song.id}"
-                 ${isCustomPlaylist ? `draggable="true" ondragstart="handleDragStart(event, '${song.id}')" ondragover="handleDragOver(event)" ondrop="handleDrop(event, '${song.id}')" ondragend="handleDragEnd(event)"` : ''}>
-                
-                <div class="song-img-container">
-                    <button class="fav-img-btn ${inFav ? 'active' : ''}" onclick="toggleFavorite('${song.id}', event)">
-                        <i class="${inFav ? 'fa-solid' : 'fa-regular'} fa-heart"></i>
-                    </button>
-                    <img src="${imgUrl}" class="song-img" alt="${escapeHtml(song.title)}" loading="lazy" onclick="openFullScreenModal('${song.id}')">
-                </div>
-                <div class="song-info">
-                    <div class="song-title-row">
-                        <span class="song-title selectable-text" title="${escapeHtml(song.title)}">${escapeHtml(song.title)}</span>
-                        <button class="btn-more-options" onclick="toggleSongMenu(event, '${song.id}')">
-                            <i class="fa-solid fa-ellipsis-vertical"></i>
-                        </button>
-                    </div>
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 4px;">
-                        <div class="song-artist selectable-text">🎤 ${escapeHtml(song.artist || 'មិនស្គាល់')} ${keyHtml}</div>
-                        <button class="btn-add-playlist-title" onclick="openPlaylistChooserModal('${song.id}')">
-                            <i class="fa-solid fa-plus"></i> Playlist
-                        </button>
-                    </div>
-                    
-                    <div class="card-dropdown" id="dropdown-${song.id}">
-                        ${song.mediaUrl ? `<button class="card-dropdown-item" onclick="window.open('${song.mediaUrl}', '_blank')"><i class="fa-solid fa-play"></i> ស្តាប់ភ្លេង</button>` : ''}
-                        <button class="card-dropdown-item" onclick="shareSongImage('${song.id}')"><i class="fa-solid fa-share-nodes"></i> Share ចម្រៀង</button>
-                        <button class="card-dropdown-item" onclick="downloadSongImage('${imgUrl}', '${escapeHtml(song.title)}')"><i class="fa-solid fa-download"></i> Save ទុក</button>
-                        <button class="card-dropdown-item editor-only" onclick="openEditSongModal('${song.id}')"><i class="fa-solid fa-pen"></i> កែប្រែ (Edit)</button>
-                        <button class="card-dropdown-item danger editor-only" onclick="deleteSong('${song.id}')"><i class="fa-solid fa-trash"></i> លុបចោល</button>
-                    </div>
-                </div>
-            </div>
-        `;
-    }).join('');
-
-    if (displayedItemCount < currentFilteredSongs.length) {
-        html += `<div id="scrollSentinel" style="height: 1px; width: 100%; grid-column: 1 / -1;"></div>`;
-    }
-    
-    grid.innerHTML = html;
-    observeSentinel();
-}
-
 function highlightSearchText(text, query) {
     if (!query) return escapeHtml(text);
     const safeText = escapeHtml(text);
@@ -1045,27 +983,6 @@ function openFullScreenModal(songId) {
     requestWakeLock(); 
 }
 
-function updateFullScreenContent() {
-    const song = currentFilteredSongs[currentFullscreenIndex]; if (!song) return;
-    document.getElementById('fullScreenTitle').innerText = song.title || 'រូបភាព';
-    document.getElementById('fullScreenImg').src = song.imageUrl || ''; 
-    document.getElementById('pageCounter').innerText = `${currentFullscreenIndex + 1} / ${currentFilteredSongs.length}`;
-    
-    const mediaBtn = document.getElementById('fsMediaPlayBtn');
-    if(song.mediaUrl) {
-        mediaBtn.style.display = 'flex';
-        mediaBtn.onclick = () => window.open(song.mediaUrl, '_blank');
-    } else {
-        mediaBtn.style.display = 'none';
-    }
-
-    const showScroll = localStorage.getItem('setting_autoscroll') === 'true';
-    document.getElementById('fsScrollControls').style.display = showScroll ? 'flex' : 'none';
-
-    if(isAutoScrolling) toggleAutoScroll();
-    resetZoomState();
-}
-
 function closeFullScreenModalDirect() { 
     document.getElementById('fullScreenModal').classList.remove('active'); 
     if(isAutoScrolling) toggleAutoScroll();
@@ -1274,25 +1191,6 @@ function removeSelectedImage(e) { if (e) e.stopPropagation(); selectedImageBase6
 function handleEditFileSelect(e) { processAndCompressFile(e.target.files[0], 'editPreviewImg', 'editPreviewContainer', (b64) => selectedEditImageBase64 = b64); }
 function removeSelectedEditImage(e) { if (e) e.stopPropagation(); selectedEditImageBase64 = ''; document.getElementById('editSongImageFile').value = ''; document.getElementById('editPreviewContainer').style.display = 'none'; }
 
-async function handleAddSong(e) {
-    e.preventDefault();
-    const album = document.getElementById('songAlbumSelect').value; 
-    const title = document.getElementById('songTitle').value.trim(); 
-    const artist = document.getElementById('songArtist').value.trim(); 
-    const songKey = document.getElementById('songKey').value.trim(); 
-    const mediaUrl = document.getElementById('songMediaUrl').value.trim(); 
-    const directUrl = document.getElementById('songImageUrlDirect').value.trim();
-    
-    if (!selectedImageBase64 && !directUrl) { showToast('សូមជ្រើសរើសរូបភាព ឬបញ្ចូល Link', 'warning'); return; }
-    const saveBtn = document.getElementById('saveBtn'); saveBtn.disabled = true; saveBtn.innerText = 'កំពុងរក្សាទុក...';
-    try {
-        let finalImageUrl = directUrl; if (selectedImageBase64) finalImageUrl = await uploadToCloudinary(selectedImageBase64);
-        await db.collection("songs").add({ album, title, artist, songKey, mediaUrl, imageUrl: finalImageUrl, createdAt: firebase.firestore.FieldValue.serverTimestamp() });
-        document.getElementById('addSongForm').reset(); removeSelectedImage(null); closeModal('addSongModal'); showToast('បញ្ចូលបទចម្រៀងរួចរាល់', 'success');
-    } catch (err) { showToast('មានបញ្ហា៖ ' + err.message, 'error'); } 
-    finally { saveBtn.disabled = false; saveBtn.innerText = 'រក្សាទុក'; }
-}
-
 function handleBatchFilesSelect(e) {
     const files = Array.from(e.target.files); batchImagesArray = []; const previewInfo = document.getElementById('batchPreviewInfo'); const saveBtn = document.getElementById('batchSaveBtn');
     if (files.length === 0) { previewInfo.innerText = ''; saveBtn.disabled = true; return; }
@@ -1329,38 +1227,6 @@ async function handleBatchSaveSongs() {
         document.getElementById('batchImageFiles').value = ''; document.getElementById('batchPreviewInfo').innerText = ''; batchImagesArray = []; closeModal('batchAddModal'); showToast('បញ្ចូលជោគជ័យទាំងអស់', 'success');
     } catch (err) { showToast('បរាជ័យ៖ ' + err.message, 'error'); } 
     finally { saveBtn.disabled = false; saveBtn.innerText = 'បញ្ចូលទាំងអស់'; }
-}
-
-function openEditSongModal(songId) {
-    const song = songsList.find(s => s.id === songId); if (!song) return;
-    document.getElementById('editSongId').value = song.id; 
-    document.getElementById('editSongAlbumSelect').value = song.album || customAlbums[0]; 
-    document.getElementById('editSongTitle').value = song.title || ''; 
-    document.getElementById('editSongArtist').value = song.artist || ''; 
-    document.getElementById('editSongKey').value = song.songKey || ''; 
-    document.getElementById('editSongMediaUrl').value = song.mediaUrl || ''; 
-    document.getElementById('editSongImageUrlDirect').value = song.imageUrl && !song.imageUrl.startsWith('data:') ? song.imageUrl : '';
-    if (song.imageUrl && song.imageUrl.startsWith('data:')) { selectedEditImageBase64 = song.imageUrl; document.getElementById('editPreviewImg').src = song.imageUrl; document.getElementById('editPreviewContainer').style.display = 'block'; } else removeSelectedEditImage(null);
-    openModal('editSongModal');
-}
-
-async function handleUpdateSong(e) {
-    e.preventDefault();
-    const id = document.getElementById('editSongId').value; 
-    const album = document.getElementById('editSongAlbumSelect').value; 
-    const title = document.getElementById('editSongTitle').value.trim(); 
-    const artist = document.getElementById('editSongArtist').value.trim(); 
-    const songKey = document.getElementById('editSongKey').value.trim(); 
-    const mediaUrl = document.getElementById('editSongMediaUrl').value.trim(); 
-    const directUrl = document.getElementById('editSongImageUrlDirect').value.trim();
-    
-    const updateBtn = document.getElementById('updateBtn'); updateBtn.disabled = true; updateBtn.innerText = 'កំពុងរក្សាទុក...';
-    try {
-        const updateData = { album, title, artist, songKey, mediaUrl, updatedAt: firebase.firestore.FieldValue.serverTimestamp() };
-        if (selectedEditImageBase64) { updateBtn.innerText = 'Upload រូបភាពថ្មី...'; updateData.imageUrl = await uploadToCloudinary(selectedEditImageBase64); } else if (directUrl) updateData.imageUrl = directUrl;
-        await db.collection("songs").doc(id).update(updateData); closeModal('editSongModal'); showToast('កែប្រែបានជោគជ័យ', 'success');
-    } catch (err) { showToast('កែប្រែមិនបានសម្រេច៖ ' + err.message, 'error'); } 
-    finally { updateBtn.disabled = false; updateBtn.innerText = 'រក្សាទុក'; }
 }
 
 function deleteSong(songId) { if (confirm('តើអ្នកពិតជាចង់លុបបទចម្រៀងនេះមែនទេ?')) { db.collection("songs").doc(songId).delete(); showToast('បានលុបរួចរាល់', 'info'); } }
@@ -1595,12 +1461,9 @@ async function sharePlaylistAsImages(playlistName) {
         }
     }
 }
-// --- [រក្សាកូដដើមពីបន្ទាត់ទី ១ ដល់ ៦២៥ ដដែល] ---
-// កូដ Firebase Initialization, auth, renderSongs ទុកដដែលទាំងអស់...
-// (ដោយសារទំហំសារខ្លី ខ្ញុំសូមបង្ហាញតែកូដដែលត្រូវ Update ថ្មី)
 
 // ---------------------------------------------------------
-// ១. ម៉ាស៊ីន Transpose & Render Lyrics (ដាក់នៅផ្នែកខាងក្រោម)
+// ១. ម៉ាស៊ីន Transpose & Render Lyrics (បន្ថែមថ្មី)
 // ---------------------------------------------------------
 let currentTransposeStep = 0;
 let baseSongKey = "C";
@@ -1608,12 +1471,11 @@ let baseSongKey = "C";
 const keysSharp = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"];
 const keysFlat  = ["C", "Db", "D", "Eb", "E", "F", "Gb", "G", "Ab", "A", "Bb", "B"];
 
-// មុខងារដូរ Key + ឬ -
 function changeTranspose(delta) {
     currentTransposeStep += delta;
-    // គណនា Key សរុបសម្រាប់បង្ហាញលើ Label
     let startIdx = keysSharp.indexOf(baseSongKey);
     if (startIdx === -1) startIdx = keysFlat.indexOf(baseSongKey);
+    
     if (startIdx !== -1) {
         let newIdx = (startIdx + currentTransposeStep) % 12;
         if (newIdx < 0) newIdx += 12;
@@ -1622,7 +1484,6 @@ function changeTranspose(delta) {
         document.getElementById('transposeLabel').innerText = currentTransposeStep > 0 ? `+${currentTransposeStep}` : currentTransposeStep;
     }
     
-    // បង្ហាញអត្ថបទសារជាថ្មីជាមួយនឹង Chord ថ្មី
     const song = currentFilteredSongs[currentFullscreenIndex];
     if(song && song.lyrics) {
         renderLyricsToHTML(song.lyrics);
@@ -1630,7 +1491,6 @@ function changeTranspose(delta) {
     vibratePhone(20);
 }
 
-// មុខងារគណនា Chord នីមួយៗ
 function transposeSingleChord(chord, steps) {
     if (steps === 0) return chord;
     const match = chord.match(/^([A-G][#b]?)(.*)$/);
@@ -1654,7 +1514,6 @@ function transposeSingleChord(chord, steps) {
     return newRoot + modifier;
 }
 
-// មុខងារបំប្លែង [G]អក្សរ ទៅជា HTML
 function renderLyricsToHTML(rawText) {
     if(!rawText) return;
     const container = document.getElementById('fullScreenLyrics');
@@ -1666,38 +1525,32 @@ function renderLyricsToHTML(rawText) {
             html += '<br>'; return;
         }
         
-        // បើមានពាក្យ Intro, I, Chorus លាបពណ៌ឱ្យដិត
-        if (/^(Intro|I\.|II\.|III\.|IV\.|Pre|R1\.|R2\.|Chorus|Bridge|Instr\.)/i.test(line)) {
-            html += `<div style="font-weight: 800; color: #60a5fa; margin-top: 15px; font-size: 1rem;">${escapeHtml(line)}</div>`;
+        // លាបពណ៌អក្សរធំៗដូចជា Intro, Chorus, Verse ឱ្យដិត
+        if (/^(Intro|I\.|II\.|III\.|IV\.|Pre|R1\.|R2\.|Chorus|Bridge|Instr\.)/i.test(line.trim())) {
+            html += `<div style="font-weight: 800; color: var(--primary); margin-top: 15px; font-size: 1rem;">${escapeHtml(line)}</div>`;
             return;
         }
 
-        // បំបែកអក្សរតាមសញ្ញា [ ]
         let lineHtml = '<div class="lyric-line">';
         const parts = line.split(/\[(.*?)\]/g);
 
         if (parts.length === 1 && !line.includes('[')) { 
-            // គ្មាន Chord
             lineHtml += `<span class="lyric">${escapeHtml(line)}</span>`;
         } else {
             for(let i=0; i<parts.length; i++) {
                 if(i % 2 === 0) { 
-                    // អក្សរធម្មតា
-                    if(parts[i]) {
-                        if(i === 0) {
-                            lineHtml += `<span class="chord-word"><span class="chord">&nbsp;</span><span class="lyric">${escapeHtml(parts[i])}</span></span>`;
-                        } else {
-                            lineHtml += `<span class="lyric">${escapeHtml(parts[i])}</span>`;
-                        }
-                    }
+                    if(parts[i]) lineHtml += `<span class="lyric">${escapeHtml(parts[i])}</span>`;
                 } else { 
-                    // នេះគឺជា Chord
                     let chord = parts[i];
                     let transChord = transposeSingleChord(chord, currentTransposeStep);
-                    let nextText = parts[i+1] || '\u00A0\u00A0'; // ថែម Space បើគ្មានអក្សរតាមក្រោយ
+                    let nextText = parts[i+1] || ''; 
                     
-                    lineHtml += `<span class="chord-word"><span class="chord">${escapeHtml(transChord)}</span><span class="lyric">${escapeHtml(nextText)}</span></span>`;
-                    i++; // រំលងអក្សរតាមក្រោយ ព្រោះយើងសរសេរចូលហើយ
+                    if (nextText === '') {
+                        lineHtml += `<span class="chord-word"><span class="chord">${escapeHtml(transChord)}</span><span class="lyric">&nbsp;&nbsp;</span></span>`;
+                    } else {
+                        lineHtml += `<span class="chord-word"><span class="chord">${escapeHtml(transChord)}</span><span class="lyric">${escapeHtml(nextText)}</span></span>`;
+                    }
+                    i++; 
                 }
             }
         }
@@ -1709,38 +1562,38 @@ function renderLyricsToHTML(rawText) {
 }
 
 // ---------------------------------------------------------
-// ២. ធ្វើបច្ចុប្បន្នភាពមុខងារបើក Fullscreen
+// ២. មុខងារ Update Fullscreen Content ថ្មី (ដើម្បីបង្ហាញ Lyrics ជាមួយ Background ភ្លឺ)
 // ---------------------------------------------------------
 function updateFullScreenContent() {
     const song = currentFilteredSongs[currentFullscreenIndex]; if (!song) return;
+    const modal = document.getElementById('fullScreenModal');
+    
     document.getElementById('fullScreenTitle').innerText = song.title || 'រូបភាព';
     document.getElementById('pageCounter').innerText = `${currentFullscreenIndex + 1} / ${currentFilteredSongs.length}`;
     
-    // បង្ហាញ ឬលាក់ប៊ូតុង Play Media
     const mediaBtn = document.getElementById('fsMediaPlayBtn');
     if(song.mediaUrl) { mediaBtn.style.display = 'flex'; mediaBtn.onclick = () => window.open(song.mediaUrl, '_blank'); } 
     else { mediaBtn.style.display = 'none'; }
 
-    // ពិនិត្យមើលថាតើបទនេះជារូបភាព ឬជាអត្ថបទ (Lyrics)
     const imgEl = document.getElementById('fullScreenImg');
     const lyricsEl = document.getElementById('fullScreenLyrics');
     const transposeEl = document.getElementById('transposeControls');
     const scrollControls = document.getElementById('fsScrollControls');
 
-    currentTransposeStep = 0; // Reset
+    currentTransposeStep = 0; 
     baseSongKey = song.songKey || "C";
     document.getElementById('transposeLabel').innerText = baseSongKey;
 
     if (song.lyrics && song.lyrics.length > 5) {
-        // បើមានអត្ថបទ -> បង្ហាញអត្ថបទ, បិទរូបភាព, បង្ហាញ Transpose
+        modal.classList.add('lyrics-mode');
         imgEl.style.display = 'none';
         lyricsEl.style.display = 'block';
         transposeEl.style.display = 'flex';
         renderLyricsToHTML(song.lyrics);
     } else {
-        // បើជារូបភាព -> បង្ហាញរូបភាព, បិទអត្ថបទ, បិទ Transpose
+        modal.classList.remove('lyrics-mode');
         imgEl.style.display = 'block';
-        imgEl.src = song.imageUrl || ''; 
+        imgEl.src = song.imageUrl || 'https://via.placeholder.com/300x400?text=No+Image'; 
         lyricsEl.style.display = 'none';
         transposeEl.style.display = 'none';
     }
@@ -1753,7 +1606,77 @@ function updateFullScreenContent() {
 }
 
 // ---------------------------------------------------------
-// ៣. មុខងារប្តូរ Tab ពេល Add/Edit Song
+// ៣. ជំនួស Function renderSongsListOnly ថ្មី (ដើម្បីកែ Song-Card មាន Lyrics)
+// ---------------------------------------------------------
+function renderSongsListOnly() {
+    const grid = document.getElementById('songGrid');
+    if (!grid) return;
+
+    if (!isDataLoaded) { grid.innerHTML = getSkeletonHTML(8); return; }
+    if (currentFilteredSongs.length === 0) {
+        grid.innerHTML = `<div class="empty-state">
+            <i class="fa-solid fa-magnifying-glass empty-icon"></i>
+            <div class="empty-title">រកមិនឃើញចម្រៀងឡើយ</div>
+            <div class="empty-desc">សូមសាកល្បងស្វែងរកដោយប្រើពាក្យផ្សេង ឬពិនិត្យអក្ខរាវិរុទ្ធឡើងវិញ។</div>
+        </div>`; return;
+    }
+
+    const isCustomPlaylist = currentFilterType === 'PLAYLIST' && currentFilterValue !== 'Favorite';
+    const itemsToDisplay = currentFilteredSongs.slice(0, displayedItemCount);
+
+    let html = itemsToDisplay.map((song) => {
+        const inFav = (playlists['Favorite'] || []).includes(song.id);
+        const keyHtml = song.songKey ? `<span class="song-key-badge">${escapeHtml(song.songKey)}</span>` : '';
+        
+        // កំណត់ទម្រង់ Thumbnail ក្នុងកាត (បើរូបភាព ឬ អត្ថបទ)
+        let cardThumbnail = '';
+        if (song.imageUrl && song.imageUrl.length > 10) {
+            cardThumbnail = `<img src="${song.imageUrl}" class="song-img" alt="${escapeHtml(song.title)}" loading="lazy" onclick="openFullScreenModal('${song.id}')">`;
+        } else if (song.lyrics) {
+            const previewText = escapeHtml(song.lyrics).substring(0, 100) + '...';
+            cardThumbnail = `
+                <div class="song-text-preview" onclick="openFullScreenModal('${song.id}')">
+                    <div class="text-preview-header"><i class="fa-solid fa-file-lines"></i> អត្ថបទចម្រៀង</div>
+                    <div style="white-space: pre-wrap;">${previewText.replace(/\[.*?\]/g, '')}</div>
+                </div>`;
+        } else {
+            cardThumbnail = `<img src="https://via.placeholder.com/300x400?text=No+Data" class="song-img" onclick="openFullScreenModal('${song.id}')">`;
+        }
+
+        return `
+            <div class="song-card" id="song-card-${song.id}" ${isCustomPlaylist ? `draggable="true" ondragstart="handleDragStart(event, '${song.id}')" ondragover="handleDragOver(event)" ondrop="handleDrop(event, '${song.id}')" ondragend="handleDragEnd(event)"` : ''}>
+                <div class="song-img-container">
+                    <button class="fav-img-btn ${inFav ? 'active' : ''}" onclick="toggleFavorite('${song.id}', event)">
+                        <i class="${inFav ? 'fa-solid' : 'fa-regular'} fa-heart"></i>
+                    </button>
+                    ${cardThumbnail}
+                </div>
+                <div class="song-info">
+                    <div class="song-title-row">
+                        <span class="song-title selectable-text" title="${escapeHtml(song.title)}">${escapeHtml(song.title)}</span>
+                        <button class="btn-more-options" onclick="toggleSongMenu(event, '${song.id}')"><i class="fa-solid fa-ellipsis-vertical"></i></button>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 4px;">
+                        <div class="song-artist selectable-text">🎤 ${escapeHtml(song.artist || 'មិនស្គាល់')} ${keyHtml}</div>
+                        <button class="btn-add-playlist-title" onclick="openPlaylistChooserModal('${song.id}')"><i class="fa-solid fa-plus"></i> Playlist</button>
+                    </div>
+                    <div class="card-dropdown" id="dropdown-${song.id}">
+                        ${song.mediaUrl ? `<button class="card-dropdown-item" onclick="window.open('${song.mediaUrl}', '_blank')"><i class="fa-solid fa-play"></i> ស្តាប់ភ្លេង</button>` : ''}
+                        <button class="card-dropdown-item" onclick="shareSongImage('${song.id}')"><i class="fa-solid fa-share-nodes"></i> Share ចម្រៀង</button>
+                        <button class="card-dropdown-item" onclick="downloadSongImage('${song.imageUrl || 'https://via.placeholder.com/300x400?text=No+Image'}', '${escapeHtml(song.title)}')"><i class="fa-solid fa-download"></i> Save ទុក</button>
+                        <button class="card-dropdown-item editor-only" onclick="openEditSongModal('${song.id}')"><i class="fa-solid fa-pen"></i> កែប្រែ (Edit)</button>
+                        <button class="card-dropdown-item danger editor-only" onclick="deleteSong('${song.id}')"><i class="fa-solid fa-trash"></i> លុបចោល</button>
+                    </div>
+                </div>
+            </div>`;
+    }).join('');
+
+    if (displayedItemCount < currentFilteredSongs.length) { html += `<div id="scrollSentinel" style="height: 1px; width: 100%; grid-column: 1 / -1;"></div>`; }
+    grid.innerHTML = html; observeSentinel();
+}
+
+// ---------------------------------------------------------
+// ៤. មុខងារប្តូរ Tab និងការបញ្ជូនទិន្នន័យ (Save/Edit Song)
 // ---------------------------------------------------------
 function switchInputType(modalType, inputType) {
     if (modalType === 'add') {
@@ -1769,9 +1692,6 @@ function switchInputType(modalType, inputType) {
     }
 }
 
-// ---------------------------------------------------------
-// ៤. ធ្វើបច្ចុប្បន្នភាពមុខងារ Save បទចម្រៀង ដើម្បីបញ្ជូន Lyrics
-// ---------------------------------------------------------
 async function handleAddSong(e) {
     e.preventDefault();
     const album = document.getElementById('songAlbumSelect').value; 
@@ -1819,7 +1739,7 @@ function openEditSongModal(songId) {
     document.getElementById('editSongKey').value = song.songKey || ''; 
     document.getElementById('editSongMediaUrl').value = song.mediaUrl || ''; 
     document.getElementById('editSongImageUrlDirect').value = song.imageUrl && !song.imageUrl.startsWith('data:') ? song.imageUrl : '';
-    document.getElementById('editSongLyricsInput').value = song.lyrics || ''; // បង្ហាញ Lyrics ចាស់
+    document.getElementById('editSongLyricsInput').value = song.lyrics || ''; 
     
     if (song.imageUrl && song.imageUrl.startsWith('data:')) { 
         selectedEditImageBase64 = song.imageUrl; 
@@ -1827,7 +1747,6 @@ function openEditSongModal(songId) {
         document.getElementById('editPreviewContainer').style.display = 'block'; 
     } else removeSelectedEditImage(null);
 
-    // បើមាន Lyrics បើក Tab អត្ថបទមុនគេ
     if (song.lyrics && song.lyrics.length > 0) {
         switchInputType('edit', 'text');
     } else {
@@ -1845,7 +1764,7 @@ async function handleUpdateSong(e) {
     const songKey = document.getElementById('editSongKey').value.trim(); 
     const mediaUrl = document.getElementById('editSongMediaUrl').value.trim(); 
     const directUrl = document.getElementById('editSongImageUrlDirect').value.trim();
-    const lyrics = document.getElementById('editSongLyricsInput').value.trim(); // យក Lyrics ថ្មី
+    const lyrics = document.getElementById('editSongLyricsInput').value.trim(); 
     
     const updateBtn = document.getElementById('updateBtn'); updateBtn.disabled = true; updateBtn.innerText = 'កំពុងរក្សាទុក...';
     try {
