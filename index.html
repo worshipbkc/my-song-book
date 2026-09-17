@@ -171,7 +171,7 @@
 <div class="offline-sync-badge" id="offlineSyncBadge"><span class="status-dot status-online" id="statusDot"></span><span id="statusText">អនឡាញ</span></div>
 <div id="toastContainer" class="toast-container"></div>
 
-<!-- Fullscreen Viewer (មាន Transpose និង Lyrics) -->
+<!-- Fullscreen Viewer -->
 <div class="fullscreen-modal" id="fullScreenModal">
     <div class="fullscreen-header">
         <div style="display: flex; align-items: center; gap: 10px; max-width: 80%;">
@@ -253,6 +253,7 @@
     </div>
 </div>
 
+<!-- Modal កែប្រែបទចម្រៀង -->
 <div class="modal" id="editSongModal">
     <div class="modal-content">
         <div class="modal-drag-handle"></div>
@@ -292,9 +293,73 @@
     </div>
 </div>
 
-<div class="modal" id="batchAddModal">...</div>
-<div class="modal" id="playlistModal">...</div>
-<div class="modal" id="sharePlaylistModal">...</div>
+<!-- Modal បញ្ចូលរូបភាពច្រើន -->
+<div class="modal" id="batchAddModal">
+    <div class="modal-content">
+        <div class="modal-drag-handle"></div>
+        <h3 style="font-size: 1.1rem; margin-bottom: 10px;">📚 បញ្ចូលរូបភាពច្រើនសន្លឹក</h3>
+        <div>
+            <div class="form-group">
+                <label>ជ្រើសរើស Album *</label>
+                <select id="batchAlbumSelect" required></select>
+            </div>
+            <div class="form-group">
+                <label>ឈ្មោះអ្នកចម្រៀង</label>
+                <input type="text" id="batchArtist" placeholder="ឧទាហរណ៍៖ ក្រុមច្រៀងសរសើរ">
+            </div>
+            <div class="form-group">
+                <label>ជ្រើសរើសរូបភាពច្រើនសន្លឹក *</label>
+                <input type="file" id="batchImageFiles" accept="image/*" multiple onchange="handleBatchFilesSelect(event)" style="width:100%; padding:10px; background:var(--bg); border:1px solid var(--border); border-radius:8px; font-size:0.85rem;">
+            </div>
+            <div id="batchPreviewInfo" style="font-size: 0.8rem; font-weight: 600; color: var(--primary); margin-bottom: 10px;"></div>
+            <div style="text-align: right; margin-top: 18px; display: flex; gap: 10px; justify-content: flex-end;">
+                <button type="button" onclick="closeModal('batchAddModal')" style="background: var(--border); color: var(--text); padding: 10px 16px; border-radius:8px; border:none; font-size:0.9rem; font-weight: 600;">បោះបង់</button>
+                <button type="button" id="batchSaveBtn" onclick="handleBatchSaveSongs()" style="padding: 10px 20px; border-radius: 8px; border: none; font-weight: 600; background: #059669; color: white; font-size:0.9rem;" disabled>បញ្ចូលទាំងអស់</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal សម្រាប់ Playlist -->
+<div class="modal" id="playlistModal">
+    <div class="modal-content">
+        <div class="modal-drag-handle"></div>
+        <h3 style="font-size: 1.1rem; margin-bottom: 10px;">📂 បង្កើត / ជ្រើសរើស Playlist</h3>
+        <input type="hidden" id="playlistTargetSongId">
+        <div class="form-group">
+            <label>ឈ្មោះ Playlist ថ្មី</label>
+            <input type="text" id="newPlaylistName" placeholder="ឧទាហរណ៍៖ ថ្វាយបង្គំថ្ងៃអាទិត្យ">
+        </div>
+        <button type="button" onclick="saveNewPlaylist()" style="width: 100%; padding: 12px; border-radius: 8px; border: none; font-weight: 600; background: var(--primary); color: white; font-size:0.9rem; margin-bottom: 16px;">+ បង្កើតថ្មី</button>
+        
+        <div style="font-size:0.9rem; font-weight:600; margin-bottom:8px;">ឬបន្ថែមទៅ Playlist មានស្រាប់៖</div>
+        <div id="existingPlaylistsList" style="max-height: 200px; overflow-y: auto; display: flex; flex-direction: column; gap: 8px;"></div>
+
+        <div style="text-align: right; margin-top: 18px;">
+            <button type="button" onclick="closeModal('playlistModal')" style="background: var(--border); color: var(--text); padding: 10px 20px; border-radius:8px; border:none; font-size:0.9rem; font-weight: 600; width: 100%;">បិទ</button>
+        </div>
+    </div>
+</div>
+
+<!-- Modal សម្រាប់ Share -->
+<div class="modal" id="sharePlaylistModal">
+    <div class="modal-content" style="max-width: 400px;">
+        <div class="modal-drag-handle"></div>
+        <h3 style="font-size: 1.1rem; margin-bottom: 16px; text-align: center;">📤 ជម្រើសចែករំលែក</h3>
+        <p style="text-align: center; font-size: 0.85rem; color: var(--text-muted); margin-bottom: 20px;">តើអ្នកចង់ចែករំលែក Playlist នេះជាទម្រង់អ្វី?</p>
+        <div style="display: flex; flex-direction: column; gap: 12px;">
+            <button onclick="executeShare('pdf')" style="padding: 12px; border-radius: 12px; border: 1px solid var(--primary); font-weight: 600; background: var(--primary); color: white; font-size: 0.95rem; display: flex; align-items: center; justify-content: center; gap: 8px;">
+                <i class="fa-solid fa-file-pdf"></i> ចែករំលែកជា PDF
+            </button>
+            <button onclick="executeShare('images')" style="padding: 12px; border-radius: 12px; border: 1px solid var(--border); font-weight: 600; background: var(--bg); color: var(--text); font-size: 0.95rem; display: flex; align-items: center; justify-content: center; gap: 8px;">
+                <i class="fa-solid fa-images"></i> ចែករំលែកជារូបភាព
+            </button>
+        </div>
+        <div style="text-align: center; margin-top: 16px;">
+            <button type="button" onclick="closeModal('sharePlaylistModal')" style="background: transparent; color: var(--danger); padding: 8px 16px; border: none; font-size: 0.9rem; font-weight: 600; cursor: pointer;">បោះបង់</button>
+        </div>
+    </div>
+</div>
 
 <script src="app.js"></script>
 </body>
