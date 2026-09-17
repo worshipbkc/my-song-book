@@ -1463,7 +1463,7 @@ async function sharePlaylistAsImages(playlistName) {
 }
 
 // ---------------------------------------------------------
-// ១. ម៉ាស៊ីន Transpose & Render Lyrics (បន្ថែមថ្មី)
+// ១. ម៉ាស៊ីន Transpose & Render Lyrics (កែសម្រួលថ្មី)
 // ---------------------------------------------------------
 let currentTransposeStep = 0;
 let baseSongKey = "C";
@@ -1525,13 +1525,11 @@ function renderLyricsToHTML(rawText) {
             html += '<br>'; return;
         }
         
-        // លាបពណ៌អក្សរធំៗដូចជា Intro, Chorus, Verse ឱ្យដិត
-        if (/^(Intro|I\.|II\.|III\.|IV\.|Pre|R1\.|R2\.|Chorus|Bridge|Instr\.)/i.test(line.trim())) {
-            html += `<div style="font-weight: 800; color: var(--primary); margin-top: 15px; font-size: 1rem;">${escapeHtml(line)}</div>`;
-            return;
-        }
+        // 💡 កែសម្រួលកន្លែងចំណងជើង: មិនរំលងការគណនា Chord ទៀតទេ តែបន្ថែម Style ឱ្យបន្ទាត់ទាំងមូល
+        let isSectionHeader = /^(Intro|I\.|II\.|III\.|IV\.|Pre|R1\.|R2\.|Chorus|Bridge|Instr\.)/i.test(line.trim());
+        let extraStyle = isSectionHeader ? 'font-weight: 800; color: var(--primary); margin-top: 15px;' : '';
 
-        let lineHtml = '<div class="lyric-line">';
+        let lineHtml = `<div class="lyric-line" style="${extraStyle}">`;
         const parts = line.split(/\[(.*?)\]/g);
 
         if (parts.length === 1 && !line.includes('[')) { 
@@ -1562,7 +1560,7 @@ function renderLyricsToHTML(rawText) {
 }
 
 // ---------------------------------------------------------
-// ២. មុខងារ Update Fullscreen Content ថ្មី (ដើម្បីបង្ហាញ Lyrics ជាមួយ Background ភ្លឺ)
+// ២. មុខងារ Update Fullscreen Content 
 // ---------------------------------------------------------
 function updateFullScreenContent() {
     const song = currentFilteredSongs[currentFullscreenIndex]; if (!song) return;
@@ -1581,7 +1579,10 @@ function updateFullScreenContent() {
     const scrollControls = document.getElementById('fsScrollControls');
 
     currentTransposeStep = 0; 
-    baseSongKey = song.songKey || "C";
+    
+    // 💡 ធានាថាវាទាញយកតែ Key គោលទី១ ប៉ុណ្ណោះ បើគាត់វាយច្រើន (ឧ. C Am F G -> យកតែ C)
+    let rawKey = song.songKey || "C";
+    baseSongKey = rawKey.split(/[\s,/-]+/)[0].trim();
     document.getElementById('transposeLabel').innerText = baseSongKey;
 
     if (song.lyrics && song.lyrics.length > 5) {
