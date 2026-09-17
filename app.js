@@ -7,7 +7,9 @@ const firebaseConfig = {
     appId: "1:585802631589:web:ebeaa5f89cac319309404c",
     measurementId: "G-NRX7KRF6TY"
 };
-firebase.initializeApp(firebaseConfig);
+if (!firebase.apps.length) {
+    firebase.initializeApp(firebaseConfig);
+}
 firebase.firestore().enablePersistence({ synchronizeTabs: true }).catch((err) => {});
 
 const db = firebase.firestore();
@@ -50,6 +52,12 @@ let autoScrollFrameReq = null;
 
 let tapCount = 0;
 let tapTimeout = null;
+
+// អថេរសម្រាប់កំណត់ Transpose ត្រូវប្រកាសតែម្តងប៉ុណ្ណោះនៅទីនេះ
+let currentTransposeStep = 0;
+let baseSongKey = "C";
+const keysSharp = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"];
+const keysFlat  = ["C", "Db", "D", "Eb", "E", "F", "Gb", "G", "Ab", "A", "Bb", "B"];
 
 async function syncPlaylistsToCloud() {
     if (currentUser) {
@@ -107,6 +115,7 @@ function vibratePhone(ms = 50) {
 
 function showToast(message, type = 'info') {
     const container = document.getElementById('toastContainer');
+    if (!container) return;
     const toast = document.createElement('div');
     toast.className = `toast ${type}`;
     
@@ -1318,209 +1327,6 @@ async function handleUpdateSong(e) {
     finally { updateBtn.disabled = false; updateBtn.innerText = 'រក្សាទុក'; }
 }
 
-let currentTransposeStep = 0;
-let baseSongKey = "C";
-
-const keysSharp = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"];
-const keysFlat  = ["C", "Db", "D", "Eb", "E", "F", "Gb", "G", "Ab", "A", "Bb", "B"];
-
-function changeTranspose(delta) {
-    currentTransposeStep += delta;
-    let startIdx = keysSharp.indexOf(baseSongKey);
-    if (startIdx === -1) startIdx = keysFlat.indexOf(baseSongKey);
-    
-    if (startIdx !== -1) {
-        let newIdx = (startIdx + currentTransposeStep) % 12;
-        if (newIdx < 0) newIdx += 12;
-        document.getElementById('transposeLabel').innerText = keysSharp[newIdx];
-    } else {
-        document.getElementById('transposeLabel').innerText = currentTransposeStep > 0 ? `+${currentTransposeStep}` : currentTransposeStep;
-    }
-    
-    const song = currentFilteredSongs[currentFullscreenIndex];
-    if(song && song.lyrics) {
-        renderLyricsToHTML(song.lyrics);
-    }
-    vibratePhone(20);
-}
-
-function transposeSingleChord(chord, steps) {
-    if (steps === 0) return chord;
-    const match = chord.match(/^([A-G][#b]?)(.*)$/i);
-    if (!match) return chord; 
-
-    let root = match[1].charAt(0).toUpperCase() + match[1].slice(1);
-    let modifier = match[2];
-
-    let index = keysSharp.indexOf(root);
-    let useSharp = true;
-    if (index === -1) {
-        index = keysFlat.indexOf(root);
-        useSharp = false;
-    }
-    if (index === -1) return chord;
-
-    let newIndex = (index + steps) % 12;
-    if (newIndex < 0) newIndex += 12;
-
-    let newRoot = useSharp ? keysSharp[newIndex] : keysFlat[newIndex];
-    return newRoot + modifier;
-}
-
-function generateLyricsImage(song) {
-    return new Promise(async (resolve) => {
-        try {
-            const wrapper = document.createElement('div');
-            wrapper.style.position = 'absolute';
-            wrapper.style.left = '-9999px';
-            wrapper.style.top = '0';
-            wrapper.style.width = '800px';
-            wrapper.style.padding = '50px 40px';
-            wrapper.style.backgroundColor = '#ffffff';
-            wrapper.style.color = '#0f172a';
-            wrapper.style.fontFamily = "'Kantumruy Pro', sans-serif";
-
-            let lyricsHTML = '';
-            const lines = (song.lyrics || '').split('\n');
-            
-            lines.forEach(line => {
-                if (line.trim() === '') {
-                    lyricsHTML += '<br>'; return;
-                }
-                
-                if (/^(Intro|I\.|II\.|III\.|IV\.|Pre|R1\.|R2\.|Chorus|Bridge|Instr\.)/i.test(line)) {
-                    let lineH = `<div style="font-weight: 800; color: #2563eb; margin-top: 15px; font-size: 1.1rem; font-family: 'Kantumruy Pro', sans-serif;">`;
-                    const parts = line.split(/\[(.*?)\]/g);
-                    if (parts.length === 1 && !line.includes('[')) {
-                        lineH += escapeHtml(line);
-                    } else {
-                        for(let i=0; i<parts.length; i++) {
-                            if(i % 2 === 0) {
-                                if(parts[i]) lineH += `<span>${escapeHtml(parts[i])}</span>`;
-                            } else {
-                                let chord = transposeSingleChord(parts[i], currentTransposeStep);
-                                let nextText = parts[i+1] || '\u00A0\u00A0';
-                                lineH += `<span style="display:inline-block; position:relative; line-height:1; margin-top: 1.5em;"><span style="position:absolute; top:-1.5em; left:0; color:#ef4444; font-weight:800; font-family:Arial,sans-serif; font-size:0.95rem; white-space:nowrap;">${escapeHtml(chord)}</span><span style="font-size:1.05rem;">${escapeHtml(nextText)}</span></span>`;
-                                i++;
-                            }
-                        }
-                    }
-                    lineH += `</div>`;
-                    lyricsHTML += lineH;
-                    return;
-                }
-
-                let lineH = '<div style="display:block; line-height:2.8; font-size:1.05rem; margin-bottom:2px; white-space:pre-wrap; word-wrap:break-word;">';
-                const parts = line.split(/\[(.*?)\]/g);
-
-                if (parts.length === 1 && !line.includes('[')) { 
-                    lineH += `<span>${escapeHtml(line)}</span>`;
-                } else {
-                    for(let i=0; i<parts.length; i++) {
-                        if(i % 2 === 0) { 
-                            if(parts[i]) {
-                                if(i === 0) {
-                                    lineH += `<span style="display:inline-block; position:relative; line-height:1; margin-top: 1.5em;"><span style="position:absolute; top:-1.5em; left:0; color:#ef4444; font-weight:800; font-family:Arial,sans-serif; font-size:0.95rem; white-space:nowrap;">&nbsp;</span><span style="font-size:1.05rem;">${escapeHtml(parts[i])}</span></span>`;
-                                } else {
-                                    lineH += `<span>${escapeHtml(parts[i])}</span>`;
-                                }
-                            }
-                        } else { 
-                            let chord = transposeSingleChord(parts[i], currentTransposeStep);
-                            let nextText = parts[i+1] || '\u00A0\u00A0'; 
-                            lineH += `<span style="display:inline-block; position:relative; line-height:1; margin-top: 1.5em;"><span style="position:absolute; top:-1.5em; left:0; color:#ef4444; font-weight:800; font-family:Arial,sans-serif; font-size:0.95rem; white-space:nowrap;">${escapeHtml(chord)}</span><span style="font-size:1.05rem;">${escapeHtml(nextText)}</span></span>`;
-                            i++; 
-                        }
-                    }
-                }
-                lineH += '</div>';
-                lyricsHTML += lineH;
-            });
-
-            wrapper.innerHTML = `
-                <div style="font-size: 32px; font-weight: bold; color: #0f172a; margin-bottom: 6px; font-family: 'Kantumruy Pro', sans-serif;">${escapeHtml(song.title)}</div>
-                <div style="font-size: 18px; color: #64748b; margin-bottom: 16px; font-family: 'Kantumruy Pro', sans-serif;">អ្នកចម្រៀង៖ ${escapeHtml(song.artist || 'មិនស្គាល់')}  |  Key: ${escapeHtml(baseSongKey || 'C')}</div>
-                <hr style="border: none; border-top: 2px solid #d4d8e5; margin-bottom: 20px;">
-                <div>${lyricsHTML}</div>
-            `;
-
-            document.body.appendChild(wrapper);
-
-            if (typeof html2canvas === 'undefined') {
-                document.body.removeChild(wrapper);
-                resolve(null);
-                return;
-            }
-
-            const canvas = await html2canvas(wrapper, {
-                scale: 2,
-                useCORS: true,
-                backgroundColor: '#ffffff'
-            });
-
-            document.body.removeChild(wrapper);
-            resolve(canvas.toDataURL('image/jpeg', 0.9));
-        } catch (err) {
-            console.error("Canvas Error:", err);
-            resolve(null);
-        }
-    });
-}
-
-async function getSongBlobOrDataUrl(song) {
-    if (song.lyrics && (!song.imageUrl || song.imageUrl.length < 10)) {
-        return await generateLyricsImage(song);
-    }
-    return song.imageUrl;
-}
-
-async function downloadSongAction(songId) {
-    const song = songsList.find(s => s.id === songId); if (!song) return;
-    try {
-        showToast('កំពុងរៀបចំទាញយក...', 'info');
-        const imgData = await getSongBlobOrDataUrl(song);
-        if(!imgData) { showToast('គ្មានទិន្នន័យសម្រាប់ទាញយកទេ', 'warning'); return; }
-
-        const fileName = `${song.title.replace(/[^a-zA-Z0-9]/g, "_")}.jpg`;
-        if (imgData.startsWith('data:image')) { 
-            const a = document.createElement('a'); a.href = imgData; a.download = fileName; document.body.appendChild(a); a.click(); document.body.removeChild(a); 
-        } else { 
-            const res = await fetch(imgData); const blob = await res.blob(); const blobUrl = window.URL.createObjectURL(blob); const a = document.createElement('a'); a.href = blobUrl; a.download = fileName; document.body.appendChild(a); a.click(); document.body.removeChild(a); window.URL.revokeObjectURL(blobUrl); 
-        }
-        showToast('ទាញយករួចរាល់', 'success');
-    } catch (e) { console.log(e); showToast('បរាជ័យក្នុងការទាញយក', 'error'); }
-}
-
-async function shareSongImage(songId) {
-    const song = songsList.find(s => s.id === songId); if (!song) return;
-    const shareTitle = song.title || 'ចម្រៀងសរសើរដំកើង'; 
-    const shareText = `🎵 ${song.title || ''}`;
-    try {
-        let fileObj = null;
-        showToast('កំពុងរៀបចំទិន្នន័យ...', 'info');
-        
-        const imgData = await getSongBlobOrDataUrl(song);
-        if (!imgData) { showToast('មិនមានរូបភាពទេ', 'warning'); return; }
-
-        if (imgData.startsWith('data:image')) {
-            const arr = imgData.split(','); 
-            const mime = (arr[0].match(/:(.*?);/) || [])[1] || 'image/jpeg'; 
-            const bstr = atob(arr[1]); let n = bstr.length; const u8arr = new Uint8Array(n); 
-            while (n--) u8arr[n] = bstr.charCodeAt(n);
-            fileObj = new File([new Blob([u8arr], { type: mime })], `${shareTitle.replace(/[^a-zA-Z0-9]/g, "_")}.jpg`, { type: mime });
-        } else { 
-            const res = await fetch(imgData); const blob = await res.blob(); 
-            fileObj = new File([blob], `${shareTitle.replace(/[^a-zA-Z0-9]/g, "_")}.jpg`, { type: blob.type || 'image/jpeg' }); 
-        }
-        
-        if (fileObj) {
-            if (navigator.canShare && navigator.canShare({ files: [fileObj] })) await navigator.share({ title: shareTitle, text: shareText, files: [fileObj] });
-            else if (navigator.share) await navigator.share({ title: shareTitle, text: shareText, url: song.imageUrl });
-            else showToast('ទូរស័ព្ទមិនគាំទ្រការ Share', 'warning');
-        }
-    } catch (err) { console.error(err); }
-}
-
 function renderLyricsToHTML(rawText) {
     if(!rawText) return;
     const container = document.getElementById('fullScreenLyrics');
@@ -1692,4 +1498,281 @@ function renderSongsListOnly() {
 
     if (displayedItemCount < currentFilteredSongs.length) { html += `<div id="scrollSentinel" style="height: 1px; width: 100%; grid-column: 1 / -1;"></div>`; }
     grid.innerHTML = html; observeSentinel();
+}
+
+function generateLyricsImage(song) {
+    return new Promise(async (resolve) => {
+        try {
+            const wrapper = document.createElement('div');
+            wrapper.style.position = 'absolute';
+            wrapper.style.left = '-9999px';
+            wrapper.style.top = '0';
+            wrapper.style.width = '800px';
+            wrapper.style.padding = '50px 40px';
+            wrapper.style.backgroundColor = '#ffffff';
+            wrapper.style.color = '#0f172a';
+            wrapper.style.fontFamily = "'Kantumruy Pro', sans-serif";
+
+            let lyricsHTML = '';
+            const lines = (song.lyrics || '').split('\n');
+            
+            lines.forEach(line => {
+                if (line.trim() === '') {
+                    lyricsHTML += '<br>'; return;
+                }
+                
+                if (/^(Intro|I\.|II\.|III\.|IV\.|Pre|R1\.|R2\.|Chorus|Bridge|Instr\.)/i.test(line)) {
+                    let lineH = `<div style="font-weight: 800; color: #2563eb; margin-top: 15px; font-size: 1.1rem; font-family: 'Kantumruy Pro', sans-serif;">`;
+                    const parts = line.split(/\[(.*?)\]/g);
+                    if (parts.length === 1 && !line.includes('[')) {
+                        lineH += escapeHtml(line);
+                    } else {
+                        for(let i=0; i<parts.length; i++) {
+                            if(i % 2 === 0) {
+                                if(parts[i]) lineH += `<span>${escapeHtml(parts[i])}</span>`;
+                            } else {
+                                let chord = transposeSingleChord(parts[i], currentTransposeStep);
+                                let nextText = parts[i+1] || '\u00A0\u00A0';
+                                lineH += `<span style="display:inline-block; position:relative; line-height:1; margin-top: 1.5em;"><span style="position:absolute; top:-1.5em; left:0; color:#ef4444; font-weight:800; font-family:Arial,sans-serif; font-size:0.95rem; white-space:nowrap;">${escapeHtml(chord)}</span><span style="font-size:1.05rem;">${escapeHtml(nextText)}</span></span>`;
+                                i++;
+                            }
+                        }
+                    }
+                    lineH += `</div>`;
+                    lyricsHTML += lineH;
+                    return;
+                }
+
+                let lineH = '<div style="display:block; line-height:2.8; font-size:1.05rem; margin-bottom:2px; white-space:pre-wrap; word-wrap:break-word;">';
+                const parts = line.split(/\[(.*?)\]/g);
+
+                if (parts.length === 1 && !line.includes('[')) { 
+                    lineH += `<span>${escapeHtml(line)}</span>`;
+                } else {
+                    for(let i=0; i<parts.length; i++) {
+                        if(i % 2 === 0) { 
+                            if(parts[i]) {
+                                if(i === 0) {
+                                    lineH += `<span style="display:inline-block; position:relative; line-height:1; margin-top: 1.5em;"><span style="position:absolute; top:-1.5em; left:0; color:#ef4444; font-weight:800; font-family:Arial,sans-serif; font-size:0.95rem; white-space:nowrap;">&nbsp;</span><span style="font-size:1.05rem;">${escapeHtml(parts[i])}</span></span>`;
+                                } else {
+                                    lineH += `<span>${escapeHtml(parts[i])}</span>`;
+                                }
+                            }
+                        } else { 
+                            let chord = transposeSingleChord(parts[i], currentTransposeStep);
+                            let nextText = parts[i+1] || '\u00A0\u00A0'; 
+                            lineH += `<span style="display:inline-block; position:relative; line-height:1; margin-top: 1.5em;"><span style="position:absolute; top:-1.5em; left:0; color:#ef4444; font-weight:800; font-family:Arial,sans-serif; font-size:0.95rem; white-space:nowrap;">${escapeHtml(chord)}</span><span style="font-size:1.05rem;">${escapeHtml(nextText)}</span></span>`;
+                            i++; 
+                        }
+                    }
+                }
+                lineH += '</div>';
+                lyricsHTML += lineH;
+            });
+
+            wrapper.innerHTML = `
+                <div style="font-size: 32px; font-weight: bold; color: #0f172a; margin-bottom: 6px; font-family: 'Kantumruy Pro', sans-serif;">${escapeHtml(song.title)}</div>
+                <div style="font-size: 18px; color: #64748b; margin-bottom: 16px; font-family: 'Kantumruy Pro', sans-serif;">អ្នកចម្រៀង៖ ${escapeHtml(song.artist || 'មិនស្គាល់')}  |  Key: ${escapeHtml(baseSongKey || 'C')}</div>
+                <hr style="border: none; border-top: 2px solid #d4d8e5; margin-bottom: 20px;">
+                <div>${lyricsHTML}</div>
+            `;
+
+            document.body.appendChild(wrapper);
+
+            if (typeof html2canvas === 'undefined') {
+                document.body.removeChild(wrapper);
+                resolve(null);
+                return;
+            }
+
+            const canvas = await html2canvas(wrapper, {
+                scale: 2,
+                useCORS: true,
+                backgroundColor: '#ffffff'
+            });
+
+            document.body.removeChild(wrapper);
+            resolve(canvas.toDataURL('image/jpeg', 0.9));
+        } catch (err) {
+            console.error("Canvas Error:", err);
+            resolve(null);
+        }
+    });
+}
+
+async function getSongBlobOrDataUrl(song) {
+    if (song.lyrics && (!song.imageUrl || song.imageUrl.length < 10)) {
+        return await generateLyricsImage(song);
+    }
+    return song.imageUrl;
+}
+
+async function downloadSongAction(songId) {
+    const song = songsList.find(s => s.id === songId); if (!song) return;
+    try {
+        showToast('កំពុងរៀបចំទាញយក...', 'info');
+        const imgData = await getSongBlobOrDataUrl(song);
+        if(!imgData) { showToast('គ្មានទិន្នន័យសម្រាប់ទាញយកទេ', 'warning'); return; }
+
+        const fileName = `${song.title.replace(/[^a-zA-Z0-9]/g, "_")}.jpg`;
+        if (imgData.startsWith('data:image')) { 
+            const a = document.createElement('a'); a.href = imgData; a.download = fileName; document.body.appendChild(a); a.click(); document.body.removeChild(a); 
+        } else { 
+            const res = await fetch(imgData); const blob = await res.blob(); const blobUrl = window.URL.createObjectURL(blob); const a = document.createElement('a'); a.href = blobUrl; a.download = fileName; document.body.appendChild(a); a.click(); document.body.removeChild(a); window.URL.revokeObjectURL(blobUrl); 
+        }
+        showToast('ទាញយករួចរាល់', 'success');
+    } catch (e) { console.log(e); showToast('បរាជ័យក្នុងការទាញយក', 'error'); }
+}
+
+async function shareSongImage(songId) {
+    const song = songsList.find(s => s.id === songId); if (!song) return;
+    const shareTitle = song.title || 'ចម្រៀងសរសើរដំកើង'; 
+    const shareText = `🎵 ${song.title || ''}`;
+    try {
+        let fileObj = null;
+        showToast('កំពុងរៀបចំទិន្នន័យ...', 'info');
+        
+        const imgData = await getSongBlobOrDataUrl(song);
+        if (!imgData) { showToast('មិនមានរូបភាពទេ', 'warning'); return; }
+
+        if (imgData.startsWith('data:image')) {
+            const arr = imgData.split(','); 
+            const mime = (arr[0].match(/:(.*?);/) || [])[1] || 'image/jpeg'; 
+            const bstr = atob(arr[1]); let n = bstr.length; const u8arr = new Uint8Array(n); 
+            while (n--) u8arr[n] = bstr.charCodeAt(n);
+            fileObj = new File([new Blob([u8arr], { type: mime })], `${shareTitle.replace(/[^a-zA-Z0-9]/g, "_")}.jpg`, { type: mime });
+        } else { 
+            const res = await fetch(imgData); const blob = await res.blob(); 
+            fileObj = new File([blob], `${shareTitle.replace(/[^a-zA-Z0-9]/g, "_")}.jpg`, { type: blob.type || 'image/jpeg' }); 
+        }
+        
+        if (fileObj) {
+            if (navigator.canShare && navigator.canShare({ files: [fileObj] })) await navigator.share({ title: shareTitle, text: shareText, files: [fileObj] });
+            else if (navigator.share) await navigator.share({ title: shareTitle, text: shareText, url: song.imageUrl });
+            else showToast('ទូរស័ព្ទមិនគាំទ្រការ Share', 'warning');
+        }
+    } catch (err) { console.error(err); }
+}
+
+async function sharePlaylistAsPDF(playlistName) {
+    const songIds = playlists[playlistName];
+    if (!songIds || songIds.length === 0) return;
+
+    const shareBtn = document.getElementById('sharePlaylistBtn');
+    if (shareBtn) shareBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> រៀបចំ PDF...';
+    showToast('កំពុងបង្កើត PDF សូមរង់ចាំបន្តិច...', 'info');
+
+    try {
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF({ unit: 'px' }); 
+        doc.deletePage(1); 
+        doc.setDisplayMode('fullpage', 'single');
+        
+        let hasImages = false;
+
+        for (let i = 0; i < songIds.length; i++) {
+            const song = songsList.find(s => s.id === songIds[i]);
+            if (!song) continue;
+
+            const urlToUse = await getSongBlobOrDataUrl(song);
+            if (!urlToUse) continue;
+
+            const imgData = await getCleanBase64ForPDF(urlToUse);
+            if (!imgData) continue;
+
+            const imgProps = doc.getImageProperties(imgData);
+            const orientation = imgProps.width > imgProps.height ? 'l' : 'p';
+            const format = [imgProps.width, imgProps.height];
+            
+            doc.addPage(format, orientation);
+            doc.addImage(imgData, 'JPEG', 0, 0, imgProps.width, imgProps.height);
+            hasImages = true;
+        }
+
+        if (!hasImages) {
+            showToast('មិនមានទិន្នន័យសម្រាប់បង្កើត PDF ទេ', 'warning');
+            if (shareBtn) shareBtn.innerHTML = '<i class="fa-solid fa-share-nodes"></i> Share All';
+            return;
+        }
+
+        const pdfBlob = doc.output('blob');
+        const safeName = playlistName.replace(/[^a-zA-Z0-9\u1780-\u17FF]/g, "_");
+        const pdfFile = new File([pdfBlob], `${safeName}.pdf`, { type: 'application/pdf' });
+
+        if (shareBtn) shareBtn.innerHTML = '<i class="fa-solid fa-share-nodes"></i> Share All';
+
+        if (navigator.canShare && navigator.canShare({ files: [pdfFile] })) {
+            await navigator.share({
+                title: `Playlist: ${playlistName}`,
+                text: `ចម្រៀងសម្រាប់: ${playlistName}`,
+                files: [pdfFile]
+            });
+        } else {
+            const url = URL.createObjectURL(pdfBlob);
+            const a = document.createElement('a');
+            a.href = url; a.download = `${safeName}.pdf`;
+            document.body.appendChild(a); a.click(); document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            showToast('បានទាញយកជា PDF', 'success');
+        }
+    } catch (err) {
+        console.error(err);
+        showToast('មានបញ្ហាក្នុងការបង្កើត PDF', 'error');
+        if (shareBtn) shareBtn.innerHTML = '<i class="fa-solid fa-share-nodes"></i> Share All';
+    }
+}
+
+async function sharePlaylistAsImages(playlistName) {
+    const songIds = playlists[playlistName];
+    if (!songIds || songIds.length === 0) return;
+
+    const shareBtn = document.getElementById('sharePlaylistBtn');
+    if (shareBtn) shareBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> រៀបចំរូបភាព...';
+    showToast('កំពុងរៀបចំរូបភាព...', 'info');
+    
+    let filesToShare = [];
+    for (let i = 0; i < songIds.length; i++) {
+        const song = songsList.find(s => s.id === songIds[i]);
+        if (!song) continue;
+
+        const safeTitle = song.title ? song.title.replace(/[^a-zA-Z0-9\u1780-\u17FF]/g, "_") : 'Song';
+        const fileName = `${i + 1}_${safeTitle}.jpg`; 
+
+        try {
+            let fileObj = null;
+            const imgData = await getSongBlobOrDataUrl(song);
+            if (!imgData) continue;
+
+            if (imgData.startsWith('data:image')) {
+                const arr = imgData.split(','); 
+                const mime = (arr[0].match(/:(.*?);/) || [])[1] || 'image/jpeg'; 
+                const bstr = atob(arr[1]); 
+                let n = bstr.length; 
+                const u8arr = new Uint8Array(n); 
+                while (n--) u8arr[n] = bstr.charCodeAt(n);
+                fileObj = new File([new Blob([u8arr], { type: mime })], fileName, { type: mime });
+            } else {
+                const res = await fetch(imgData);
+                const blob = await res.blob();
+                fileObj = new File([blob], fileName, { type: blob.type || 'image/jpeg' });
+            }
+            if (fileObj) filesToShare.push(fileObj);
+        } catch (err) {}
+    }
+
+    if (shareBtn) shareBtn.innerHTML = '<i class="fa-solid fa-share-nodes"></i> Share All';
+
+    if (filesToShare.length > 0) {
+        if (navigator.canShare && navigator.canShare({ files: filesToShare })) {
+            try {
+                await navigator.share({
+                    title: `Playlist: ${playlistName}`,
+                    text: `សូមជូនបទចម្រៀងពី Playlist: ${playlistName}`,
+                    files: filesToShare
+                });
+            } catch (err) {}
+        } else {
+            showToast('Browser របស់អ្នកមិនគាំទ្រការ Share ទេ។', 'warning');
+        }
+    }
 }
