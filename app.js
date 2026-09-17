@@ -1657,7 +1657,6 @@ function renderSongsListOnly() {
             const previewText = escapeHtml(song.lyrics).replace(/\[.*?\]/g, '').substring(0, 100) + '...';
             cardThumbnail = `
                 <div class="song-text-preview" onclick="openFullScreenModal('${song.id}')">
-                    <!-- ប្តូរពីពាក្យអត្ថបទចម្រៀង ទៅជាចំណងជើងបទ (${escapeHtml(song.title)}) វិញ -->
                     <div class="text-preview-header" style="font-size: 1rem;"><i class="fa-solid fa-music"></i> ${escapeHtml(song.title)}</div>
                     <div style="white-space: pre-wrap; font-family: 'Kantumruy Pro', sans-serif; color: var(--text); line-height: 1.5; margin-top: 4px;">${previewText}</div>
                 </div>`;
