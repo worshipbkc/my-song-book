@@ -26,9 +26,7 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
-    <!-- តភ្ជាប់ទៅកាន់ File CSS ថ្មី -->
     <link rel="stylesheet" href="style.css">
-
 </head>
 <body id="bodyContainer">
 <div id="splashScreen">
@@ -44,36 +42,25 @@
         </div>
     </div>
     <div class="header-actions">
-        <button class="install-pwa-btn" id="installPwaBtn" onclick="installPwaApp()">
-            📲 <span>Install App</span>
-        </button>
+        <button class="install-pwa-btn" id="installPwaBtn" onclick="installPwaApp()">📲 <span>Install App</span></button>
         <button class="fetch-icon-btn" id="fetchAllBtn" onclick="fetchAllSongsWithProgress()" title="ទាញយក Offline">
             <i class="fa-solid fa-cloud-arrow-down" id="fetchIcon"></i>
             <span class="percent-label" id="progressPercent">0%</span>
         </button>
     </div>
-</header>
-<div class="app-view active" id="viewSongs">
-        
+    </header>
+    <div class="app-view active" id="viewSongs">
         <div class="minimal-greeting">
             <p class="minimal-verse">"ចូរឱ្យជីវិតទាំងឡាយដែលមានដង្ហើម បានសរសើរដល់ព្រះយ៉េហូវ៉ាចុះ"</p>
             <p class="minimal-ref"> ---ទំនុកតម្កើង ១៥០៖៦ --- </p>
         </div>
 
         <div class="sticky-action-bar">
-            
             <div class="controls">
                 <div class="search-box">
                     <input type="text" id="searchInput" placeholder="ស្វែងរកបទចម្រៀង..." oninput="handleSearchInput()" onfocus="handleSearchInput()" autocomplete="off">
-                    
-                    <button class="voice-btn" id="voiceSearchBtn" onclick="startVoiceSearch()" title="ស្វែងរកដោយសំឡេង">
-                        <i class="fa-solid fa-microphone"></i>
-                    </button>
-                    <!-- ប៊ូតុងលុបអក្សរ -->
-                    <button class="clear-btn" id="clearSearchBtn" onclick="clearSearchInput()" title="លុបអក្សរ">
-                        <i class="fa-solid fa-circle-xmark"></i>
-                    </button>
-                   
+                    <button class="voice-btn" id="voiceSearchBtn" onclick="startVoiceSearch()" title="ស្វែងរកដោយសំឡេង"><i class="fa-solid fa-microphone"></i></button>
+                    <button class="clear-btn" id="clearSearchBtn" onclick="clearSearchInput()" title="លុបអក្សរ"><i class="fa-solid fa-circle-xmark"></i></button>
                     <button class="search-btn" onclick="renderSongs()">🔍</button>
                     <div class="search-dropdown" id="searchDropdown"></div>
                 </div>
@@ -83,38 +70,19 @@
                 <button class="chip-btn active" onclick="setQuickFilter('ALL', this)">🎵 បទទាំងអស់</button>
                 <button class="chip-btn" onclick="setQuickFilter('RECENT', this)">✨ បទថ្មីៗ</button>
                 <button class="chip-btn" onclick="setQuickFilter('FAV', this)">❤️ ចូលចិត្ត</button>
-                <button class="chip-btn" id="viewToggleBtn" onclick="toggleViewMode()">
-                    <i class="fa-solid fa-list"></i> ទម្រង់ List
-                </button>
+                <button class="chip-btn" id="viewToggleBtn" onclick="toggleViewMode()"><i class="fa-solid fa-list"></i> ទម្រង់ List</button>
             </div>
             
             <div class="section-title-wrapper">
-                <button id="backButton" onclick="goBackToMain()" style="display: none; background: transparent; border: none; font-size: 1.2rem; color: var(--text); cursor: pointer; padding-right: 12px; transition: 0.2s;">
-                    <i class="fa-solid fa-arrow-left"></i>
-                </button>
-                
-                <h2 class="section-title">
-                    <span class="icon-circle"><i class="fa-solid fa-headphones-simple"></i></span> 
-                    <span id="sectionTitleText">បទចម្រៀងទាំងអស់</span>
-                    <span id="totalSongCountBadge" class="song-count-badge">...</span>
-                </h2>
-                
-                <button id="sharePlaylistBtn" class="btn-share-custom" style="display: none; margin-left: 8px; padding: 4px 10px; border-radius: 8px; font-size: 0.75rem; font-weight: 600; cursor: pointer; border-width: 1px; border-style: solid; align-items: center; gap: 4px;" onclick="handleShareCurrentPlaylist()">
-                    <i class="fa-solid fa-share-nodes"></i> Share All
-                </button>
-
+                <button id="backButton" onclick="goBackToMain()" style="display: none; background: transparent; border: none; font-size: 1.2rem; color: var(--text); cursor: pointer; padding-right: 12px; transition: 0.2s;"><i class="fa-solid fa-arrow-left"></i></button>
+                <h2 class="section-title"><span class="icon-circle"><i class="fa-solid fa-headphones-simple"></i></span> <span id="sectionTitleText">បទចម្រៀងទាំងអស់</span><span id="totalSongCountBadge" class="song-count-badge">...</span></h2>
+                <button id="sharePlaylistBtn" class="btn-share-custom" style="display: none; margin-left: 8px; padding: 4px 10px; border-radius: 8px; font-size: 0.75rem; font-weight: 600; cursor: pointer; border-width: 1px; border-style: solid; align-items: center; gap: 4px;" onclick="handleShareCurrentPlaylist()"><i class="fa-solid fa-share-nodes"></i> Share</button>
                 <div class="section-divider"></div>
             </div>
-            
-            <div id="playlistDragInfo" style="display:none; font-size:0.75rem; color:var(--primary); text-align:right; margin-bottom: 8px;">
-                <i class="fa-solid fa-arrows-up-down"></i> អូសប័ណ្ណបទចម្រៀងចុះឡើងដើម្បីប្តូរលំដាប់ទីតាំង
-            </div>
+            <div id="playlistDragInfo" style="display:none; font-size:0.75rem; color:var(--primary); text-align:right; margin-bottom: 8px;"><i class="fa-solid fa-arrows-up-down"></i> អូសប័ណ្ណបទចម្រៀងចុះឡើងដើម្បីប្តូរលំដាប់ទីតាំង</div>
         </div>
 
-        <div class="song-grid" id="songGrid">
-            <!-- Content Injected via JS -->
-        </div>
-        
+        <div class="song-grid" id="songGrid"></div>
     </div>
     
     <div class="app-view" id="viewAlbums">
@@ -133,136 +101,74 @@
         <div class="section-grid" id="playlistsGrid"></div>
     </div>
 
-    <!-- ទីតាំង Settings (ការកំណត់) -->
     <div class="app-view" id="viewSettings">
         <div class="profile-container" style="padding: 10px 16px;" id="mainSettingsContainer">
-            
             <div class="settings-section-title">គណនី (Account)</div>
-            <div class="settings-card" id="settingsAccountArea">
-                <!-- User Profile or Login Placeholder -->
-            </div>
-            
-            <!-- ផ្ទាំងគ្រប់គ្រងទិន្នន័យ (Admin) - លាក់ជានិច្ច ទាល់តែមានសិទ្ធិ និងចុច ៣ដង -->
+            <div class="settings-card" id="settingsAccountArea"></div>
+
             <div id="secretAdminPanel" style="display: none; width: 100%;">
                 <div class="settings-section-title" style="color: var(--primary);">គ្រប់គ្រងទិន្នន័យ (Admin) 🔓</div>
                 <div class="settings-card">
                     <button class="settings-item" onclick="openModal('addSongModal')">
-                        <div class="settings-item-left"><i class="fa-solid fa-plus-circle"></i> បញ្ចូលបទចម្រៀងថ្មី</div>
-                        <i class="fa-solid fa-chevron-right" style="color: var(--border);"></i>
+                        <div class="settings-item-left"><i class="fa-solid fa-plus-circle"></i> បញ្ចូលបទចម្រៀងថ្មី</div><i class="fa-solid fa-chevron-right" style="color: var(--border);"></i>
                     </button>
                     <button class="settings-item" onclick="openModal('batchAddModal')">
-                        <div class="settings-item-left"><i class="fa-solid fa-layer-group"></i> បញ្ចូលរូបភាពច្រើន (Batch)</div>
-                        <i class="fa-solid fa-chevron-right" style="color: var(--border);"></i>
+                        <div class="settings-item-left"><i class="fa-solid fa-layer-group"></i> បញ្ចូលរូបភាពច្រើន (Batch)</div><i class="fa-solid fa-chevron-right" style="color: var(--border);"></i>
                     </button>
                 </div>
             </div>
             
-             <!-- ប៊ូតុងចូលទៅមើលការជូនដំណឹង (ដាច់ដោយឡែក) -->
             <div class="settings-section-title">ព័ត៌មានថ្មីៗ</div>
             <div class="settings-card">
                 <button class="settings-item" onclick="openNotificationsSubView()">
                     <div class="settings-item-left"><i class="fa-solid fa-bell" style="color: #f59e0b;"></i> ការជូនដំណឹងបទចម្រៀងថ្មី</div>
-                    <div style="display: flex; align-items: center; gap: 8px;">
-                        <span class="settings-badge-count" id="settingsNotifBadge">0 ថ្មី</span>
-                        <i class="fa-solid fa-chevron-right" style="color: var(--border);"></i>
-                    </div>
+                    <div style="display: flex; align-items: center; gap: 8px;"><span class="settings-badge-count" id="settingsNotifBadge">0 ថ្មី</span><i class="fa-solid fa-chevron-right" style="color: var(--border);"></i></div>
                 </button>
             </div>
 
             <div class="settings-section-title">ការកំណត់ទូទៅ (Preferences)</div>
             <div class="settings-card">
                 <div class="settings-item">
-                    <div class="settings-item-left"><i class="fa-solid fa-moon"></i> អេក្រង់ងងឹត (Dark Mode)</div>
-                    <div class="toggle-switch" id="settingThemeToggle" onclick="toggleDarkModeSetting(this)"></div>
+                    <div class="settings-item-left"><i class="fa-solid fa-moon"></i> អេក្រង់ងងឹត (Dark Mode)</div><div class="toggle-switch" id="settingThemeToggle" onclick="toggleDarkModeSetting(this)"></div>
                 </div>
                 <div class="settings-item">
-                    <div class="settings-item-left"><i class="fa-solid fa-angles-down"></i> ប៊ូតុងរំកិលស្វ័យប្រវត្តិ (Auto Scroll)</div>
-                    <div class="toggle-switch" id="settingScrollToggle" onclick="toggleAutoScrollSetting(this)"></div>
+                    <div class="settings-item-left"><i class="fa-solid fa-angles-down"></i> រំកិលស្វ័យប្រវត្តិ (Auto Scroll)</div><div class="toggle-switch" id="settingScrollToggle" onclick="toggleAutoScrollSetting(this)"></div>
                 </div>
-                <button class="settings-item" onclick="clearOfflineData()">
-                    <div class="settings-item-left"><i class="fa-solid fa-broom"></i> ជម្រះទិន្នន័យ (Clear Cache)</div>
-                    <i class="fa-solid fa-chevron-right" style="color: var(--border);"></i>
-                </button>
+                <button class="settings-item" onclick="clearOfflineData()"><div class="settings-item-left"><i class="fa-solid fa-broom"></i> ជម្រះទិន្នន័យ (Clear Cache)</div><i class="fa-solid fa-chevron-right" style="color: var(--border);"></i></button>
             </div>
 
-            <!-- បណ្តាញសង្គម (Social Media) - ត្រឡប់មកវិញហើយ! -->
             <div class="settings-section-title">បណ្តាញសង្គម (Connect)</div>
             <div class="settings-card">
-                <a href="https://t.me/phallakhum" target="_blank" class="settings-item">
-                    <div class="settings-item-left"><i class="fa-brands fa-telegram" style="color: #0088cc;"></i> ឆានែល Telegram</div>
-                    <i class="fa-solid fa-arrow-up-right-from-square" style="color: var(--text-muted); font-size: 0.8rem;"></i>
-                </a>
-                <a href="https://www.facebook.com/Phallakhum" target="_blank" class="settings-item">
-                    <div class="settings-item-left"><i class="fa-brands fa-facebook" style="color: #1877F2;"></i> ទំព័រ Facebook</div>
-                    <i class="fa-solid fa-arrow-up-right-from-square" style="color: var(--text-muted); font-size: 0.8rem;"></i>
-                </a>
-                <a href="https://www.youtube.com/@khumphalla" target="_blank" class="settings-item">
-                    <div class="settings-item-left"><i class="fa-brands fa-youtube" style="color: #FF0000;"></i> ឆានែល YouTube</div>
-                    <i class="fa-solid fa-arrow-up-right-from-square" style="color: var(--text-muted); font-size: 0.8rem;"></i>
-                </a>
-                <a href="tel:+855884362366" class="settings-item">
-                    <div class="settings-item-left"><i class="fa-solid fa-phone" style="color: #16a34a;"></i> លេខទូរស័ព្ទ</div>
-                    <span style="color: var(--primary); font-size: 0.9rem; font-weight: 700;">088 43 62 366</span>
-                </a>
+                <a href="https://t.me/phallakhum" target="_blank" class="settings-item"><div class="settings-item-left"><i class="fa-brands fa-telegram" style="color: #0088cc;"></i> ឆានែល Telegram</div><i class="fa-solid fa-arrow-up-right-from-square" style="color: var(--text-muted); font-size: 0.8rem;"></i></a>
+                <a href="https://www.facebook.com/Phallakhum" target="_blank" class="settings-item"><div class="settings-item-left"><i class="fa-brands fa-facebook" style="color: #1877F2;"></i> ទំព័រ Facebook</div><i class="fa-solid fa-arrow-up-right-from-square" style="color: var(--text-muted); font-size: 0.8rem;"></i></a>
+                <a href="https://www.youtube.com/@khumphalla" target="_blank" class="settings-item"><div class="settings-item-left"><i class="fa-brands fa-youtube" style="color: #FF0000;"></i> ឆានែល YouTube</div><i class="fa-solid fa-arrow-up-right-from-square" style="color: var(--text-muted); font-size: 0.8rem;"></i></a>
+                <a href="tel:+855884362366" class="settings-item"><div class="settings-item-left"><i class="fa-solid fa-phone" style="color: #16a34a;"></i> លេខទូរស័ព្ទ</div><span style="color: var(--primary); font-size: 0.9rem; font-weight: 700;">088 43 62 366</span></a>
             </div>
 
             <div class="settings-section-title">អំពីកម្មវិធី (About)</div>
             <div class="settings-card">
-                <button class="settings-item" onclick="shareAppDirectly()">
-                    <div class="settings-item-left"><i class="fa-solid fa-share-nodes"></i> ចែករំលែកកម្មវិធីនេះ</div>
-                </button>
-                <div class="settings-item" id="versionTapArea" style="cursor: pointer; background: transparent;">
-                    <div class="settings-item-left"><i class="fa-solid fa-code-branch" style="color: var(--text-muted);"></i> ជំនាន់ (Version)</div>
-                    <span style="color: var(--text-muted); font-size: 0.85rem;">1.1.0</span>
-                </div>
+                <button class="settings-item" onclick="shareAppDirectly()"><div class="settings-item-left"><i class="fa-solid fa-share-nodes"></i> ចែករំលែកកម្មវិធីនេះ</div></button>
+                <div class="settings-item" id="versionTapArea" style="cursor: pointer; background: transparent;"><div class="settings-item-left"><i class="fa-solid fa-code-branch" style="color: var(--text-muted);"></i> ជំនាន់ (Version)</div><span style="color: var(--text-muted); font-size: 0.85rem;">1.2.0</span></div>
             </div>
             
-            <div id="bottomAuthArea" style="margin-top: 24px; margin-bottom: 30px;">
-                <!-- Login/Logout Button -->
-            </div>
-
+            <div id="bottomAuthArea" style="margin-top: 24px; margin-bottom: 30px;"></div>
         </div>
 
-        <!-- ផ្ទាំងរង (Sub-view) សម្រាប់ការជូនដំណឹង -->
         <div class="sub-settings-view" id="subViewNotifications" style="padding: 10px 16px;">
-            <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 16px;">
-                <button onclick="closeNotificationsSubView()" style="background: var(--card-bg); border: 1px solid var(--border); color: var(--text); width: 38px; height: 38px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 1rem;">
-                    <i class="fa-solid fa-arrow-left"></i>
-                </button>
-                <h2 style="font-size: 1.1rem; font-weight: 700;">🔔 ការជូនដំណឹងបទចម្រៀងថ្មី</h2>
-            </div>
-            <div class="settings-card" id="settingsNotificationsList">
-                <!-- បញ្ជីបទចម្រៀងថ្មីៗនឹងលោតមកទីនេះ -->
-            </div>
+            <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 16px;"><button onclick="closeNotificationsSubView()" style="background: var(--card-bg); border: 1px solid var(--border); color: var(--text); width: 38px; height: 38px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 1rem;"><i class="fa-solid fa-arrow-left"></i></button><h2 style="font-size: 1.1rem; font-weight: 700;">🔔 ការជូនដំណឹងបទចម្រៀងថ្មី</h2></div>
+            <div class="settings-card" id="settingsNotificationsList"></div>
         </div>
     </div>
 </div>
 
 <div class="bottom-nav">
-    <button class="bottom-nav-item active" id="navSongsBtn" onclick="switchTab('songs')">
-        <i class="fa-solid fa-music"></i>
-        <span>បទចម្រៀង</span>
-    </button>
-    <button class="bottom-nav-item" id="navAlbumsBtn" onclick="switchTab('albums')">
-        <i class="fa-solid fa-record-vinyl"></i>
-        <span>អាល់ប៊ុម</span>
-    </button>
-    <button class="bottom-nav-item" id="navPlaylistsBtn" onclick="switchTab('playlists')">
-        <i class="fa-solid fa-list-ul"></i>
-        <span>Playlist</span>
-    </button>
-    <button class="bottom-nav-item" id="navProfileBtn" onclick="switchTab('settings')">
-        <i class="fa-solid fa-gear"></i>
-        <span>ការកំណត់</span>
-        <span class="nav-badge-dot" id="navNotifDot"></span>
-    </button>
+    <button class="bottom-nav-item active" id="navSongsBtn" onclick="switchTab('songs')"><i class="fa-solid fa-music"></i><span>បទចម្រៀង</span></button>
+    <button class="bottom-nav-item" id="navAlbumsBtn" onclick="switchTab('albums')"><i class="fa-solid fa-record-vinyl"></i><span>អាល់ប៊ុម</span></button>
+    <button class="bottom-nav-item" id="navPlaylistsBtn" onclick="switchTab('playlists')"><i class="fa-solid fa-list-ul"></i><span>Playlist</span></button>
+    <button class="bottom-nav-item" id="navProfileBtn" onclick="switchTab('settings')"><i class="fa-solid fa-gear"></i><span>ការកំណត់</span><span class="nav-badge-dot" id="navNotifDot"></span></button>
 </div>
 
-<div class="offline-sync-badge" id="offlineSyncBadge">
-    <span class="status-dot status-online" id="statusDot"></span>
-    <span id="statusText">អនឡាញ</span>
-</div>
-
+<div class="offline-sync-badge" id="offlineSyncBadge"><span class="status-dot status-online" id="statusDot"></span><span id="statusText">អនឡាញ</span></div>
 <div id="toastContainer" class="toast-container"></div>
 
 <!-- Fullscreen Viewer (មាន Transpose និង Lyrics) -->
@@ -279,31 +185,24 @@
     <div class="transpose-controls" id="transposeControls" style="display: none;">
         <button onclick="changeTranspose(-1)">-</button>
         <div style="display: flex; flex-direction: column; align-items: center; justify-content: center;">
-            <span style="font-size: 0.65rem; color: #cbd5e1; line-height: 1;">Key</span>
-            <span id="transposeLabel" style="font-weight: 800; font-size: 1.1rem; color: #fff; line-height: 1.2;">C</span>
+            <span style="font-size: 0.65rem; color: var(--text-muted); line-height: 1;">Key</span>
+            <span id="transposeLabel" style="font-weight: 800; font-size: 1.1rem; color: var(--text); line-height: 1.2;">C</span>
         </div>
         <button onclick="changeTranspose(1)">+</button>
     </div>
     
-    <button class="media-play-btn" id="fsMediaPlayBtn" title="ចាក់សំឡេង/វីដេអូ">
-        <i class="fa-brands fa-youtube"></i>
-    </button>
-
+    <button class="media-play-btn" id="fsMediaPlayBtn" title="ចាក់សំឡេង/វីដេអូ"><i class="fa-brands fa-youtube"></i></button>
     <button class="fullscreen-nav-btn fullscreen-prev" onclick="slideFullScreen(-1, event)">❮</button>
     
     <div class="fullscreen-img-container" id="fullScreenImgContainer">
-        <!-- បង្ហាញរូបភាព -->
         <img src="" id="fullScreenImg" class="fullscreen-img" alt="Song">
-        <!-- បង្ហាញអត្ថបទ និង Chord -->
         <div id="fullScreenLyrics" class="fullscreen-lyrics" style="display:none;"></div>
     </div>
 
     <button class="fullscreen-nav-btn fullscreen-next" onclick="slideFullScreen(1, event)">❯</button>
     
     <div class="fullscreen-controls" id="fsScrollControls">
-        <button class="fs-scroll-toggle" id="autoScrollBtn" onclick="toggleAutoScroll()">
-            <i class="fa-solid fa-angles-down"></i> Auto-Scroll
-        </button>
+        <button class="fs-scroll-toggle" id="autoScrollBtn" onclick="toggleAutoScroll()"><i class="fa-solid fa-angles-down"></i> Auto-Scroll</button>
         <button class="fs-control-btn" onclick="adjustScrollSpeed(-0.2)">-</button>
         <div class="fs-speed-label" id="scrollSpeedLabel">0.5x</div>
         <button class="fs-control-btn" onclick="adjustScrollSpeed(0.2)">+</button>
@@ -316,60 +215,36 @@
         <div class="modal-drag-handle"></div>
         <h3 style="font-size: 1.1rem; margin-bottom: 10px;">➕ បញ្ចូលបទចម្រៀងថ្មី</h3>
         <form id="addSongForm" onsubmit="handleAddSong(event)">
-            <div class="form-group">
-                <label>ជ្រើសរើស Album *</label>
-                <select id="songAlbumSelect" required></select>
-            </div>
-            <div class="form-group">
-                <label>ចំណងជើងបទចម្រៀង *</label>
-                <input type="text" id="songTitle" required placeholder="ឧទាហរណ៍៖ ព្រះគុណព្រះអង្គ">
-            </div>
+            <div class="form-group"><label>ជ្រើសរើស Album *</label><select id="songAlbumSelect" required></select></div>
+            <div class="form-group"><label>ចំណងជើងបទចម្រៀង *</label><input type="text" id="songTitle" required placeholder="ឧទាហរណ៍៖ ព្រះគុណព្រះអង្គ"></div>
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
-                <div class="form-group">
-                    <label>ឈ្មោះអ្នកចម្រៀង</label>
-                    <input type="text" id="songArtist" placeholder="ឈ្មោះអ្នកចម្រៀង">
-                </div>
-                <div class="form-group">
-                    <label>Key ភ្លេង (បើមាន)</label>
-                    <input type="text" id="songKey" placeholder="ឧ. G, Am, D">
-                </div>
+                <div class="form-group"><label>ឈ្មោះអ្នកចម្រៀង</label><input type="text" id="songArtist" placeholder="ឈ្មោះអ្នកចម្រៀង"></div>
+                <div class="form-group"><label>Key ភ្លេង (បើមាន)</label><input type="text" id="songKey" placeholder="ឧ. G, Am, D"></div>
             </div>
-            <div class="form-group">
-                <label>តំណភ្ជាប់វីដេអូ ឬសំឡេង (YouTube/MP3)</label>
-                <input type="url" id="songMediaUrl" placeholder="ដាក់ Link បើមាន">
-            </div>
+            <div class="form-group"><label>តំណភ្ជាប់វីដេអូ ឬសំឡេង</label><input type="url" id="songMediaUrl" placeholder="ដាក់ Link បើមាន"></div>
 
-            <!-- 💡 ជម្រើសបញ្ចូលទិន្នន័យ (រូបភាព ឬ អត្ថបទ) -->
             <div class="form-group">
                 <div class="input-method-tabs">
                     <button type="button" class="tab-btn active" id="tabAddImg" onclick="switchInputType('add', 'image')">🖼️ ប្រើរូបភាព</button>
-                    <button type="button" class="tab-btn" id="tabAddText" onclick="switchInputType('add', 'text')">📝 វាយអត្ថបទ</button>
+                    <button type="button" class="tab-btn" id="tabAddText" onclick="switchInputType('add', 'text')">📝 វាយអត្ថបទ & Chords</button>
                 </div>
-
-                <!-- ផ្នែកបញ្ចូលរូបភាព -->
                 <div id="addSectionImage">
                     <div class="image-drop-zone" id="dropZone" tabindex="0" onclick="document.getElementById('songImageFile').click()">
                         <p>📁 ចុចជ្រើសរើស / អូសរូបភាព<br>ឬ 📋 Paste (Ctrl+V) នៅទីនេះ</p>
                         <input type="file" id="songImageFile" accept="image/*" onchange="handleFileSelect(event)" style="display: none;">
-                        <div class="preview-container" id="previewContainer">
-                            <img id="previewImg" src="" alt="Preview">
-                            <button type="button" class="remove-img-btn" onclick="removeSelectedImage(event)">✖</button>
-                        </div>
+                        <div class="preview-container" id="previewContainer"><img id="previewImg" src=""><button type="button" class="remove-img-btn" onclick="removeSelectedImage(event)">✖</button></div>
                     </div>
-                    <div style="margin-top: 6px;">
-                        <input type="url" id="songImageUrlDirect" placeholder="ឬដាក់ Image URL ផ្ទាល់">
-                    </div>
+                    <div style="margin-top: 6px;"><input type="url" id="songImageUrlDirect" placeholder="ឬដាក់ Image URL ផ្ទាល់"></div>
                 </div>
-
-                <!-- ផ្នែកវាយអត្ថបទ (អត្ថបទ និង Chord) -->
                 <div id="addSectionText" style="display: none;">
                     <div style="font-size: 0.72rem; color: var(--primary); margin-bottom: 8px; font-weight: 600;">
-                        💡 របៀបសរសេរ៖ ដាក់ Chord ក្នុងវង់ក្រចក [ ] ពីមុខពាក្យ។ <br>ឧទាហរណ៍៖ [C]ឱព្រះអើយ ទូលបង្គំស្រឡាញ់[Am]ទ្រង់
+                        💡 របៀបសរសេរ៖ ដាក់ Chord ក្នុងវង់ក្រចក [ ] ចំពីមុខពាក្យ។ ឧទាហរណ៍៖<br>
+                        Intro: | [C] | [Am] | [F] | [G] |<br>
+                        I. [C]តើជើងកុំសង្ឃឹម[Am]ពេក...
                     </div>
-                    <textarea id="songLyricsInput" class="lyric-textarea" rows="10" placeholder="Intro: | [C] | [Am] | [F] | [G] |&#10;&#10;I. [C]តើជើងកុំសង្ឃឹម[Am]ពេក..."></textarea>
+                    <textarea id="songLyricsInput" class="lyric-textarea" rows="10" placeholder="បញ្ចូលអត្ថបទទីនេះ..."></textarea>
                 </div>
             </div>
-
             <div style="text-align: right; margin-top: 18px; display: flex; gap: 10px; justify-content: flex-end;">
                 <button type="button" onclick="closeModal('addSongModal')" style="background: var(--border); color: var(--text); padding: 10px 16px; border-radius:8px; border:none; font-size: 0.9rem; font-weight: 600;">បោះបង់</button>
                 <button type="submit" id="saveBtn" style="padding: 10px 20px; border-radius: 8px; border: none; font-weight: 600; background: var(--primary); color: white; font-size: 0.9rem;">រក្សាទុក</button>
@@ -378,90 +253,37 @@
     </div>
 </div>
 
-<div class="modal" id="batchAddModal">
-    <div class="modal-content">
-        <div class="modal-drag-handle"></div>
-        <h3 style="font-size: 1.1rem; margin-bottom: 10px;">📚 បញ្ចូលរូបភាពច្រើនសន្លឹក</h3>
-        <div>
-            <div class="form-group">
-                <label>ជ្រើសរើស Album *</label>
-                <select id="batchAlbumSelect" required></select>
-            </div>
-            <div class="form-group">
-                <label>ឈ្មោះអ្នកចម្រៀង</label>
-                <input type="text" id="batchArtist" placeholder="ឧទាហរណ៍៖ ក្រុមច្រៀងសរសើរ">
-            </div>
-            <div class="form-group">
-                <label>ជ្រើសរើសរូបភាពច្រើនសន្លឹក *</label>
-                <input type="file" id="batchImageFiles" accept="image/*" multiple onchange="handleBatchFilesSelect(event)" style="width:100%; padding:10px; background:var(--bg); border:1px solid var(--border); border-radius:8px; font-size:0.85rem;">
-            </div>
-            <div id="batchPreviewInfo" style="font-size: 0.8rem; font-weight: 600; color: var(--primary); margin-bottom: 10px;"></div>
-            <div style="text-align: right; margin-top: 18px; display: flex; gap: 10px; justify-content: flex-end;">
-                <button type="button" onclick="closeModal('batchAddModal')" style="background: var(--border); color: var(--text); padding: 10px 16px; border-radius:8px; border:none; font-size:0.9rem; font-weight: 600;">បោះបង់</button>
-                <button type="button" id="batchSaveBtn" onclick="handleBatchSaveSongs()" style="padding: 10px 20px; border-radius: 8px; border: none; font-weight: 600; background: #059669; color: white; font-size:0.9rem;" disabled>បញ្ចូលទាំងអស់</button>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- Modal កែប្រែបទចម្រៀង -->
 <div class="modal" id="editSongModal">
     <div class="modal-content">
         <div class="modal-drag-handle"></div>
         <h3 style="font-size: 1.1rem; margin-bottom: 10px;">✏️ កែប្រែបទចម្រៀង</h3>
         <form id="editSongForm" onsubmit="handleUpdateSong(event)">
             <input type="hidden" id="editSongId">
-            <div class="form-group">
-                <label>ជ្រើសរើស Album *</label>
-                <select id="editSongAlbumSelect" required></select>
-            </div>
-            <div class="form-group">
-                <label>ចំណងជើងបទចម្រៀង *</label>
-                <input type="text" id="editSongTitle" required>
-            </div>
+            <div class="form-group"><label>ជ្រើសរើស Album *</label><select id="editSongAlbumSelect" required></select></div>
+            <div class="form-group"><label>ចំណងជើងបទចម្រៀង *</label><input type="text" id="editSongTitle" required></div>
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
-                <div class="form-group">
-                    <label>ឈ្មោះអ្នកចម្រៀង</label>
-                    <input type="text" id="editSongArtist">
-                </div>
-                <div class="form-group">
-                    <label>Key ភ្លេង</label>
-                    <input type="text" id="editSongKey" placeholder="ឧ. G, Am">
-                </div>
+                <div class="form-group"><label>ឈ្មោះអ្នកចម្រៀង</label><input type="text" id="editSongArtist"></div>
+                <div class="form-group"><label>Key ភ្លេង</label><input type="text" id="editSongKey" placeholder="ឧ. G, Am"></div>
             </div>
-            <div class="form-group">
-                <label>តំណភ្ជាប់វីដេអូ ឬសំឡេង</label>
-                <input type="url" id="editSongMediaUrl" placeholder="ដាក់ Link បើមាន">
-            </div>
+            <div class="form-group"><label>តំណភ្ជាប់វីដេអូ ឬសំឡេង</label><input type="url" id="editSongMediaUrl" placeholder="ដាក់ Link បើមាន"></div>
 
-            <!-- 💡 ជម្រើសកែប្រែទិន្នន័យ (រូបភាព ឬ អត្ថបទ) -->
             <div class="form-group">
                 <div class="input-method-tabs">
                     <button type="button" class="tab-btn active" id="tabEditImg" onclick="switchInputType('edit', 'image')">🖼️ ប្រើរូបភាព</button>
-                    <button type="button" class="tab-btn" id="tabEditText" onclick="switchInputType('edit', 'text')">📝 វាយអត្ថបទ</button>
+                    <button type="button" class="tab-btn" id="tabEditText" onclick="switchInputType('edit', 'text')">📝 វាយអត្ថបទ & Chords</button>
                 </div>
-
-                <!-- ផ្នែកកែប្រែរូបភាព -->
                 <div id="editSectionImage">
                     <div class="image-drop-zone" id="editDropZone" tabindex="0" onclick="document.getElementById('editSongImageFile').click()">
                         <p>📁 ចុចជ្រើសរើស / អូសរូបភាពថ្មី<br>ឬ 📋 Paste (Ctrl+V) នៅទីនេះ</p>
                         <input type="file" id="editSongImageFile" accept="image/*" onchange="handleEditFileSelect(event)" style="display: none;">
-                        <div class="preview-container" id="editPreviewContainer">
-                            <img id="editPreviewImg" src="" alt="Preview">
-                            <button type="button" class="remove-img-btn" onclick="removeSelectedEditImage(event)">✖</button>
-                        </div>
+                        <div class="preview-container" id="editPreviewContainer"><img id="editPreviewImg" src=""><button type="button" class="remove-img-btn" onclick="removeSelectedEditImage(event)">✖</button></div>
                     </div>
-                    <div style="margin-top: 6px;">
-                        <input type="url" id="editSongImageUrlDirect" placeholder="ឬដាក់ Image URL ថ្មី">
-                    </div>
+                    <div style="margin-top: 6px;"><input type="url" id="editSongImageUrlDirect" placeholder="ឬដាក់ Image URL ថ្មី"></div>
                 </div>
-
-                <!-- ផ្នែកកែប្រែអត្ថបទ -->
                 <div id="editSectionText" style="display: none;">
                     <textarea id="editSongLyricsInput" class="lyric-textarea" rows="10"></textarea>
                 </div>
             </div>
-
             <div style="text-align: right; margin-top: 18px; display: flex; gap: 10px; justify-content: flex-end;">
                 <button type="button" onclick="closeModal('editSongModal')" style="background: var(--border); color: var(--text); padding: 10px 16px; border-radius:8px; border:none; font-size:0.9rem; font-weight: 600;">បោះបង់</button>
                 <button type="submit" id="updateBtn" style="padding: 10px 20px; border-radius: 8px; border: none; font-weight: 600; background: var(--primary); color: white; font-size:0.9rem;">រក្សាទុក</button>
@@ -470,46 +292,10 @@
     </div>
 </div>
 
-<div class="modal" id="playlistModal">
-    <div class="modal-content">
-        <div class="modal-drag-handle"></div>
-        <h3 style="font-size: 1.1rem; margin-bottom: 10px;">📂 បង្កើត / ជ្រើសរើស Playlist</h3>
-        <input type="hidden" id="playlistTargetSongId">
-        <div class="form-group">
-            <label>ឈ្មោះ Playlist ថ្មី</label>
-            <input type="text" id="newPlaylistName" placeholder="ឧទាហរណ៍៖ ថ្វាយបង្គំថ្ងៃអាទិត្យ">
-        </div>
-        <button type="button" onclick="saveNewPlaylist()" style="width: 100%; padding: 12px; border-radius: 8px; border: none; font-weight: 600; background: var(--primary); color: white; font-size:0.9rem; margin-bottom: 16px;">+ បង្កើតថ្មី</button>
-        
-        <div style="font-size:0.9rem; font-weight:600; margin-bottom:8px;">ឬបន្ថែមទៅ Playlist មានស្រាប់៖</div>
-        <div id="existingPlaylistsList" style="max-height: 200px; overflow-y: auto; display: flex; flex-direction: column; gap: 8px;"></div>
+<div class="modal" id="batchAddModal">...</div>
+<div class="modal" id="playlistModal">...</div>
+<div class="modal" id="sharePlaylistModal">...</div>
 
-        <div style="text-align: right; margin-top: 18px;">
-            <button type="button" onclick="closeModal('playlistModal')" style="background: var(--border); color: var(--text); padding: 10px 20px; border-radius:8px; border:none; font-size:0.9rem; font-weight: 600; width: 100%;">បិទ</button>
-        </div>
-    </div>
-</div>
-
-<div class="modal" id="sharePlaylistModal">
-    <div class="modal-content" style="max-width: 400px;">
-        <div class="modal-drag-handle"></div>
-        <h3 style="font-size: 1.1rem; margin-bottom: 16px; text-align: center;">📤 ជម្រើសចែករំលែក</h3>
-        <p style="text-align: center; font-size: 0.85rem; color: var(--text-muted); margin-bottom: 20px;">តើអ្នកចង់ចែករំលែក Playlist នេះជាទម្រង់អ្វី?</p>
-        <div style="display: flex; flex-direction: column; gap: 12px;">
-            <button onclick="executeShare('pdf')" style="padding: 12px; border-radius: 12px; border: 1px solid var(--primary); font-weight: 600; background: var(--primary); color: white; font-size: 0.95rem; display: flex; align-items: center; justify-content: center; gap: 8px;">
-                <i class="fa-solid fa-file-pdf"></i> ចែករំលែកជា PDF
-            </button>
-            <button onclick="executeShare('images')" style="padding: 12px; border-radius: 12px; border: 1px solid var(--border); font-weight: 600; background: var(--bg); color: var(--text); font-size: 0.95rem; display: flex; align-items: center; justify-content: center; gap: 8px;">
-                <i class="fa-solid fa-images"></i> ចែករំលែកជារូបភាព
-            </button>
-        </div>
-        <div style="text-align: center; margin-top: 16px;">
-            <button type="button" onclick="closeModal('sharePlaylistModal')" style="background: transparent; color: var(--danger); padding: 8px 16px; border: none; font-size: 0.9rem; font-weight: 600; cursor: pointer;">បោះបង់</button>
-        </div>
-    </div>
-</div>
-
-<!-- តភ្ជាប់ទៅកាន់ File JS ថ្មី -->
 <script src="app.js"></script>
 </body>
 </html>
