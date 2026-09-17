@@ -809,13 +809,11 @@ function clearSearchInput() {
 
 function hideSearchDropdown() { const dropdown = document.getElementById('searchDropdown'); if (dropdown) dropdown.style.display = 'none'; }
 
-// 💡 ចំណុចទី១៖ កែសម្រួលពេលចុចលើ Search Dropdown មិនឱ្យលោត Fullscreen
 function selectSearchDropdownItem(songId) { 
     hideSearchDropdown(); 
     const song = songsList.find(s => s.id === songId);
     if (song) {
         document.getElementById('searchInput').value = song.title;
-        // ទាញយកតែបទហ្នឹងមកបង្ហាញលើកាត (មិនចូល Fullscreen ទេ)
         handleSearchInput();
     }
 }
@@ -1075,6 +1073,14 @@ function initPinchToZoom() {
         }
         lastTapTime = now;
     });
+}
+
+async function downloadSongImage(url, title) {
+    try {
+        const fileName = `${title.replace(/[^a-zA-Z0-9]/g, "_")}.jpg`;
+        if (url.startsWith('data:image')) { const a = document.createElement('a'); a.href = url; a.download = fileName; document.body.appendChild(a); a.click(); document.body.removeChild(a); } 
+        else { const res = await fetch(url); const blob = await res.blob(); const blobUrl = window.URL.createObjectURL(blob); const a = document.createElement('a'); a.href = blobUrl; a.download = fileName; document.body.appendChild(a); a.click(); document.body.removeChild(a); window.URL.revokeObjectURL(blobUrl); }
+    } catch (e) { window.open(url, '_blank'); }
 }
 
 function shareAppDirectly() {
@@ -1509,7 +1515,7 @@ function transposeSingleChord(chord, steps) {
 }
 
 // ---------------------------------------------------------
-// ២. ម៉ាស៊ីនបំប្លែង Lyrics ទៅជារូបភាពដើម្បី Share & Download (ថ្មី)
+// ២. ម៉ាស៊ីនបំប្លែង Lyrics ទៅជារូបភាព (កែសម្រួលឱ្យ Chord ឡើងលើអក្សរត្រឹមត្រូវ)
 // ---------------------------------------------------------
 function generateLyricsImage(song) {
     return new Promise((resolve) => {
@@ -1517,12 +1523,12 @@ function generateLyricsImage(song) {
         const ctx = canvas.getContext('2d');
         
         const width = 800; 
-        let height = 160; // កម្ពស់ទុកសម្រាប់ចំណងជើង
+        let height = 180; // ទុកគម្លាតសម្រាប់ Header ចំណងជើង
         
         const lines = (song.lyrics || '').split('\n');
         const parsedLines = [];
         
-        // វគ្គទី១៖ វាស់កម្ពស់សរុបនៃអត្ថបទចម្រៀង
+        // វគ្គទី១៖ វាស់កម្ពស់សរុប (ជួរដែលមាន Chord ត្រូវស៊ីកម្ពស់ ២ដង ព្រោះ Chord នៅពីលើ)
         lines.forEach(line => {
             const trimmed = line.trim();
             if (trimmed === '') { height += 30; parsedLines.push({ type: 'empty' }); return; }
@@ -1530,28 +1536,23 @@ function generateLyricsImage(song) {
             let isHeader = /^(Intro|I\.|II\.|III\.|IV\.|Pre|R1\.|R2\.|Chorus|Bridge|Instr\.)/i.test(trimmed);
             
             if (isHeader) {
-                let match = line.match(/^([A-Za-z0-9\.\s]+:?\s*)(.*)/);
-                if (match && match[2] && match[2].includes('[')) {
-                    height += 60; parsedLines.push({ type: 'header-chord', header: match[1], chordText: match[2] });
-                } else {
-                    height += 40; parsedLines.push({ type: 'header', text: line });
-                }
+                height += 55; parsedLines.push({ type: 'header', text: line });
             } else if (!line.includes('[')) {
                 height += 40; parsedLines.push({ type: 'text-only', text: line });
             } else {
-                height += 60; parsedLines.push({ type: 'lyric-with-chord', raw: line });
+                height += 75; parsedLines.push({ type: 'lyric-with-chord', raw: line });
             }
         });
         
         canvas.width = width;
-        canvas.height = height + 60; // ថែមគម្លាតខាងក្រោម
+        canvas.height = height + 40; 
         
-        // ចាក់ពណ៌ស ធ្វើជាផ្ទៃខាងក្រោយ
+        // ចាក់ពណ៌សផ្ទៃខាងក្រោយ
         ctx.fillStyle = '#ffffff';
         ctx.fillRect(0, 0, canvas.width, canvas.height);
         
-        // សរសេរចំណងជើងបទ និងពត៌មានលម្អិត
-        ctx.fillStyle = '#2563eb';
+        // សរសេរចំណងជើងបទ និងព័ត៌មានលម្អិត
+        ctx.fillStyle = '#0f172a';
         ctx.font = 'bold 32px "Kantumruy Pro", sans-serif';
         ctx.fillText(song.title || 'គ្មានចំណងជើង', 40, 60);
         
@@ -1566,7 +1567,6 @@ function generateLyricsImage(song) {
         ctx.lineTo(width - 40, 130);
         ctx.stroke();
         
-        // វគ្គទី២៖ ចាប់ផ្តើមគូរអក្សរ និង Chord ពណ៌ក្រហមចូលទៅក្នុងផ្ទាំង
         let y = 180;
         parsedLines.forEach(pl => {
             if (pl.type === 'empty') {
@@ -1575,73 +1575,56 @@ function generateLyricsImage(song) {
                 ctx.fillStyle = '#2563eb';
                 ctx.font = 'bold 26px "Kantumruy Pro", sans-serif';
                 ctx.fillText(pl.text, 40, y);
-                y += 40;
-            } else if (pl.type === 'header-chord') {
-                ctx.fillStyle = '#2563eb';
-                ctx.font = 'bold 26px "Kantumruy Pro", sans-serif';
-                ctx.fillText(pl.header, 40, y);
-                let xOffset = 40 + ctx.measureText(pl.header).width + 10;
-                ctx.fillStyle = '#ef4444';
-                ctx.font = 'bold 24px Arial, sans-serif';
-                ctx.fillText(transposeLine(pl.chordText, currentTransposeStep || 0), xOffset, y);
-                y += 60;
+                y += 55;
             } else if (pl.type === 'text-only') {
                 ctx.fillStyle = '#0f172a';
                 ctx.font = '24px "Kantumruy Pro", sans-serif';
                 ctx.fillText(pl.text, 40, y);
-                y += 40;
+                y += 45;
             } else if (pl.type === 'lyric-with-chord') {
                 const parts = pl.raw.split(/\[(.*?)\]/g);
                 let currentX = 40;
                 
-                if (parts.length === 1 && !pl.raw.includes('[')) {
-                    ctx.fillStyle = '#0f172a';
-                    ctx.font = '24px "Kantumruy Pro", sans-serif';
-                    ctx.fillText(pl.raw, currentX, y + 25);
-                    y += 60;
-                } else {
-                    for(let i=0; i<parts.length; i++) {
-                        if(i % 2 === 0) {
-                            if (parts[i]) {
-                                ctx.fillStyle = '#0f172a';
-                                ctx.font = '24px "Kantumruy Pro", sans-serif';
-                                ctx.fillText(parts[i], currentX, y + 25);
-                                currentX += ctx.measureText(parts[i]).width;
-                            }
-                        } else {
-                            let chord = transposeSingleChord(parts[i], currentTransposeStep || 0);
-                            ctx.fillStyle = '#ef4444';
-                            ctx.font = 'bold 22px Arial, sans-serif';
-                            ctx.fillText(chord, currentX, y - 5);
-                            
-                            ctx.font = '24px "Kantumruy Pro", sans-serif';
-                            let nextText = parts[i+1] || '';
-                            if (nextText === '') {
-                                currentX += ctx.measureText('   ').width;
-                            } else {
-                                ctx.fillStyle = '#0f172a';
-                                ctx.fillText(nextText, currentX, y + 25);
-                                currentX += ctx.measureText(nextText).width;
-                            }
-                            i++;
-                        }
+                // គូរ Chord នៅជួរខាងលើ (Y - 22)
+                let textX = 40;
+                for(let i=0; i<parts.length; i++) {
+                    if(i % 2 === 0) {
+                        textX += ctx.measureText(parts[i]).width;
+                    } else {
+                        let chord = transposeSingleChord(parts[i], currentTransposeStep || 0);
+                        ctx.fillStyle = '#ef4444';
+                        ctx.font = 'bold 20px Arial, sans-serif';
+                        ctx.fillText(chord, textX, y); // គូរ Chord ពីលើ
+                        
+                        let nextText = parts[i+1] || '';
+                        textX += ctx.measureText(nextText).width;
+                        i++;
                     }
-                    y += 60;
                 }
+
+                // គូរអក្សរចម្រៀងនៅជួរខាងក្រោម (Y + 10)
+                for(let i=0; i<parts.length; i++) {
+                    if(i % 2 === 0) {
+                        if (parts[i]) {
+                            ctx.fillStyle = '#0f172a';
+                            ctx.font = '24px "Kantumruy Pro", sans-serif';
+                            ctx.fillText(parts[i], currentX, y + 30);
+                            currentX += ctx.measureText(parts[i]).width;
+                        }
+                    } else {
+                        let nextText = parts[i+1] || '';
+                        ctx.fillStyle = '#0f172a';
+                        ctx.font = '24px "Kantumruy Pro", sans-serif';
+                        ctx.fillText(nextText, currentX, y + 30);
+                        currentX += ctx.measureText(nextText).width;
+                        i++;
+                    }
+                }
+                y += 75;
             }
         });
         
         resolve(canvas.toDataURL('image/jpeg', 0.9));
-    });
-}
-
-// ជំនួយក្នុងការប្តូរ Chord ក្នុងបន្ទាត់
-function transposeLine(line, steps) {
-    if (steps === 0) return line;
-    return line.replace(/\[(.*?)\]/g, (match, chord) => {
-        return `[${transposeSingleChord(chord, steps)}]`;
-    }).replace(/(^|[^A-Za-z\[])([A-G][#b]?(?:m|min|maj|sus|aug|dim)?[0-9]*(?:\/[A-G][#b]?)?)(?=[^A-Za-z\]]|$)/gi, (match, p1, p2) => {
-        return p1 + transposeSingleChord(p2, steps);
     });
 }
 
