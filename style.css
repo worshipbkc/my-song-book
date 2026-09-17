@@ -278,21 +278,40 @@ body.dark-mode .card-dropdown { box-shadow: 0 4px 15px rgba(0,0,0,0.5); }
    កូដទម្រង់អត្ថបទចម្រៀង និង Chord (Lyrics Mode)
 ========================================= */
 
+/* ប្តូរពណ៌ Background ក្នុង Fullscreen ទៅជាពណ៌សស្រាល (ឬពណ៌តាម Theme) */
 .fullscreen-modal.lyrics-mode { background: var(--card-bg); }
 .fullscreen-modal.lyrics-mode .fullscreen-header { color: var(--text); }
 .fullscreen-modal.lyrics-mode .fullscreen-header button { color: var(--text); }
 .fullscreen-modal.lyrics-mode #pageCounter { background: var(--border); color: var(--text); }
 .fullscreen-modal.lyrics-mode #fullScreenTitle { color: var(--text); }
 
+/* ផ្ទាំងបញ្ជា Transpose (ប្តូរ Key ភ្លេង) */
 .transpose-controls { position: absolute; top: calc(60px + env(safe-area-inset-top)); left: 50%; transform: translateX(-50%); background: var(--bg); color: var(--text); padding: 4px 16px; border-radius: 20px; display: flex; align-items: center; gap: 16px; z-index: 3020; box-shadow: 0 4px 15px rgba(0,0,0,0.1); border: 1px solid var(--border); }
 .transpose-controls button { background: var(--card-bg); border: 1px solid var(--border); color: var(--text); font-size: 1.2rem; width: 34px; height: 34px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: 0.2s; }
 .transpose-controls button:active { background: var(--primary); color: white; transform: scale(0.9); }
 
+/* ទម្រង់អត្ថបទ និង Chord ពណ៌ក្រហម (រក្សា Space ពេលវាយបញ្ចូល) */
 .fullscreen-lyrics { width: 100vw; height: 100vh; padding: calc(120px + env(safe-area-inset-top)) 20px calc(120px + env(safe-area-inset-bottom)) 20px; color: var(--text); overflow-y: auto; text-align: left; -webkit-overflow-scrolling: touch; }
-.lyric-line { display: block; line-height: 2.8; font-family: 'Kantumruy Pro', sans-serif; font-size: 1.05rem; margin-bottom: 2px; white-space: pre-wrap; word-wrap: break-word; }
-.chord-word { display: inline-block; position: relative; }
-.chord-word .chord { position: absolute; top: -1.6em; left: 0; color: #ef4444; font-weight: 800; font-family: Arial, sans-serif; font-size: 0.95rem; white-space: nowrap; }
 
+/* ប្រើ Monospace ដើម្បីឱ្យការដកឃ្លា (Spacebar) ស្មើគ្នាបេះបិទរវាងជួរ Chord និងអត្ថបទ */
+.lyric-line { 
+    display: block; 
+    line-height: 1.6; 
+    font-family: 'Courier New', 'Kantumruy Pro', monospace; 
+    font-size: 1rem; 
+    margin-bottom: 2px; 
+    white-space: pre-wrap; 
+    word-wrap: break-word; 
+}
+.chord-line-text { 
+    color: #ef4444; 
+    font-weight: 700; 
+}
+.lyric-text { 
+    color: var(--text); 
+}
+
+/* រូបរាង Preview ក្នុង Song-card ប្រសិនបើមានតែអត្ថបទ */
 .song-text-preview { background: var(--bg); width: 100%; height: 100%; min-height: 220px; padding: 15px; color: var(--text-muted); font-size: 0.8rem; overflow: hidden; text-align: left; font-family: 'Courier New', Courier, monospace; display: flex; flex-direction: column; cursor: pointer; box-shadow: inset 0 0 10px rgba(0,0,0,0.02); }
 .text-preview-header { font-weight: bold; color: var(--primary); margin-bottom: 8px; font-family: 'Kantumruy Pro', sans-serif; display: flex; align-items: center; gap: 6px; font-size: 0.9rem; }
 
@@ -300,5 +319,6 @@ body.dark-mode .card-dropdown { box-shadow: 0 4px 15px rgba(0,0,0,0.5); }
 .tab-btn { flex: 1; padding: 8px; border: none; background: transparent; border-radius: 6px; font-size: 0.85rem; font-weight: 600; color: var(--text-muted); cursor: pointer; transition: 0.2s; }
 .tab-btn.active { background: var(--card-bg); color: var(--primary); box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
 
-.lyric-textarea { width: 100%; padding: 12px; border: 1px solid var(--border); border-radius: 8px; background: var(--bg); color: var(--text); font-family: 'Courier New', monospace; font-size: 0.95rem; line-height: 1.6; resize: vertical; outline: none; }
+/* ប្រអប់វាយអត្ថបទ ត្រូវតែមាន Monospace ដូចគ្នាដើម្បីឱ្យពេលវាយ និងពេលមើលត្រូវគ្នា ១០០% */
+.lyric-textarea { width: 100%; padding: 12px; border: 1px solid var(--border); border-radius: 8px; background: var(--bg); color: var(--text); font-family: 'Courier New', 'Kantumruy Pro', monospace; font-size: 0.95rem; line-height: 1.6; resize: vertical; outline: none; }
 .lyric-textarea:focus { border-color: var(--primary); }
