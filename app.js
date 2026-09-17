@@ -1517,89 +1517,56 @@ function transposeSingleChord(chord, steps) {
 // ---------------------------------------------------------
 // ២. ម៉ាស៊ីនបំប្លែង Lyrics ទៅជារូបភាព (កែសម្រួលដកសញ្ញា [ ] ចោល និងគូរ Chord លើអក្សរត្រឹមត្រូវ)
 // ---------------------------------------------------------
+// មុខងារ Screenshot យកទម្រង់អត្ថបទ និង Chord ពី Fullscreen មកធ្វើជារូបភាព JPG ផ្ទាល់
 function generateLyricsImage(song) {
-    return new Promise((resolve) => {
-        const canvas = document.createElement('canvas');
-        const ctx = canvas.getContext('2d');
-        
-        const width = 800; 
-        let height = 180; 
-        
-        const lines = (song.lyrics || '').split('\n');
-        const parsedLines = [];
-        
-        lines.forEach(line => {
-            const trimmed = line.trim();
-            if (trimmed === '') { height += 30; parsedLines.push({ type: 'empty' }); return; }
-            
-            let isHeader = /^(Intro|I\.|II\.|III\.|IV\.|Pre|R1\.|R2\.|Chorus|Bridge|Instr\.)/i.test(trimmed);
-            
-            if (isHeader) {
-                height += 55; parsedLines.push({ type: 'header', text: line });
-            } else if (!line.includes('[')) {
-                height += 40; parsedLines.push({ type: 'text-only', text: line });
-            } else {
-                height += 75; parsedLines.push({ type: 'lyric-with-chord', raw: line });
+    return new Promise(async (resolve, reject) => {
+        try {
+            // បើកបង្ហាញ Fullscreen ជាបណ្តោះអាសន្ន ឬទាញយកពី Element ដែលកំពុងបង្ហាញ
+            const lyricsContainer = document.getElementById('fullScreenLyrics');
+            if (!lyricsContainer) {
+                resolve(null);
+                return;
             }
-        });
-        
-        canvas.width = width;
-        canvas.height = height + 40; 
-        
-        ctx.fillStyle = '#ffffff';
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
-        
-        ctx.fillStyle = '#0f172a';
-        ctx.font = 'bold 32px "Kantumruy Pro", sans-serif';
-        ctx.fillText(song.title || 'គ្មានចំណងជើង', 40, 60);
-        
-        ctx.fillStyle = '#64748b';
-        ctx.font = '22px "Kantumruy Pro", sans-serif';
-        ctx.fillText(`អ្នកចម្រៀង៖ ${song.artist || 'មិនស្គាល់'}  |  Key: ${song.songKey || 'C'}`, 40, 100);
-        
-        ctx.strokeStyle = '#d4d8e5';
-        ctx.lineWidth = 2;
-        ctx.beginPath();
-        ctx.moveTo(40, 130);
-        ctx.lineTo(width - 40, 130);
-        ctx.stroke();
-        
-        let y = 180;
-        parsedLines.forEach(pl => {
-            if (pl.type === 'empty') {
-                y += 30;
-            } else if (pl.type === 'header') {
-                // ចំណងជើងវគ្គ៖ ដក [ ] ចេញពេលគូរ
-                ctx.fillStyle = '#2563eb';
-                ctx.font = 'bold 26px "Kantumruy Pro", sans-serif';
-                let cleanHeader = pl.text.replace(/\[(.*?)\]/g, (m, c) => transposeSingleChord(c, currentTransposeStep || 0));
-                ctx.fillText(cleanHeader, 40, y);
-                y += 55;
-            } else if (pl.type === 'text-only') {
-                ctx.fillStyle = '#0f172a';
-                ctx.font = '24px "Kantumruy Pro", sans-serif';
-                ctx.fillText(pl.text, 40, y);
-                y += 45;
-            } else if (pl.type === 'lyric-with-chord') {
-                const parts = pl.raw.split(/\[(.*?)\]/g);
-                let currentX = 40;
-                let textX = 40;
 
-                // គណនាកន្លែងគូរ Chord នៅពីលើ
-                for(let i=0; i<parts.length; i++) {
-                    if(i % 2 === 0) {
-                        textX += ctx.measureText(parts[i]).width;
-                    } else {
-                        let chord = transposeSingleChord(parts[i], currentTransposeStep || 0);
-                        ctx.fillStyle = '#ef4444';
-                        ctx.font = 'bold 20px Arial, sans-serif';
-                        ctx.fillText(chord, textX, y); // គូរ Chord លើអក្សរ
-                        
-                        let nextText = parts[i+1] || '';
-                        textX += ctx.measureText(nextText).width;
-                        i++;
-                    }
-                }
+            // បង្កើត Element ក្រៅអេក្រង់មួយសម្រាប់គូររូបភាពទំហំស្តង់ដារ (800px)
+            const wrapper = document.createElement('div');
+            wrapper.style.position = 'absolute';
+            wrapper.style.left = '-9999px';
+            wrapper.style.top = '0';
+            wrapper.style.width = '800px';
+            wrapper.style.padding = '50px 40px';
+            wrapper.style.backgroundColor = '#ffffff';
+            wrapper.style.color = '#0f172a';
+            wrapper.style.fontFamily = "'Kantumruy Pro', sans-serif";
+            wrapper.style.borderRadius = '0px';
+
+            // បញ្ចូលចំណងជើង និងអត្ថបទ Chord ស្រដៀងនឹង Fullscreen
+            wrapper.innerHTML = `
+                <div style="font-size: 32px; font-weight: bold; color: #0f172a; margin-bottom: 8px;">${escapeHtml(song.title)}</div>
+                <div style="font-size: 20px; color: #64748b; margin-bottom: 20px;">អ្នកចម្រៀង៖ ${escapeHtml(song.artist || 'មិនស្គាល់')}  |  Key: ${escapeHtml(baseSongKey || 'C')}</div>
+                <hr style="border: none; border-top: 2px solid #d4d8e5; margin-bottom: 25px;">
+                <div style="font-size: 22px; line-height: 2.8; text-align: left;">
+                    ${lyricsContainer.innerHTML}
+                </div>
+            `;
+
+            document.body.appendChild(wrapper);
+
+            // ប្រើ html2canvas ដើម្បីថតយក Element នោះមកធ្វើជារូបភាព
+            const canvas = await html2canvas(wrapper, {
+                scale: 2, // ឱ្យរូបភាពច្បាស់ល្អ (High Resolution)
+                useCORS: true,
+                backgroundColor: '#ffffff'
+            });
+
+            document.body.removeChild(wrapper);
+            resolve(canvas.toDataURL('image/jpeg', 0.9));
+        } catch (err) {
+            console.error("Canvas Generation Error:", err);
+            resolve(null);
+        }
+    });
+}
 
                 // គូរអក្សរចម្រៀងនៅខាងក្រោម (ដោយគ្មានសញ្ញា [ ])
                 for(let i=0; i<parts.length; i++) {
