@@ -133,6 +133,7 @@
         <div class="section-grid" id="playlistsGrid"></div>
     </div>
 
+    <!-- ទីតាំង Settings (ការកំណត់) -->
     <div class="app-view" id="viewSettings">
         <div class="profile-container" style="padding: 10px 16px;" id="mainSettingsContainer">
             
@@ -140,6 +141,7 @@
             <div class="settings-card" id="settingsAccountArea">
                 <!-- User Profile or Login Placeholder -->
             </div>
+            
             <!-- ផ្ទាំងគ្រប់គ្រងទិន្នន័យ (Admin) - លាក់ជានិច្ច ទាល់តែមានសិទ្ធិ និងចុច ៣ដង -->
             <div id="secretAdminPanel" style="display: none; width: 100%;">
                 <div class="settings-section-title" style="color: var(--primary);">គ្រប់គ្រងទិន្នន័យ (Admin) 🔓</div>
@@ -154,6 +156,7 @@
                     </button>
                 </div>
             </div>
+            
              <!-- ប៊ូតុងចូលទៅមើលការជូនដំណឹង (ដាច់ដោយឡែក) -->
             <div class="settings-section-title">ព័ត៌មានថ្មីៗ</div>
             <div class="settings-card">
@@ -182,6 +185,7 @@
                 </button>
             </div>
 
+            <!-- បណ្តាញសង្គម (Social Media) - ត្រឡប់មកវិញហើយ! -->
             <div class="settings-section-title">បណ្តាញសង្គម (Connect)</div>
             <div class="settings-card">
                 <a href="https://t.me/phallakhum" target="_blank" class="settings-item">
@@ -209,7 +213,7 @@
                 </button>
                 <div class="settings-item" id="versionTapArea" style="cursor: pointer; background: transparent;">
                     <div class="settings-item-left"><i class="fa-solid fa-code-branch" style="color: var(--text-muted);"></i> ជំនាន់ (Version)</div>
-                    <span style="color: var(--text-muted); font-size: 0.85rem;">1.0.0</span>
+                    <span style="color: var(--text-muted); font-size: 0.85rem;">1.1.0</span>
                 </div>
             </div>
             
@@ -261,7 +265,7 @@
 
 <div id="toastContainer" class="toast-container"></div>
 
-<!-- Fullscreen Viewer -->
+<!-- Fullscreen Viewer (មាន Transpose និង Lyrics) -->
 <div class="fullscreen-modal" id="fullScreenModal">
     <div class="fullscreen-header">
         <div style="display: flex; align-items: center; gap: 10px; max-width: 80%;">
@@ -270,18 +274,32 @@
         </div>
         <button onclick="closeFullScreenModalDirect()" style="background:none; border:none; color:white; font-size:1.5rem; cursor:pointer; padding: 4px;">✖</button>
     </div>
+
+    <!-- ប៊ូតុងប្តូរ Key (Transpose) -->
+    <div class="transpose-controls" id="transposeControls" style="display: none;">
+        <button onclick="changeTranspose(-1)">-</button>
+        <div style="display: flex; flex-direction: column; align-items: center; justify-content: center;">
+            <span style="font-size: 0.65rem; color: #cbd5e1; line-height: 1;">Key</span>
+            <span id="transposeLabel" style="font-weight: 800; font-size: 1.1rem; color: #fff; line-height: 1.2;">C</span>
+        </div>
+        <button onclick="changeTranspose(1)">+</button>
+    </div>
     
     <button class="media-play-btn" id="fsMediaPlayBtn" title="ចាក់សំឡេង/វីដេអូ">
         <i class="fa-brands fa-youtube"></i>
     </button>
 
     <button class="fullscreen-nav-btn fullscreen-prev" onclick="slideFullScreen(-1, event)">❮</button>
+    
     <div class="fullscreen-img-container" id="fullScreenImgContainer">
+        <!-- បង្ហាញរូបភាព -->
         <img src="" id="fullScreenImg" class="fullscreen-img" alt="Song">
+        <!-- បង្ហាញអត្ថបទ និង Chord -->
+        <div id="fullScreenLyrics" class="fullscreen-lyrics" style="display:none;"></div>
     </div>
+
     <button class="fullscreen-nav-btn fullscreen-next" onclick="slideFullScreen(1, event)">❯</button>
     
-    <!-- ផ្ទាំងបញ្ជា Auto-Scroll -->
     <div class="fullscreen-controls" id="fsScrollControls">
         <button class="fs-scroll-toggle" id="autoScrollBtn" onclick="toggleAutoScroll()">
             <i class="fa-solid fa-angles-down"></i> Auto-Scroll
@@ -346,9 +364,9 @@
                 <!-- ផ្នែកវាយអត្ថបទ (អត្ថបទ និង Chord) -->
                 <div id="addSectionText" style="display: none;">
                     <div style="font-size: 0.72rem; color: var(--primary); margin-bottom: 8px; font-weight: 600;">
-                        💡 គន្លឹះ៖ ចុច Spacebar រុញ Chord ឱ្យចំពីលើពាក្យចម្រៀងដែលចង់ដូរ។
+                        💡 របៀបសរសេរ៖ ដាក់ Chord ក្នុងវង់ក្រចក [ ] ពីមុខពាក្យ។ <br>ឧទាហរណ៍៖ [C]ឱព្រះអើយ ទូលបង្គំស្រឡាញ់[Am]ទ្រង់
                     </div>
-                    <textarea id="songLyricsInput" class="lyric-textarea" rows="10" placeholder="G                D&#10;ឱព្រះអើយ ទូលបង្គំស្រឡាញ់ទ្រង់&#10;Em               C&#10;សូមសរសើរតម្កើងព្រះនាមបរិសុទ្ធ..."></textarea>
+                    <textarea id="songLyricsInput" class="lyric-textarea" rows="10" placeholder="Intro: | [C] | [Am] | [F] | [G] |&#10;&#10;I. [C]តើជើងកុំសង្ឃឹម[Am]ពេក..."></textarea>
                 </div>
             </div>
 
@@ -440,7 +458,7 @@
 
                 <!-- ផ្នែកកែប្រែអត្ថបទ -->
                 <div id="editSectionText" style="display: none;">
-                    <textarea id="editSongLyricsInput" class="lyric-textarea" rows="10" placeholder="G                D&#10;ឱព្រះអើយ ទូលបង្គំស្រឡាញ់ទ្រង់..."></textarea>
+                    <textarea id="editSongLyricsInput" class="lyric-textarea" rows="10"></textarea>
                 </div>
             </div>
 
