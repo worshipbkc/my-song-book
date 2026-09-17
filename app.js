@@ -1075,14 +1075,6 @@ function initPinchToZoom() {
     });
 }
 
-async function downloadSongImage(url, title) {
-    try {
-        const fileName = `${title.replace(/[^a-zA-Z0-9]/g, "_")}.jpg`;
-        if (url.startsWith('data:image')) { const a = document.createElement('a'); a.href = url; a.download = fileName; document.body.appendChild(a); a.click(); document.body.removeChild(a); } 
-        else { const res = await fetch(url); const blob = await res.blob(); const blobUrl = window.URL.createObjectURL(blob); const a = document.createElement('a'); a.href = blobUrl; a.download = fileName; document.body.appendChild(a); a.click(); document.body.removeChild(a); window.URL.revokeObjectURL(blobUrl); }
-    } catch (e) { window.open(url, '_blank'); }
-}
-
 function shareAppDirectly() {
     if (navigator.share) {
         navigator.share({
@@ -1515,20 +1507,12 @@ function transposeSingleChord(chord, steps) {
 }
 
 // ---------------------------------------------------------
-// ២. ម៉ាស៊ីនបំប្លែង Lyrics ទៅជារូបភាព (កែសម្រួលដកសញ្ញា [ ] ចោល និងគូរ Chord លើអក្សរត្រឹមត្រូវ)
+// ២. មុខងារបំប្លែង Lyrics ទៅជារូបភាពដោយស្កេនពី Element Fullscreen ផ្ទាល់ (100% Exact Match)
 // ---------------------------------------------------------
-// មុខងារ Screenshot យកទម្រង់អត្ថបទ និង Chord ពី Fullscreen មកធ្វើជារូបភាព JPG ផ្ទាល់
 function generateLyricsImage(song) {
-    return new Promise(async (resolve, reject) => {
+    return new Promise(async (resolve) => {
         try {
-            // បើកបង្ហាញ Fullscreen ជាបណ្តោះអាសន្ន ឬទាញយកពី Element ដែលកំពុងបង្ហាញ
-            const lyricsContainer = document.getElementById('fullScreenLyrics');
-            if (!lyricsContainer) {
-                resolve(null);
-                return;
-            }
-
-            // បង្កើត Element ក្រៅអេក្រង់មួយសម្រាប់គូររូបភាពទំហំស្តង់ដារ (800px)
+            // បង្កើតកាតបណ្តោះអាសន្នក្រៅអេក្រង់ដែលមានរចនាសម្ព័ន្ធដូច Fullscreen เป๊ะ
             const wrapper = document.createElement('div');
             wrapper.style.position = 'absolute';
             wrapper.style.left = '-9999px';
@@ -1538,23 +1522,84 @@ function generateLyricsImage(song) {
             wrapper.style.backgroundColor = '#ffffff';
             wrapper.style.color = '#0f172a';
             wrapper.style.fontFamily = "'Kantumruy Pro', sans-serif";
-            wrapper.style.borderRadius = '0px';
 
-            // បញ្ចូលចំណងជើង និងអត្ថបទ Chord ស្រដៀងនឹង Fullscreen
+            // ចម្លងទម្រង់ HTML ពេលបង្ហាញក្នុង Fullscreen មកដាក់ទីនេះ
+            let lyricsHTML = '';
+            const lines = (song.lyrics || '').split('\n');
+            
+            lines.forEach(line => {
+                if (line.trim() === '') {
+                    lyricsHTML += '<br>'; return;
+                }
+                
+                if (/^(Intro|I\.|II\.|III\.|IV\.|Pre|R1\.|R2\.|Chorus|Bridge|Instr\.)/i.test(line)) {
+                    let lineH = `<div style="font-weight: 800; color: #2563eb; margin-top: 15px; font-size: 1.1rem; font-family: 'Kantumruy Pro', sans-serif;">`;
+                    const parts = line.split(/\[(.*?)\]/g);
+                    if (parts.length === 1 && !line.includes('[')) {
+                        lineH += escapeHtml(line);
+                    } else {
+                        for(let i=0; i<parts.length; i++) {
+                            if(i % 2 === 0) {
+                                if(parts[i]) lineH += `<span>${escapeHtml(parts[i])}</span>`;
+                            } else {
+                                let chord = transposeSingleChord(parts[i], currentTransposeStep);
+                                let nextText = parts[i+1] || '\u00A0\u00A0';
+                                lineH += `<span style="display:inline-block; position:relative; line-height:1;"><span style="position:absolute; top:-1.4em; left:0; color:#ef4444; font-weight:800; font-family:Arial,sans-serif; font-size:0.95rem; white-space:nowrap;">${escapeHtml(chord)}</span><span style="font-size:1.05rem;">${escapeHtml(nextText)}</span></span>`;
+                                i++;
+                            }
+                        }
+                    }
+                    lineH += `</div>`;
+                    lyricsHTML += lineH;
+                    return;
+                }
+
+                let lineH = '<div style="display:block; line-height:2.8; font-size:1.05rem; margin-bottom:2px; white-space:pre-wrap; word-wrap:break-word;">';
+                const parts = line.split(/\[(.*?)\]/g);
+
+                if (parts.length === 1 && !line.includes('[')) { 
+                    lineH += `<span>${escapeHtml(line)}</span>`;
+                } else {
+                    for(let i=0; i<parts.length; i++) {
+                        if(i % 2 === 0) { 
+                            if(parts[i]) {
+                                if(i === 0) {
+                                    lineH += `<span style="display:inline-block; position:relative; line-height:1;"><span style="position:absolute; top:-1.4em; left:0; color:#ef4444; font-weight:800; font-family:Arial,sans-serif; font-size:0.95rem; white-space:nowrap;">&nbsp;</span><span style="font-size:1.05rem;">${escapeHtml(parts[i])}</span></span>`;
+                                } else {
+                                    lineH += `<span>${escapeHtml(parts[i])}</span>`;
+                                }
+                            }
+                        } else { 
+                            let chord = transposeSingleChord(parts[i], currentTransposeStep);
+                            let nextText = parts[i+1] || '\u00A0\u00A0'; 
+                            lineH += `<span style="display:inline-block; position:relative; line-height:1;"><span style="position:absolute; top:-1.4em; left:0; color:#ef4444; font-weight:800; font-family:Arial,sans-serif; font-size:0.95rem; white-space:nowrap;">${escapeHtml(chord)}</span><span style="font-size:1.05rem;">${escapeHtml(nextText)}</span></span>`;
+                            i++; 
+                        }
+                    }
+                }
+                lineH += '</div>';
+                lyricsHTML += lineH;
+            });
+
             wrapper.innerHTML = `
-                <div style="font-size: 32px; font-weight: bold; color: #0f172a; margin-bottom: 8px;">${escapeHtml(song.title)}</div>
-                <div style="font-size: 20px; color: #64748b; margin-bottom: 20px;">អ្នកចម្រៀង៖ ${escapeHtml(song.artist || 'មិនស្គាល់')}  |  Key: ${escapeHtml(baseSongKey || 'C')}</div>
-                <hr style="border: none; border-top: 2px solid #d4d8e5; margin-bottom: 25px;">
-                <div style="font-size: 22px; line-height: 2.8; text-align: left;">
-                    ${lyricsContainer.innerHTML}
-                </div>
+                <div style="font-size: 32px; font-weight: bold; color: #0f172a; margin-bottom: 6px;">${escapeHtml(song.title)}</div>
+                <div style="font-size: 18px; color: #64748b; margin-bottom: 16px;">អ្នកចម្រៀង៖ ${escapeHtml(song.artist || 'មិនស្គាល់')}  |  Key: ${escapeHtml(baseSongKey || 'C')}</div>
+                <hr style="border: none; border-top: 2px solid #d4d8e5; margin-bottom: 20px;">
+                <div>${lyricsHTML}</div>
             `;
 
             document.body.appendChild(wrapper);
 
-            // ប្រើ html2canvas ដើម្បីថតយក Element នោះមកធ្វើជារូបភាព
+            // ប្រើ canvas ដើម្បី snapshot យករូបភាពចេញពី DOM ផ្ទាល់
+            // (ទាមទារឱ្យមាន html2canvas script ក្នុង index.html ស្រាប់)
+            if (typeof html2canvas === 'undefined') {
+                document.body.removeChild(wrapper);
+                resolve(null);
+                return;
+            }
+
             const canvas = await html2canvas(wrapper, {
-                scale: 2, // ឱ្យរូបភាពច្បាស់ល្អ (High Resolution)
+                scale: 2,
                 useCORS: true,
                 backgroundColor: '#ffffff'
             });
@@ -1562,35 +1607,9 @@ function generateLyricsImage(song) {
             document.body.removeChild(wrapper);
             resolve(canvas.toDataURL('image/jpeg', 0.9));
         } catch (err) {
-            console.error("Canvas Generation Error:", err);
+            console.error("Canvas Error:", err);
             resolve(null);
         }
-    });
-}
-
-                // គូរអក្សរចម្រៀងនៅខាងក្រោម (ដោយគ្មានសញ្ញា [ ])
-                for(let i=0; i<parts.length; i++) {
-                    if(i % 2 === 0) {
-                        if (parts[i]) {
-                            ctx.fillStyle = '#0f172a';
-                            ctx.font = '24px "Kantumruy Pro", sans-serif';
-                            ctx.fillText(parts[i], currentX, y + 30);
-                            currentX += ctx.measureText(parts[i]).width;
-                        }
-                    } else {
-                        let nextText = parts[i+1] || '';
-                        ctx.fillStyle = '#0f172a';
-                        ctx.font = '24px "Kantumruy Pro", sans-serif';
-                        ctx.fillText(nextText, currentX, y + 30);
-                        currentX += ctx.measureText(nextText).width;
-                        i++;
-                    }
-                }
-                y += 75;
-            }
-        });
-        
-        resolve(canvas.toDataURL('image/jpeg', 0.9));
     });
 }
 
