@@ -1463,7 +1463,7 @@ async function sharePlaylistAsImages(playlistName) {
 }
 
 // ---------------------------------------------------------
-// ១. ម៉ាស៊ីន Transpose & Render Lyrics (កែសម្រួលថ្មី)
+// ១. ម៉ាស៊ីន Transpose & Render Lyrics (ប្រើវង់ក្រចក [ ])
 // ---------------------------------------------------------
 let currentTransposeStep = 0;
 let baseSongKey = "C";
@@ -1493,11 +1493,9 @@ function changeTranspose(delta) {
 
 function transposeSingleChord(chord, steps) {
     if (steps === 0) return chord;
-    // ចាប់យកអក្សរ Chord និងរាងរបស់វា (ដូចជា m, maj7...)
     const match = chord.match(/^([A-G][#b]?)(.*)$/i);
     if (!match) return chord; 
 
-    // បំប្លែងអក្សរទី១ឱ្យទៅជាអក្សរធំជានិច្ច
     let root = match[1].charAt(0).toUpperCase() + match[1].slice(1);
     let modifier = match[2];
 
@@ -1516,42 +1514,6 @@ function transposeSingleChord(chord, steps) {
     return newRoot + modifier;
 }
 
-// មុខងារឆែកមើលថា មួយជួរដែលកំពុងសរសេរ គឺជាជួរ Chord ដែរឬទេ
-function isChordLine(line) {
-    const trimmed = line.trim();
-    if (!trimmed) return false;
-    
-    // បើមានអក្សរខ្មែរ ច្បាស់ណាស់ថាវាមិនមែនជាជួរ Chord សុទ្ធទេ
-    if (/[\u1780-\u17FF]/.test(line)) return false; 
-    
-    // បើជាជួរចំណងជើងដូចជា Intro: តែមានពាក្យតិចជាង២ វាមិនមែនជា Chord ទេ
-    if (/^(Intro|Chorus|Verse|Bridge|Pre|I\.|II\.|III\.|IV\.|R1\.|R2\.)/i.test(trimmed) && trimmed.split(' ').length <= 2) return false;
-
-    const tokens = trimmed.split(/[\s\|\[\]\(\)\-\/]+/).filter(t => t.length > 0);
-    if (tokens.length === 0) {
-        if (trimmed.includes('|')) return true;
-        return false;
-    }
-
-    const chordRegex = /^([A-G][#b]?)(m|min|maj|sus|aug|dim)?[0-9]*(?:\/[A-G][#b]?)?$/i;
-    let validChords = 0;
-    
-    for (let token of tokens) {
-        if (chordRegex.test(token)) validChords++;
-    }
-    
-    // បើក្នុងមួយជួរហ្នឹងមានភាគរយជា Chord លើសពី 60% យើងចាត់ទុកវាជាជួរ Chord
-    return validChords > 0 && (validChords / tokens.length >= 0.6);
-}
-
-// មុខងារដូរ Key ភ្លេងសម្រាប់មួយជួរទាំងមូល
-function transposeLine(line, steps) {
-    if (steps === 0) return line;
-    return line.replace(/(^|[^A-Za-z])([A-G][#b]?(?:m|min|maj|sus|aug|dim)?[0-9]*(?:\/[A-G][#b]?)?)(?=[^A-Za-z]|$)/gi, (match, p1, p2) => {
-        return p1 + transposeSingleChord(p2, steps);
-    });
-}
-
 function renderLyricsToHTML(rawText) {
     if(!rawText) return;
     const container = document.getElementById('fullScreenLyrics');
@@ -1563,25 +1525,55 @@ function renderLyricsToHTML(rawText) {
             html += '<br>'; return;
         }
         
-        let isHeader = /^(Intro|I\.|II\.|III\.|IV\.|Pre|R1\.|R2\.|Chorus|Bridge|Instr\.)/i.test(line.trim());
-        
-        if (isHeader) {
-            // ឆែកមើលថាតើចំណងជើងហ្នឹង មានសរសេរភ្ជាប់ជាមួយ Chord ដែរឬអត់ (ឧ. Intro: | C | Am |)
-            let match = line.match(/^([A-Za-z0-9\.\s]+:?\s*)(.*)/);
-            if (match && match[2] && isChordLine(match[2])) {
-                let transposedChords = transposeLine(match[2], currentTransposeStep);
-                html += `<div class="lyric-line"><span style="font-weight: 800; color: var(--text);">${escapeHtml(match[1])}</span><span class="chord-line-text">${escapeHtml(transposedChords)}</span></div>`;
+        // លាបពណ៌ចំណងជើង និងទាញយក Chord ចេញពីចំណងជើងមកគណនា
+        if (/^(Intro|I\.|II\.|III\.|IV\.|Pre|R1\.|R2\.|Chorus|Bridge|Instr\.)/i.test(line)) {
+            let lineHtml = `<div class="lyric-line" style="font-weight: 800; color: var(--primary); margin-top: 15px;">`;
+            const parts = line.split(/\[(.*?)\]/g);
+            if (parts.length === 1 && !line.includes('[')) {
+                lineHtml += escapeHtml(line);
             } else {
-                html += `<div class="lyric-line" style="font-weight: 800; color: var(--text); margin-top: 15px;">${escapeHtml(line)}</div>`;
+                for(let i=0; i<parts.length; i++) {
+                    if(i % 2 === 0) {
+                        if(parts[i]) lineHtml += `<span class="lyric">${escapeHtml(parts[i])}</span>`;
+                    } else {
+                        let chord = transposeSingleChord(parts[i], currentTransposeStep);
+                        let nextText = parts[i+1] || '\u00A0\u00A0';
+                        lineHtml += `<span class="chord-word"><span class="chord">${escapeHtml(chord)}</span><span class="lyric">${escapeHtml(nextText)}</span></span>`;
+                        i++;
+                    }
+                }
             }
-        } else if (isChordLine(line)) {
-            // បើកូដឆែកឃើញថាជាជួរ Chord វានឹងលាបពណ៌ក្រហម (class="chord-line-text")
-            let transLine = transposeLine(line, currentTransposeStep);
-            html += `<div class="lyric-line chord-line-text">${escapeHtml(transLine)}</div>`;
-        } else {
-            // បើជាជួរអក្សរធម្មតា
-            html += `<div class="lyric-line lyric-text">${escapeHtml(line)}</div>`;
+            lineHtml += `</div>`;
+            html += lineHtml;
+            return;
         }
+
+        // ការរៀបចំបន្ទាត់ធម្មតា ដែលប្រើវង់ក្រចក [C]
+        let lineHtml = '<div class="lyric-line">';
+        const parts = line.split(/\[(.*?)\]/g);
+
+        if (parts.length === 1 && !line.includes('[')) { 
+            lineHtml += `<span class="lyric">${escapeHtml(line)}</span>`;
+        } else {
+            for(let i=0; i<parts.length; i++) {
+                if(i % 2 === 0) { 
+                    if(parts[i]) {
+                        if(i === 0) {
+                            lineHtml += `<span class="chord-word"><span class="chord">&nbsp;</span><span class="lyric">${escapeHtml(parts[i])}</span></span>`;
+                        } else {
+                            lineHtml += `<span class="lyric">${escapeHtml(parts[i])}</span>`;
+                        }
+                    }
+                } else { 
+                    let chord = transposeSingleChord(parts[i], currentTransposeStep);
+                    let nextText = parts[i+1] || '\u00A0\u00A0'; 
+                    lineHtml += `<span class="chord-word"><span class="chord">${escapeHtml(chord)}</span><span class="lyric">${escapeHtml(nextText)}</span></span>`;
+                    i++; 
+                }
+            }
+        }
+        lineHtml += '</div>';
+        html += lineHtml;
     });
 
     container.innerHTML = html;
@@ -1608,7 +1600,6 @@ function updateFullScreenContent() {
 
     currentTransposeStep = 0; 
     
-    // ទាញយកតែ Key ទី១ ប៉ុណ្ណោះ ទោះវាយ C Am F G ក៏យកតែ C ដែរ
     let rawKey = song.songKey || "C";
     baseSongKey = rawKey.split(/[\s,/-]+/)[0].trim();
     if (!baseSongKey) baseSongKey = "C";
@@ -1636,7 +1627,7 @@ function updateFullScreenContent() {
 }
 
 // ---------------------------------------------------------
-// ៣. ជំនួស Function renderSongsListOnly ថ្មី (ដើម្បីកែ Song-Card មាន Lyrics)
+// ៣. ជំនួស Function renderSongsListOnly (សម្រាប់ Song-Card)
 // ---------------------------------------------------------
 function renderSongsListOnly() {
     const grid = document.getElementById('songGrid');
@@ -1662,7 +1653,8 @@ function renderSongsListOnly() {
         if (song.imageUrl && song.imageUrl.length > 10) {
             cardThumbnail = `<img src="${song.imageUrl}" class="song-img" alt="${escapeHtml(song.title)}" loading="lazy" onclick="openFullScreenModal('${song.id}')">`;
         } else if (song.lyrics) {
-            const previewText = escapeHtml(song.lyrics).substring(0, 100) + '...';
+            // ដកវង់ក្រចក [ ] ចេញពីការបង្ហាញអត្ថបទតូចលើកាត
+            const previewText = escapeHtml(song.lyrics).replace(/\[.*?\]/g, '').substring(0, 100) + '...';
             cardThumbnail = `
                 <div class="song-text-preview" onclick="openFullScreenModal('${song.id}')">
                     <div class="text-preview-header"><i class="fa-solid fa-file-lines"></i> អត្ថបទចម្រៀង</div>
@@ -1729,8 +1721,7 @@ async function handleAddSong(e) {
     const songKey = document.getElementById('songKey').value.trim(); 
     const mediaUrl = document.getElementById('songMediaUrl').value.trim(); 
     const directUrl = document.getElementById('songImageUrlDirect').value.trim();
-    
-    const lyrics = document.getElementById('songLyricsInput').value; // កុំ Trim() ចោលគម្លាតសងខាង
+    const lyrics = document.getElementById('songLyricsInput').value; 
     
     if (!selectedImageBase64 && !directUrl && !lyrics.trim()) { 
         showToast('សូមជ្រើសរើសរូបភាព ឬវាយអត្ថបទបញ្ជូល', 'warning'); return; 
