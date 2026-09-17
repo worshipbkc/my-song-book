@@ -1493,10 +1493,12 @@ function changeTranspose(delta) {
 
 function transposeSingleChord(chord, steps) {
     if (steps === 0) return chord;
-    const match = chord.match(/^([A-G][#b]?)(.*)$/);
+    // ចាប់យកអក្សរ Chord និងរាងរបស់វា (ដូចជា m, maj7...)
+    const match = chord.match(/^([A-G][#b]?)(.*)$/i);
     if (!match) return chord; 
 
-    let root = match[1];
+    // បំប្លែងអក្សរទី១ឱ្យទៅជាអក្សរធំជានិច្ច
+    let root = match[1].charAt(0).toUpperCase() + match[1].slice(1);
     let modifier = match[2];
 
     let index = keysSharp.indexOf(root);
@@ -1514,6 +1516,42 @@ function transposeSingleChord(chord, steps) {
     return newRoot + modifier;
 }
 
+// មុខងារឆែកមើលថា មួយជួរដែលកំពុងសរសេរ គឺជាជួរ Chord ដែរឬទេ
+function isChordLine(line) {
+    const trimmed = line.trim();
+    if (!trimmed) return false;
+    
+    // បើមានអក្សរខ្មែរ ច្បាស់ណាស់ថាវាមិនមែនជាជួរ Chord សុទ្ធទេ
+    if (/[\u1780-\u17FF]/.test(line)) return false; 
+    
+    // បើជាជួរចំណងជើងដូចជា Intro: តែមានពាក្យតិចជាង២ វាមិនមែនជា Chord ទេ
+    if (/^(Intro|Chorus|Verse|Bridge|Pre|I\.|II\.|III\.|IV\.|R1\.|R2\.)/i.test(trimmed) && trimmed.split(' ').length <= 2) return false;
+
+    const tokens = trimmed.split(/[\s\|\[\]\(\)\-\/]+/).filter(t => t.length > 0);
+    if (tokens.length === 0) {
+        if (trimmed.includes('|')) return true;
+        return false;
+    }
+
+    const chordRegex = /^([A-G][#b]?)(m|min|maj|sus|aug|dim)?[0-9]*(?:\/[A-G][#b]?)?$/i;
+    let validChords = 0;
+    
+    for (let token of tokens) {
+        if (chordRegex.test(token)) validChords++;
+    }
+    
+    // បើក្នុងមួយជួរហ្នឹងមានភាគរយជា Chord លើសពី 60% យើងចាត់ទុកវាជាជួរ Chord
+    return validChords > 0 && (validChords / tokens.length >= 0.6);
+}
+
+// មុខងារដូរ Key ភ្លេងសម្រាប់មួយជួរទាំងមូល
+function transposeLine(line, steps) {
+    if (steps === 0) return line;
+    return line.replace(/(^|[^A-Za-z])([A-G][#b]?(?:m|min|maj|sus|aug|dim)?[0-9]*(?:\/[A-G][#b]?)?)(?=[^A-Za-z]|$)/gi, (match, p1, p2) => {
+        return p1 + transposeSingleChord(p2, steps);
+    });
+}
+
 function renderLyricsToHTML(rawText) {
     if(!rawText) return;
     const container = document.getElementById('fullScreenLyrics');
@@ -1525,35 +1563,25 @@ function renderLyricsToHTML(rawText) {
             html += '<br>'; return;
         }
         
-        // 💡 កែសម្រួលកន្លែងចំណងជើង: មិនរំលងការគណនា Chord ទៀតទេ តែបន្ថែម Style ឱ្យបន្ទាត់ទាំងមូល
-        let isSectionHeader = /^(Intro|I\.|II\.|III\.|IV\.|Pre|R1\.|R2\.|Chorus|Bridge|Instr\.)/i.test(line.trim());
-        let extraStyle = isSectionHeader ? 'font-weight: 800; color: var(--primary); margin-top: 15px;' : '';
-
-        let lineHtml = `<div class="lyric-line" style="${extraStyle}">`;
-        const parts = line.split(/\[(.*?)\]/g);
-
-        if (parts.length === 1 && !line.includes('[')) { 
-            lineHtml += `<span class="lyric">${escapeHtml(line)}</span>`;
-        } else {
-            for(let i=0; i<parts.length; i++) {
-                if(i % 2 === 0) { 
-                    if(parts[i]) lineHtml += `<span class="lyric">${escapeHtml(parts[i])}</span>`;
-                } else { 
-                    let chord = parts[i];
-                    let transChord = transposeSingleChord(chord, currentTransposeStep);
-                    let nextText = parts[i+1] || ''; 
-                    
-                    if (nextText === '') {
-                        lineHtml += `<span class="chord-word"><span class="chord">${escapeHtml(transChord)}</span><span class="lyric">&nbsp;&nbsp;</span></span>`;
-                    } else {
-                        lineHtml += `<span class="chord-word"><span class="chord">${escapeHtml(transChord)}</span><span class="lyric">${escapeHtml(nextText)}</span></span>`;
-                    }
-                    i++; 
-                }
+        let isHeader = /^(Intro|I\.|II\.|III\.|IV\.|Pre|R1\.|R2\.|Chorus|Bridge|Instr\.)/i.test(line.trim());
+        
+        if (isHeader) {
+            // ឆែកមើលថាតើចំណងជើងហ្នឹង មានសរសេរភ្ជាប់ជាមួយ Chord ដែរឬអត់ (ឧ. Intro: | C | Am |)
+            let match = line.match(/^([A-Za-z0-9\.\s]+:?\s*)(.*)/);
+            if (match && match[2] && isChordLine(match[2])) {
+                let transposedChords = transposeLine(match[2], currentTransposeStep);
+                html += `<div class="lyric-line"><span style="font-weight: 800; color: var(--text);">${escapeHtml(match[1])}</span><span class="chord-line-text">${escapeHtml(transposedChords)}</span></div>`;
+            } else {
+                html += `<div class="lyric-line" style="font-weight: 800; color: var(--text); margin-top: 15px;">${escapeHtml(line)}</div>`;
             }
+        } else if (isChordLine(line)) {
+            // បើកូដឆែកឃើញថាជាជួរ Chord វានឹងលាបពណ៌ក្រហម (class="chord-line-text")
+            let transLine = transposeLine(line, currentTransposeStep);
+            html += `<div class="lyric-line chord-line-text">${escapeHtml(transLine)}</div>`;
+        } else {
+            // បើជាជួរអក្សរធម្មតា
+            html += `<div class="lyric-line lyric-text">${escapeHtml(line)}</div>`;
         }
-        lineHtml += '</div>';
-        html += lineHtml;
     });
 
     container.innerHTML = html;
@@ -1580,9 +1608,10 @@ function updateFullScreenContent() {
 
     currentTransposeStep = 0; 
     
-    // 💡 ធានាថាវាទាញយកតែ Key គោលទី១ ប៉ុណ្ណោះ បើគាត់វាយច្រើន (ឧ. C Am F G -> យកតែ C)
+    // ទាញយកតែ Key ទី១ ប៉ុណ្ណោះ ទោះវាយ C Am F G ក៏យកតែ C ដែរ
     let rawKey = song.songKey || "C";
     baseSongKey = rawKey.split(/[\s,/-]+/)[0].trim();
+    if (!baseSongKey) baseSongKey = "C";
     document.getElementById('transposeLabel').innerText = baseSongKey;
 
     if (song.lyrics && song.lyrics.length > 5) {
@@ -1629,7 +1658,6 @@ function renderSongsListOnly() {
         const inFav = (playlists['Favorite'] || []).includes(song.id);
         const keyHtml = song.songKey ? `<span class="song-key-badge">${escapeHtml(song.songKey)}</span>` : '';
         
-        // កំណត់ទម្រង់ Thumbnail ក្នុងកាត (បើរូបភាព ឬ អត្ថបទ)
         let cardThumbnail = '';
         if (song.imageUrl && song.imageUrl.length > 10) {
             cardThumbnail = `<img src="${song.imageUrl}" class="song-img" alt="${escapeHtml(song.title)}" loading="lazy" onclick="openFullScreenModal('${song.id}')">`;
@@ -1638,7 +1666,7 @@ function renderSongsListOnly() {
             cardThumbnail = `
                 <div class="song-text-preview" onclick="openFullScreenModal('${song.id}')">
                     <div class="text-preview-header"><i class="fa-solid fa-file-lines"></i> អត្ថបទចម្រៀង</div>
-                    <div style="white-space: pre-wrap;">${previewText.replace(/\[.*?\]/g, '')}</div>
+                    <div style="white-space: pre-wrap;">${previewText}</div>
                 </div>`;
         } else {
             cardThumbnail = `<img src="https://via.placeholder.com/300x400?text=No+Data" class="song-img" onclick="openFullScreenModal('${song.id}')">`;
@@ -1702,11 +1730,9 @@ async function handleAddSong(e) {
     const mediaUrl = document.getElementById('songMediaUrl').value.trim(); 
     const directUrl = document.getElementById('songImageUrlDirect').value.trim();
     
-    // ចាប់យកអត្ថបទពី Textarea
-    const lyrics = document.getElementById('songLyricsInput').value.trim();
+    const lyrics = document.getElementById('songLyricsInput').value; // កុំ Trim() ចោលគម្លាតសងខាង
     
-    // លក្ខខណ្ឌ៖ ត្រូវមានរូបភាព ឬមានអត្ថបទ មួយណាក៏បាន
-    if (!selectedImageBase64 && !directUrl && !lyrics) { 
+    if (!selectedImageBase64 && !directUrl && !lyrics.trim()) { 
         showToast('សូមជ្រើសរើសរូបភាព ឬវាយអត្ថបទបញ្ជូល', 'warning'); return; 
     }
     
@@ -1718,7 +1744,7 @@ async function handleAddSong(e) {
         await db.collection("songs").add({ 
             album, title, artist, songKey, mediaUrl, 
             imageUrl: finalImageUrl, 
-            lyrics: lyrics, // Save Lyrics
+            lyrics: lyrics, 
             createdAt: firebase.firestore.FieldValue.serverTimestamp() 
         });
         
@@ -1748,7 +1774,7 @@ function openEditSongModal(songId) {
         document.getElementById('editPreviewContainer').style.display = 'block'; 
     } else removeSelectedEditImage(null);
 
-    if (song.lyrics && song.lyrics.length > 0) {
+    if (song.lyrics && song.lyrics.trim().length > 0) {
         switchInputType('edit', 'text');
     } else {
         switchInputType('edit', 'image');
@@ -1765,7 +1791,7 @@ async function handleUpdateSong(e) {
     const songKey = document.getElementById('editSongKey').value.trim(); 
     const mediaUrl = document.getElementById('editSongMediaUrl').value.trim(); 
     const directUrl = document.getElementById('editSongImageUrlDirect').value.trim();
-    const lyrics = document.getElementById('editSongLyricsInput').value.trim(); 
+    const lyrics = document.getElementById('editSongLyricsInput').value; 
     
     const updateBtn = document.getElementById('updateBtn'); updateBtn.disabled = true; updateBtn.innerText = 'កំពុងរក្សាទុក...';
     try {
