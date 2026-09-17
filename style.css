@@ -310,3 +310,25 @@ body.dark-mode .card-dropdown { box-shadow: 0 4px 15px rgba(0,0,0,0.5); }
     color: var(--text);
     overflow-x: auto;
 }
+/* =========================================
+   កូដថ្មីសម្រាប់ផ្ទាំងវាយអត្ថបទ និង Chord Rendering
+========================================= */
+.input-method-tabs { display: flex; gap: 8px; margin-bottom: 12px; background: var(--bg); padding: 4px; border-radius: 10px; border: 1px solid var(--border); }
+.tab-btn { flex: 1; padding: 8px; border: none; background: transparent; border-radius: 6px; font-size: 0.85rem; font-weight: 600; color: var(--text-muted); cursor: pointer; transition: 0.2s; }
+.tab-btn.active { background: var(--card-bg); color: var(--primary); box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+
+.lyric-textarea { width: 100%; padding: 12px; border: 1px solid var(--border); border-radius: 8px; background: var(--bg); color: var(--text); font-family: 'Courier New', monospace; font-size: 0.95rem; line-height: 1.6; resize: vertical; outline: none; }
+.lyric-textarea:focus { border-color: var(--primary); }
+
+/* ផ្ទាំងបញ្ជា Transpose កណ្តាលលើអេក្រង់ */
+.transpose-controls { position: absolute; top: calc(55px + env(safe-area-inset-top)); left: 50%; transform: translateX(-50%); background: rgba(30, 41, 59, 0.85); color: white; padding: 6px 20px; border-radius: 25px; display: flex; align-items: center; gap: 20px; z-index: 3010; backdrop-filter: blur(8px); box-shadow: 0 4px 15px rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); }
+.transpose-controls button { background: rgba(255,255,255,0.1); border: none; color: white; font-size: 1.2rem; width: 34px; height: 34px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: 0.2s; }
+.transpose-controls button:active { background: var(--primary); transform: scale(0.9); }
+
+/* ការរៀបចំឱ្យ Chord អណ្តែតពីលើអក្សរ */
+.fullscreen-lyrics { width: 100vw; height: 100vh; overflow-y: auto; padding: calc(110px + env(safe-area-inset-top)) 20px calc(120px + env(safe-area-inset-bottom)) 20px; color: white; text-align: left; -webkit-overflow-scrolling: touch; }
+.lyric-line { display: block; line-height: 2.6; margin-bottom: 8px; white-space: pre-wrap; word-wrap: break-word; font-family: 'Kantumruy Pro', sans-serif; font-size: 1.05rem; }
+.chord-word { display: inline-flex; flex-direction: column; align-items: flex-start; vertical-align: bottom; margin-right: 1px; position: relative; }
+.chord-word .chord { color: #ef4444; /* ពណ៌ក្រហមដូចគំរូ */ font-weight: 800; font-size: 0.95rem; line-height: 1; position: absolute; top: -1.3em; left: 0; font-family: Arial, sans-serif; white-space: nowrap; }
+.chord-word .lyric { font-size: 1.05rem; line-height: 1; }
+.chord-only-line { color: #ef4444; font-weight: 800; font-family: Arial, sans-serif; font-size: 0.95rem; display: block; margin-bottom: 4px; }
