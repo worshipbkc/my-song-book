@@ -1881,3 +1881,54 @@ async function handleUpdateSong(e) {
     } catch (err) { showToast('កែប្រែមិនបានសម្រេច៖ ' + err.message, 'error'); } 
     finally { updateBtn.disabled = false; updateBtn.innerText = 'រក្សាទុក'; }
 }
+// ==========================================
+// មុខងារសម្រាប់ប្តូរ Key ចម្រៀង (Transpose Chords)
+// ==========================================
+
+function transposeSingleChord(chord, steps) {
+    if (!chord || steps === 0) return chord;
+    
+    // ញែកទម្រង់ប្ញសនៃ Chord (ឧទាហរណ៍៖ C#m7 ទាញយកតែ C#)
+    let rootMatch = chord.match(/^[A-G][#b]?/);
+    if (!rootMatch) return chord; // បើមិនមែនជាទម្រង់ Chord ទេ return ដើម
+    
+    let root = rootMatch[0];
+    let suffix = chord.substring(root.length); // កន្ទុយរបស់ Chord (ឧទាហរណ៍៖ m7, maj7)
+    
+    // ស្វែងរកទីតាំង Key បច្ចុប្បន្ននៅក្នុង Array
+    let index = keysSharp.indexOf(root);
+    if (index === -1) index = keysFlat.indexOf(root);
+    if (index === -1) return chord; // ករណីរកមិនឃើញ
+    
+    // គណនា Key ថ្មីបន្ទាប់ពីបូក/ដក
+    let newIndex = (index + steps) % 12;
+    if (newIndex < 0) newIndex += 12;
+    
+    // កំណត់យក Key ថ្មី (ប្រើ Sharp ជាគោល)
+    let newRoot = keysSharp[newIndex];
+    return newRoot + suffix;
+}
+
+function changeTranspose(step) {
+    currentTransposeStep += step;
+    
+    // ស្វែងរកទីតាំង Key ដើមនៃបទចម្រៀង
+    let currentIndex = keysSharp.indexOf(baseSongKey);
+    if (currentIndex === -1) currentIndex = keysFlat.indexOf(baseSongKey);
+    
+    if (currentIndex !== -1) {
+        // អាប់ដេតឈ្មោះ Key នៅលើអេក្រង់
+        let newIndex = (currentIndex + currentTransposeStep) % 12;
+        if (newIndex < 0) newIndex += 12;
+        document.getElementById('transposeLabel').innerText = keysSharp[newIndex];
+    } else {
+        // បើកត់ Key មិនត្រូវទម្រង់តាំងពីដើម បង្ហាញត្រឹមជាលេខ
+        document.getElementById('transposeLabel').innerText = currentTransposeStep > 0 ? `+${currentTransposeStep}` : currentTransposeStep;
+    }
+    
+    // បង្ហាញអត្ថបទចម្រៀង និង Chord សាជាថ្មី (ជាមួយ Key ថ្មី)
+    const song = currentFilteredSongs[currentFullscreenIndex];
+    if (song && song.lyrics) {
+        renderLyricsToHTML(song.lyrics);
+    }
+}
