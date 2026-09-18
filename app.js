@@ -621,12 +621,22 @@ function listenToAuth() {
     auth.onAuthStateChanged((user) => {
         currentUser = user;
         if (user) {
+            // ១. កំណត់អុីម៉ែលរបស់អ្នកដែលមានសិទ្ធិជា Admin នៅទីនេះ
+            const adminEmails = ["phallakhum6@gmail.com"]; 
+            
+            if (adminEmails.includes(user.email)) {
+                isAdmin = true;
+                isEditor = true;
+            } else {
+                isAdmin = false;
+                isEditor = false;
+            }
+            updateUIRoles();
+
+            // ២. Load ទិន្នន័យ Playlist របស់ User ធម្មតា
             db.collection("users").doc(user.uid).get().then((doc) => {
                 if (doc.exists) { 
                     const userData = doc.data(); 
-                    isAdmin = userData.role === 'admin'; 
-                    isEditor = isAdmin || userData.role === 'editor'; 
-                    
                     if (userData.playlists) {
                         playlists = Object.assign({}, playlists, userData.playlists);
                         localStorage.setItem('user_playlists', JSON.stringify(playlists));
@@ -635,10 +645,14 @@ function listenToAuth() {
                     } else {
                         syncPlaylistsToCloud();
                     }
-                } else { isAdmin = false; isEditor = false; }
-                updateUIRoles();
-            }).catch(() => { isAdmin = false; isEditor = false; updateUIRoles(); });
-        } else { isAdmin = false; isEditor = false; updateUIRoles(); }
+                }
+            }).catch(() => {});
+
+        } else { 
+            isAdmin = false; 
+            isEditor = false; 
+            updateUIRoles(); 
+        }
     });
 }
 
