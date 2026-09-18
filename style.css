@@ -424,3 +424,13 @@ body.dark-mode .mini-player { box-shadow: 0 -4px 15px rgba(0,0,0,0.5); }
     top: auto !important; 
     bottom: calc(90px + env(safe-area-inset-bottom)) !important; 
 }
+
+/* លាក់ប៊ូតុង និងមុខងារ Admin ពីអ្នកប្រើប្រាស់ធម្មតា */
+.editor-only {
+    display: none !important;
+}
+
+/* បង្ហាញប៊ូតុង Admin វិញ តែនៅពេលអ្នកប្រើប្រាស់មានសិទ្ធិប៉ុណ្ណោះ */
+body.editor-authorized .editor-only {
+    display: inline-flex !important;
+}
