@@ -1934,6 +1934,7 @@ function renderSongsListOnly() {
                         ${song.mediaUrl ? `<button class="card-dropdown-item" onclick="window.open('${song.mediaUrl}', '_blank')"><i class="fa-solid fa-play"></i> ស្តាប់ភ្លេង</button>` : ''}
                         <button class="card-dropdown-item" onclick="shareSongImage('${song.id}')"><i class="fa-solid fa-share-nodes"></i> Share ចម្រៀង</button>
                         <button class="card-dropdown-item" onclick="downloadSongAction('${song.id}')"><i class="fa-solid fa-download"></i> Save ទុក</button>
+                        ${(currentFilterType === 'PLAYLIST' && currentFilterValue !== 'Favorite') ? `<button class="card-dropdown-item danger" onclick="removeSongFromPlaylist('${song.id}', event)"><i class="fa-solid fa-minus"></i> ដកចេញពី Playlist</button>` : ''}
                         <button class="card-dropdown-item editor-only" onclick="openEditSongModal('${song.id}')"><i class="fa-solid fa-pen"></i> កែប្រែ (Edit)</button>
                         <button class="card-dropdown-item danger editor-only" onclick="deleteSong('${song.id}')"><i class="fa-solid fa-trash"></i> លុបចោល</button>
                     </div>
@@ -2044,4 +2045,23 @@ async function handleUpdateSong(e) {
         showToast('កែប្រែបានជោគជ័យ', 'success');
     } catch (err) { showToast('កែប្រែមិនបានសម្រេច៖ ' + err.message, 'error'); } 
     finally { updateBtn.disabled = false; updateBtn.innerText = 'រក្សាទុក'; }
+}
+
+// មុខងារសម្រាប់ដកបទចម្រៀងចេញពី Playlist
+function removeSongFromPlaylist(songId, event) {
+    if(event) event.stopPropagation();
+    
+    if (currentFilterType === 'PLAYLIST' && currentFilterValue) {
+        const pName = currentFilterValue;
+        if (confirm(`តើអ្នកពិតជាចង់ដកបទនេះចេញពី Playlist "${pName}" មែនទេ?`)) {
+            const index = playlists[pName].indexOf(songId);
+            if (index !== -1) {
+                playlists[pName].splice(index, 1);
+                localStorage.setItem('user_playlists', JSON.stringify(playlists));
+                syncPlaylistsToCloud(); // Update ទៅ Cloud
+                renderSongs(); // Update ផ្ទាំងបង្ហាញឡើងវិញ
+                showToast('បានដកចេញពី Playlist រួចរាល់', 'info');
+            }
+        }
+    }
 }
