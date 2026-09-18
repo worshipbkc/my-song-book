@@ -19,6 +19,7 @@ const CLOUDINARY_UPLOAD_PRESET = "unsigned_preset";
 
 auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL).catch((error) => {});
 
+// អថេរទូទៅ
 let currentUser = null;
 let isEditor = false;
 let isAdmin = false;
@@ -1305,12 +1306,31 @@ function applyStoredViewMode() {
 function escapeHtml(str) { if (!str) return ''; return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;"); }
 
 let pendingSharePlaylistName = "";
+let currentShareMode = "musician"; // Default mode
 
 function handleShareCurrentPlaylist() {
     if (currentFilterType === 'PLAYLIST' && currentFilterValue) {
         pendingSharePlaylistName = currentFilterValue;
+        setShareMode('musician'); // Reset ទៅ default
         openModal('sharePlaylistModal'); 
     }
+}
+
+function setShareMode(mode) {
+    currentShareMode = mode;
+    // Update UI
+    ['shareOptMusician', 'shareOptSinger', 'shareOptDark', 'shareOptTwoCol'].forEach(id => {
+        const el = document.getElementById(id);
+        if(el) el.classList.remove('active');
+    });
+    
+    let btnId = 'shareOptMusician';
+    if(mode === 'singer') btnId = 'shareOptSinger';
+    if(mode === 'dark') btnId = 'shareOptDark';
+    if(mode === 'twocol') btnId = 'shareOptTwoCol';
+    
+    const activeEl = document.getElementById(btnId);
+    if(activeEl) activeEl.classList.add('active');
 }
 
 function executeShare(type) {
@@ -1322,82 +1342,120 @@ function executeShare(type) {
     }
 }
 
-// ---------------------------------------------------------
-// ម៉ាស៊ីនបំប្លែង Lyrics ទៅជារូបភាព (Canvas សាមញ្ញ ដើរ១០០%)
-// ---------------------------------------------------------
-function generateLyricsImage(song) {
+// ១. កូដគូរអត្ថបទចម្រៀងទៅជារូបភាព (គាំទ្រ Options ថ្មី)
+function generateLyricsImage(song, mode, playlistName) {
     return new Promise((resolve) => {
         try {
             const canvas = document.createElement('canvas');
             const ctx = canvas.getContext('2d');
             
-            const width = 800; 
-            let height = 180; 
+            const isDark = (mode === 'dark');
+            const isTwoCol = (mode === 'twocol');
+            const hideChords = (mode === 'singer');
+            
+            const bgColor = isDark ? '#0f172a' : '#ffffff';
+            const titleColor = isDark ? '#3b82f6' : '#2563eb';
+            const textColor = isDark ? '#f8fafc' : '#0f172a';
+            const metaColor = isDark ? '#94a3b8' : '#64748b';
+            const chordColor = isDark ? '#f87171' : '#ef4444';
+            
+            let width = isTwoCol ? 1200 : 800; 
             
             const lines = (song.lyrics || '').split('\n');
+            let totalLines = 0;
             
             // វាស់កម្ពស់ផ្ទាំងរូបភាព
             lines.forEach(line => {
-                if (line.trim() === '') height += 30;
-                else height += 40; 
+                if (line.trim() === '') totalLines += 0.5;
+                else totalLines += 1; 
             });
             
-            canvas.width = width;
-            canvas.height = height + 40; 
+            let linesPerCol = isTwoCol ? Math.ceil(totalLines / 2) + 2 : totalLines;
+            let height = (linesPerCol * 45) + 200; // កម្ពស់សរុប
             
-            // គូរផ្ទៃខាងក្រោយពណ៌ស
-            ctx.fillStyle = '#ffffff';
+            canvas.width = width;
+            canvas.height = height; 
+            
+            // គូរផ្ទៃខាងក្រោយ
+            ctx.fillStyle = bgColor;
             ctx.fillRect(0, 0, canvas.width, canvas.height);
             
-            // គូរចំណងជើង
-            ctx.fillStyle = '#0f172a';
-            ctx.font = 'bold 32px "Kantumruy Pro", sans-serif';
-            ctx.fillText(song.title || 'គ្មានចំណងជើង', 40, 60);
+            // គូរ Header សម្រាប់ Playlist
+            if (playlistName) {
+                ctx.fillStyle = isDark ? '#1e293b' : '#f1f5f9';
+                ctx.fillRect(0, 0, canvas.width, 40);
+                ctx.fillStyle = metaColor;
+                ctx.font = 'bold 18px "Kantumruy Pro", sans-serif';
+                ctx.textAlign = 'center';
+                ctx.fillText(`📅 Playlist: ${playlistName}  |  App ចម្រៀងសរសើរដំកើងព្រះ`, width/2, 26);
+                ctx.textAlign = 'left'; // Reset
+            }
             
-            ctx.fillStyle = '#64748b';
-            ctx.font = '22px "Kantumruy Pro", sans-serif';
+            // គូរចំណងជើង
+            ctx.fillStyle = titleColor;
+            ctx.font = 'bold 36px "Kantumruy Pro", sans-serif';
+            ctx.fillText(song.title || 'គ្មានចំណងជើង', 50, 90);
+            
+            // គូរព័ត៌មានលម្អិត
+            ctx.fillStyle = metaColor;
+            ctx.font = '24px "Kantumruy Pro", sans-serif';
             let printKey = song.songKey || 'C';
             printKey = printKey.split(/[\s,/-]+/)[0].trim();
-            ctx.fillText(`អ្នកចម្រៀង៖ ${song.artist || 'មិនស្គាល់'}  |  Key: ${printKey}`, 40, 100);
+            ctx.fillText(`🎤 ${song.artist || 'មិនស្គាល់'}   |   🎼 Key: ${printKey}`, 50, 130);
             
-            ctx.strokeStyle = '#d4d8e5';
+            // គូរបន្ទាត់
+            ctx.strokeStyle = isDark ? '#334155' : '#d4d8e5';
             ctx.lineWidth = 2;
             ctx.beginPath();
-            ctx.moveTo(40, 130);
-            ctx.lineTo(width - 40, 130);
+            ctx.moveTo(50, 150);
+            ctx.lineTo(width - 50, 150);
             ctx.stroke();
             
-            // គូរអក្សរចូលរូបភាព (Chord នៅស្មើអក្សរ ពណ៌ក្រហម)
-            let y = 180;
+            // គូរអក្សរចូលរូបភាព
+            let col1X = 50;
+            let col2X = 650;
+            let startY = 210;
+            let currentY = startY;
+            let currentLineCount = 0;
+            let isSecondCol = false;
+            
             lines.forEach(line => {
                 const trimmed = line.trim();
+                
+                // ប្តូរជួរឈរ បើទម្រង់ ២ ជួរ
+                if (isTwoCol && !isSecondCol && currentLineCount >= linesPerCol) {
+                    isSecondCol = true;
+                    currentY = startY;
+                }
+                
+                let currentX = isSecondCol ? col2X : col1X;
+                
                 if (trimmed === '') {
-                    y += 30;
+                    currentY += 25;
+                    currentLineCount += 0.5;
                 } else {
                     let isHeader = /^(Intro|I\.|II\.|III\.|IV\.|V\.|Pre|R1\.|R2\.|Chorus|Bridge|Instr\.)/i.test(trimmed);
-                    let currentX = 40;
-                    
                     const parts = line.split(/(\[.*?\])/g);
                     
                     parts.forEach(part => {
                         if (part.startsWith('[')) {
-                            // បំប្លែង Key (បើមាន) ហើយគូរ Chord ក្នុងវង់ក្រចក [ ]
-                            let rawChord = part.replace(/[\[\]]/g, '');
-                            let transposedChord = transposeSingleChord(rawChord, currentTransposeStep || 0);
-                            let drawText = `[${transposedChord}]`;
-                            
-                            ctx.fillStyle = '#ef4444'; // ពណ៌ក្រហម
-                            ctx.font = 'bold 24px Arial, sans-serif';
-                            ctx.fillText(drawText, currentX, y);
-                            currentX += ctx.measureText(drawText).width;
+                            if (!hideChords) {
+                                let rawChord = part.replace(/[\[\]]/g, '');
+                                let drawText = `[${rawChord}]`;
+                                ctx.fillStyle = chordColor;
+                                ctx.font = 'bold 24px Arial, sans-serif';
+                                ctx.fillText(drawText, currentX, currentY);
+                                currentX += ctx.measureText(drawText).width;
+                            }
                         } else {
-                            ctx.fillStyle = isHeader ? '#2563eb' : '#0f172a'; // ខៀវបើជាចំណងជើង ខ្មៅបើជាអត្ថបទធម្មតា
-                            ctx.font = isHeader ? 'bold 26px "Kantumruy Pro", sans-serif' : '24px "Kantumruy Pro", sans-serif';
-                            ctx.fillText(part, currentX, y);
+                            ctx.fillStyle = isHeader ? titleColor : textColor;
+                            ctx.font = isHeader ? 'bold 28px "Kantumruy Pro", sans-serif' : '26px "Kantumruy Pro", sans-serif';
+                            ctx.fillText(part, currentX, currentY);
                             currentX += ctx.measureText(part).width;
                         }
                     });
-                    y += 40;
+                    currentY += 45;
+                    currentLineCount += 1;
                 }
             });
             
@@ -1409,20 +1467,80 @@ function generateLyricsImage(song) {
     });
 }
 
-async function getSongBlobOrDataUrl(song) {
-    // បើបទចម្រៀងនោះមាន Lyrics តែអត់មានរូបភាព (ឬ URL រូបភាពខ្លីពេក) => បង្កើតរូបភាពថ្មីពីអត្ថបទ
-    if (song.lyrics && (!song.imageUrl || song.imageUrl.length < 10)) {
-        return await generateLyricsImage(song);
-    }
-    return song.imageUrl;
+// ២. កូដសម្រាប់បន្ថែម Header/Footer លើរូបភាពមានស្រាប់ (Scanned Images)
+function processExistingImage(imageUrl, mode, playlistName, songData) {
+    return new Promise((resolve) => {
+        const img = new Image();
+        img.crossOrigin = "Anonymous";
+        img.onload = () => {
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+            
+            const isDark = (mode === 'dark');
+            const bgColor = isDark ? '#0f172a' : '#ffffff';
+            const metaColor = isDark ? '#94a3b8' : '#64748b';
+            
+            // កំណត់ទំហំថ្មី ដោយបន្ថែម 120px សម្រាប់ Header
+            canvas.width = img.width;
+            canvas.height = img.height + 120;
+            
+            // គូរផ្ទៃ
+            ctx.fillStyle = bgColor;
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            // គូររូបដើម
+            if (isDark) {
+                // Invert Color (ប្តូរសទៅខ្មៅ) សម្រាប់ Dark Mode
+                ctx.filter = 'invert(1) hue-rotate(180deg)';
+                ctx.drawImage(img, 0, 100);
+                ctx.filter = 'none'; // reset filter សម្រាប់គូរអក្សរ
+            } else {
+                ctx.drawImage(img, 0, 100);
+            }
+            
+            // គូរ Header ព័ត៌មាន
+            if (playlistName) {
+                ctx.fillStyle = isDark ? '#1e293b' : '#f1f5f9';
+                ctx.fillRect(0, 0, canvas.width, 50);
+                ctx.fillStyle = metaColor;
+                ctx.font = 'bold 22px "Kantumruy Pro", sans-serif';
+                ctx.textAlign = 'center';
+                ctx.fillText(`📅 Playlist: ${playlistName}  |  App ចម្រៀងសរសើរដំកើងព្រះ`, canvas.width/2, 32);
+                ctx.textAlign = 'left';
+            }
+            
+            ctx.fillStyle = isDark ? '#3b82f6' : '#2563eb';
+            ctx.font = 'bold 36px "Kantumruy Pro", sans-serif';
+            ctx.fillText(songData.title || 'រូបភាពចម្រៀង', 40, 85);
+            
+            resolve(canvas.toDataURL('image/jpeg', 0.9));
+        };
+        img.onerror = () => resolve(imageUrl); // បើ error ឲ្យរូបចាស់វិញ
+        
+        // Handle Base64 vs URL
+        if (imageUrl.startsWith('data:image')) img.src = imageUrl;
+        else img.src = imageUrl + '?' + new Date().getTime(); // bypass cache
+    });
 }
 
-// មុខងារ Download ដែលដំណើរការបាន ១០០%
+// ៣. រៀបចំទិន្នន័យរូបភាពមុននឹង Share (ហៅកូដខាងលើមកប្រើ)
+async function getSongBlobOrDataUrl(song, playlistName) {
+    if (song.lyrics && (!song.imageUrl || song.imageUrl.length < 10)) {
+        // បើមានតែ Lyrics
+        return await generateLyricsImage(song, currentShareMode, playlistName);
+    } else if (song.imageUrl) {
+        // បើមានរូបភាពស្រាប់
+        return await processExistingImage(song.imageUrl, currentShareMode, playlistName, song);
+    }
+    return null;
+}
+
+// មុខងារ Download មួយបទ
 async function downloadSongAction(songId) {
     const song = songsList.find(s => s.id === songId); if (!song) return;
     try {
         showToast('កំពុងរៀបចំទាញយក...', 'info');
-        const imgData = await getSongBlobOrDataUrl(song);
+        const imgData = await getSongBlobOrDataUrl(song, null);
         if(!imgData) { showToast('គ្មានទិន្នន័យសម្រាប់ទាញយកទេ', 'warning'); return; }
 
         const fileName = `${song.title.replace(/[^a-zA-Z0-9\u1780-\u17FF]/g, "_")}.jpg`;
@@ -1435,14 +1553,14 @@ async function downloadSongAction(songId) {
     } catch (e) { console.log(e); showToast('បរាជ័យក្នុងការទាញយក', 'error'); }
 }
 
-// មុខងារ Share ដែលដំណើរការបាន ១០០% (ប្រើ File object ជំនួស URL ដើម្បីកុំឱ្យជាប់ CORS)
+// មុខងារ Share មួយបទ
 async function shareSongImage(songId) {
     const song = songsList.find(s => s.id === songId); if (!song) return;
     const shareTitle = song.title || 'ចម្រៀងសរសើរដំកើង'; 
     const shareText = `🎵 ${song.title || ''}`;
     try {
         showToast('កំពុងរៀបចំទិន្នន័យ...', 'info');
-        const imgData = await getSongBlobOrDataUrl(song);
+        const imgData = await getSongBlobOrDataUrl(song, null);
         if (!imgData) { showToast('មិនមានរូបភាពទេ', 'warning'); return; }
 
         let fileObj = null;
@@ -1468,12 +1586,11 @@ async function shareSongImage(songId) {
     } catch (err) { console.error(err); showToast('មានបញ្ហាក្នុងការ Share', 'error'); }
 }
 
+// មុខងារ Share Playlist ជា PDF
 async function sharePlaylistAsPDF(playlistName) {
     const songIds = playlists[playlistName];
     if (!songIds || songIds.length === 0) return;
 
-    const shareBtn = document.getElementById('sharePlaylistBtn');
-    if (shareBtn) shareBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> រៀបចំ PDF...';
     showToast('កំពុងបង្កើត PDF សូមរង់ចាំបន្តិច...', 'info');
 
     try {
@@ -1488,7 +1605,7 @@ async function sharePlaylistAsPDF(playlistName) {
             const song = songsList.find(s => s.id === songIds[i]);
             if (!song) continue;
 
-            const urlToUse = await getSongBlobOrDataUrl(song);
+            const urlToUse = await getSongBlobOrDataUrl(song, playlistName);
             if (!urlToUse) continue;
 
             const imgData = await getCleanBase64ForPDF(urlToUse);
@@ -1505,15 +1622,12 @@ async function sharePlaylistAsPDF(playlistName) {
 
         if (!hasImages) {
             showToast('មិនមានទិន្នន័យសម្រាប់បង្កើត PDF ទេ', 'warning');
-            if (shareBtn) shareBtn.innerHTML = '<i class="fa-solid fa-share-nodes"></i> Share All';
             return;
         }
 
         const pdfBlob = doc.output('blob');
         const safeName = playlistName.replace(/[^a-zA-Z0-9\u1780-\u17FF]/g, "_");
         const pdfFile = new File([pdfBlob], `${safeName}.pdf`, { type: 'application/pdf' });
-
-        if (shareBtn) shareBtn.innerHTML = '<i class="fa-solid fa-share-nodes"></i> Share All';
 
         if (navigator.canShare && navigator.canShare({ files: [pdfFile] })) {
             await navigator.share({
@@ -1532,7 +1646,6 @@ async function sharePlaylistAsPDF(playlistName) {
     } catch (err) {
         console.error(err);
         showToast('មានបញ្ហាក្នុងការបង្កើត PDF', 'error');
-        if (shareBtn) shareBtn.innerHTML = '<i class="fa-solid fa-share-nodes"></i> Share All';
     }
 }
 
@@ -1553,12 +1666,11 @@ function getCleanBase64ForPDF(url) {
     });
 }
 
+// មុខងារ Share Playlist ជារូបភាព
 async function sharePlaylistAsImages(playlistName) {
     const songIds = playlists[playlistName];
     if (!songIds || songIds.length === 0) return;
 
-    const shareBtn = document.getElementById('sharePlaylistBtn');
-    if (shareBtn) shareBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> រៀបចំរូបភាព...';
     showToast('កំពុងរៀបចំរូបភាព...', 'info');
     
     let filesToShare = [];
@@ -1571,7 +1683,7 @@ async function sharePlaylistAsImages(playlistName) {
 
         try {
             let fileObj = null;
-            const urlToUse = await getSongBlobOrDataUrl(song);
+            const urlToUse = await getSongBlobOrDataUrl(song, playlistName);
             if (!urlToUse) continue;
 
             if (urlToUse.startsWith('data:image')) {
@@ -1591,8 +1703,6 @@ async function sharePlaylistAsImages(playlistName) {
         } catch (err) {}
     }
 
-    if (shareBtn) shareBtn.innerHTML = '<i class="fa-solid fa-share-nodes"></i> Share All';
-
     if (filesToShare.length > 0) {
         if (navigator.canShare && navigator.canShare({ files: filesToShare })) {
             try {
@@ -1605,6 +1715,48 @@ async function sharePlaylistAsImages(playlistName) {
         } else {
             showToast('Browser របស់អ្នកមិនគាំទ្រការ Share ទេ', 'warning');
         }
+    }
+}
+
+// ==========================================
+// មុខងារសម្រាប់ប្តូរ Key ចម្រៀង (Transpose Chords)
+// ==========================================
+
+function transposeSingleChord(chord, steps) {
+    if (!chord || steps === 0) return chord;
+    let rootMatch = chord.match(/^[A-G][#b]?/);
+    if (!rootMatch) return chord; 
+    let root = rootMatch[0];
+    let suffix = chord.substring(root.length); 
+    
+    let index = keysSharp.indexOf(root);
+    if (index === -1) index = keysFlat.indexOf(root);
+    if (index === -1) return chord; 
+    
+    let newIndex = (index + steps) % 12;
+    if (newIndex < 0) newIndex += 12;
+    
+    let newRoot = keysSharp[newIndex];
+    return newRoot + suffix;
+}
+
+function changeTranspose(step) {
+    currentTransposeStep += step;
+    
+    let currentIndex = keysSharp.indexOf(baseSongKey);
+    if (currentIndex === -1) currentIndex = keysFlat.indexOf(baseSongKey);
+    
+    if (currentIndex !== -1) {
+        let newIndex = (currentIndex + currentTransposeStep) % 12;
+        if (newIndex < 0) newIndex += 12;
+        document.getElementById('transposeLabel').innerText = keysSharp[newIndex];
+    } else {
+        document.getElementById('transposeLabel').innerText = currentTransposeStep > 0 ? `+${currentTransposeStep}` : currentTransposeStep;
+    }
+    
+    const song = currentFilteredSongs[currentFullscreenIndex];
+    if (song && song.lyrics) {
+        renderLyricsToHTML(song.lyrics);
     }
 }
 
@@ -1880,55 +2032,4 @@ async function handleUpdateSong(e) {
         showToast('កែប្រែបានជោគជ័យ', 'success');
     } catch (err) { showToast('កែប្រែមិនបានសម្រេច៖ ' + err.message, 'error'); } 
     finally { updateBtn.disabled = false; updateBtn.innerText = 'រក្សាទុក'; }
-}
-// ==========================================
-// មុខងារសម្រាប់ប្តូរ Key ចម្រៀង (Transpose Chords)
-// ==========================================
-
-function transposeSingleChord(chord, steps) {
-    if (!chord || steps === 0) return chord;
-    
-    // ញែកទម្រង់ប្ញសនៃ Chord (ឧទាហរណ៍៖ C#m7 ទាញយកតែ C#)
-    let rootMatch = chord.match(/^[A-G][#b]?/);
-    if (!rootMatch) return chord; // បើមិនមែនជាទម្រង់ Chord ទេ return ដើម
-    
-    let root = rootMatch[0];
-    let suffix = chord.substring(root.length); // កន្ទុយរបស់ Chord (ឧទាហរណ៍៖ m7, maj7)
-    
-    // ស្វែងរកទីតាំង Key បច្ចុប្បន្ននៅក្នុង Array
-    let index = keysSharp.indexOf(root);
-    if (index === -1) index = keysFlat.indexOf(root);
-    if (index === -1) return chord; // ករណីរកមិនឃើញ
-    
-    // គណនា Key ថ្មីបន្ទាប់ពីបូក/ដក
-    let newIndex = (index + steps) % 12;
-    if (newIndex < 0) newIndex += 12;
-    
-    // កំណត់យក Key ថ្មី (ប្រើ Sharp ជាគោល)
-    let newRoot = keysSharp[newIndex];
-    return newRoot + suffix;
-}
-
-function changeTranspose(step) {
-    currentTransposeStep += step;
-    
-    // ស្វែងរកទីតាំង Key ដើមនៃបទចម្រៀង
-    let currentIndex = keysSharp.indexOf(baseSongKey);
-    if (currentIndex === -1) currentIndex = keysFlat.indexOf(baseSongKey);
-    
-    if (currentIndex !== -1) {
-        // អាប់ដេតឈ្មោះ Key នៅលើអេក្រង់
-        let newIndex = (currentIndex + currentTransposeStep) % 12;
-        if (newIndex < 0) newIndex += 12;
-        document.getElementById('transposeLabel').innerText = keysSharp[newIndex];
-    } else {
-        // បើកត់ Key មិនត្រូវទម្រង់តាំងពីដើម បង្ហាញត្រឹមជាលេខ
-        document.getElementById('transposeLabel').innerText = currentTransposeStep > 0 ? `+${currentTransposeStep}` : currentTransposeStep;
-    }
-    
-    // បង្ហាញអត្ថបទចម្រៀង និង Chord សាជាថ្មី (ជាមួយ Key ថ្មី)
-    const song = currentFilteredSongs[currentFullscreenIndex];
-    if (song && song.lyrics) {
-        renderLyricsToHTML(song.lyrics);
-    }
 }
