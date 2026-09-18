@@ -363,7 +363,14 @@ function setQuickFilter(type, btnElement) {
         renderSongs();
     } else if (type === 'FAV') {
         filterByPlaylist('Favorite');
-    }
+    
+    } else if (type === 'HISTORY') { // <-- បន្ថែមថ្មីពីត្រង់នេះ
+        document.getElementById('sectionTitleText').innerText = "ប្រវត្តិអាន (ទើបតែបើក)";
+        document.getElementById('currentAlbumSubtitle').innerHTML = `Khmer Christian Worship Songs`;
+        currentFilterType = 'HISTORY'; currentFilterValue = 'HISTORY';
+        toggleFilterUI(false); 
+        renderSongs();
+    } //
 }
 
 function listenToSongsChanges() {
@@ -700,6 +707,11 @@ function renderSongs() {
             const timeB = b.createdAt ? b.createdAt.seconds : 0;
             return timeB - timeA;
         });
+        } else if (currentFilterType === 'HISTORY') { // <-- បន្ថែមថ្មីពីត្រង់នេះ
+        const historyIds = JSON.parse(localStorage.getItem('recent_history') || '[]');
+        // ទាញយកបទតាមលំដាប់លំដោយនៃប្រវត្តិដែលទើបបើក
+        filtered = historyIds.map(id => songsList.find(s => s.id === id)).filter(s => s);
+     // <-- ដល់ត្រង់នេះ
     } else {
         filtered = [...songsList];
     }
@@ -1022,6 +1034,16 @@ function autoScrollLoop() {
 
 function openFullScreenModal(songId) {
     const songIndex = currentFilteredSongs.findIndex(s => s.id === songId); if (songIndex === -1) return;
+    // --- ចាប់ផ្តើមកូដថ្មី សម្រាប់រក្សាទុកប្រវត្តិ ---
+    let history = JSON.parse(localStorage.getItem('recent_history') || '[]');
+    // លុបបទនេះចេញពីប្រវត្តិសិនបើវាធ្លាប់បើកហើយ (ដើម្បីរុញវាមកខាងមុខគេវិញ)
+    history = history.filter(id => id !== songId);
+    // ដាក់វានៅលេខរៀងទី១ (ខាងមុខគេ)
+    history.unshift(songId);
+    // រក្សាទុកតែ ១៥ បទចុងក្រោយបានហើយ
+    if (history.length > 15) history.pop();
+    localStorage.setItem('recent_history', JSON.stringify(history));
+    // --- បញ្ចប់កូដថ្មី ---
     currentFullscreenIndex = songIndex; updateFullScreenContent(); document.getElementById('fullScreenModal').classList.add('active');
     requestWakeLock(); 
     document.body.classList.remove('no-scroll');
@@ -1793,14 +1815,52 @@ function changeTranspose(step) {
     if (currentIndex !== -1) {
         let newIndex = (currentIndex + currentTransposeStep) % 12;
         if (newIndex < 0) newIndex += 12;
-        document.getElementById('transposeLabel').innerText = keysSharp[newIndex];
+        
+        let newKey = keysSharp[newIndex]; // ១. យើងចាប់យកអក្សរថ្មី (ឧ. C#) មកទុកសិន
+        document.getElementById('transposeLabel').innerText = newKey; // ២. យកវាទៅបង្ហាញ
+        updateCapoSuggestion(newKey); // ៣. បន្ថែមបន្ទាត់ថ្មីនេះ ដើម្បីបញ្ជូនអក្សរ (C#) ទៅឱ្យកូដ Capo គណនា
     } else {
         document.getElementById('transposeLabel').innerText = currentTransposeStep > 0 ? `+${currentTransposeStep}` : currentTransposeStep;
+        updateCapoSuggestion(""); // បន្ថែមបន្ទាត់ថ្មីនេះ ដើម្បីបិទការបង្ហាញ Capo ព្រោះអត់មាន Key
     }
     
+    // ... កូដខាងក្រោមរក្សាទុកដដែល ...
     const song = currentFilteredSongs[currentFullscreenIndex];
     if (song && song.lyrics) {
         renderLyricsToHTML(song.lyrics);
+    }
+}
+// អនុគមន៍ណែនាំ Capo ឆ្លាតវៃ
+function updateCapoSuggestion(currentKey) {
+    const capoEl = document.getElementById('capoSuggestion');
+    if (!capoEl) return;
+    
+    if (!currentKey) {
+        capoEl.style.display = 'none';
+        return;
+    }
+
+    // ទិន្នន័យណែនាំ Capo សម្រាប់ Key ពិបាកៗ
+    const suggestions = {
+        "C#": "Capo 1 ➔ C",
+        "Db": "Capo 1 ➔ C",
+        "D#": "Capo 1 ➔ D  |  Capo 3 ➔ C",
+        "Eb": "Capo 1 ➔ D  |  Capo 3 ➔ C",
+        "F":  "Capo 1 ➔ E  |  Capo 5 ➔ C",
+        "F#": "Capo 2 ➔ E  |  Capo 4 ➔ D",
+        "Gb": "Capo 2 ➔ E  |  Capo 4 ➔ D",
+        "G#": "Capo 1 ➔ G  |  Capo 4 ➔ E",
+        "Ab": "Capo 1 ➔ G  |  Capo 4 ➔ E",
+        "A#": "Capo 1 ➔ A  |  Capo 3 ➔ G",
+        "Bb": "Capo 1 ➔ A  |  Capo 3 ➔ G",
+        "B":  "Capo 2 ➔ A  |  Capo 4 ➔ G"
+    };
+
+    if (suggestions[currentKey]) {
+        capoEl.innerHTML = `💡 ${suggestions[currentKey]}`;
+        capoEl.style.display = 'block';
+    } else {
+        capoEl.style.display = 'none'; // លាក់ប្រអប់បើ Key ងាយស្រួលស្រាប់ (ដូចជា C, G, D, Am)
     }
 }
 
@@ -1889,6 +1949,7 @@ function updateFullScreenContent() {
     baseSongKey = rawKey.split(/[\s,/-]+/)[0].trim();
     if (!baseSongKey) baseSongKey = "C";
     document.getElementById('transposeLabel').innerText = baseSongKey;
+    updateCapoSuggestion(baseSongKey);
 
     if (song.lyrics && song.lyrics.length > 5) {
         modal.classList.add('lyrics-mode');
@@ -2236,6 +2297,18 @@ function playClickSound() {
     
     osc.start(audioCtx.currentTime);
     osc.stop(audioCtx.currentTime + 0.1);
+
+    // -- ចាប់ផ្តើមបន្ទាត់ដែលបានបន្ថែមថ្មីសម្រាប់ Visual Metronome --
+    const bpmDisplay = document.getElementById('bpmValue');
+    if (bpmDisplay) {
+        // លុប Class ចាស់ចោលសិន
+        bpmDisplay.classList.remove('metronome-flash');
+        // បង្ខំឱ្យ Browser ដំណើរការ Animation សារជាថ្មី (Trigger Reflow)
+        void bpmDisplay.offsetWidth; 
+        // ដាក់ Class បញ្ចូលវិញដើម្បីឱ្យវាលោតពន្លឺ
+        bpmDisplay.classList.add('metronome-flash');
+    }
+    // -- បញ្ចប់បន្ទាត់បន្ថែមថ្មី --
 }
 
 function toggleMetronomePlay() {
@@ -2692,4 +2765,6 @@ function drawCustomChordDiagram(chordName, canvasId) {
         }
     }
 }
+
+
 
