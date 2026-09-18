@@ -1024,6 +1024,7 @@ function openFullScreenModal(songId) {
     const songIndex = currentFilteredSongs.findIndex(s => s.id === songId); if (songIndex === -1) return;
     currentFullscreenIndex = songIndex; updateFullScreenContent(); document.getElementById('fullScreenModal').classList.add('active');
     requestWakeLock(); 
+    document.body.classList.remove('no-scroll');
 }
 
 function closeFullScreenModalDirect() { 
@@ -1133,8 +1134,14 @@ function toggleFavorite(songId, event) {
     renderSongsListOnly();
 }
 
-function openModal(modalId) { document.getElementById(modalId).classList.add('active'); }
-function closeModal(modalId) { document.getElementById(modalId).classList.remove('active'); }
+function openModal(modalId) { 
+    document.getElementById(modalId).classList.add('active'); 
+    document.body.classList.add('no-scroll');
+}
+function closeModal(modalId) { 
+    document.getElementById(modalId).classList.remove('active'); 
+    document.body.classList.remove('no-scroll');
+}
 
 function openCreatePlaylistModal() { openModal('playlistModal'); }
 function openPlaylistChooserModal(songId) {
@@ -2289,6 +2296,7 @@ function closeChordModal() {
 function showChordModal(chordName) {
     document.getElementById('chordModalTitle').innerText = chordName;
     document.getElementById('chordModal').classList.add('active');
+    document.body.classList.add('no-scroll');
     drawChordDiagram(chordName);
 }
 
@@ -2420,9 +2428,11 @@ function toggleMainTunerPanel() {
     
     if (isShowing) {
         panel.style.display = 'none';
+        document.body.classList.remove('no-scroll'); // បន្ថែមបន្ទាត់នេះ
         if (isTunerActive) toggleTunerAction(); // បិទ Mic ពេលបិទផ្ទាំង
     } else {
         panel.style.display = 'flex';
+        document.body.classList.add('no-scroll'); // បន្ថែមបន្ទាត់នេះ
     }
 }
 
@@ -2682,3 +2692,4 @@ function drawCustomChordDiagram(chordName, canvasId) {
         }
     }
 }
+
