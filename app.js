@@ -1843,7 +1843,7 @@ function updateFullScreenContent() {
     document.getElementById('pageCounter').innerText = `${currentFullscreenIndex + 1} / ${currentFilteredSongs.length}`;
     
     const mediaBtn = document.getElementById('fsMediaPlayBtn');
-    if(song.mediaUrl) { mediaBtn.style.display = 'flex'; mediaBtn.onclick = () => window.open(song.mediaUrl, '_blank'); } 
+    if(song.mediaUrl) { mediaBtn.style.display = 'flex'; mediaBtn.onclick = () => playAudio(song.mediaUrl, song.title); }
     else { mediaBtn.style.display = 'none'; }
 
     const imgEl = document.getElementById('fullScreenImg');
@@ -2062,6 +2062,294 @@ function removeSongFromPlaylist(songId, event) {
                 renderSongs(); // Update ផ្ទាំងបង្ហាញឡើងវិញ
                 showToast('បានដកចេញពី Playlist រួចរាល់', 'info');
             }
+        }
+    }
+}
+
+/* =========================================
+   មុខងារបន្ថែមថ្មី (Logic Features)
+========================================= */
+
+// ១. មុខងារប្តូរទំហំអក្សរ (Font Size Adjuster)
+let baseLyricFontSize = 1.05;
+function changeFontSize(step) {
+    baseLyricFontSize += step;
+    if (baseLyricFontSize < 0.5) baseLyricFontSize = 0.5;
+    if (baseLyricFontSize > 3.0) baseLyricFontSize = 3.0;
+    
+    document.querySelectorAll('.lyric').forEach(el => {
+        el.style.fontSize = baseLyricFontSize + 'rem';
+    });
+    document.querySelectorAll('.chord').forEach(el => {
+        el.style.fontSize = (baseLyricFontSize * 0.85) + 'rem'; // ឲ្យ chord តូចជាង lyric បន្តិច
+    });
+}
+
+// ២. មុខងារ Presentation Mode (សម្រាប់បញ្ចាំង Projector)
+let isPresentationMode = false;
+function togglePresentationMode() {
+    const modal = document.getElementById('fullScreenModal');
+    isPresentationMode = !isPresentationMode;
+    if (isPresentationMode) {
+        modal.classList.add('presentation-mode');
+        showToast('បានបើក Presentation Mode', 'info');
+    } else {
+        modal.classList.remove('presentation-mode');
+        showToast('បានបិទ Presentation Mode', 'info');
+    }
+}
+
+// ៣. មុខងារ Mini Audio Player (ស្តាប់ចម្រៀងក្នុង App)
+function playAudio(mediaUrl, title) {
+    if(!mediaUrl) return;
+    // បើជា Link YouTube អនុញ្ញាតឲ្យបើកនៅផ្ទាំងថ្មីដដែល
+    if (mediaUrl.includes('youtube.com') || mediaUrl.includes('youtu.be')) {
+        window.open(mediaUrl, '_blank');
+        return;
+    }
+    const player = document.getElementById('miniPlayer');
+    const audio = document.getElementById('audioElement');
+    const titleEl = document.getElementById('miniPlayerTitle');
+    const playBtn = document.getElementById('playPauseBtn');
+    
+    player.style.display = 'flex';
+    titleEl.innerText = title;
+    audio.src = mediaUrl;
+    audio.play().then(() => {
+        playBtn.innerHTML = '<i class="fa-solid fa-pause"></i>';
+    }).catch(err => {
+        showToast('មិនអាចចាក់ឯកសារសំឡេងនេះបានទេ (សូមប្រើ Mp3 URL)', 'warning');
+    });
+}
+
+function togglePlayPause() {
+    const audio = document.getElementById('audioElement');
+    const playBtn = document.getElementById('playPauseBtn');
+    if (audio.paused) {
+        audio.play();
+        playBtn.innerHTML = '<i class="fa-solid fa-pause"></i>';
+    } else {
+        audio.pause();
+        playBtn.innerHTML = '<i class="fa-solid fa-play"></i>';
+    }
+}
+
+function closeMiniPlayer() {
+    const audio = document.getElementById('audioElement');
+    audio.pause();
+    document.getElementById('miniPlayer').style.display = 'none';
+}
+
+// ៤. មុខងារអូស (Swipe) ដើម្បីប្តូរបទចម្រៀង នៅក្នុងផ្ទាំង Lyrics
+document.addEventListener('DOMContentLoaded', () => {
+    const lyricsContainer = document.getElementById('fullScreenLyrics');
+    let touchstartX = 0;
+    let touchendX = 0;
+    
+    lyricsContainer.addEventListener('touchstart', e => {
+        touchstartX = e.changedTouches[0].screenX;
+    }, { passive: true });
+    
+    lyricsContainer.addEventListener('touchend', e => {
+        touchendX = e.changedTouches[0].screenX;
+        handleLyricsSwipe();
+    }, { passive: true });
+    
+    function handleLyricsSwipe() {
+        const swipeDist = touchendX - touchstartX;
+        if (Math.abs(swipeDist) > 70) { 
+            if (swipeDist < 0) slideFullScreen(1); // អូសទៅឆ្វេង = បទបន្ទាប់
+            else slideFullScreen(-1); // អូសទៅស្តាំ = បទថយក្រោយ
+        }
+    }
+});
+
+/* =========================================
+   ៥. មុខងារ Metronome (ម៉ាស៊ីនគោះចង្វាក់)
+========================================= */
+let audioCtx = null;
+let metronomeTimer = null;
+let currentBpm = 80;
+let isMetronomePlaying = false;
+
+function toggleMetronomePanel() {
+    const panel = document.getElementById('metronomePanel');
+    panel.style.display = (panel.style.display === 'flex') ? 'none' : 'flex';
+}
+
+function changeBpm(delta) {
+    currentBpm += delta;
+    if (currentBpm < 40) currentBpm = 40;
+    if (currentBpm > 240) currentBpm = 240;
+    document.getElementById('bpmValue').innerText = currentBpm;
+    
+    // បើកំពុងលេង ត្រូវ Restart វាដើម្បីឲ្យវាចាប់ចង្វាក់ថ្មី
+    if (isMetronomePlaying) {
+        clearInterval(metronomeTimer);
+        metronomeTimer = setInterval(playClickSound, 60000 / currentBpm);
+    }
+}
+
+function playClickSound() {
+    if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    const osc = audioCtx.createOscillator();
+    const gainNode = audioCtx.createGain();
+    
+    osc.connect(gainNode);
+    gainNode.connect(audioCtx.destination);
+    
+    osc.frequency.value = 1000; // សំឡេងតុក!
+    gainNode.gain.setValueAtTime(1, audioCtx.currentTime);
+    gainNode.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.1);
+    
+    osc.start(audioCtx.currentTime);
+    osc.stop(audioCtx.currentTime + 0.1);
+}
+
+function toggleMetronomePlay() {
+    const btn = document.getElementById('metroPlayBtn');
+    if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    
+    if (isMetronomePlaying) {
+        clearInterval(metronomeTimer);
+        isMetronomePlaying = false;
+        btn.classList.remove('active');
+        btn.innerHTML = '<i class="fa-solid fa-play"></i>';
+    } else {
+        audioCtx.resume();
+        playClickSound(); // លេងមួយភ្លាមពេលចុច
+        metronomeTimer = setInterval(playClickSound, 60000 / currentBpm);
+        isMetronomePlaying = true;
+        btn.classList.add('active');
+        btn.innerHTML = '<i class="fa-solid fa-square"></i>';
+    }
+}
+
+// ត្រូវប្រាកដថាបានបិទ Metronome ពេលចេញពី Fullscreen
+const originalCloseFullScreen = closeFullScreenModalDirect;
+window.closeFullScreenModalDirect = function() {
+    if (isMetronomePlaying) toggleMetronomePlay(); // បិទសំឡេង
+    document.getElementById('metronomePanel').style.display = 'none'; // លាក់ផ្ទាំង
+    originalCloseFullScreen();
+}
+
+
+/* =========================================
+   ៦. មុខងារ Chord Diagram (បង្ហាញទម្រង់ចាប់)
+========================================= */
+
+// ទិន្នន័យ Chord ងាយៗ (-1 = ខ្សែមិនត្រូវដេញ(X), 0 = ខ្សែលែង(O), លេខផ្សេងៗ = លេខកន្លៀត(Fret))
+// លំដាប់ខ្សែ: [ខ្សែ៦(Eធំ), ខ្សែ៥(A), ខ្សែ៤(D), ខ្សែ៣(G), ខ្សែ២(B), ខ្សែ១(eតូច)]
+const basicChords = {
+    "C": [-1, 3, 2, 0, 1, 0], "Cm": [-1, 3, 5, 5, 4, 3], "C#": [-1, 4, 6, 6, 6, 4],
+    "D": [-1, -1, 0, 2, 3, 2], "Dm": [-1, -1, 0, 2, 3, 1], "D#": [-1, 6, 8, 8, 8, 6],
+    "E": [0, 2, 2, 1, 0, 0], "Em": [0, 2, 2, 0, 0, 0], "Eb": [-1, 6, 8, 8, 8, 6],
+    "F": [1, 3, 3, 2, 1, 1], "Fm": [1, 3, 3, 1, 1, 1], "F#": [2, 4, 4, 3, 2, 2],
+    "G": [3, 2, 0, 0, 0, 3], "Gm": [3, 5, 5, 3, 3, 3], "G#": [4, 6, 6, 5, 4, 4],
+    "A": [-1, 0, 2, 2, 2, 0], "Am": [-1, 0, 2, 2, 1, 0], "Bb": [-1, 1, 3, 3, 3, 1],
+    "B": [-1, 2, 4, 4, 4, 2], "Bm": [-1, 2, 4, 4, 3, 2]
+};
+
+document.addEventListener('click', function(e) {
+    if(e.target.classList.contains('chord')) {
+        let chordName = e.target.innerText.trim();
+        showChordModal(chordName);
+    }
+});
+
+function closeChordModal() {
+    document.getElementById('chordModal').classList.remove('active');
+}
+
+function showChordModal(chordName) {
+    document.getElementById('chordModalTitle').innerText = chordName;
+    document.getElementById('chordModal').classList.add('active');
+    drawChordDiagram(chordName);
+}
+
+function drawChordDiagram(chordName) {
+    const canvas = document.getElementById('chordCanvas');
+    const ctx = canvas.getContext('2d');
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    
+    // បើកChordដែលអត់មានក្នុងបណ្តុំ (ឧ. ព្យាយាមកាត់ 7, sus ចោលសិនដើម្បីរកមើលមេវា)
+    let baseChord = chordName.replace(/7|sus4|sus2|add9/g, '');
+    let positions = basicChords[baseChord] || basicChords[chordName];
+    
+    if (!positions) {
+        ctx.fillStyle = "#64748b";
+        ctx.font = "14px 'Kantumruy Pro', sans-serif";
+        ctx.textAlign = "center";
+        ctx.fillText("មិនមានទិន្នន័យ", canvas.width/2, canvas.height/2);
+        return;
+    }
+
+    const startX = 25; const startY = 40; const stringSpacing = 20; const fretSpacing = 30;
+
+    // គូរឈ្មោះខ្សែខាងលើ
+    const stringsName = ['E', 'A', 'D', 'G', 'B', 'e'];
+    ctx.font = "12px Arial"; ctx.fillStyle = "#94a3b8"; ctx.textAlign = "center";
+    for(let i=0; i<6; i++) {
+        ctx.fillText(stringsName[i], startX + i * stringSpacing, startY - 20);
+    }
+
+    // គូរបន្ទាត់ (Fretboard)
+    ctx.strokeStyle = "#334155";
+    ctx.lineWidth = 1.5;
+    for (let i = 0; i < 6; i++) { // ខ្សែបញ្ឈរ (Strings)
+        ctx.beginPath();
+        ctx.moveTo(startX + i * stringSpacing, startY);
+        ctx.lineTo(startX + i * stringSpacing, startY + 4 * fretSpacing);
+        ctx.stroke();
+    }
+    
+    // Fret លើគេ (Nut)
+    ctx.lineWidth = 4;
+    ctx.beginPath();
+    ctx.moveTo(startX, startY);
+    ctx.lineTo(startX + 5 * stringSpacing, startY);
+    ctx.stroke();
+
+    ctx.lineWidth = 1.5;
+    for (let i = 1; i <= 4; i++) { // ខ្សែដេក (Frets)
+        ctx.beginPath();
+        ctx.moveTo(startX, startY + i * fretSpacing);
+        ctx.lineTo(startX + 5 * stringSpacing, startY + i * fretSpacing);
+        ctx.stroke();
+    }
+
+    // គូរចំណុចចាប់ (Dots) ឬសញ្ញា X/O
+    for (let i = 0; i < 6; i++) {
+        let fret = positions[i];
+        let x = startX + i * stringSpacing;
+        
+        if (fret === -1) {
+            // គូរសញ្ញា X ពីលើខ្សែ
+            ctx.fillStyle = "#ef4444"; ctx.font = "14px Arial";
+            ctx.fillText("X", x, startY - 5);
+        } else if (fret === 0) {
+            // គូរសញ្ញា O ពីលើខ្សែ
+            ctx.strokeStyle = "#10b981"; ctx.lineWidth = 2;
+            ctx.beginPath(); ctx.arc(x, startY - 8, 4, 0, Math.PI*2); ctx.stroke();
+        } else {
+            // គូរចំណុច (Dot)
+            let y = startY + (fret - 0.5) * fretSpacing; 
+            // បើទម្រង់ចាប់វាលូកដល់ Fret ទី៥ ឬទី៦ យើងរុញវាឲ្យនៅក្នុងប្លង់កម្រិត៤ Fret សិន (ជាលក្ខណៈសាមញ្ញ)
+            let displayFret = fret;
+            if(Math.max(...positions) > 4) {
+                let minFret = Math.min(...positions.filter(p => p > 0));
+                displayFret = fret - minFret + 1;
+                y = startY + (displayFret - 0.5) * fretSpacing;
+                
+                // បង្ហាញលេខ Fret នៅខាងឆ្វេង
+                if(i === 0 || (i > 0 && positions[i-1] <= 0)) {
+                    ctx.fillStyle = "#3b82f6"; ctx.font = "bold 12px Arial";
+                    ctx.fillText(minFret + "fr", startX - 15, startY + 0.5 * fretSpacing);
+                }
+            }
+            
+            ctx.fillStyle = "#2563eb";
+            ctx.beginPath(); ctx.arc(x, y, 7, 0, Math.PI*2); ctx.fill();
         }
     }
 }
