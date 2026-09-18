@@ -526,3 +526,8 @@ body.dark-mode .tuner-tab-btn.active {
     cursor: pointer;
     text-align: center;
 }
+
+body.no-scroll {
+    overflow: hidden !important;
+    touch-action: none;
+}
