@@ -80,7 +80,7 @@
                 <button id="sharePlaylistBtn" class="btn-share-custom" style="display: none; margin-left: 8px; padding: 4px 10px; border-radius: 8px; font-size: 0.75rem; font-weight: 600; cursor: pointer; border-width: 1px; border-style: solid; align-items: center; gap: 4px;" onclick="handleShareCurrentPlaylist()"><i class="fa-solid fa-share-nodes"></i> Share</button>
                 <div class="section-divider"></div>
             </div>
-            <div id="playlistDragInfo" style="display:none; font-size:0.75rem; color:var(--primary); text-align:right; margin-bottom: 8px;"><i class="fa-solid fa-arrows-up-down"></i> អូសប័ណ្ណបទចម្រៀងចុះឡើងដើម្បីប្តូរលំដាប់ទីតាំង</div>
+            <div id="playlistDragInfo" style="display:none; font-size:0.75rem; color:var(--primary); text-align:right; margin-bottom: 8px;"><i class="fa-solid fa-righ-lefht"></i> អូសប័ណ្ណបទចម្រៀងចុះឡើងដើម្បីប្តូរលំដាប់ទីតាំង</div>
         </div>
 
         <div class="song-grid" id="songGrid"></div>
@@ -162,6 +162,17 @@
     </div>
 </div>
 
+<div class="mini-player" id="miniPlayer">
+    <div class="mini-player-info">
+        <span class="mini-player-title" id="miniPlayerTitle">កំពុងចាក់...</span>
+        <audio id="audioElement" controls style="height: 25px; width: 100%; display: none;"></audio>
+    </div>
+    <div class="mini-player-controls">
+        <button onclick="togglePlayPause()" id="playPauseBtn"><i class="fa-solid fa-pause"></i></button>
+        <button class="close-player-btn" onclick="closeMiniPlayer()"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+</div>
+
 <div class="bottom-nav">
     <button class="bottom-nav-item active" id="navSongsBtn" onclick="switchTab('songs')"><i class="fa-solid fa-music"></i><span>បទចម្រៀង</span></button>
     <button class="bottom-nav-item" id="navAlbumsBtn" onclick="switchTab('albums')"><i class="fa-solid fa-record-vinyl"></i><span>អាល់ប៊ុម</span></button>
@@ -177,9 +188,37 @@
     <div class="fullscreen-header">
         <div style="display: flex; align-items: center; gap: 10px; max-width: 80%;">
             <div id="fullScreenTitle" style="font-weight: 700; font-size: 0.95rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;"></div>
-            <span id="pageCounter" style="background: rgba(255,255,255,0.25); color: #fff; padding: 2px 10px; border-radius: 12px; font-size: 0.75rem; font-weight: 700; white-space: nowrap; backdrop-filter: blur(4px);"></span>
+        <span id="pageCounter" style="background: rgba(255,255,255,0.25); color: #fff; padding: 2px 10px; border-radius: 12px; font-size: 0.75rem; font-weight: 700; white-space: nowrap; backdrop-filter: blur(4px);"></span>
         </div>
+    
+    <!-- នេះជាកន្លែងដែលយើងប្រមូលប៊ូតុងទាំង ៣ ដាក់ចូលគ្នា -->
+     <div style="display: flex; gap: 15px; align-items: center;">
+        <!-- បន្ថែមប៊ូតុង Metronome នេះ ពីលើប៊ូតុង Presentation (កុំព្យូទ័រ) -->
+        <button onclick="toggleMetronomePanel()" style="background:none; border:none; color:#10b981; font-size:1.2rem; cursor:pointer; padding: 4px;" title="Metronome"><i class="fa-solid fa-stopwatch"></i></button>
+        <button onclick="togglePresentationMode()" style="background:none; border:none; color:white; font-size:1.2rem; cursor:pointer; padding: 4px;" title="បញ្ចាំងលើអេក្រង់ធំ (Presentation)"><i class="fa-solid fa-desktop"></i></button>
+        <button onclick="window.print()" style="background:none; border:none; color:white; font-size:1.2rem; cursor:pointer; padding: 4px;" title="ព្រីន (Print)"><i class="fa-solid fa-print"></i></button>
         <button onclick="closeFullScreenModalDirect()" style="background:none; border:none; color:white; font-size:1.5rem; cursor:pointer; padding: 4px;">✖</button>
+     </div>
+    </div>
+    <!-- ផ្ទាំងបញ្ជា Metronome -->
+    <div class="metronome-panel" id="metronomePanel">
+        <div style="font-size: 0.75rem; color: #94a3b8; font-weight: 600;">METRONOME</div>
+        <div class="bpm-display"><span id="bpmValue">80</span> BPM</div>
+        <div class="metronome-controls">
+            <button class="metronome-btn" onclick="changeBpm(-5)">-5</button>
+            <button class="metronome-btn play-btn" id="metroPlayBtn" onclick="toggleMetronomePlay()"><i class="fa-solid fa-play"></i></button>
+            <button class="metronome-btn" onclick="changeBpm(5)">+5</button>
+        </div>
+    </div>
+
+    <!-- ផ្ទាំងបង្ហាញ Chord Diagram -->
+    <div class="chord-modal" id="chordModal">
+        <div class="chord-modal-content">
+            <button class="chord-close-btn" onclick="closeChordModal()"><i class="fa-solid fa-xmark"></i></button>
+            <div class="chord-modal-title" id="chordModalTitle">C</div>
+            <canvas id="chordCanvas" width="150" height="180" class="chord-canvas"></canvas>
+            <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 10px;">ចុចខ្វែងដើម្បីបិទ</div>
+        </div>
     </div>
 
     <!-- ប៊ូតុងប្តូរ Key (Transpose) -->
@@ -190,6 +229,10 @@
             <span id="transposeLabel" style="font-weight: 800; font-size: 1.1rem; color: var(--text); line-height: 1.2;">C</span>
         </div>
         <button onclick="changeTranspose(1)">+</button>
+        <div class="font-size-controls">
+        <button onclick="changeFontSize(-0.1)">A-</button>
+        <button onclick="changeFontSize(0.1)">A+</button>
+    </div>
     </div>
     
     <button class="media-play-btn" id="fsMediaPlayBtn" title="ចាក់សំឡេង/វីដេអូ"><i class="fa-brands fa-youtube"></i></button>
