@@ -343,12 +343,29 @@
 </div>
 
 <!-- Modal សម្រាប់ Share -->
+<!-- Modal សម្រាប់ Share ថ្មី -->
 <div class="modal" id="sharePlaylistModal">
-    <div class="modal-content" style="max-width: 400px;">
+    <div class="modal-content" style="max-width: 450px;">
         <div class="modal-drag-handle"></div>
-        <h3 style="font-size: 1.1rem; margin-bottom: 16px; text-align: center;">📤 ជម្រើសចែករំលែក</h3>
-        <p style="text-align: center; font-size: 0.85rem; color: var(--text-muted); margin-bottom: 20px;">តើអ្នកចង់ចែករំលែក Playlist នេះជាទម្រង់អ្វី?</p>
-        <div style="display: flex; flex-direction: column; gap: 12px;">
+        <h3 style="font-size: 1.1rem; margin-bottom: 16px; text-align: center;">📤 ការកំណត់ចែករំលែក</h3>
+        
+        <p style="font-size: 0.85rem; font-weight: 600; margin-bottom: 8px;">ជ្រើសរើសទម្រង់រូបភាព៖</p>
+        <div class="share-options-grid">
+            <button class="share-option-btn active" id="shareOptMusician" onclick="setShareMode('musician')">
+                <i class="fa-solid fa-guitar"></i> អ្នកភ្លេង (មាន Chord)
+            </button>
+            <button class="share-option-btn" id="shareOptSinger" onclick="setShareMode('singer')">
+                <i class="fa-solid fa-microphone"></i> អ្នកចម្រៀង (អត់ Chord)
+            </button>
+            <button class="share-option-btn" id="shareOptDark" onclick="setShareMode('dark')">
+                <i class="fa-solid fa-moon"></i> Dark Mode
+            </button>
+            <button class="share-option-btn" id="shareOptTwoCol" onclick="setShareMode('twocol')">
+                <i class="fa-solid fa-columns"></i> ទម្រង់ ២ ជួរ (ផ្តេក)
+            </button>
+        </div>
+
+        <div class="share-format-btns">
             <button onclick="executeShare('pdf')" style="padding: 12px; border-radius: 12px; border: 1px solid var(--primary); font-weight: 600; background: var(--primary); color: white; font-size: 0.95rem; display: flex; align-items: center; justify-content: center; gap: 8px;">
                 <i class="fa-solid fa-file-pdf"></i> ចែករំលែកជា PDF
             </button>
@@ -356,6 +373,7 @@
                 <i class="fa-solid fa-images"></i> ចែករំលែកជារូបភាព
             </button>
         </div>
+
         <div style="text-align: center; margin-top: 16px;">
             <button type="button" onclick="closeModal('sharePlaylistModal')" style="background: transparent; color: var(--danger); padding: 8px 16px; border: none; font-size: 0.9rem; font-weight: 600; cursor: pointer;">បោះបង់</button>
         </div>
