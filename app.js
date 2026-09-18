@@ -1748,22 +1748,33 @@ async function sharePlaylistAsImages(playlistName) {
 // មុខងារសម្រាប់ប្តូរ Key ចម្រៀង (Transpose Chords)
 // ==========================================
 
+// អនុគមន៍ប្តូរ Key (ឆ្លាតវៃជាងមុន ស្គាល់ Slash Chords ដូចជា C/G)
 function transposeSingleChord(chord, steps) {
     if (!chord || steps === 0) return chord;
-    let rootMatch = chord.match(/^[A-G][#b]?/);
-    if (!rootMatch) return chord; 
-    let root = rootMatch[0];
-    let suffix = chord.substring(root.length); 
     
-    let index = keysSharp.indexOf(root);
-    if (index === -1) index = keysFlat.indexOf(root);
-    if (index === -1) return chord; 
+    // បំបែក Chord បើមានសញ្ញា / (ឧទាហរណ៍: C/E ទៅជា ['C', 'E'])
+    let parts = chord.split('/');
     
-    let newIndex = (index + steps) % 12;
-    if (newIndex < 0) newIndex += 12;
-    
-    let newRoot = keysSharp[newIndex];
-    return newRoot + suffix;
+    let transposedParts = parts.map(part => {
+        let rootMatch = part.match(/^[A-G][#b]?/);
+        if (!rootMatch) return part; // បើមិនមែនជាទម្រង់ Chord ទេ ទុកដដែល
+        
+        let root = rootMatch[0];
+        let suffix = part.substring(root.length); 
+        
+        let index = keysSharp.indexOf(root);
+        if (index === -1) index = keysFlat.indexOf(root);
+        if (index === -1) return part; 
+        
+        let newIndex = (index + steps) % 12;
+        if (newIndex < 0) newIndex += 12;
+        
+        // ប្រើ keysSharp ជាគោល
+        return keysSharp[newIndex] + suffix;
+    });
+
+    // ផ្គុំវាចូលគ្នាវិញ
+    return transposedParts.join('/');
 }
 
 function changeTranspose(step) {
@@ -2281,14 +2292,41 @@ function showChordModal(chordName) {
     drawChordDiagram(chordName);
 }
 
+// អនុគមន៍រក Chord ជំនួស បើរកមិនឃើញរូបភាពពិតប្រាកដ
+function getBestChordMatch(chordName) {
+    // ១. រកមើលបេះបិទសិន (បើប្រើជាមួយ fullChordLibrary ពីមុន)
+    if (typeof fullChordLibrary !== 'undefined' && fullChordLibrary[chordName]) return fullChordLibrary[chordName];
+    if (typeof basicChords !== 'undefined' && basicChords[chordName]) return basicChords[chordName];
+
+    // ២. បើមាន Slash (ឧ. C/G) យើងយកតែ C មកបង្ហាញ
+    let noSlash = chordName.split('/')[0];
+    if (typeof fullChordLibrary !== 'undefined' && fullChordLibrary[noSlash]) return fullChordLibrary[noSlash];
+    if (typeof basicChords !== 'undefined' && basicChords[noSlash]) return basicChords[noSlash];
+
+    // ៣. បើនៅតែអត់មាន កាត់កន្ទុយស្មុគស្មាញចោល (add9, maj9, 11, dim, aug, sus2...) ទុកតែមេ Major ឬ Minor
+    let rootOnly = noSlash.replace(/add9|maj9|maj11|m11|dim7|dim|aug|sus2/g, '');
+    if (typeof fullChordLibrary !== 'undefined' && fullChordLibrary[rootOnly]) return fullChordLibrary[rootOnly];
+    if (typeof basicChords !== 'undefined' && basicChords[rootOnly]) return basicChords[rootOnly];
+    
+    // ៤. ជម្រើសចុងក្រោយ យកតែតួអក្សរមេ និង m (ឧ. C#m7b5 ទៅជា C#m)
+    let basicMatch = noSlash.match(/^[A-G][#b]?m?/);
+    if (basicMatch) {
+        let finalChord = basicMatch[0];
+        if (typeof fullChordLibrary !== 'undefined' && fullChordLibrary[finalChord]) return fullChordLibrary[finalChord];
+        if (typeof basicChords !== 'undefined' && basicChords[finalChord]) return basicChords[finalChord];
+    }
+
+    return null; // បើអត់មែនទែន ទើបព្រមចុះចាញ់
+}
+
 function drawChordDiagram(chordName) {
     const canvas = document.getElementById('chordCanvas');
+    if (!canvas) return;
     const ctx = canvas.getContext('2d');
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     
-    // បើកChordដែលអត់មានក្នុងបណ្តុំ (ឧ. ព្យាយាមកាត់ 7, sus ចោលសិនដើម្បីរកមើលមេវា)
-    let baseChord = chordName.replace(/7|sus4|sus2|add9/g, '');
-    let positions = basicChords[baseChord] || basicChords[chordName];
+    // ប្រើអនុគមន៍ឆ្លាតវៃដើម្បីស្វែងរករូបភាព
+    let positions = getBestChordMatch(chordName);
     
     if (!positions) {
         ctx.fillStyle = "#64748b";
@@ -2300,24 +2338,21 @@ function drawChordDiagram(chordName) {
 
     const startX = 25; const startY = 40; const stringSpacing = 20; const fretSpacing = 30;
 
-    // គូរឈ្មោះខ្សែខាងលើ
     const stringsName = ['E', 'A', 'D', 'G', 'B', 'e'];
     ctx.font = "12px Arial"; ctx.fillStyle = "#94a3b8"; ctx.textAlign = "center";
     for(let i=0; i<6; i++) {
         ctx.fillText(stringsName[i], startX + i * stringSpacing, startY - 20);
     }
 
-    // គូរបន្ទាត់ (Fretboard)
     ctx.strokeStyle = "#334155";
     ctx.lineWidth = 1.5;
-    for (let i = 0; i < 6; i++) { // ខ្សែបញ្ឈរ (Strings)
+    for (let i = 0; i < 6; i++) { 
         ctx.beginPath();
         ctx.moveTo(startX + i * stringSpacing, startY);
         ctx.lineTo(startX + i * stringSpacing, startY + 4 * fretSpacing);
         ctx.stroke();
     }
     
-    // Fret លើគេ (Nut)
     ctx.lineWidth = 4;
     ctx.beginPath();
     ctx.moveTo(startX, startY);
@@ -2325,37 +2360,31 @@ function drawChordDiagram(chordName) {
     ctx.stroke();
 
     ctx.lineWidth = 1.5;
-    for (let i = 1; i <= 4; i++) { // ខ្សែដេក (Frets)
+    for (let i = 1; i <= 4; i++) { 
         ctx.beginPath();
         ctx.moveTo(startX, startY + i * fretSpacing);
         ctx.lineTo(startX + 5 * stringSpacing, startY + i * fretSpacing);
         ctx.stroke();
     }
 
-    // គូរចំណុចចាប់ (Dots) ឬសញ្ញា X/O
     for (let i = 0; i < 6; i++) {
         let fret = positions[i];
         let x = startX + i * stringSpacing;
         
         if (fret === -1) {
-            // គូរសញ្ញា X ពីលើខ្សែ
             ctx.fillStyle = "#ef4444"; ctx.font = "14px Arial";
             ctx.fillText("X", x, startY - 5);
         } else if (fret === 0) {
-            // គូរសញ្ញា O ពីលើខ្សែ
             ctx.strokeStyle = "#10b981"; ctx.lineWidth = 2;
             ctx.beginPath(); ctx.arc(x, startY - 8, 4, 0, Math.PI*2); ctx.stroke();
         } else {
-            // គូរចំណុច (Dot)
             let y = startY + (fret - 0.5) * fretSpacing; 
-            // បើទម្រង់ចាប់វាលូកដល់ Fret ទី៥ ឬទី៦ យើងរុញវាឲ្យនៅក្នុងប្លង់កម្រិត៤ Fret សិន (ជាលក្ខណៈសាមញ្ញ)
             let displayFret = fret;
             if(Math.max(...positions) > 4) {
                 let minFret = Math.min(...positions.filter(p => p > 0));
                 displayFret = fret - minFret + 1;
                 y = startY + (displayFret - 0.5) * fretSpacing;
                 
-                // បង្ហាញលេខ Fret នៅខាងឆ្វេង
                 if(i === 0 || (i > 0 && positions[i-1] <= 0)) {
                     ctx.fillStyle = "#3b82f6"; ctx.font = "bold 12px Arial";
                     ctx.fillText(minFret + "fr", startX - 15, startY + 0.5 * fretSpacing);
@@ -2367,7 +2396,6 @@ function drawChordDiagram(chordName) {
         }
     }
 }
-
 /* =========================================
    មុខងារ Guitar Tuner (នៅលើទំព័រដើម)
 ========================================= */
@@ -2510,4 +2538,147 @@ function updatePitch() {
     }
     
     tunerAnimFrame = requestAnimationFrame(updatePitch);
+}
+
+/* =========================================
+   មុខងារ Chord Library Tabs
+========================================= */
+
+// ទិន្នន័យ Chords ទូលំទូលាយ (អាចបន្ថែមខ្លួនឯងបានទៀត)
+// លំដាប់ខ្សែ: [Eធំ, A, D, G, B, eតូច] ។ (-1 = មិនដេញ (X), 0 = ខ្សែលែង (O))
+const fullChordLibrary = {
+    // ត្រកូល C
+    "C": [-1, 3, 2, 0, 1, 0], "Cm": [-1, 3, 5, 5, 4, 3], "C7": [-1, 3, 2, 3, 1, 0], "Cm7": [-1, 3, 5, 3, 4, 3], "Cmaj7": [-1, 3, 2, 0, 0, 0], "Csus4": [-1, 3, 3, 0, 1, 0],
+    "C#": [-1, 4, 6, 6, 6, 4], "C#m": [-1, 4, 6, 6, 5, 4], "C#7": [-1, 4, 6, 4, 6, 4], "C#m7": [-1, 4, 6, 4, 5, 4], "C#maj7": [-1, 4, 6, 5, 6, 4], "C#sus4": [-1, 4, 6, 6, 7, 4],
+    
+    // ត្រកូល D
+    "D": [-1, -1, 0, 2, 3, 2], "Dm": [-1, -1, 0, 2, 3, 1], "D7": [-1, -1, 0, 2, 1, 2], "Dm7": [-1, -1, 0, 2, 1, 1], "Dmaj7": [-1, -1, 0, 2, 2, 2], "Dsus4": [-1, -1, 0, 2, 3, 3],
+    "Eb": [-1, 6, 8, 8, 8, 6], "Ebm": [-1, 6, 8, 8, 7, 6], "Eb7": [-1, 6, 8, 6, 8, 6], "Ebm7": [-1, 6, 8, 6, 7, 6], "Ebmaj7": [-1, 6, 8, 7, 8, 6], "Ebsus4": [-1, 6, 8, 8, 9, 6],
+    
+    // ត្រកូល E
+    "E": [0, 2, 2, 1, 0, 0], "Em": [0, 2, 2, 0, 0, 0], "E7": [0, 2, 0, 1, 0, 0], "Em7": [0, 2, 0, 0, 0, 0], "Emaj7": [0, 2, 1, 1, 0, 0], "Esus4": [0, 2, 2, 2, 0, 0],
+    
+    // ត្រកូល F
+    "F": [1, 3, 3, 2, 1, 1], "Fm": [1, 3, 3, 1, 1, 1], "F7": [1, 3, 1, 2, 1, 1], "Fm7": [1, 3, 1, 1, 1, 1], "Fmaj7": [-1, -1, 3, 2, 1, 0], "Fsus4": [1, 3, 3, 3, 1, 1],
+    "F#": [2, 4, 4, 3, 2, 2], "F#m": [2, 4, 4, 2, 2, 2], "F#7": [2, 4, 2, 3, 2, 2], "F#m7": [2, 4, 2, 2, 2, 2], "F#maj7": [-1, -1, 4, 3, 2, 1], "F#sus4": [2, 4, 4, 4, 2, 2],
+    
+    // ត្រកូល G
+    "G": [3, 2, 0, 0, 0, 3], "Gm": [3, 5, 5, 3, 3, 3], "G7": [3, 2, 0, 0, 0, 1], "Gm7": [3, 5, 3, 3, 3, 3], "Gmaj7": [3, 2, 0, 0, 0, 2], "Gsus4": [3, 3, 0, 0, 1, 3],
+    "G#": [4, 6, 6, 5, 4, 4], "G#m": [4, 6, 6, 4, 4, 4], "G#7": [4, 6, 4, 5, 4, 4], "G#m7": [4, 6, 4, 4, 4, 4], "G#maj7": [4, 6, 5, 5, 4, 4], "G#sus4": [4, 6, 6, 6, 4, 4],
+    
+    // ត្រកូល A
+    "A": [-1, 0, 2, 2, 2, 0], "Am": [-1, 0, 2, 2, 1, 0], "A7": [-1, 0, 2, 0, 2, 0], "Am7": [-1, 0, 2, 0, 1, 0], "Amaj7": [-1, 0, 2, 1, 2, 0], "Asus4": [-1, 0, 2, 2, 3, 0],
+    "Bb": [-1, 1, 3, 3, 3, 1], "Bbm": [-1, 1, 3, 3, 2, 1], "Bb7": [-1, 1, 3, 1, 3, 1], "Bbm7": [-1, 1, 3, 1, 2, 1], "Bbmaj7": [-1, 1, 3, 2, 3, 1], "Bbsus4": [-1, 1, 3, 3, 4, 1],
+    
+    // ត្រកូល B
+    "B": [-1, 2, 4, 4, 4, 2], "Bm": [-1, 2, 4, 4, 3, 2], "B7": [-1, 2, 1, 2, 0, 2], "Bm7": [-1, 2, 4, 2, 3, 2], "Bmaj7": [-1, 2, 4, 3, 4, 2], "Bsus4": [-1, 2, 4, 4, 5, 2]
+};
+
+// អនុគមន៍ប្តូរ Tab ចុះឡើង
+function switchTunerTab(tabName) {
+    const tunerBtn = document.getElementById('tabBtnTuner');
+    const libBtn = document.getElementById('tabBtnLibrary');
+    const tunerContent = document.getElementById('tunerTabContent');
+    const libContent = document.getElementById('libraryTabContent');
+
+    if (tabName === 'tuner') {
+        tunerBtn.classList.add('active');
+        libBtn.classList.remove('active');
+        tunerContent.style.display = 'flex';
+        libContent.style.display = 'none';
+    } else {
+        libBtn.classList.add('active');
+        tunerBtn.classList.remove('active');
+        tunerContent.style.display = 'none';
+        libContent.style.display = 'flex';
+        
+        // បិទសម្លេង Mic ប្រសិនបើកំពុងបើក Tuner ដើម្បីសន្សំថ្ម
+        if (isTunerActive) toggleTunerAction();
+        
+        // គូររូប Chord ទីមួយ (C) ពេលចូល Tab នេះដំបូង
+        updateLibraryChord();
+    }
+}
+
+// អនុគមន៍គូររូប Chord តាមអ្វីដែលអ្នកប្រើប្រាស់រើស
+function updateLibraryChord() {
+    const root = document.getElementById('chordRootSelect').value;
+    const type = document.getElementById('chordTypeSelect').value;
+    const chordName = root + type;
+    
+    document.getElementById('libraryChordNameDisplay').innerText = chordName;
+    
+    // យើងអាចយកមុខងារ drawChordDiagram ដើមមកប្រើឡើងវិញ ដោយគ្រាន់តែប្តូរ Canvas ID
+    drawCustomChordDiagram(chordName, 'libraryChordCanvas');
+}
+
+// អនុគមន៍ជំនួយសម្រាប់គូររូប Chord លើ Canvas ណាមួយ (Reuse Logic ចាស់)
+function drawCustomChordDiagram(chordName, canvasId) {
+    const canvas = document.getElementById(canvasId);
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    
+    // ទាញយកទិន្នន័យពី fullChordLibrary ថ្មី
+    let positions = fullChordLibrary[chordName];
+    
+    if (!positions) {
+        ctx.fillStyle = "#64748b";
+        ctx.font = "14px 'Kantumruy Pro', sans-serif";
+        ctx.textAlign = "center";
+        ctx.fillText("មិនមានទិន្នន័យ", canvas.width/2, canvas.height/2);
+        return;
+    }
+
+    const startX = 30; const startY = 40; const stringSpacing = 20; const fretSpacing = 30;
+
+    // ឈ្មោះខ្សែ (E A D G B e)
+    const stringsName = ['E', 'A', 'D', 'G', 'B', 'e'];
+    ctx.font = "13px Arial"; ctx.fillStyle = "#94a3b8"; ctx.textAlign = "center";
+    for(let i=0; i<6; i++) {
+        ctx.fillText(stringsName[i], startX + i * stringSpacing, startY - 20);
+    }
+
+    ctx.strokeStyle = "#334155";
+    ctx.lineWidth = 1.5;
+    for (let i = 0; i < 6; i++) { 
+        ctx.beginPath(); ctx.moveTo(startX + i * stringSpacing, startY); ctx.lineTo(startX + i * stringSpacing, startY + 4 * fretSpacing); ctx.stroke();
+    }
+    
+    ctx.lineWidth = 4; // Nut
+    ctx.beginPath(); ctx.moveTo(startX, startY); ctx.lineTo(startX + 5 * stringSpacing, startY); ctx.stroke();
+
+    ctx.lineWidth = 1.5;
+    for (let i = 1; i <= 4; i++) { 
+        ctx.beginPath(); ctx.moveTo(startX, startY + i * fretSpacing); ctx.lineTo(startX + 5 * stringSpacing, startY + i * fretSpacing); ctx.stroke();
+    }
+
+    for (let i = 0; i < 6; i++) {
+        let fret = positions[i];
+        let x = startX + i * stringSpacing;
+        
+        if (fret === -1) {
+            ctx.fillStyle = "#ef4444"; ctx.font = "bold 15px Arial"; ctx.fillText("X", x, startY - 5);
+        } else if (fret === 0) {
+            ctx.strokeStyle = "#10b981"; ctx.lineWidth = 2;
+            ctx.beginPath(); ctx.arc(x, startY - 8, 4.5, 0, Math.PI*2); ctx.stroke();
+        } else {
+            let displayFret = fret;
+            let y = startY + (displayFret - 0.5) * fretSpacing;
+            
+            if(Math.max(...positions) > 4) {
+                let minFret = Math.min(...positions.filter(p => p > 0));
+                displayFret = fret - minFret + 1;
+                y = startY + (displayFret - 0.5) * fretSpacing;
+                
+                if(i === 0 || (i > 0 && positions[i-1] <= 0)) {
+                    ctx.fillStyle = "#3b82f6"; ctx.font = "bold 13px Arial";
+                    ctx.fillText(minFret + "fr", startX - 20, startY + 0.5 * fretSpacing);
+                }
+            }
+            
+            ctx.fillStyle = "#2563eb";
+            ctx.beginPath(); ctx.arc(x, y, 7.5, 0, Math.PI*2); ctx.fill();
+        }
+    }
 }
