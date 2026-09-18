@@ -320,3 +320,46 @@ body.dark-mode .card-dropdown { box-shadow: 0 4px 15px rgba(0,0,0,0.5); }
 
 .lyric-textarea { width: 100%; padding: 12px; border: 1px solid var(--border); border-radius: 8px; background: var(--bg); color: var(--text); font-family: 'Courier New', monospace; font-size: 0.95rem; line-height: 1.6; resize: vertical; outline: none; }
 .lyric-textarea:focus { border-color: var(--primary); }
+
+/* =========================================
+   រចនាបថសម្រាប់ផ្ទាំង Share ថ្មី
+========================================= */
+.share-options-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+.share-option-btn {
+    padding: 12px;
+    border: 2px solid var(--border);
+    border-radius: 12px;
+    background: var(--bg);
+    color: var(--text);
+    font-weight: 600;
+    font-size: 0.85rem;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    transition: all 0.2s;
+}
+.share-option-btn i {
+    font-size: 1.2rem;
+    color: var(--primary);
+}
+.share-option-btn.active {
+    border-color: var(--primary);
+    background: rgba(37, 99, 235, 0.1);
+}
+body.dark-mode .share-option-btn.active {
+    background: rgba(59, 130, 246, 0.2);
+}
+.share-format-btns {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    border-top: 1px solid var(--border);
+    padding-top: 16px;
+}
