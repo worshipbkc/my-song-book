@@ -363,3 +363,64 @@ body.dark-mode .share-option-btn.active {
     border-top: 1px solid var(--border);
     padding-top: 16px;
 }
+/* =========================================
+   មុខងារបន្ថែមថ្មី (New Features)
+========================================= */
+
+/* ១. Print Stylesheet (សម្រាប់ព្រីនក្រដាសបទចម្រៀង) */
+@media print {
+    body * { visibility: hidden; }
+    #fullScreenModal, #fullScreenModal * { visibility: visible; }
+    #fullScreenModal { position: absolute; left: 0; top: 0; width: 100%; background: white !important; color: black !important; padding: 0 !important; }
+    .fullscreen-header, .transpose-controls, #fsScrollControls, .fullscreen-nav-btn, .media-play-btn { display: none !important; }
+    .lyric-line { font-size: 14pt !important; color: black !important; }
+    .chord-word .chord { color: #555 !important; }
+}
+
+/* ២. Mini Audio Player */
+.mini-player { position: fixed; bottom: calc(65px + env(safe-area-inset-bottom)); left: 10px; right: 10px; background: var(--card-bg); border: 1px solid var(--border); border-radius: 12px; padding: 10px 16px; display: none; align-items: center; justify-content: space-between; box-shadow: 0 -4px 15px rgba(0,0,0,0.1); z-index: 1050; backdrop-filter: blur(10px); }
+body.dark-mode .mini-player { box-shadow: 0 -4px 15px rgba(0,0,0,0.5); }
+.mini-player-info { display: flex; flex-direction: column; max-width: 65%; }
+.mini-player-title { font-size: 0.85rem; font-weight: 700; color: var(--text); overflow: hidden; white-space: nowrap; text-overflow: ellipsis; margin-bottom: 4px;}
+.mini-player-controls button { background: none; border: none; color: var(--primary); font-size: 1.5rem; cursor: pointer; padding: 0 10px; }
+.close-player-btn { color: var(--text-muted) !important; font-size: 1.2rem !important; }
+
+/* ៣. Font Size & Presentation Mode */
+.font-size-controls { display: flex; gap: 8px; align-items: center; margin-left: 10px; border-left: 1px solid var(--border); padding-left: 10px; }
+.font-size-controls button { background: var(--card-bg); border: 1px solid var(--border); color: var(--text); padding: 4px 10px; border-radius: 6px; cursor: pointer; font-weight: bold; }
+.font-size-controls button:active { background: var(--primary); color: white; }
+
+.presentation-mode { background-color: #000000 !important; }
+.presentation-mode .fullscreen-header, .presentation-mode .transpose-controls { opacity: 0.1; transition: 0.3s; }
+.presentation-mode .fullscreen-header:hover, .presentation-mode .transpose-controls:hover { opacity: 1; }
+.presentation-mode .chord { display: none !important; } /* លាក់ Chord នៅពេលបញ្ចាំង */
+.presentation-mode .lyric { font-size: 3.5rem !important; font-weight: bold; line-height: 1.5; color: white !important; }
+.presentation-mode .lyric-line { text-align: center; margin-bottom: 20px; }
+
+/* =========================================
+   មុខងារ Metronome & Chord Diagram
+========================================= */
+
+/* ១. រចនាបថ Metronome Panel */
+.metronome-panel { position: absolute; top: calc(60px + env(safe-area-inset-top)); right: 16px; background: rgba(15, 23, 42, 0.85); backdrop-filter: blur(10px); padding: 12px 16px; border-radius: 16px; border: 1px solid rgba(255,255,255,0.2); color: white; display: none; flex-direction: column; align-items: center; gap: 10px; z-index: 3050; box-shadow: 0 4px 15px rgba(0,0,0,0.3); }
+.bpm-display { font-size: 1.5rem; font-weight: 800; font-family: 'Courier New', Courier, monospace; color: #10b981; }
+.metronome-controls { display: flex; gap: 10px; align-items: center; }
+.metronome-btn { background: rgba(255,255,255,0.2); border: none; color: white; width: 34px; height: 34px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1rem; cursor: pointer; transition: 0.2s; }
+.metronome-btn:active { transform: scale(0.9); background: var(--primary); }
+.metronome-btn.play-btn.active { background: #ef4444; }
+
+/* ២. រចនាបថ Chord Diagram Modal */
+.chord-modal { display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0, 0, 0, 0.6); z-index: 4000; align-items: center; justify-content: center; opacity: 0; transition: opacity 0.2s; }
+.chord-modal.active { display: flex; opacity: 1; }
+.chord-modal-content { background: var(--card-bg); padding: 20px; border-radius: 16px; text-align: center; color: var(--text); position: relative; min-width: 200px; box-shadow: 0 10px 25px rgba(0,0,0,0.2); }
+.chord-modal-title { font-size: 1.5rem; font-weight: 800; color: var(--primary); margin-bottom: 10px; }
+.chord-canvas { background: white; border-radius: 8px; margin: 0 auto; display: block; padding: 10px; }
+.chord-close-btn { position: absolute; top: 10px; right: 10px; background: none; border: none; color: var(--text-muted); font-size: 1.2rem; cursor: pointer; }
+.chord { cursor: pointer; transition: color 0.2s; }
+.chord:hover { color: #2563eb !important; text-shadow: 0 0 5px rgba(37,99,235,0.3); }
+
+/* រុញផ្ទាំង Transpose និងប្តូរទំហំអក្សរមកខាងក្រោម */
+.transpose-controls {
+    top: auto !important; 
+    bottom: calc(90px + env(safe-area-inset-bottom)) !important; 
+}
