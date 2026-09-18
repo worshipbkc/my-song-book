@@ -426,33 +426,63 @@
 </div>
 
 <script src="app.js"></script>
-<!-- ផ្ទាំង Guitar Tuner លើទំព័រដើម (ទំហំធំ) -->
+
+<!-- ផ្ទាំង Guitar Tuner & Chord Library (ទំហំធំ) -->
 <div class="tuner-floating-panel" id="mainTunerPanel">
     <button class="tuner-close-btn" onclick="toggleMainTunerPanel()"><i class="fa-solid fa-xmark"></i></button>
     
-    <div style="font-size: 1.1rem; color: var(--text-muted); font-weight: 800; margin-bottom: 10px; letter-spacing: 1px;">🎸 GUITAR TUNER</div>
-    
-    <!-- តួអក្សរចំណាំខ្នាតធំ (ឧ. E, A, D) -->
-    <div id="tunerNote" style="font-size: 5.5rem; font-weight: 900; color: #10b981; margin: 15px 0; line-height: 1; text-shadow: 0 4px 15px rgba(16, 185, 129, 0.25);">--</div>
-    
-    <!-- ទ្រនិចបង្ហាញកម្រិតសំឡេង -->
-    <div style="width: 90%; background: var(--border); height: 8px; border-radius: 4px; position: relative; margin-bottom: 30px; margin-top: 15px;">
-        <div id="tunerIndicator" style="width: 16px; height: 26px; background: var(--text); border-radius: 6px; position: absolute; top: -9px; left: 50%; transform: translateX(-50%); transition: left 0.1s ease-out, background-color 0.2s; box-shadow: 0 4px 10px rgba(0,0,0,0.3);"></div>
-        <!-- ចំណុចកណ្តាល (ត្រូវសំឡេង) -->
-        <div style="width: 3px; height: 26px; background: rgba(16, 185, 129, 0.7); position: absolute; top: -9px; left: 50%; transform: translateX(-50%); border-radius: 2px;"></div>
+    <!-- Tabs ប្តូរចុះឡើង -->
+    <div class="tuner-tabs">
+        <button class="tuner-tab-btn active" id="tabBtnTuner" onclick="switchTunerTab('tuner')">🎸 Tuner</button>
+        <button class="tuner-tab-btn" id="tabBtnLibrary" onclick="switchTunerTab('library')">📚 Chords</button>
     </div>
     
-    <!-- ព័ត៌មានប្រេកង់ (Hz) -->
-    <div style="display: flex; justify-content: space-between; width: 90%; font-size: 0.95rem; color: var(--text-muted); margin-bottom: 25px; font-weight: 600;">
-        <span>ទាប (b)</span>
-        <span id="tunerHz" style="font-weight: 800; color: var(--text); font-size: 1rem;">0 Hz</span>
-        <span>ខ្ពស់ (#)</span>
+    <!-- ផ្នែកទី១៖ Tuner (រឹតខ្សែ) -->
+    <div id="tunerTabContent" style="width: 100%; display: flex; flex-direction: column; align-items: center;">
+        <div id="tunerNote" style="font-size: 5.5rem; font-weight: 900; color: #10b981; margin: 0 0 15px 0; line-height: 1; text-shadow: 0 4px 15px rgba(16, 185, 129, 0.25);">--</div>
+        
+        <div style="width: 90%; background: var(--border); height: 8px; border-radius: 4px; position: relative; margin-bottom: 30px; margin-top: 15px;">
+            <div id="tunerIndicator" style="width: 16px; height: 26px; background: var(--text); border-radius: 6px; position: absolute; top: -9px; left: 50%; transform: translateX(-50%); transition: left 0.1s ease-out, background-color 0.2s; box-shadow: 0 4px 10px rgba(0,0,0,0.3);"></div>
+            <div style="width: 3px; height: 26px; background: rgba(16, 185, 129, 0.7); position: absolute; top: -9px; left: 50%; transform: translateX(-50%); border-radius: 2px;"></div>
+        </div>
+        
+        <div style="display: flex; justify-content: space-between; width: 90%; font-size: 0.95rem; color: var(--text-muted); margin-bottom: 25px; font-weight: 600;">
+            <span>ទាប (b)</span><span id="tunerHz" style="font-weight: 800; color: var(--text); font-size: 1rem;">0 Hz</span><span>ខ្ពស់ (#)</span>
+        </div>
+        
+        <button id="tunerBtn" onclick="toggleTunerAction()" style="width: 90%; border-radius: 14px; font-size: 1.1rem; font-weight: 700; padding: 15px 0; background: var(--primary); color: white; border: none; cursor: pointer; box-shadow: 0 6px 20px rgba(37, 99, 235, 0.35); transition: 0.2s;">
+            <i class="fa-solid fa-microphone"></i> បើកស្តាប់
+        </button>
     </div>
-    
-    <!-- ប៊ូតុង -->
-    <button id="tunerBtn" onclick="toggleTunerAction()" style="width: 90%; border-radius: 14px; font-size: 1.1rem; font-weight: 700; padding: 15px 0; background: var(--primary); color: white; border: none; cursor: pointer; box-shadow: 0 6px 20px rgba(37, 99, 235, 0.35); transition: 0.2s;">
-        <i class="fa-solid fa-microphone"></i> បើកស្តាប់
-    </button>
+
+    <!-- ផ្នែកទី២៖ Chord Library (សៀវភៅខ័រ) -->
+    <div id="libraryTabContent" style="width: 100%; display: none; flex-direction: column; align-items: center;">
+        <div class="chord-lib-selectors">
+            <!-- ជ្រើសរើសមេ Chord (Root) -->
+            <select id="chordRootSelect" onchange="updateLibraryChord()">
+                <option value="C">C</option><option value="C#">C# / Db</option>
+                <option value="D">D</option><option value="Eb">D# / Eb</option>
+                <option value="E">E</option><option value="F">F</option>
+                <option value="F#">F# / Gb</option><option value="G">G</option>
+                <option value="G#">G# / Ab</option><option value="A">A</option>
+                <option value="Bb">A# / Bb</option><option value="B">B</option>
+            </select>
+            <!-- ជ្រើសរើសប្រភេទ (Family/Variation) -->
+            <select id="chordTypeSelect" onchange="updateLibraryChord()">
+                <option value="">Major</option>
+                <option value="m">Minor (m)</option>
+                <option value="7">7</option>
+                <option value="m7">Minor 7 (m7)</option>
+                <option value="maj7">Maj 7</option>
+                <option value="sus4">sus4</option>
+            </select>
+        </div>
+        
+        <div style="background: white; border-radius: 16px; padding: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); margin-bottom: 10px;">
+            <canvas id="libraryChordCanvas" width="160" height="190" style="display: block;"></canvas>
+        </div>
+        <div id="libraryChordNameDisplay" style="font-size: 1.6rem; font-weight: 800; color: var(--primary); margin-top: 5px;">C</div>
+    </div>
 </div>
 </body>
 </html>
