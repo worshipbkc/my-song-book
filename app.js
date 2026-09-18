@@ -828,6 +828,10 @@ function selectSearchDropdownItem(songId) {
 }
 
 function resetFilters() {
+    // បន្ថែមកូដ ២ បន្ទាត់នេះដើម្បីលុបអក្សរក្នុងប្រអប់ Search
+    document.getElementById('searchInput').value = '';
+    document.getElementById('clearSearchBtn').style.display = 'none';
+
     currentFilterType = 'ALL'; currentFilterValue = 'ALL';
     document.getElementById('sectionTitleText').innerText = "បទចម្រៀងទាំងអស់";
     document.getElementById('currentAlbumSubtitle').innerHTML = `Khmer Christian Worship Songs`;
@@ -836,6 +840,10 @@ function resetFilters() {
 }
 
 function filterByAlbum(albumName) {
+    // បន្ថែមកូដ ២ បន្ទាត់នេះដើម្បីលុបអក្សរក្នុងប្រអប់ Search
+    document.getElementById('searchInput').value = '';
+    document.getElementById('clearSearchBtn').style.display = 'none';
+
     currentFilterType = 'ALBUM'; currentFilterValue = albumName; switchTab('songs');
     document.getElementById('sectionTitleText').innerHTML = escapeHtml(albumName);
     document.getElementById('currentAlbumSubtitle').innerHTML = '';
@@ -844,6 +852,10 @@ function filterByAlbum(albumName) {
 }
 
 function filterByPlaylist(playlistName) {
+    // បន្ថែមកូដ ២ បន្ទាត់នេះដើម្បីលុបអក្សរក្នុងប្រអប់ Search
+    document.getElementById('searchInput').value = '';
+    document.getElementById('clearSearchBtn').style.display = 'none';
+
     currentFilterType = 'PLAYLIST'; currentFilterValue = playlistName; switchTab('songs');
     const icon = playlistName === 'Favorite' ? '❤️ ' : '';
     document.getElementById('sectionTitleText').innerHTML = icon + escapeHtml(playlistName);
