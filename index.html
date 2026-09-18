@@ -68,9 +68,12 @@
             </div>
 
            <div class="filter-chips">
-                <button class="chip-btn active" onclick="setQuickFilter('ALL', this)">🎵 បទទាំងអស់</button>
+                <button class="chip-btn active" onclick="setQuickFilter('ALL', this)">🎵ទាំងអស់</button>
                 <button class="chip-btn" onclick="setQuickFilter('RECENT', this)">✨ បទថ្មីៗ</button>
                 <button class="chip-btn" onclick="setQuickFilter('FAV', this)">❤️ ចូលចិត្ត</button>
+                <button class="chip-btn" onclick="toggleMainTunerPanel()" style="color: #10b981; border: 1px solid #10b981; font-weight: 700;">
+                        <i class="fa-solid fa-guitar"></i> Tuner
+                </button>
                 <button class="chip-btn" id="viewToggleBtn" onclick="toggleViewMode()"><i class="fa-solid fa-list"></i> ទម្រង់ List</button>
             </div>
             
@@ -423,5 +426,29 @@
 </div>
 
 <script src="app.js"></script>
+<!-- ផ្ទាំង Guitar Tuner លើទំព័រដើម -->
+<div class="tuner-floating-panel" id="mainTunerPanel">
+    <button class="tuner-close-btn" onclick="toggleMainTunerPanel()"><i class="fa-solid fa-xmark"></i></button>
+    
+    <div style="font-size: 0.85rem; color: var(--text-muted); font-weight: 700; margin-bottom: 5px;">🎸 GUITAR TUNER</div>
+    <div id="tunerNote" style="font-size: 3rem; font-weight: 800; color: #10b981; margin: 10px 0; line-height: 1;">--</div>
+    
+    <!-- ទ្រនិចបង្ហាញកម្រិតសំឡេង -->
+    <div style="width: 100%; background: var(--border); height: 6px; border-radius: 3px; position: relative; margin-bottom: 20px; margin-top: 10px;">
+        <div id="tunerIndicator" style="width: 12px; height: 18px; background: var(--text); border-radius: 4px; position: absolute; top: -6px; left: 50%; transform: translateX(-50%); transition: left 0.1s ease-out, background-color 0.2s; box-shadow: 0 2px 5px rgba(0,0,0,0.3);"></div>
+        <!-- ចំណុចកណ្តាល (ត្រូវសំឡេង) -->
+        <div style="width: 2px; height: 18px; background: rgba(16, 185, 129, 0.5); position: absolute; top: -6px; left: 50%; transform: translateX(-50%);"></div>
+    </div>
+    
+    <div style="display: flex; justify-content: space-between; width: 100%; font-size: 0.75rem; color: var(--text-muted); margin-bottom: 15px; font-weight: 600;">
+        <span>ទាប (b)</span>
+        <span id="tunerHz">0 Hz</span>
+        <span>ខ្ពស់ (#)</span>
+    </div>
+    
+    <button id="tunerBtn" onclick="toggleTunerAction()" style="width: 100%; border-radius: 10px; font-size: 0.95rem; font-weight: 700; padding: 10px 0; background: var(--primary); color: white; border: none; cursor: pointer;">
+        <i class="fa-solid fa-microphone"></i> បើកស្តាប់
+    </button>
+</div>
 </body>
 </html>
