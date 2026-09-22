@@ -57,15 +57,14 @@
             <div class="home-welcome"> Khmer Christian Worship Songs</div>
         </div>
     </div>
-    <!-- ផ្នែកបន្ថែមថ្មី៖ ប៊ូតុងកណ្តឹង និង ប៊ូតុង Profile -->
-    <!-- ផ្នែកបន្ថែមថ្មី៖ ប៊ូតុងកណ្តឹង និង ប៊ូតុង Profile -->
+
 <div style="display: flex; gap: 12px; align-items: center; position: relative;">
-    <button class="home-icon-btn" onclick="openNotificationsSubView()" aria-label="Notifications" style="position: relative;">
-        <i class="fa-solid fa-bell"></i>
-        <span class="nav-badge-dot" id="navNotifDot" style="top: 8px; right: 10px;"></span>
-    </button>
+    <button class="home-icon-btn" onclick="openAcledaNotifScreen()" aria-label="Notifications" style="position: relative;">
+    <i class="fa-solid fa-bell"></i>
+    <span class="nav-badge-dot" id="navNotifDot" style="top: 8px; right: 10px;"></span>
+</button>
     
-    <!-- ទីតាំងប៊ូតុង Profile ថ្មី -->
+    <!-- ទីតាំងប៊ូតុង Profile -->
     <div style="position: relative;">
         <button class="home-icon-btn" id="homeProfileBtn" onclick="toggleProfilePopup(event)" aria-label="Profile">
             <i class="fa-regular fa-user"></i>
@@ -500,6 +499,49 @@
         <div style="text-align: center; margin-top: 16px;">
             <button type="button" onclick="closeModal('sharePlaylistModal')" style="background: transparent; color: var(--danger); padding: 8px 16px; border: none; font-size: 0.9rem; font-weight: 600; cursor: pointer;">បោះបង់</button>
         </div>
+    </div>
+</div>
+
+<!-- ផ្ទាំងការជូនដំណឹង (Full Screen រចនាបថដូច ACLEDA Mobile) -->
+<div id="acledaNotifScreen" style="display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: #f3f4f6; z-index: 99999; overflow-y: auto;">
+    
+    <!-- Header ពណ៌ខៀវ និងប៊ូតុង Tab -->
+    <div style="background: #0f3566; padding: 15px 20px 20px; position: sticky; top: 0; z-index: 10; box-shadow: 0 4px 10px rgba(0,0,0,0.1);">
+        
+        <!-- ចំណងជើង និងប៊ូតុងថយក្រោយ -->
+        <div style="display: flex; align-items: center; color: white; margin-bottom: 20px;">
+            <button onclick="closeAcledaNotifScreen()" style="background: rgba(255,255,255,0.2); border: none; color: white; width: 34px; height: 34px; border-radius: 50%; font-size: 1rem; cursor: pointer; display: flex; justify-content: center; align-items: center; margin-right: 15px;">
+                <i class="fa-solid fa-chevron-left"></i>
+            </button>
+            <h2 style="margin: 0; font-size: 1.15rem; font-weight: 700;">ការជូនដំណឹង</h2>
+        </div>
+        
+        <!-- ប៊ូតុងរើស Tab (ដូចរចនាបថ ACLEDA) -->
+        <div style="display: flex; background: rgba(0,0,0,0.2); border-radius: 25px; padding: 4px; max-width: 400px; margin: 0 auto;">
+            <button id="tabBtnNews" onclick="switchAcledaTab('news')" style="flex: 1; padding: 10px 0; border: none; border-radius: 20px; font-family: 'Kantumruy Pro'; font-size: 0.85rem; font-weight: 700; cursor: pointer; transition: 0.3s; background: white; color: #0f3566;">ព័ត៌មានថ្មីៗ</button>
+            <button id="tabBtnSongs" onclick="switchAcledaTab('songs')" style="flex: 1; padding: 10px 0; border: none; border-radius: 20px; font-family: 'Kantumruy Pro'; font-size: 0.85rem; font-weight: 700; cursor: pointer; transition: 0.3s; background: transparent; color: white;">បទចម្រៀងថ្មី</button>
+        </div>
+    </div>
+    
+    <!-- ផ្ទៃបង្ហាញទិន្នន័យ (Content Area) -->
+    <div style="padding: 15px; max-width: 600px; margin: 0 auto;">
+        
+        <!-- Tab ទី១: ព័ត៌មានថ្មីៗ -->
+        <div id="tabContentNews" style="display: block;">
+            <!-- ប្រអប់សរសេរសារសម្រាប់ Admin (លាក់ពេលអ្នកធម្មតាមើល) -->
+            <div id="adminMessageContainer" class="editor-only" style="margin-bottom: 15px; background: white; padding: 15px; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.04);">
+                <textarea id="adminMsgInput" placeholder="សរសេរសារទីនេះ..." style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid var(--border); font-family: 'Kantumruy Pro'; resize: none;" rows="2"></textarea>
+                <button onclick="sendAdminMessage()" style="margin-top: 8px; width: 100%; padding: 10px; background: #0f3566; color: white; border: none; border-radius: 8px; font-weight: 600; cursor: pointer;">ផ្ញើសារជូនដំណឹង</button>
+            </div>
+            
+            <div id="acledaNewsList" style="display: flex; flex-direction: column; gap: 10px;"></div>
+        </div>
+
+        <!-- Tab ទី២: បទចម្រៀងទើបបញ្ចូលថ្មី (២០ បទ) -->
+        <div id="tabContentSongs" style="display: none;">
+            <div id="acledaSongsList" style="display: flex; flex-direction: column; gap: 10px;"></div>
+        </div>
+        
     </div>
 </div>
 
