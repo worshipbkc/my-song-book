@@ -68,6 +68,9 @@
         </button>
     </div>
 </div>
+<div style="padding: 0 6px 16px; font-size: 0.7rem; color: var(--text-muted); font-weight: 600; font-style: italic; text-align: center; line-height: 1.6;">
+                "ចូរឱ្យជីវិតទាំងឡាយដែលមានដង្ហើម បានសរសើរដល់ព្រះយ៉េហូវ៉ាចុះ" <span style="font-style: normal; color: #0088cc;">ទំនុកតម្កើង ១៥០៖៦</span>
+            </div>
 
             <section class="home-hero" id="homeHero">
                 <div class="home-hero-art" id="homeHeroArt"></div>
@@ -87,16 +90,7 @@
                 <button onclick="toggleMainTunerPanel()"><span class="quick-icon green"><i class="fa-solid fa-guitar"></i></span><span>Tuner</span></button>
             </div>
 
-           <!-- ១. ផ្នែកប្រវត្តិអាន (បន្តពីមុន) -->
-            <section class="home-section" id="homeContinueSection">
-                <div class="home-section-head">
-                    <div><span class="home-section-label">បន្តពីមុន</span><h2>ប្រវត្តិអាន</h2></div>
-                    <button onclick="switchTab('songs'); setQuickFilter('HISTORY', null)">មើលទាំងអស់ <i class="fa-solid fa-chevron-right"></i></button>
-                </div>
-                <div class="home-horizontal-list" id="homeContinueList"></div>
-            </section>
-
-            <!-- ២. ផ្នែក Setlist (បានបង្រួមទំហំ និងមានការណែនាំ) -->
+            <!-- ១. ផ្នែក Setlist (ត្រូវបានរុញមកលើ) -->
             <section class="home-section">
                 <div class="home-section-head" style="margin-bottom: 8px;">
                     <div><span class="home-section-label">សម្រាប់ថ្វាយបង្គំ</span><h2>Setlist ខែនេះ</h2></div>
@@ -106,6 +100,15 @@
                     💡 <strong style="color: var(--primary);">របៀបប្រើ៖</strong> ចូលទៅកាន់បទចម្រៀង រួចចុចប៊ូតុង <strong>"+ Playlist"</strong> ដើម្បីរើសដាក់ចូលក្នុងសប្តាហ៍នីមួយៗ។ វានឹងលុបចោលដោយស្វ័យប្រវត្តិនៅពេលចូលខែថ្មី។
                 </div>
                 <div class="home-horizontal-list" id="homeSetlistList"></div>
+            </section>
+
+            <!-- ២. ផ្នែកប្រវត្តិអាន (ត្រូវបានរុញចុះក្រោម) -->
+            <section class="home-section" id="homeContinueSection">
+                <div class="home-section-head">
+                    <div><span class="home-section-label">បន្តពីមុន</span><h2>ប្រវត្តិមើល</h2></div>
+                    <button onclick="switchTab('songs'); setQuickFilter('HISTORY', null)">មើលទាំងអស់ <i class="fa-solid fa-chevron-right"></i></button>
+                </div>
+                <div class="home-horizontal-list" id="homeContinueList"></div>
             </section>
 
             <div class="home-verse-card">
