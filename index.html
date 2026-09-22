@@ -44,13 +44,72 @@
     </div>
     <div class="header-actions">
         <button class="install-pwa-btn" id="installPwaBtn" onclick="installPwaApp()">📲 <span>Install App</span></button>
-        <button class="fetch-icon-btn" id="fetchAllBtn" onclick="fetchAllSongsWithProgress()" title="ទាញយក Offline">
-            <i class="fa-solid fa-cloud-arrow-down" id="fetchIcon"></i>
-            <span class="percent-label" id="progressPercent">0%</span>
-        </button>
+        
     </div>
     </header>
-    <div class="app-view active" id="viewSongs">
+    <div class="app-view active" id="viewHome">
+        <div class="home-shell" id="homeShell">
+            <div class="home-topbar">
+    <div class="home-brand">
+        <img src="https://lh3.googleusercontent.com/d/12dt7uNglluI-nnVcc2jvslICE0HRoYIm" alt="Logo" class="home-logo">
+        <div>
+            <div class="home-eyebrow">ចម្រៀងសរសើរដំកើងព្រះ</div>
+            <div class="home-welcome"> Khmer Christian Worship Songs</div>
+        </div>
+    </div>
+    <!-- ផ្នែកបន្ថែមថ្មី៖ ប៊ូតុងកណ្តឹង និង ប៊ូតុង Profile -->
+    <div style="display: flex; gap: 12px; align-items: center;">
+        <button class="home-icon-btn" onclick="openNotificationsSubView()" aria-label="Notifications" style="position: relative;">
+            <i class="fa-solid fa-bell"></i>
+            <span class="nav-badge-dot" id="navNotifDot" style="top: 8px; right: 10px;"></span>
+        </button>
+        <button class="home-icon-btn" onclick="switchTab('settings')" aria-label="Profile">
+            <i class="fa-regular fa-user"></i>
+        </button>
+    </div>
+</div>
+
+            <section class="home-hero" id="homeHero">
+                <div class="home-hero-art" id="homeHeroArt"></div>
+                <div class="home-hero-overlay"></div>
+                <div class="home-hero-content">
+                    <span class="home-kicker"><i class="fa-solid fa-sparkles"></i> បទណែនាំថ្ងៃនេះ</span>
+                    <h1 id="homeHeroTitle">កំពុងរៀបចំបណ្ដុំបទចម្រៀង...</h1>
+                    <p id="homeHeroArtist">សម្រាប់ពេលវេលាស្ងប់ស្ងាត់ និងការថ្វាយបង្គំ</p>
+                    <button class="home-hero-btn" id="homeHeroBtn"><i class="fa-solid fa-play"></i> បើកបទចម្រៀង</button>
+                </div>
+            </section>
+
+            <div class="home-quick-actions">
+                <button onclick="switchTab('songs'); setQuickFilter('RECENT', null)"><span class="quick-icon blue"><i class="fa-solid fa-wand-magic-sparkles"></i></span><span>បទថ្មី</span></button>
+                <button onclick="switchTab('songs'); setQuickFilter('FAV', null)"><span class="quick-icon rose"><i class="fa-solid fa-heart"></i></span><span>ចូលចិត្ត</span></button>
+                <button onclick="switchTab('songs'); setQuickFilter('HISTORY', null)"><span class="quick-icon violet"><i class="fa-solid fa-clock-rotate-left"></i></span><span>ប្រវត្តិ</span></button>
+                <button onclick="toggleMainTunerPanel()"><span class="quick-icon green"><i class="fa-solid fa-guitar"></i></span><span>Tuner</span></button>
+            </div>
+
+            <section class="home-section" id="homeContinueSection">
+                <div class="home-section-head"><div><span class="home-section-label">បន្តពីមុន</span><h2>បើកម្តងទៀត</h2></div><button onclick="switchTab('songs'); setQuickFilter('HISTORY', null)">មើលទាំងអស់ <i class="fa-solid fa-chevron-right"></i></button></div>
+                <div class="home-horizontal-list" id="homeContinueList"></div>
+            </section>
+
+            <section class="home-section">
+                <div class="home-section-head"><div><span class="home-section-label">សម្រាប់អ្នក</span><h2>បទថ្មីៗ</h2></div><button onclick="switchTab('songs'); setQuickFilter('RECENT', null)">មើលទាំងអស់ <i class="fa-solid fa-chevron-right"></i></button></div>
+                <div class="home-new-grid" id="homeNewGrid"></div>
+            </section>
+
+            <section class="home-section home-albums-section">
+                <div class="home-section-head"><div><span class="home-section-label">ស្វែងរកតាមបណ្ដុំ</span><h2>អាល់ប៊ុម</h2></div><button onclick="switchTab('albums')">មើលទាំងអស់ <i class="fa-solid fa-chevron-right"></i></button></div>
+                <div class="home-horizontal-list" id="homeAlbumsList"></div>
+            </section>
+
+            <div class="home-verse-card">
+                <div class="home-verse-icon"><i class="fa-solid fa-quote-left"></i></div>
+                <div><p>“ចូរឱ្យជីវិតទាំងឡាយដែលមានដង្ហើម បានសរសើរដល់ព្រះយ៉េហូវ៉ាចុះ”</p><span>ទំនុកតម្កើង ១៥០៖៦</span></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="app-view" id="viewSongs">
         <div class="minimal-greeting">
             <p class="minimal-verse">"ចូរឱ្យជីវិតទាំងឡាយដែលមានដង្ហើម បានសរសើរដល់ព្រះយ៉េហូវ៉ាចុះ"</p>
             <p class="minimal-ref"> ---ទំនុកតម្កើង ១៥០៖៦ --- </p>
@@ -69,12 +128,7 @@
 
            <div class="filter-chips">
                 <button class="chip-btn active" onclick="setQuickFilter('ALL', this)">🎵ទាំងអស់</button>
-                <button class="chip-btn" onclick="setQuickFilter('HISTORY', this)">🕒 ប្រវត្តិមើល </button>
-                <button class="chip-btn" onclick="setQuickFilter('RECENT', this)">✨ បទថ្មីៗ</button>
                 <button class="chip-btn" onclick="setQuickFilter('FAV', this)">❤️ ចូលចិត្ត</button>
-                <button class="chip-btn" onclick="toggleMainTunerPanel()" style="color: #10b981; border: 1px solid #10b981; font-weight: 700;">
-                        <i class="fa-solid fa-guitar"></i> Tuner
-                </button>
                 <button class="chip-btn" id="viewToggleBtn" onclick="toggleViewMode()"><i class="fa-solid fa-list"></i> ទម្រង់ List</button>
             </div>
             
@@ -123,11 +177,13 @@
                 </div>
             </div>
             
-            <div class="settings-section-title">ព័ត៌មានថ្មីៗ</div>
+            <div class="settings-">ព័ត៌មានថ្មីៗ</div>
             <div class="settings-card">
-                <button class="settings-item" onclick="openNotificationsSubView()">
-                    <div class="settings-item-left"><i class="fa-solid fa-bell" style="color: #f59e0b;"></i> ការជូនដំណឹងបទចម្រៀងថ្មី</div>
-                    <div style="display: flex; align-items: center; gap: 8px;"><span class="settings-badge-count" id="settingsNotifBadge">0 ថ្មី</span><i class="fa-solid fa-chevron-right" style="color: var(--border);"></i></div>
+                <button class="settings-item" id="fetchAllBtn" onclick="fetchAllSongsWithProgress()">
+                <div class="settings-item-left">
+            <i class="fa-solid fa-cloud-arrow-down" id="fetchIcon"></i> ទាញយកទិន្នន័យ (Offline)
+                </div>
+                <span class="settings-badge-count" id="progressPercent" style="background: var(--primary); display: none;">0%</span>
                 </button>
             </div>
 
@@ -178,10 +234,11 @@
 </div>
 
 <div class="bottom-nav">
-    <button class="bottom-nav-item active" id="navSongsBtn" onclick="switchTab('songs')"><i class="fa-solid fa-music"></i><span>បទចម្រៀង</span></button>
+    <button class="bottom-nav-item active" id="navHomeBtn" onclick="switchTab('home')"><i class="fa-solid fa-house"></i><span>Home</span></button>
+    <button class="bottom-nav-item" id="navSongsBtn" onclick="switchTab('songs')"><i class="fa-solid fa-layer-group"></i><span>Cards</span></button>
     <button class="bottom-nav-item" id="navAlbumsBtn" onclick="switchTab('albums')"><i class="fa-solid fa-record-vinyl"></i><span>អាល់ប៊ុម</span></button>
     <button class="bottom-nav-item" id="navPlaylistsBtn" onclick="switchTab('playlists')"><i class="fa-solid fa-list-ul"></i><span>Playlist</span></button>
-    <button class="bottom-nav-item" id="navProfileBtn" onclick="switchTab('settings')"><i class="fa-solid fa-gear"></i><span>ការកំណត់</span><span class="nav-badge-dot" id="navNotifDot"></span></button>
+    <button class="bottom-nav-item" id="navProfileBtn" onclick="switchTab('settings')"><i class="fa-regular fa-user"></i>ការកំណត់</button>
 </div>
 
 <div class="offline-sync-badge" id="offlineSyncBadge"><span class="status-dot status-online" id="statusDot"></span><span id="statusText">អនឡាញ</span></div>
