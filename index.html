@@ -34,7 +34,7 @@
     <img src="https://lh3.googleusercontent.com/d/1E2J-kXOZCTkQJ7g739qDcgcqfUQOysTc" alt="Splash Screen">
 </div>
 <div class="main-content">
-    <header id="mainAppHeader">
+    <header id="mainAppHeader" style="display: none;">
     <div class="header-brand">
         <img src="https://lh3.googleusercontent.com/d/12dt7uNglluI-nnVcc2jvslICE0HRoYIm" alt="Logo" class="app-logo">
         <div class="header-text">
@@ -87,19 +87,25 @@
                 <button onclick="toggleMainTunerPanel()"><span class="quick-icon green"><i class="fa-solid fa-guitar"></i></span><span>Tuner</span></button>
             </div>
 
+           <!-- ១. ផ្នែកប្រវត្តិអាន (បន្តពីមុន) -->
             <section class="home-section" id="homeContinueSection">
-                <div class="home-section-head"><div><span class="home-section-label">បន្តពីមុន</span><h2>បើកម្តងទៀត</h2></div><button onclick="switchTab('songs'); setQuickFilter('HISTORY', null)">មើលទាំងអស់ <i class="fa-solid fa-chevron-right"></i></button></div>
+                <div class="home-section-head">
+                    <div><span class="home-section-label">បន្តពីមុន</span><h2>ប្រវត្តិអាន</h2></div>
+                    <button onclick="switchTab('songs'); setQuickFilter('HISTORY', null)">មើលទាំងអស់ <i class="fa-solid fa-chevron-right"></i></button>
+                </div>
                 <div class="home-horizontal-list" id="homeContinueList"></div>
             </section>
 
+            <!-- ២. ផ្នែក Setlist (បានបង្រួមទំហំ និងមានការណែនាំ) -->
             <section class="home-section">
-                <div class="home-section-head"><div><span class="home-section-label">សម្រាប់អ្នក</span><h2>បទថ្មីៗ</h2></div><button onclick="switchTab('songs'); setQuickFilter('RECENT', null)">មើលទាំងអស់ <i class="fa-solid fa-chevron-right"></i></button></div>
-                <div class="home-new-grid" id="homeNewGrid"></div>
-            </section>
-
-            <section class="home-section home-albums-section">
-                <div class="home-section-head"><div><span class="home-section-label">ស្វែងរកតាមបណ្ដុំ</span><h2>អាល់ប៊ុម</h2></div><button onclick="switchTab('albums')">មើលទាំងអស់ <i class="fa-solid fa-chevron-right"></i></button></div>
-                <div class="home-horizontal-list" id="homeAlbumsList"></div>
+                <div class="home-section-head" style="margin-bottom: 8px;">
+                    <div><span class="home-section-label">សម្រាប់ថ្វាយបង្គំ</span><h2>Setlist ខែនេះ</h2></div>
+                    <button onclick="switchTab('playlists')">មើល Playlist <i class="fa-solid fa-chevron-right"></i></button>
+                </div>
+                <div style="font-size: 0.68rem; color: var(--text-muted); margin-bottom: 12px; line-height: 1.4;">
+                    💡 <strong style="color: var(--primary);">របៀបប្រើ៖</strong> ចូលទៅកាន់បទចម្រៀង រួចចុចប៊ូតុង <strong>"+ Playlist"</strong> ដើម្បីរើសដាក់ចូលក្នុងសប្តាហ៍នីមួយៗ។ វានឹងលុបចោលដោយស្វ័យប្រវត្តិនៅពេលចូលខែថ្មី។
+                </div>
+                <div class="home-horizontal-list" id="homeSetlistList"></div>
             </section>
 
             <div class="home-verse-card">
@@ -432,13 +438,19 @@
         <h3 style="font-size: 1.1rem; margin-bottom: 10px;">📂 បង្កើត / ជ្រើសរើស Playlist</h3>
         <input type="hidden" id="playlistTargetSongId">
         <div class="form-group">
-            <label>ឈ្មោះ Playlist ថ្មី</label>
+            <label>ឈ្មោះ Playlist ថ្មី (ផ្ទាល់ខ្លួន)</label>
             <input type="text" id="newPlaylistName" placeholder="ឧទាហរណ៍៖ ថ្វាយបង្គំថ្ងៃអាទិត្យ">
         </div>
         <button type="button" onclick="saveNewPlaylist()" style="width: 100%; padding: 12px; border-radius: 8px; border: none; font-weight: 600; background: var(--primary); color: white; font-size:0.9rem; margin-bottom: 16px;">+ បង្កើតថ្មី</button>
         
-        <div style="font-size:0.9rem; font-weight:600; margin-bottom:8px;">ឬបន្ថែមទៅ Playlist មានស្រាប់៖</div>
+        <div style="font-size:0.9rem; font-weight:600; margin-bottom:8px;">ឬបន្ថែមទៅ Playlist ផ្ទាល់ខ្លួន៖</div>
         <div id="existingPlaylistsList" style="max-height: 200px; overflow-y: auto; display: flex; flex-direction: column; gap: 8px;"></div>
+
+        <!-- ផ្នែកបន្ថែមថ្មីសម្រាប់ ADMIN -->
+        <div id="adminSetlistContainer" style="display: none; margin-top: 16px; padding-top: 16px; border-top: 1px dashed var(--border);">
+            <div style="font-size:0.9rem; font-weight:600; margin-bottom:8px; color: var(--primary);">👑 សម្រាប់ Admin: ដាក់ចូល Setlist (Public)</div>
+            <div id="existingSetlistsList" style="display: flex; flex-direction: column; gap: 8px;"></div>
+        </div>
 
         <div style="text-align: right; margin-top: 18px;">
             <button type="button" onclick="closeModal('playlistModal')" style="background: var(--border); color: var(--text); padding: 10px 20px; border-radius:8px; border:none; font-size:0.9rem; font-weight: 600; width: 100%;">បិទ</button>
