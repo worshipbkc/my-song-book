@@ -320,13 +320,20 @@ window.onload = async function() {
     setupDropZoneHandlers();
 
     document.addEventListener('click', function(e) {
-        const searchBox = document.querySelector('.search-box');
-        if (searchBox && !searchBox.contains(e.target)) hideSearchDropdown();
+    const searchBox = document.querySelector('.search-box');
+    if (searchBox && !searchBox.contains(e.target)) hideSearchDropdown();
 
-        if (!e.target.closest('.card-dropdown') && !e.target.closest('.btn-more-options')) {
-            document.querySelectorAll('.card-dropdown').forEach(el => el.classList.remove('show'));
-        }
-    });
+    if (!e.target.closest('.card-dropdown') && !e.target.closest('.btn-more-options')) {
+        document.querySelectorAll('.card-dropdown').forEach(el => el.classList.remove('show'));
+    }
+    
+    // បន្ថែមកូដនេះ ដើម្បីបិទ Profile Popup ពេលចុចចេញក្រៅ
+    const profilePopup = document.getElementById('profilePopup');
+    const profileBtn = document.getElementById('homeProfileBtn');
+    if (profilePopup && profileBtn && !profilePopup.contains(e.target) && !profileBtn.contains(e.target)) {
+        profilePopup.classList.remove('show');
+    }
+});
     
     document.querySelectorAll('.modal').forEach(modal => {
         modal.addEventListener('click', (e) => {
@@ -849,7 +856,7 @@ function renderHomeView() {
     if (setlistList) {
         const descDiv = setlistList.previousElementSibling;
         if (descDiv && descDiv.tagName === 'DIV' && descDiv.innerHTML.includes('💡')) {
-            descDiv.innerHTML = `💡 <strong style="color: var(--primary);">សម្រាប់ថ្វាយបង្គំថ្ងៃអាទិត្យ៖</strong> រៀបរៀងដោយអ្នកភ្លេង និងអ្នកចម្រៀង <span style="color: var(--primary);">សូមព្រះប្រទានពរ!</span>`;
+            descDiv.innerHTML = `💡 <strong style="color: var(--primary);">សម្រាប់ថ្វាយបង្គំថ្ងៃអាទិត្យ៖</strong> រៀបរៀងដោយអ្នកភ្លេង និងអ្នកចម្រៀង សូមព្រះប្រទានពរ!`;
         }
 
         const khmerMonths = ["មករា", "កុម្ភៈ", "មីនា", "មេសា", "ឧសភា", "មិថុនា", "កក្កដា", "សីហា", "កញ្ញា", "តុលា", "វិច្ឆិកា", "ធ្នូ"];
@@ -2915,5 +2922,49 @@ function drawCustomChordDiagram(chordName, canvasId) {
             ctx.fillStyle = "#2563eb";
             ctx.beginPath(); ctx.arc(x, y, 7.5, 0, Math.PI*2); ctx.fill();
         }
+    }
+}
+
+// បើក/បិទ ផ្ទាំង Profile Popup
+function toggleProfilePopup(event) {
+    if(event) event.stopPropagation();
+    const popup = document.getElementById('profilePopup');
+    if(popup) {
+        popup.classList.toggle('show');
+        if(popup.classList.contains('show')) {
+            renderProfilePopup();
+        }
+    }
+}
+
+// ទាញយកទិន្នន័យមកបង្ហាញក្នុង Profile Popup
+function renderProfilePopup() {
+    const content = document.getElementById('profilePopupContent');
+    if (!content) return;
+
+    if (currentUser) {
+        let roleHtml = isAdmin ? '👑 Admin' : (isEditor ? '✏️ Editor' : '👤 សមាជិក');
+        content.innerHTML = `
+            <div class="profile-popup-header">
+                <img src="${currentUser.photoURL || 'https://via.placeholder.com/100'}" class="profile-popup-avatar" alt="User">
+                <div style="overflow: hidden;">
+                    <div class="profile-popup-name">${escapeHtml(currentUser.displayName || 'អ្នកប្រើប្រាស់')}</div>
+                    <div class="profile-popup-email">${escapeHtml(currentUser.email || '')}</div>
+                    <div class="profile-popup-role">${roleHtml}</div>
+                </div>
+            </div>
+            <button class="profile-popup-btn" onclick="switchTab('settings'); toggleProfilePopup();"><i class="fa-solid fa-gear"></i> ចូលទៅការកំណត់ (Settings)</button>
+            <div style="height: 8px;"></div>
+            <button class="profile-popup-btn danger" onclick="handleLogout(); toggleProfilePopup();"><i class="fa-solid fa-right-from-bracket"></i> ចាកចេញ (Logout)</button>
+        `;
+    } else {
+        // បង្ហាញនៅពេលអ្នកប្រើប្រាស់មិនទាន់ Login
+        content.innerHTML = `
+            <div style="text-align: center; padding: 10px 0 15px 0;">
+                <i class="fa-regular fa-circle-user" style="font-size: 3.5rem; color: var(--text-muted); margin-bottom: 10px;"></i>
+                <div style="font-size: 0.85rem; color: var(--text-muted); font-weight: 600;">អ្នកមិនទាន់បាន Login នៅឡើយទេ</div>
+            </div>
+            <button class="profile-popup-btn" style="background: var(--primary); color: white;" onclick="handleGoogleLogin(); toggleProfilePopup();"><i class="fa-brands fa-google"></i> Login ចូលប្រើប្រាស់</button>
+        `;
     }
 }
