@@ -279,6 +279,7 @@ window.onload = async function() {
             songsList = offlineSongs;
             isDataLoaded = true;
             renderSongs();
+            renderHomeView();
             updateTotalSongCount();
             markFetchCompleted();
             checkNewSongsNotification();
@@ -396,6 +397,7 @@ function listenToSongsChanges() {
             });
             isDataLoaded = true;
             renderSongs();
+            renderHomeView();
             updateTotalSongCount();
             saveSongsToIndexedDB(songsList);
             checkNewSongsNotification();
@@ -410,17 +412,23 @@ function switchTab(tabName) {
     const mainHeader = document.getElementById('mainAppHeader');
     const isFiltered = (currentFilterType === 'ALBUM' || currentFilterType === 'PLAYLIST');
 
-    if (tabName === 'songs') {
-        if (mainHeader) mainHeader.style.display = isFiltered ? 'none' : 'flex';
+    if (tabName === 'home') {
+        if (mainHeader) mainHeader.style.display = 'none';
+        document.getElementById('viewHome').classList.add('active');
+        document.getElementById('navHomeBtn').classList.add('active');
+        renderHomeView();
+    } else if (tabName === 'songs') {
+        if (mainHeader) mainHeader.style.display = 'none';
         document.getElementById('viewSongs').classList.add('active');
         document.getElementById('navSongsBtn').classList.add('active');
+        renderSongs();
     } else if (tabName === 'albums') {
-        if (mainHeader) mainHeader.style.display = 'flex';
+        if (mainHeader) mainHeader.style.display = 'none';
         document.getElementById('viewAlbums').classList.add('active');
         document.getElementById('navAlbumsBtn').classList.add('active');
         renderAlbumsView();
     } else if (tabName === 'playlists') {
-        if (mainHeader) mainHeader.style.display = 'flex';
+        if (mainHeader) mainHeader.style.display = 'none';
         document.getElementById('viewPlaylists').classList.add('active');
         document.getElementById('navPlaylistsBtn').classList.add('active');
         renderPlaylistsView();
@@ -428,7 +436,6 @@ function switchTab(tabName) {
         if (mainHeader) mainHeader.style.display = 'none';
         document.getElementById('viewSettings').classList.add('active');
         document.getElementById('navProfileBtn').classList.add('active');
-        
         closeNotificationsSubView();
         renderSettingsView();
     }
@@ -691,6 +698,80 @@ function populateAlbumDropdowns() {
         const el = document.getElementById(id);
         if (el) el.innerHTML = options;
     });
+}
+
+function getSongCover(song) {
+    if (song && song.imageUrl && song.imageUrl.length > 10) return song.imageUrl;
+    return 'https://via.placeholder.com/600x800?text=Song';
+}
+
+function getRecentHistorySongs(limit = 6) {
+    const ids = JSON.parse(localStorage.getItem('recent_history') || '[]');
+    const ordered = ids.map(id => songsList.find(s => s.id === id)).filter(Boolean);
+    return ordered.slice(0, limit);
+}
+
+function renderHomeView() {
+    const heroArt = document.getElementById('homeHeroArt');
+    const heroTitle = document.getElementById('homeHeroTitle');
+    const heroArtist = document.getElementById('homeHeroArtist');
+    const heroBtn = document.getElementById('homeHeroBtn');
+    const continueList = document.getElementById('homeContinueList');
+    const newGrid = document.getElementById('homeNewGrid');
+    const albumsList = document.getElementById('homeAlbumsList');
+    if (!heroArt || !heroTitle || !heroArtist) return;
+
+    if (!songsList || songsList.length === 0) {
+        heroArt.style.backgroundImage = 'linear-gradient(135deg, #111827, #1e3a8a)';
+        heroTitle.innerText = 'ស្វាគមន៍មកកាន់បណ្ដុំចម្រៀង';
+        heroArtist.innerText = 'បទចម្រៀងសរសើរដំកើងព្រះខ្មែរ';
+        if (heroBtn) heroBtn.style.display = 'none';
+        if (continueList) continueList.innerHTML = '<div class="home-empty-inline">កំពុងទាញយកបទចម្រៀង...</div>';
+        if (newGrid) newGrid.innerHTML = '<div class="home-empty-inline">សូមរង់ចាំបន្តិច...</div>';
+        return;
+    }
+
+    const featured = songsList[0];
+    heroArt.style.backgroundImage = `url("${getSongCover(featured)}")`;
+    heroTitle.innerText = featured.title || 'បទចម្រៀងថ្មី';
+    heroArtist.innerText = featured.artist || 'មិនស្គាល់សិល្បករ';
+    if (heroBtn) {
+        heroBtn.style.display = 'inline-flex';
+        heroBtn.onclick = () => openFullScreenModal(featured.id);
+    }
+
+    const history = getRecentHistorySongs(6);
+    if (continueList) {
+        const source = history.length ? history : songsList.slice(0, 6);
+        continueList.innerHTML = source.map(song => `
+            <button class="home-mini-card" onclick="openFullScreenModal('${song.id}')">
+                <div class="home-mini-cover"><img src="${getSongCover(song)}" alt=""></div>
+                <div class="home-mini-info"><strong>${escapeHtml(song.title || 'បទចម្រៀង')}</strong><span>${escapeHtml(song.artist || 'មិនស្គាល់')}</span></div>
+                <span class="home-mini-play"><i class="fa-solid fa-play"></i></span>
+            </button>`).join('');
+    }
+
+    if (newGrid) {
+        const latest = [...songsList].sort((a,b) => (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0)).slice(0, 6);
+        newGrid.innerHTML = latest.map(song => `
+            <button class="home-new-card" onclick="openFullScreenModal('${song.id}')">
+                <div class="home-new-cover"><img src="${getSongCover(song)}" alt="" loading="lazy"><span><i class="fa-solid fa-play"></i></span></div>
+                <strong>${escapeHtml(song.title || 'បទចម្រៀង')}</strong>
+                <small>${escapeHtml(song.artist || 'មិនស្គាល់')}</small>
+            </button>`).join('');
+    }
+
+    if (albumsList) {
+        const albums = customAlbums.slice(0, 8);
+        albumsList.innerHTML = albums.map(album => {
+            const first = songsList.find(s => s.album === album);
+            const count = songsList.filter(s => s.album === album).length;
+            return `<button class="home-album-card" onclick="filterByAlbum('${escapeHtml(album)}')">
+                <div class="home-album-cover"><img src="${getSongCover(first || featured)}" alt=""><div class="home-album-glow"></div></div>
+                <strong>${escapeHtml(album)}</strong><span>${count} បទ</span>
+            </button>`;
+        }).join('');
+    }
 }
 
 function renderSongs() {
