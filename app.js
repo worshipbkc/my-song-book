@@ -849,7 +849,7 @@ function renderHomeView() {
     if (setlistList) {
         const descDiv = setlistList.previousElementSibling;
         if (descDiv && descDiv.tagName === 'DIV' && descDiv.innerHTML.includes('💡')) {
-            descDiv.innerHTML = `💡 <strong style="color: var(--primary);">Setlist នេះគឺ Public៖</strong> ត្រូវបានរៀបចំដោយអ្នកដឹកនាំ ហើយសមាជិកទាំងអស់អាចមើលបានដើម្បីត្រៀមខ្លួនថ្វាយបង្គំ។`;
+            descDiv.innerHTML = `💡 <strong style="color: var(--primary);">សម្រាប់ថ្វាយបង្គំថ្ងៃអាទិត្យ៖</strong> រៀបរៀងដោយអ្នកភ្លេង និងអ្នកចម្រៀង <span style="color: var(--primary);">សូមព្រះប្រទានពរ!</span>`;
         }
 
         const khmerMonths = ["មករា", "កុម្ភៈ", "មីនា", "មេសា", "ឧសភា", "មិថុនា", "កក្កដា", "សីហា", "កញ្ញា", "តុលា", "វិច្ឆិកា", "ធ្នូ"];
