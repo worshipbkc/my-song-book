@@ -56,10 +56,10 @@ img { -webkit-touch-callout: none; pointer-events: none; }
 .home-eyebrow { font-size:1.2rem; color:var(--primary); font-weight:800; letter-spacing:.01em; }
 .home-welcome { font-size:0.70rem; font-weight:800; margin-top:2px; color:var(--text); }
 .home-icon-btn { width:42px; height:42px; border:1px solid var(--border); border-radius:50%; background:var(--card-bg); color:var(--text); font-size:1rem; box-shadow:0 8px 20px rgba(15,23,42,.08); }
-.home-hero { position:relative; min-height:300px; border-radius:30px; overflow:hidden; isolation:isolate; background:#111827; box-shadow:0 18px 42px rgba(15,23,42,.22); }
+.home-hero { position:relative; min-height:220px; border-radius:24px; overflow:hidden; isolation:isolate; background:#111827; box-shadow:0 18px 42px rgba(15,23,42,.22); }
 .home-hero-art { position:absolute; inset:0; background-size:cover; background-position:center; transform:scale(1.04); filter:saturate(1.05); z-index:-3; transition:background-image .35s ease; }
 .home-hero-overlay { position:absolute; inset:0; z-index:-2; background:linear-gradient(180deg,rgba(15,23,42,.08) 0%,rgba(15,23,42,.28) 36%,rgba(15,23,42,.92) 100%); }
-.home-hero-content { min-height:300px; display:flex; flex-direction:column; justify-content:flex-end; padding:24px; color:#fff; }
+.home-hero-content { min-height:220px; display:flex; flex-direction:column; justify-content:flex-end; padding:20px; color:#fff; }
 .home-kicker { align-self:flex-start; padding:7px 11px; border:1px solid rgba(255,255,255,.2); background:rgba(255,255,255,.12); backdrop-filter:blur(10px); border-radius:999px; font-size:.68rem; font-weight:800; margin-bottom:12px; }
 .home-hero h1 { font-size:1.55rem; line-height:1.25; margin:0 0 5px; max-width:90%; }
 .home-hero p { margin:0 0 17px; color:rgba(255,255,255,.78); font-size:.82rem; }
@@ -104,7 +104,8 @@ img { -webkit-touch-callout: none; pointer-events: none; }
 .home-verse-card p { font-size:.75rem; line-height:1.55; font-weight:600; margin:0 0 4px; }.home-verse-card span{font-size:.64rem;color:var(--primary);font-weight:800}
 .home-empty-inline { padding:20px; color:var(--text-muted); font-size:.75rem; border:1px dashed var(--border); border-radius:15px; min-width:100%; text-align:center; }
 body.dark-mode .home-icon-btn, body.dark-mode .home-quick-actions button, body.dark-mode .home-mini-card { box-shadow:0 8px 22px rgba(0,0,0,.2); }
-@media (max-width:390px){ .home-hero,.home-hero-content{min-height:285px}.home-hero h1{font-size:1.35rem}.home-new-grid{gap:8px}.home-mini-card{flex-basis:225px;min-width:225px}.home-album-card,.home-album-cover{width:112px}.home-album-card{flex-basis:112px}.home-album-cover{height:112px} }
+/* ស្វែងរកបន្ទាត់នេះ រួចកែពី 285px មកត្រឹម 200px */
+@media (max-width:390px){ .home-hero,.home-hero-content{min-height:200px}.home-hero h1{font-size:1.35rem}.home-new-grid{gap:8px}.home-mini-card{flex-basis:225px;min-width:225px}.home-album-card,.home-album-cover{width:112px}.home-album-card{flex-basis:112px}.home-album-cover{height:112px} }
 @media (min-width:768px){ .home-shell{max-width:860px}.home-new-grid{grid-template-columns:repeat(4,1fr)}.home-hero{min-height:350px}.home-hero-content{min-height:350px;padding:32px}.home-hero h1{font-size:1.9rem}.home-quick-actions{max-width:620px}.home-mini-card{flex-basis:280px;min-width:280px} }
 
 .minimal-greeting { text-align: center; padding: 0 16px; margin-top: -6px; margin-bottom: 8px; }
