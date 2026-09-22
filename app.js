@@ -26,6 +26,22 @@ let isAdmin = false;
 let songsList = [];          
 let customAlbums = ['ទំនុកដំកើង', 'ទំនុកខ្មែរបរិសុទ្ធ'];
 let playlists = JSON.parse(localStorage.getItem('user_playlists') || '{}');
+// បន្ថែមនៅខាងក្រោម let playlists = ...
+let globalSetlists = {};
+
+// បន្ថែមមុខងារនេះចូល
+function listenToGlobalSetlists() {
+    db.collection("public_settings").doc("setlists").onSnapshot((doc) => {
+        if (doc.exists) {
+            globalSetlists = doc.data();
+        } else {
+            globalSetlists = {};
+        }
+        // Update ផ្ទាំងបង្ហាញបើសិនជាកំពុងបើក
+        if (document.getElementById('viewHome').classList.contains('active')) renderHomeView();
+        if (currentFilterType === 'SETLIST') renderSongs();
+    });
+}
 
 let currentFilterType = 'ALL';      
 let currentFilterValue = 'ALL';     
@@ -240,6 +256,7 @@ window.onload = async function() {
     applySettingsToggles(); 
     listenToAuth();
     listenToAlbums();
+    listenToGlobalSetlists();
     renderSongsListOnly();
     checkAndShowIosInstallGuide();
     updateOnlineStatus();
@@ -711,14 +728,79 @@ function getRecentHistorySongs(limit = 6) {
     return ordered.slice(0, limit);
 }
 
+// មុខងារថ្មីសម្រាប់បង្ហាញអត្ថបទ ឬ Icon ជំនួសរូបភាពដែលបាត់
+function getCardThumbnailHTML(song, isSmall = false) {
+    if (song && song.imageUrl && song.imageUrl.length > 10) {
+        return `<img src="${song.imageUrl}" alt="" loading="lazy">`;
+    } else if (song && song.lyrics) {
+        if (isSmall) {
+            return `<div style="width:100%; height:100%; display:flex; align-items:center; justify-content:center; background:linear-gradient(135deg, var(--primary), #4f46e5); color:white; font-size:1.2rem;"><i class="fa-solid fa-music"></i></div>`;
+        } else {
+            const previewText = escapeHtml(song.lyrics).replace(/\[.*?\]/g, '').substring(0, 60) + '...';
+            return `<div style="width:100%; height:100%; padding:10px; font-size:0.65rem; line-height:1.4; color:var(--text); background:var(--bg); text-align:left; overflow:hidden; white-space:pre-wrap; font-family:'Kantumruy Pro', sans-serif;">${previewText}</div>`;
+        }
+    }
+    return `<div style="width:100%; height:100%; display:flex; align-items:center; justify-content:center; background:var(--bg); color:var(--primary); font-size: ${isSmall ? '1.2rem' : '2rem'};"><i class="fa-solid fa-music"></i></div>`;
+}
+
+// មុខងាររាប់ថ្ងៃអាទិត្យក្នុងខែនេះ (ដើម្បីដឹងថាមាន ៤ ឬ ៥ សប្តាហ៍)
+function getSundaysInCurrentMonth() {
+    const now = new Date();
+    const year = now.getFullYear();
+    const month = now.getMonth();
+    let sundays = 0;
+    for (let day = 1; day <= 31; day++) {
+        const d = new Date(year, month, day);
+        if (d.getMonth() !== month) break; // ឈប់ពេលចូលខែបន្ទាប់
+        if (d.getDay() === 0) sundays++;   // ០ គឺថ្ងៃអាទិត្យ
+    }
+    return sundays;
+}
+
+function checkAndResetMonthlySetlists() {
+    // អនុញ្ញាតឱ្យតែ Admin ជាអ្នក Reset និងរៀបចំរចនាសម្ព័ន្ធប៉ុណ្ណោះ
+    if (!isEditor) return;
+
+    const now = new Date();
+    const currentMonthStr = `${now.getFullYear()}-${now.getMonth()}`;
+    const lastMonthStr = localStorage.getItem('admin_last_setlist_month');
+    let hasChanges = false;
+    let newSetlists = { ...globalSetlists };
+
+    // ១. បើដាច់ខែហើយ លុបទិន្នន័យចាស់ចេញ
+    if (lastMonthStr && lastMonthStr !== currentMonthStr) {
+        ['សប្តាហ៍ទី១', 'សប្តាហ៍ទី២', 'សប្តាហ៍ទី៣', 'សប្តាហ៍ទី៤', 'សប្តាហ៍ទី៥'].forEach(week => {
+            newSetlists[week] = [];
+            hasChanges = true;
+        });
+    }
+
+    // ២. បង្កើត Setlist ថ្មីតាមចំនួនថ្ងៃអាទិត្យ
+    const totalSundays = getSundaysInCurrentMonth();
+    for (let i = 1; i <= totalSundays; i++) {
+        const weekName = `សប្តាហ៍ទី${i}`;
+        if (!newSetlists[weekName]) {
+            newSetlists[weekName] = [];
+            hasChanges = true;
+        }
+    }
+
+    // ៣. បើមានការផ្លាស់ប្តូរ Save ចូល Database តែម្តង
+    if (hasChanges) {
+        db.collection("public_settings").doc("setlists").set(newSetlists, { merge: true });
+    }
+    
+    localStorage.setItem('admin_last_setlist_month', currentMonthStr);
+}
+
 function renderHomeView() {
     const heroArt = document.getElementById('homeHeroArt');
     const heroTitle = document.getElementById('homeHeroTitle');
     const heroArtist = document.getElementById('homeHeroArtist');
     const heroBtn = document.getElementById('homeHeroBtn');
     const continueList = document.getElementById('homeContinueList');
-    const newGrid = document.getElementById('homeNewGrid');
-    const albumsList = document.getElementById('homeAlbumsList');
+    const setlistList = document.getElementById('homeSetlistList');
+    
     if (!heroArt || !heroTitle || !heroArtist) return;
 
     if (!songsList || songsList.length === 0) {
@@ -727,7 +809,7 @@ function renderHomeView() {
         heroArtist.innerText = 'បទចម្រៀងសរសើរដំកើងព្រះខ្មែរ';
         if (heroBtn) heroBtn.style.display = 'none';
         if (continueList) continueList.innerHTML = '<div class="home-empty-inline">កំពុងទាញយកបទចម្រៀង...</div>';
-        if (newGrid) newGrid.innerHTML = '<div class="home-empty-inline">សូមរង់ចាំបន្តិច...</div>';
+        if (setlistList) setlistList.innerHTML = '<div class="home-empty-inline">សូមរង់ចាំបន្តិច...</div>';
         return;
     }
 
@@ -740,35 +822,48 @@ function renderHomeView() {
         heroBtn.onclick = () => openFullScreenModal(featured.id);
     }
 
-    const history = getRecentHistorySongs(6);
+    const history = getRecentHistorySongs(4);
     if (continueList) {
-        const source = history.length ? history : songsList.slice(0, 6);
+        const source = history.length ? history : songsList.slice(0, 4);
         continueList.innerHTML = source.map(song => `
             <button class="home-mini-card" onclick="openFullScreenModal('${song.id}')">
-                <div class="home-mini-cover"><img src="${getSongCover(song)}" alt=""></div>
+                <div class="home-mini-cover">${getCardThumbnailHTML(song, true)}</div>
                 <div class="home-mini-info"><strong>${escapeHtml(song.title || 'បទចម្រៀង')}</strong><span>${escapeHtml(song.artist || 'មិនស្គាល់')}</span></div>
                 <span class="home-mini-play"><i class="fa-solid fa-play"></i></span>
             </button>`).join('');
     }
 
-    if (newGrid) {
-        const latest = [...songsList].sort((a,b) => (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0)).slice(0, 6);
-        newGrid.innerHTML = latest.map(song => `
-            <button class="home-new-card" onclick="openFullScreenModal('${song.id}')">
-                <div class="home-new-cover"><img src="${getSongCover(song)}" alt="" loading="lazy"><span><i class="fa-solid fa-play"></i></span></div>
-                <strong>${escapeHtml(song.title || 'បទចម្រៀង')}</strong>
-                <small>${escapeHtml(song.artist || 'មិនស្គាល់')}</small>
-            </button>`).join('');
-    }
+    if (setlistList) {
+        if (isEditor) checkAndResetMonthlySetlists(); // ដើរលុះត្រាតែ Admin ចូល
+        
+        // ប្តូរការណែនាំឱ្យត្រូវនឹង Public Mode
+        const descDiv = setlistList.previousElementSibling;
+        if (descDiv && descDiv.tagName === 'DIV' && descDiv.innerHTML.includes('💡')) {
+            descDiv.innerHTML = `💡 <strong style="color: var(--primary);">Setlist នេះគឺ Public៖</strong> ត្រូវបានរៀបចំដោយអ្នកដឹកនាំ ហើយសមាជិកទាំងអស់អាចមើលបានដើម្បីត្រៀមខ្លួនថ្វាយបង្គំ។`;
+        }
 
-    if (albumsList) {
-        const albums = customAlbums.slice(0, 8);
-        albumsList.innerHTML = albums.map(album => {
-            const first = songsList.find(s => s.album === album);
-            const count = songsList.filter(s => s.album === album).length;
-            return `<button class="home-album-card" onclick="filterByAlbum('${escapeHtml(album)}')">
-                <div class="home-album-cover"><img src="${getSongCover(first || featured)}" alt=""><div class="home-album-glow"></div></div>
-                <strong>${escapeHtml(album)}</strong><span>${count} បទ</span>
+        const khmerMonths = ["មករា", "កុម្ភៈ", "មីនា", "មេសា", "ឧសភា", "មិថុនា", "កក្កដា", "សីហា", "កញ្ញា", "តុលា", "វិច្ឆិកា", "ធ្នូ"];
+        const currentMonthName = khmerMonths[new Date().getMonth()];
+        const setlistTitle = setlistList.previousElementSibling?.previousElementSibling?.querySelector('h2'); 
+        if (setlistTitle) setlistTitle.innerText = `Setlist ខែ${currentMonthName}`;
+
+        const totalSundays = getSundaysInCurrentMonth();
+        const weeks = [];
+        for (let i = 1; i <= totalSundays; i++) {
+            weeks.push(`សប្តាហ៍ទី${i}`);
+        }
+
+        // អានពី globalSetlists វិញ
+        setlistList.innerHTML = weeks.map(week => {
+            const count = (globalSetlists[week] || []).length;
+            return `<button class="home-album-card" style="width: 140px; flex: 0 0 140px; padding: 10px; border-radius: 14px; background: var(--card-bg); border: 1px solid var(--border); display: flex; align-items: center; gap: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.05);" onclick="filterBySetlist('${week}')">
+                <div style="width: 36px; height: 36px; border-radius: 10px; background: rgba(37, 99, 235, 0.1); color: var(--primary); display: flex; align-items: center; justify-content: center; font-size: 1.2rem; flex-shrink: 0;">
+                    <i class="fa-solid fa-calendar-check"></i>
+                </div>
+                <div style="display: flex; flex-direction: column; align-items: flex-start; overflow: hidden;">
+                    <strong style="font-size: 0.8rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${week}</strong>
+                    <span style="font-size: 0.65rem; color: var(--text-muted); margin-top: 2px;">${count} បទ</span>
+                </div>
             </button>`;
         }).join('');
     }
@@ -782,6 +877,8 @@ function renderSongs() {
     if (currentFilterType === 'PLAYLIST') {
         const pList = playlists[currentFilterValue] || [];
         filtered = pList.map(id => songsList.find(s => s.id === id)).filter(s => s);
+    } else if (currentFilterType === 'SETLIST') { // បន្ថែមថ្មី
+        const pList = globalSetlists[currentFilterValue] || [];
     } else if (currentFilterType === 'RECENT') {
         filtered = [...songsList].sort((a, b) => {
             const timeA = a.createdAt ? a.createdAt.seconds : 0;
@@ -846,23 +943,35 @@ function handleDrop(e, targetSongId) {
     e.stopPropagation();
     document.querySelectorAll('.song-card').forEach(c => c.classList.remove('drag-over'));
     
-    if (dragSrcId && dragSrcId !== targetSongId && currentFilterType === 'PLAYLIST') {
-        const pName = currentFilterValue;
-        const list = playlists[pName];
-        
-        const fromIdx = list.indexOf(dragSrcId);
-        const toIdx = list.indexOf(targetSongId);
-        if (fromIdx > -1 && toIdx > -1) {
-            list.splice(fromIdx, 1);
-            list.splice(toIdx, 0, dragSrcId);
-            localStorage.setItem('user_playlists', JSON.stringify(playlists));
-            vibratePhone(50);
-            syncPlaylistsToCloud();
-            renderSongs();
+    if (dragSrcId && dragSrcId !== targetSongId) {
+        if (currentFilterType === 'PLAYLIST') {
+            const pName = currentFilterValue;
+            const list = playlists[pName];
+            const fromIdx = list.indexOf(dragSrcId);
+            const toIdx = list.indexOf(targetSongId);
+            if (fromIdx > -1 && toIdx > -1) {
+                list.splice(fromIdx, 1);
+                list.splice(toIdx, 0, dragSrcId);
+                localStorage.setItem('user_playlists', JSON.stringify(playlists));
+                vibratePhone(50);
+                syncPlaylistsToCloud();
+                renderSongs();
+            }
+        } else if (currentFilterType === 'SETLIST' && isEditor) { // បន្ថែមថ្មី
+            const week = currentFilterValue;
+            const list = globalSetlists[week];
+            const fromIdx = list.indexOf(dragSrcId);
+            const toIdx = list.indexOf(targetSongId);
+            if (fromIdx > -1 && toIdx > -1) {
+                list.splice(fromIdx, 1);
+                list.splice(toIdx, 0, dragSrcId);
+                db.collection("public_settings").doc("setlists").set(globalSetlists, { merge: true });
+                vibratePhone(50);
+                renderSongs();
+            }
         }
     }
-    return false;
-}
+}    
 
 function toggleSongMenu(event, songId) {
     event.stopPropagation();
@@ -1249,11 +1358,38 @@ function closeModal(modalId) {
 function openCreatePlaylistModal() { openModal('playlistModal'); }
 function openPlaylistChooserModal(songId) {
     document.getElementById('playlistTargetSongId').value = songId;
+    
+    // ១. Playlist ផ្ទាល់ខ្លួន
     const listContainer = document.getElementById('existingPlaylistsList');
     const keys = Object.keys(playlists);
     if(keys.length === 0) listContainer.innerHTML = '<div style="font-size:0.75rem; color:var(--text-muted);">គ្មាន Playlist ស្រាប់ទេ</div>';
-    else listContainer.innerHTML = keys.map(p => `<button type="button" class="action-btn-item" onclick="addSongToPlaylist('${p}')" style="font-size:0.78rem; padding:8px 10px;"><span>📂 ${escapeHtml(p)}</span><i class="fa-solid fa-plus"></i></button>`).join('');
+    else listContainer.innerHTML = keys.map(p => `<button type="button" onclick="addSongToPlaylist('${p}')" style="display:flex; justify-content:space-between; align-items:center; width:100%; border:1px solid var(--border); border-radius:8px; background:var(--bg); color:var(--text); padding:10px; font-size:0.85rem; margin-bottom: 6px;"><span>📂 ${escapeHtml(p)}</span><i class="fa-solid fa-plus"></i></button>`).join('');
+    
+    // ២. Public Setlist (តែ Admin ទេទើបឃើញ)
+    const setlistContainer = document.getElementById('adminSetlistContainer');
+    if (isEditor) {
+        const sKeys = Object.keys(globalSetlists);
+        let sHtml = sKeys.map(w => `<button type="button" onclick="addSongToSetlist('${w}')" style="display:flex; justify-content:space-between; align-items:center; width:100%; border:1px solid var(--primary); border-radius:8px; background:rgba(37,99,235,0.05); color:var(--primary); padding:10px; font-size:0.85rem; font-weight: 600; margin-bottom: 6px;"><span>📅 ${escapeHtml(w)}</span><i class="fa-solid fa-plus"></i></button>`).join('');
+        document.getElementById('existingSetlistsList').innerHTML = sHtml;
+        setlistContainer.style.display = 'block';
+    } else {
+        if(setlistContainer) setlistContainer.style.display = 'none';
+    }
+    
     openModal('playlistModal');
+}
+
+function addSongToSetlist(weekName) {
+    const songId = document.getElementById('playlistTargetSongId').value;
+    if (!globalSetlists[weekName]) globalSetlists[weekName] = [];
+    if (!globalSetlists[weekName].includes(songId)) { 
+        globalSetlists[weekName].push(songId); 
+        db.collection("public_settings").doc("setlists").set(globalSetlists, { merge: true });
+        showToast(`បានបញ្ចូលទៅ ${weekName} ជោគជ័យ`, 'success'); 
+    } else {
+        showToast(`បទនេះមានក្នុង ${weekName} រួចហើយ`, 'warning');
+    }
+    closeModal('playlistModal');
 }
 function addSongToPlaylist(playlistName) {
     const songId = document.getElementById('playlistTargetSongId').value;
@@ -2052,7 +2188,6 @@ function updateFullScreenContent() {
     if(isAutoScrolling) toggleAutoScroll();
     resetZoomState();
 }
-
 function renderSongsListOnly() {
     const grid = document.getElementById('songGrid');
     if (!grid) return;
@@ -2073,18 +2208,14 @@ function renderSongsListOnly() {
         const inFav = (playlists['Favorite'] || []).includes(song.id);
         const keyHtml = song.songKey ? `<span class="song-key-badge">${escapeHtml(song.songKey)}</span>` : '';
         
-        let cardThumbnail = '';
+        // ប្រើអនុគមន៍ getCardThumbnailHTML ថ្មីនៅទីនេះដើម្បីបង្ហាញ Text Preview ឬ Icon
+        let cardThumbnail = `<div class="song-text-preview" onclick="openFullScreenModal('${song.id}')">
+                                ${getCardThumbnailHTML(song, false)}
+                             </div>`;
+                             
+        // បើសិនជាវាមានរូបភាពពិតប្រាកដ យើងប្រើ tag <img> ធម្មតា ដើម្បីកុំឱ្យវាចូលទៅក្នុងប្រអប់ Text Preview 
         if (song.imageUrl && song.imageUrl.length > 10) {
-            cardThumbnail = `<img src="${song.imageUrl}" class="song-img" alt="${escapeHtml(song.title)}" loading="lazy" onclick="openFullScreenModal('${song.id}')">`;
-        } else if (song.lyrics) {
-            const previewText = escapeHtml(song.lyrics).replace(/\[.*?\]/g, '').substring(0, 100) + '...';
-            cardThumbnail = `
-                <div class="song-text-preview" onclick="openFullScreenModal('${song.id}')">
-                    <div class="text-preview-header" style="font-size: 1rem;"><i class="fa-solid fa-music"></i> ${escapeHtml(song.title)}</div>
-                    <div style="white-space: pre-wrap; font-family: 'Kantumruy Pro', sans-serif; color: var(--text); line-height: 1.5; margin-top: 4px;">${previewText}</div>
-                </div>`;
-        } else {
-            cardThumbnail = `<img src="https://via.placeholder.com/300x400?text=No+Data" class="song-img" onclick="openFullScreenModal('${song.id}')">`;
+             cardThumbnail = `<img src="${song.imageUrl}" class="song-img" alt="${escapeHtml(song.title)}" loading="lazy" onclick="openFullScreenModal('${song.id}')">`;
         }
 
         return `
@@ -2109,6 +2240,7 @@ function renderSongsListOnly() {
                         <button class="card-dropdown-item" onclick="shareSongImage('${song.id}')"><i class="fa-solid fa-share-nodes"></i> Share ចម្រៀង</button>
                         <button class="card-dropdown-item" onclick="downloadSongAction('${song.id}')"><i class="fa-solid fa-download"></i> Save ទុក</button>
                         ${(currentFilterType === 'PLAYLIST' && currentFilterValue !== 'Favorite') ? `<button class="card-dropdown-item danger" onclick="removeSongFromPlaylist('${song.id}', event)"><i class="fa-solid fa-minus"></i> ដកចេញពី Playlist</button>` : ''}
+                        ${(currentFilterType === 'SETLIST' && isEditor) ? `<button class="card-dropdown-item danger" onclick="removeSongFromSetlist('${song.id}', event)"><i class="fa-solid fa-minus"></i> ដកចេញពី Setlist</button>` : ''}
                         <button class="card-dropdown-item editor-only" onclick="openEditSongModal('${song.id}')"><i class="fa-solid fa-pen"></i> កែប្រែ (Edit)</button>
                         <button class="card-dropdown-item danger editor-only" onclick="deleteSong('${song.id}')"><i class="fa-solid fa-trash"></i> លុបចោល</button>
                     </div>
@@ -2847,5 +2979,31 @@ function drawCustomChordDiagram(chordName, canvasId) {
     }
 }
 
+// បន្ថែមមុខងារនេះពីក្រោមមុខងារ filterByPlaylist 
+function filterBySetlist(weekName) {
+    document.getElementById('searchInput').value = '';
+    document.getElementById('clearSearchBtn').style.display = 'none';
 
+    currentFilterType = 'SETLIST'; currentFilterValue = weekName; switchTab('songs');
+    document.getElementById('sectionTitleText').innerHTML = '📅 ' + escapeHtml(weekName);
+    document.getElementById('currentAlbumSubtitle').innerHTML = 'Public Setlist';
+    toggleFilterUI(true);
+    renderSongs();
+}
+
+function removeSongFromSetlist(songId, event) {
+    if(event) event.stopPropagation();
+    if (currentFilterType === 'SETLIST' && currentFilterValue && isEditor) {
+        const week = currentFilterValue;
+        if (confirm(`តើអ្នកពិតជាចង់ដកបទនេះចេញពី Setlist "${week}" មែនទេ?`)) {
+            const index = globalSetlists[week].indexOf(songId);
+            if (index !== -1) {
+                globalSetlists[week].splice(index, 1);
+                db.collection("public_settings").doc("setlists").set(globalSetlists, { merge: true });
+                showToast('បានដកចេញពី Setlist រួចរាល់', 'info');
+                renderSongs();
+            }
+        }
+    }
+}
 
