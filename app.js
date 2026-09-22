@@ -332,6 +332,7 @@ window.onload = async function() {
     const profileBtn = document.getElementById('homeProfileBtn');
     if (profilePopup && profileBtn && !profilePopup.contains(e.target) && !profileBtn.contains(e.target)) {
         profilePopup.classList.remove('show');
+        profileBtn.classList.remove('active');
     }
 });
     
@@ -2925,14 +2926,20 @@ function drawCustomChordDiagram(chordName, canvasId) {
     }
 }
 
-// បើក/បិទ ផ្ទាំង Profile Popup
+// បើក/បិទ ផ្ទាំង Profile Popup និងប្តូរពណ៌ប៊ូតុង
 function toggleProfilePopup(event) {
     if(event) event.stopPropagation();
     const popup = document.getElementById('profilePopup');
+    const profileBtn = document.getElementById('homeProfileBtn'); // យក Element របស់ប៊ូតុង
+    
     if(popup) {
         popup.classList.toggle('show');
+        
         if(popup.classList.contains('show')) {
+            if(profileBtn) profileBtn.classList.add('active'); // ដាក់ពណ៌ឲ្យប៊ូតុង ពេលបើក
             renderProfilePopup();
+        } else {
+            if(profileBtn) profileBtn.classList.remove('active'); // ដកពណ៌ចេញវិញ ពេលបិទ
         }
     }
 }
