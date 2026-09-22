@@ -2975,3 +2975,273 @@ function renderProfilePopup() {
         `;
     }
 }
+
+// អនុញ្ញាតឱ្យបើកផ្ទាំង Modal និងកំណត់ Tab លំនាំដើម
+function openNotificationModal() {
+    openModal('notificationModal');
+    switchNotifTab('news'); // បើក Tab "ព័ត៌មានថ្មីៗ" មុនគេ
+    loadAdminMessages();    // ទាញយកសារ
+    renderNewSongsTab();    // រៀបចំបទចម្រៀង២០បទ
+}
+
+// មុខងារប្តូរ Tab ពណ៌ស និងថ្លា
+function switchNotifTab(tab) {
+    const btnNews = document.getElementById('btnTabNews');
+    const btnSongs = document.getElementById('btnTabSongs');
+    const contentNews = document.getElementById('contentTabNews');
+    const contentSongs = document.getElementById('contentTabSongs');
+
+    if(tab === 'news') {
+        btnNews.style.background = 'white';
+        btnNews.style.color = 'var(--primary)';
+        btnSongs.style.background = 'transparent';
+        btnSongs.style.color = 'white';
+        contentNews.style.display = 'block';
+        contentSongs.style.display = 'none';
+    } else {
+        btnSongs.style.background = 'white';
+        btnSongs.style.color = 'var(--primary)';
+        btnNews.style.background = 'transparent';
+        btnNews.style.color = 'white';
+        contentSongs.style.display = 'block';
+        contentNews.style.display = 'none';
+    }
+}
+
+// មុខងារសម្រាប់ Admin ផ្ញើសារ
+function sendAdminMessage() {
+    const msg = document.getElementById('adminMsgInput').value.trim();
+    if(!msg) return;
+    
+    // បង្កើត Collection ថ្មីឈ្មោះ messages ក្នុង Firebase
+    db.collection('messages').add({
+        text: msg,
+        createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+        sender: currentUser.displayName || 'Admin'
+    }).then(() => {
+        document.getElementById('adminMsgInput').value = '';
+        showToast('បានផ្ញើសារជូនដំណឹងរួចរាល់', 'success');
+    }).catch((err) => {
+        showToast('មិនអាចផ្ញើសារបានទេ៖ ' + err.message, 'error');
+    });
+}
+
+// មុខងារទាញយកសារមកបង្ហាញជាទម្រង់កាត (Card)
+function loadAdminMessages() {
+    db.collection('messages').orderBy('createdAt', 'desc').limit(30).onSnapshot(snapshot => {
+        const container = document.getElementById('newsListContainer');
+        if (snapshot.empty) {
+            container.innerHTML = '<div style="text-align:center; color:var(--text-muted); font-size:0.85rem; padding: 20px;">មិនទាន់មានព័ត៌មានថ្មីៗទេ</div>';
+            return;
+        }
+        
+        let html = '';
+        snapshot.forEach(doc => {
+            const data = doc.data();
+            let dateStr = 'ថ្មីៗ';
+            if (data.createdAt) {
+                const d = new Date(data.createdAt.toDate());
+                dateStr = d.toLocaleDateString('km-KH') + ' | ' + d.toLocaleTimeString('km-KH', {hour: '2-digit', minute:'2-digit'});
+            }
+            
+            // រចនាប័ណ្ណសារ ស្រដៀងនឹងរូបភាពធនាគាររបស់អ្នក
+            html += `
+                <div style="background: white; padding: 15px; border-radius: 12px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); text-align: left;">
+                    <div style="display: flex; gap: 12px; align-items: flex-start;">
+                        <div style="background: rgba(37, 99, 235, 0.1); color: var(--primary); width: 35px; height: 35px; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 1rem;">
+                            <i class="fa-solid fa-envelope-open-text"></i>
+                        </div>
+                        <div>
+                            <div style="font-size: 0.9rem; color: var(--text); font-weight: 600; line-height: 1.4; margin-bottom: 6px;">
+                                ${escapeHtml(data.text)}
+                            </div>
+                            <div style="font-size: 0.72rem; color: var(--text-muted);">
+                                ${dateStr}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        });
+        container.innerHTML = html;
+    });
+}
+
+// មុខងារបង្ហាញចម្រៀងទើបបញ្ចូលថ្មី ២០បទចុងក្រោយ
+function renderNewSongsTab() {
+    const container = document.getElementById('newSongsListContainer');
+    if(!songsList || songsList.length === 0) {
+        container.innerHTML = '<div style="text-align:center; color:var(--text-muted); padding: 20px;">គ្មានទិន្នន័យបទចម្រៀងទេ</div>';
+        return;
+    }
+
+    // ដោយសារ songsList ត្រូវបាន sort តាមថ្ងៃបញ្ចូលរួចហើយ យើងគ្រាន់តែយក ២០បទដំបូងប៉ុណ្ណោះ
+    const top20 = songsList.slice(0, 20);
+    
+    let html = '';
+    top20.forEach((song, index) => {
+        html += `
+            <div onclick="openFullScreenModal('${song.id}'); closeModal('notificationModal');" style="background: white; padding: 12px 15px; border-radius: 12px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); display: flex; align-items: center; gap: 12px; cursor: pointer; transition: 0.2s;">
+                <div style="font-weight: 800; font-size: 1rem; color: var(--primary); width: 25px; text-align: center;">
+                    ${index + 1}
+                </div>
+                <div style="flex: 1; font-size: 0.9rem; font-weight: 600; color: var(--text); overflow: hidden; white-space: nowrap; text-overflow: ellipsis;">
+                    ${escapeHtml(song.title)}
+                </div>
+                <div style="background: rgba(37,99,235,0.1); color: var(--primary); padding: 4px 8px; border-radius: 20px; font-size: 0.65rem; font-weight: bold;">
+                    <i class="fa-solid fa-play"></i>
+                </div>
+            </div>
+        `;
+    });
+    
+    container.innerHTML = html;
+}
+
+// =========================================
+/// =========================================
+// កូដសម្រាប់ផ្ទាំងការជូនដំណឹង (រចនាបថអេស៊ីលីដា / Full Screen)
+// =========================================
+
+// បើកផ្ទាំងពេញអេក្រង់ និងទាញទិន្នន័យ
+function openAcledaNotifScreen() {
+    document.getElementById('acledaNotifScreen').style.display = 'block';
+    document.body.classList.add('no-scroll');
+    
+    const dot = document.getElementById('navNotifDot');
+    if(dot) dot.style.display = 'none';
+
+    // កំណត់បើក Tab ព័ត៌មានថ្មីៗមុនគេជានិច្ច
+    switchAcledaTab('news');
+    loadAcledaAdminMessages();
+    renderAcledaNewSongs();
+}
+
+// បិទផ្ទាំង
+function closeAcledaNotifScreen() {
+    document.getElementById('acledaNotifScreen').style.display = 'none';
+    document.body.classList.remove('no-scroll');
+}
+
+// មុខងារចុចប្តូរ Tab បង្ហាញពណ៌ស/ខៀវ
+function switchAcledaTab(tabName) {
+    const btnNews = document.getElementById('tabBtnNews');
+    const btnSongs = document.getElementById('tabBtnSongs');
+    const contentNews = document.getElementById('tabContentNews');
+    const contentSongs = document.getElementById('tabContentSongs');
+
+    if (tabName === 'news') {
+        btnNews.style.background = 'white';
+        btnNews.style.color = '#0f3566';
+        btnSongs.style.background = 'transparent';
+        btnSongs.style.color = 'white';
+        contentNews.style.display = 'block';
+        contentSongs.style.display = 'none';
+    } else {
+        btnSongs.style.background = 'white';
+        btnSongs.style.color = '#0f3566';
+        btnNews.style.background = 'transparent';
+        btnNews.style.color = 'white';
+        contentSongs.style.display = 'block';
+        contentNews.style.display = 'none';
+    }
+}
+
+// មុខងារ Admin ផ្ញើសារ
+function sendAdminMessage() {
+    const msg = document.getElementById('adminMsgInput').value.trim();
+    if(!msg) return;
+    
+    db.collection('messages').add({
+        text: msg,
+        createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+        sender: currentUser ? currentUser.displayName : 'Admin'
+    }).then(() => {
+        document.getElementById('adminMsgInput').value = '';
+        showToast('បានផ្ញើសារជូនដំណឹងរួចរាល់', 'success');
+    }).catch((err) => {
+        showToast('មិនអាចផ្ញើសារបានទេ៖ ' + err.message, 'error');
+    });
+}
+
+// ទាញយកព័ត៌មានថ្មីៗមកបង្ហាញ
+function loadAcledaAdminMessages() {
+    db.collection('messages').orderBy('createdAt', 'desc').limit(30).onSnapshot(snapshot => {
+        const container = document.getElementById('acledaNewsList');
+        if(!container) return;
+        
+        if (snapshot.empty) {
+            // បើកគ្មានព័ត៌មាន បង្ហាញផ្ទាំងពណ៌ស ដាក់អក្សរ "គ្មានព័ត៌មាន"
+            container.innerHTML = '<div style="background: white; border-radius: 12px; padding: 50px 20px; text-align: center; color: var(--text-muted); font-size: 1rem; font-weight: 600; box-shadow: 0 2px 8px rgba(0,0,0,0.04);">គ្មានព័ត៌មាន</div>';
+            return;
+        }
+        
+        let html = '';
+        snapshot.forEach(doc => {
+            const data = doc.data();
+            let dateStr = 'ថ្មីៗ';
+            if (data.createdAt) {
+                const d = new Date(data.createdAt.toDate());
+                const khmerMonths = ["មករា", "កុម្ភៈ", "មីនា", "មេសា", "ឧសភា", "មិថុនា", "កក្កដា", "សីហា", "កញ្ញា", "តុលា", "វិច្ឆិកា", "ធ្នូ"];
+                dateStr = d.getDate() + ' ' + khmerMonths[d.getMonth()] + ' ' + d.getFullYear() + ' | ' + d.toLocaleTimeString('km-KH', {hour: '2-digit', minute:'2-digit'});
+            }
+            
+            // រចនាប័ណ្ណបង្ហាញ (កាតពណ៌ស ផ្ទៃអក្សរស្រលះល្អ)
+            html += `
+                <div style="background: white; border-radius: 12px; padding: 15px; display: flex; gap: 15px; align-items: flex-start; box-shadow: 0 2px 8px rgba(0,0,0,0.04);">
+                    <div style="background: #0f3566; color: #f59e0b; width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 1.1rem;">
+                        <i class="fa-solid fa-bullhorn"></i>
+                    </div>
+                    <div>
+                        <div style="font-size: 0.95rem; color: #1e293b; font-weight: 700; margin-bottom: 4px;">សារជូនដំណឹង</div>
+                        <div style="font-size: 0.75rem; color: #64748b; margin-bottom: 8px;">${dateStr}</div>
+                        <div style="font-size: 0.85rem; color: #334155; line-height: 1.5;">${escapeHtml(data.text)}</div>
+                    </div>
+                </div>
+            `;
+        });
+        container.innerHTML = html;
+    });
+}
+
+// ទាញយកចម្រៀងទើបបញ្ចូលថ្មី ២០បទមកបង្ហាញ
+function renderAcledaNewSongs() {
+    const container = document.getElementById('acledaSongsList');
+    if(!container) return;
+    
+    if(!songsList || songsList.length === 0) {
+        // បើកគ្មានព័ត៌មាន បង្ហាញផ្ទាំងពណ៌ស ដាក់អក្សរ "គ្មានព័ត៌មាន"
+        container.innerHTML = '<div style="background: white; border-radius: 12px; padding: 50px 20px; text-align: center; color: var(--text-muted); font-size: 1rem; font-weight: 600; box-shadow: 0 2px 8px rgba(0,0,0,0.04);">គ្មានព័ត៌មាន</div>';
+        return;
+    }
+
+    // យកត្រឹម ២០បទចុងក្រោយ
+    const top20 = songsList.slice(0, 20);
+    let html = '';
+    
+    top20.forEach((song, index) => {
+        let dateStr = '';
+        if (song.createdAt) {
+            const d = new Date(song.createdAt.seconds * 1000);
+            const khmerMonths = ["មករា", "កុម្ភៈ", "មីនា", "មេសា", "ឧសភា", "មិថុនា", "កក្កដា", "សីហា", "កញ្ញា", "តុលា", "វិច្ឆិកា", "ធ្នូ"];
+            dateStr = d.getDate() + ' ' + khmerMonths[d.getMonth()] + ' ' + d.getFullYear();
+        }
+
+        html += `
+            <div onclick="openFullScreenModal('${song.id}'); closeAcledaNotifScreen();" style="background: white; border-radius: 12px; padding: 15px; display: flex; align-items: center; gap: 15px; box-shadow: 0 2px 8px rgba(0,0,0,0.04); cursor: pointer; transition: transform 0.2s;">
+                <div style="background: #0f3566; color: #f59e0b; width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 1rem; font-weight: bold;">
+                    ${index + 1}
+                </div>
+                <div style="flex: 1; overflow: hidden;">
+                    <div style="font-size: 0.95rem; color: #1e293b; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-bottom: 4px;">${escapeHtml(song.title)}</div>
+                    <div style="font-size: 0.75rem; color: #64748b;">🎤 ${escapeHtml(song.artist || 'មិនស្គាល់')} • ${dateStr}</div>
+                </div>
+                <div style="color: #0f3566; font-size: 1.2rem;">
+                    <i class="fa-solid fa-play-circle"></i>
+                </div>
+            </div>
+        `;
+    });
+    
+    container.innerHTML = html;
+}
