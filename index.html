@@ -58,15 +58,24 @@
         </div>
     </div>
     <!-- ផ្នែកបន្ថែមថ្មី៖ ប៊ូតុងកណ្តឹង និង ប៊ូតុង Profile -->
-    <div style="display: flex; gap: 12px; align-items: center;">
-        <button class="home-icon-btn" onclick="openNotificationsSubView()" aria-label="Notifications" style="position: relative;">
-            <i class="fa-solid fa-bell"></i>
-            <span class="nav-badge-dot" id="navNotifDot" style="top: 8px; right: 10px;"></span>
-        </button>
-        <button class="home-icon-btn" onclick="switchTab('settings')" aria-label="Profile">
+    <!-- ផ្នែកបន្ថែមថ្មី៖ ប៊ូតុងកណ្តឹង និង ប៊ូតុង Profile -->
+<div style="display: flex; gap: 12px; align-items: center; position: relative;">
+    <button class="home-icon-btn" onclick="openNotificationsSubView()" aria-label="Notifications" style="position: relative;">
+        <i class="fa-solid fa-bell"></i>
+        <span class="nav-badge-dot" id="navNotifDot" style="top: 8px; right: 10px;"></span>
+    </button>
+    
+    <!-- ទីតាំងប៊ូតុង Profile ថ្មី -->
+    <div style="position: relative;">
+        <button class="home-icon-btn" id="homeProfileBtn" onclick="toggleProfilePopup(event)" aria-label="Profile">
             <i class="fa-regular fa-user"></i>
         </button>
+        <!-- ផ្ទាំង Profile Popup តូច -->
+        <div id="profilePopup" class="profile-popup">
+            <div id="profilePopupContent"></div>
+        </div>
     </div>
+</div>
 </div>
 <div style="padding: 0 6px 16px; font-size: 0.7rem; color: var(--text-muted); font-weight: 600; font-style: italic; text-align: center; line-height: 1.6;">
                 "ចូរឱ្យជីវិតទាំងឡាយដែលមានដង្ហើម បានសរសើរដល់ព្រះយ៉េហូវ៉ាចុះ" <span style="font-style: normal; color: #0088cc;">ទំនុកតម្កើង ១៥០៖៦</span>
@@ -119,11 +128,6 @@
     </div>
 
     <div class="app-view" id="viewSongs">
-        <div class="minimal-greeting">
-            <p class="minimal-verse">"ចូរឱ្យជីវិតទាំងឡាយដែលមានដង្ហើម បានសរសើរដល់ព្រះយ៉េហូវ៉ាចុះ"</p>
-            <p class="minimal-ref"> ---ទំនុកតម្កើង ១៥០៖៦ --- </p>
-        </div>
-
         <div class="sticky-action-bar">
             <div class="controls">
                 <div class="search-box">
@@ -244,10 +248,10 @@
 
 <div class="bottom-nav">
     <button class="bottom-nav-item active" id="navHomeBtn" onclick="switchTab('home')"><i class="fa-solid fa-house"></i><span>Home</span></button>
-    <button class="bottom-nav-item" id="navSongsBtn" onclick="switchTab('songs')"><i class="fa-solid fa-layer-group"></i><span>Cards</span></button>
-    <button class="bottom-nav-item" id="navAlbumsBtn" onclick="switchTab('albums')"><i class="fa-solid fa-record-vinyl"></i><span>អាល់ប៊ុម</span></button>
+    <button class="bottom-nav-item" id="navSongsBtn" onclick="switchTab('songs')"><i class="fa-solid fa-layer-group"></i><span>Songs</span></button>
+    <button class="bottom-nav-item" id="navAlbumsBtn" onclick="switchTab('albums')"><i class="fa-solid fa-record-vinyl"></i><span>Album</span></button>
     <button class="bottom-nav-item" id="navPlaylistsBtn" onclick="switchTab('playlists')"><i class="fa-solid fa-list-ul"></i><span>Playlist</span></button>
-    <button class="bottom-nav-item" id="navProfileBtn" onclick="switchTab('settings')"><i class="fa-regular fa-user"></i>ការកំណត់</button>
+    <button class="bottom-nav-item" id="navProfileBtn" onclick="switchTab('settings')"><i class="fa-regular fa-user"></i>Settings</button>
 </div>
 
 <div class="offline-sync-badge" id="offlineSyncBadge"><span class="status-dot status-online" id="statusDot"></span><span id="statusText">អនឡាញ</span></div>
