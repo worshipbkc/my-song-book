@@ -26,10 +26,8 @@ let isAdmin = false;
 let songsList = [];          
 let customAlbums = ['ទំនុកដំកើង', 'ទំនុកខ្មែរបរិសុទ្ធ'];
 let playlists = JSON.parse(localStorage.getItem('user_playlists') || '{}');
-// បន្ថែមនៅខាងក្រោម let playlists = ...
 let globalSetlists = {};
 
-// បន្ថែមមុខងារនេះចូល
 function listenToGlobalSetlists() {
     db.collection("public_settings").doc("setlists").onSnapshot((doc) => {
         if (doc.exists) {
@@ -37,9 +35,15 @@ function listenToGlobalSetlists() {
         } else {
             globalSetlists = {};
         }
-        // Update ផ្ទាំងបង្ហាញបើសិនជាកំពុងបើក
-        if (document.getElementById('viewHome').classList.contains('active')) renderHomeView();
-        if (currentFilterType === 'SETLIST') renderSongs();
+        
+        const viewHome = document.getElementById('viewHome');
+        if (viewHome && viewHome.classList.contains('active')) {
+            renderHomeView();
+        }
+        
+        if (currentFilterType === 'SETLIST') {
+            renderSongs();
+        }
     });
 }
 
@@ -382,13 +386,13 @@ function setQuickFilter(type, btnElement) {
     } else if (type === 'FAV') {
         filterByPlaylist('Favorite');
     
-    } else if (type === 'HISTORY') { // <-- បន្ថែមថ្មីពីត្រង់នេះ
+    } else if (type === 'HISTORY') { 
         document.getElementById('sectionTitleText').innerText = "ប្រវត្តិអាន (ទើបតែបើក)";
         document.getElementById('currentAlbumSubtitle').innerHTML = `Khmer Christian Worship Songs`;
         currentFilterType = 'HISTORY'; currentFilterValue = 'HISTORY';
         toggleFilterUI(false); 
         renderSongs();
-    } //
+    } 
 }
 
 function listenToSongsChanges() {
@@ -652,7 +656,6 @@ function listenToAuth() {
     auth.onAuthStateChanged((user) => {
         currentUser = user;
         if (user) {
-            // ១. កំណត់អុីម៉ែលរបស់អ្នកដែលមានសិទ្ធិជា Admin នៅទីនេះ
             const adminEmails = ["phallakhum6@gmail.com"]; 
             
             if (adminEmails.includes(user.email)) {
@@ -664,7 +667,6 @@ function listenToAuth() {
             }
             updateUIRoles();
 
-            // ២. Load ទិន្នន័យ Playlist របស់ User ធម្មតា
             db.collection("users").doc(user.uid).get().then((doc) => {
                 if (doc.exists) { 
                     const userData = doc.data(); 
@@ -743,7 +745,7 @@ function getCardThumbnailHTML(song, isSmall = false) {
     return `<div style="width:100%; height:100%; display:flex; align-items:center; justify-content:center; background:var(--bg); color:var(--primary); font-size: ${isSmall ? '1.2rem' : '2rem'};"><i class="fa-solid fa-music"></i></div>`;
 }
 
-// មុខងាររាប់ថ្ងៃអាទិត្យក្នុងខែនេះ (ដើម្បីដឹងថាមាន ៤ ឬ ៥ សប្តាហ៍)
+// មុខងាររាប់ថ្ងៃអាទិត្យក្នុងខែនេះ
 function getSundaysInCurrentMonth() {
     const now = new Date();
     const year = now.getFullYear();
@@ -751,8 +753,8 @@ function getSundaysInCurrentMonth() {
     let sundays = 0;
     for (let day = 1; day <= 31; day++) {
         const d = new Date(year, month, day);
-        if (d.getMonth() !== month) break; // ឈប់ពេលចូលខែបន្ទាប់
-        if (d.getDay() === 0) sundays++;   // ០ គឺថ្ងៃអាទិត្យ
+        if (d.getMonth() !== month) break; 
+        if (d.getDay() === 0) sundays++;   
     }
     return sundays;
 }
@@ -785,7 +787,7 @@ function checkAndResetMonthlySetlists() {
         }
     }
 
-    // ៣. បើមានការផ្លាស់ប្តូរ Save ចូល Database តែម្តង
+    // ៣. បើមានការផ្លាស់ប្តូរ Save ចូល Database
     if (hasChanges) {
         db.collection("public_settings").doc("setlists").set(newSetlists, { merge: true });
     }
@@ -834,9 +836,8 @@ function renderHomeView() {
     }
 
     if (setlistList) {
-        if (isEditor) checkAndResetMonthlySetlists(); // ដើរលុះត្រាតែ Admin ចូល
+        if (isEditor) checkAndResetMonthlySetlists(); 
         
-        // ប្តូរការណែនាំឱ្យត្រូវនឹង Public Mode
         const descDiv = setlistList.previousElementSibling;
         if (descDiv && descDiv.tagName === 'DIV' && descDiv.innerHTML.includes('💡')) {
             descDiv.innerHTML = `💡 <strong style="color: var(--primary);">Setlist នេះគឺ Public៖</strong> ត្រូវបានរៀបចំដោយអ្នកដឹកនាំ ហើយសមាជិកទាំងអស់អាចមើលបានដើម្បីត្រៀមខ្លួនថ្វាយបង្គំ។`;
@@ -853,7 +854,8 @@ function renderHomeView() {
             weeks.push(`សប្តាហ៍ទី${i}`);
         }
 
-        // អានពី globalSetlists វិញ
+        if (!globalSetlists) globalSetlists = {};
+
         setlistList.innerHTML = weeks.map(week => {
             const count = (globalSetlists[week] || []).length;
             return `<button class="home-album-card" style="width: 140px; flex: 0 0 140px; padding: 10px; border-radius: 14px; background: var(--card-bg); border: 1px solid var(--border); display: flex; align-items: center; gap: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.05);" onclick="filterBySetlist('${week}')">
@@ -877,19 +879,18 @@ function renderSongs() {
     if (currentFilterType === 'PLAYLIST') {
         const pList = playlists[currentFilterValue] || [];
         filtered = pList.map(id => songsList.find(s => s.id === id)).filter(s => s);
-    } else if (currentFilterType === 'SETLIST') { // បន្ថែមថ្មី
+    } else if (currentFilterType === 'SETLIST') {
         const pList = globalSetlists[currentFilterValue] || [];
+        filtered = pList.map(id => songsList.find(s => s.id === id)).filter(s => s);
     } else if (currentFilterType === 'RECENT') {
         filtered = [...songsList].sort((a, b) => {
             const timeA = a.createdAt ? a.createdAt.seconds : 0;
             const timeB = b.createdAt ? b.createdAt.seconds : 0;
             return timeB - timeA;
         });
-        } else if (currentFilterType === 'HISTORY') { // <-- បន្ថែមថ្មីពីត្រង់នេះ
+    } else if (currentFilterType === 'HISTORY') { 
         const historyIds = JSON.parse(localStorage.getItem('recent_history') || '[]');
-        // ទាញយកបទតាមលំដាប់លំដោយនៃប្រវត្តិដែលទើបបើក
         filtered = historyIds.map(id => songsList.find(s => s.id === id)).filter(s => s);
-     // <-- ដល់ត្រង់នេះ
     } else {
         filtered = [...songsList];
     }
@@ -957,7 +958,7 @@ function handleDrop(e, targetSongId) {
                 syncPlaylistsToCloud();
                 renderSongs();
             }
-        } else if (currentFilterType === 'SETLIST' && isEditor) { // បន្ថែមថ្មី
+        } else if (currentFilterType === 'SETLIST' && isEditor) {
             const week = currentFilterValue;
             const list = globalSetlists[week];
             const fromIdx = list.indexOf(dragSrcId);
@@ -971,6 +972,7 @@ function handleDrop(e, targetSongId) {
             }
         }
     }
+    return false;
 }    
 
 function toggleSongMenu(event, songId) {
@@ -1044,7 +1046,6 @@ function selectSearchDropdownItem(songId) {
 }
 
 function resetFilters() {
-    // បន្ថែមកូដ ២ បន្ទាត់នេះដើម្បីលុបអក្សរក្នុងប្រអប់ Search
     document.getElementById('searchInput').value = '';
     document.getElementById('clearSearchBtn').style.display = 'none';
 
@@ -1056,7 +1057,6 @@ function resetFilters() {
 }
 
 function filterByAlbum(albumName) {
-    // បន្ថែមកូដ ២ បន្ទាត់នេះដើម្បីលុបអក្សរក្នុងប្រអប់ Search
     document.getElementById('searchInput').value = '';
     document.getElementById('clearSearchBtn').style.display = 'none';
 
@@ -1068,7 +1068,6 @@ function filterByAlbum(albumName) {
 }
 
 function filterByPlaylist(playlistName) {
-    // បន្ថែមកូដ ២ បន្ទាត់នេះដើម្បីលុបអក្សរក្នុងប្រអប់ Search
     document.getElementById('searchInput').value = '';
     document.getElementById('clearSearchBtn').style.display = 'none';
 
@@ -1224,16 +1223,12 @@ function autoScrollLoop() {
 
 function openFullScreenModal(songId) {
     const songIndex = currentFilteredSongs.findIndex(s => s.id === songId); if (songIndex === -1) return;
-    // --- ចាប់ផ្តើមកូដថ្មី សម្រាប់រក្សាទុកប្រវត្តិ ---
     let history = JSON.parse(localStorage.getItem('recent_history') || '[]');
-    // លុបបទនេះចេញពីប្រវត្តិសិនបើវាធ្លាប់បើកហើយ (ដើម្បីរុញវាមកខាងមុខគេវិញ)
     history = history.filter(id => id !== songId);
-    // ដាក់វានៅលេខរៀងទី១ (ខាងមុខគេ)
     history.unshift(songId);
-    // រក្សាទុកតែ ១៥ បទចុងក្រោយបានហើយ
     if (history.length > 15) history.pop();
     localStorage.setItem('recent_history', JSON.stringify(history));
-    // --- បញ្ចប់កូដថ្មី ---
+    
     currentFullscreenIndex = songIndex; updateFullScreenContent(); document.getElementById('fullScreenModal').classList.add('active');
     requestWakeLock(); 
     document.body.classList.remove('no-scroll');
@@ -2208,12 +2203,10 @@ function renderSongsListOnly() {
         const inFav = (playlists['Favorite'] || []).includes(song.id);
         const keyHtml = song.songKey ? `<span class="song-key-badge">${escapeHtml(song.songKey)}</span>` : '';
         
-        // ប្រើអនុគមន៍ getCardThumbnailHTML ថ្មីនៅទីនេះដើម្បីបង្ហាញ Text Preview ឬ Icon
         let cardThumbnail = `<div class="song-text-preview" onclick="openFullScreenModal('${song.id}')">
                                 ${getCardThumbnailHTML(song, false)}
                              </div>`;
                              
-        // បើសិនជាវាមានរូបភាពពិតប្រាកដ យើងប្រើ tag <img> ធម្មតា ដើម្បីកុំឱ្យវាចូលទៅក្នុងប្រអប់ Text Preview 
         if (song.imageUrl && song.imageUrl.length > 10) {
              cardThumbnail = `<img src="${song.imageUrl}" class="song-img" alt="${escapeHtml(song.title)}" loading="lazy" onclick="openFullScreenModal('${song.id}')">`;
         }
@@ -2353,7 +2346,6 @@ async function handleUpdateSong(e) {
     finally { updateBtn.disabled = false; updateBtn.innerText = 'រក្សាទុក'; }
 }
 
-// មុខងារសម្រាប់ដកបទចម្រៀងចេញពី Playlist
 function removeSongFromPlaylist(songId, event) {
     if(event) event.stopPropagation();
     
@@ -2364,19 +2356,14 @@ function removeSongFromPlaylist(songId, event) {
             if (index !== -1) {
                 playlists[pName].splice(index, 1);
                 localStorage.setItem('user_playlists', JSON.stringify(playlists));
-                syncPlaylistsToCloud(); // Update ទៅ Cloud
-                renderSongs(); // Update ផ្ទាំងបង្ហាញឡើងវិញ
+                syncPlaylistsToCloud(); 
+                renderSongs(); 
                 showToast('បានដកចេញពី Playlist រួចរាល់', 'info');
             }
         }
     }
 }
 
-/* =========================================
-   មុខងារបន្ថែមថ្មី (Logic Features)
-========================================= */
-
-// ១. មុខងារប្តូរទំហំអក្សរ (Font Size Adjuster)
 let baseLyricFontSize = 1.05;
 function changeFontSize(step) {
     baseLyricFontSize += step;
@@ -2387,11 +2374,10 @@ function changeFontSize(step) {
         el.style.fontSize = baseLyricFontSize + 'rem';
     });
     document.querySelectorAll('.chord').forEach(el => {
-        el.style.fontSize = (baseLyricFontSize * 0.85) + 'rem'; // ឲ្យ chord តូចជាង lyric បន្តិច
+        el.style.fontSize = (baseLyricFontSize * 0.85) + 'rem'; 
     });
 }
 
-// ២. មុខងារ Presentation Mode (សម្រាប់បញ្ចាំង Projector)
 let isPresentationMode = false;
 function togglePresentationMode() {
     const modal = document.getElementById('fullScreenModal');
@@ -2405,10 +2391,8 @@ function togglePresentationMode() {
     }
 }
 
-// ៣. មុខងារ Mini Audio Player (ស្តាប់ចម្រៀងក្នុង App)
 function playAudio(mediaUrl, title) {
     if(!mediaUrl) return;
-    // បើជា Link YouTube អនុញ្ញាតឲ្យបើកនៅផ្ទាំងថ្មីដដែល
     if (mediaUrl.includes('youtube.com') || mediaUrl.includes('youtu.be')) {
         window.open(mediaUrl, '_blank');
         return;
@@ -2446,7 +2430,6 @@ function closeMiniPlayer() {
     document.getElementById('miniPlayer').style.display = 'none';
 }
 
-// ៤. មុខងារអូស (Swipe) ដើម្បីប្តូរបទចម្រៀង នៅក្នុងផ្ទាំង Lyrics
 document.addEventListener('DOMContentLoaded', () => {
     const lyricsContainer = document.getElementById('fullScreenLyrics');
     let touchstartX = 0;
@@ -2464,15 +2447,12 @@ document.addEventListener('DOMContentLoaded', () => {
     function handleLyricsSwipe() {
         const swipeDist = touchendX - touchstartX;
         if (Math.abs(swipeDist) > 70) { 
-            if (swipeDist < 0) slideFullScreen(1); // អូសទៅឆ្វេង = បទបន្ទាប់
-            else slideFullScreen(-1); // អូសទៅស្តាំ = បទថយក្រោយ
+            if (swipeDist < 0) slideFullScreen(1); 
+            else slideFullScreen(-1); 
         }
     }
 });
 
-/* =========================================
-   ៥. មុខងារ Metronome (ម៉ាស៊ីនគោះចង្វាក់)
-========================================= */
 let audioCtx = null;
 let metronomeTimer = null;
 let currentBpm = 80;
@@ -2489,7 +2469,6 @@ function changeBpm(delta) {
     if (currentBpm > 240) currentBpm = 240;
     document.getElementById('bpmValue').innerText = currentBpm;
     
-    // បើកំពុងលេង ត្រូវ Restart វាដើម្បីឲ្យវាចាប់ចង្វាក់ថ្មី
     if (isMetronomePlaying) {
         clearInterval(metronomeTimer);
         metronomeTimer = setInterval(playClickSound, 60000 / currentBpm);
@@ -2504,24 +2483,19 @@ function playClickSound() {
     osc.connect(gainNode);
     gainNode.connect(audioCtx.destination);
     
-    osc.frequency.value = 1000; // សំឡេងតុក!
+    osc.frequency.value = 1000; 
     gainNode.gain.setValueAtTime(1, audioCtx.currentTime);
     gainNode.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.1);
     
     osc.start(audioCtx.currentTime);
     osc.stop(audioCtx.currentTime + 0.1);
 
-    // -- ចាប់ផ្តើមបន្ទាត់ដែលបានបន្ថែមថ្មីសម្រាប់ Visual Metronome --
     const bpmDisplay = document.getElementById('bpmValue');
     if (bpmDisplay) {
-        // លុប Class ចាស់ចោលសិន
         bpmDisplay.classList.remove('metronome-flash');
-        // បង្ខំឱ្យ Browser ដំណើរការ Animation សារជាថ្មី (Trigger Reflow)
         void bpmDisplay.offsetWidth; 
-        // ដាក់ Class បញ្ចូលវិញដើម្បីឱ្យវាលោតពន្លឺ
         bpmDisplay.classList.add('metronome-flash');
     }
-    // -- បញ្ចប់បន្ទាត់បន្ថែមថ្មី --
 }
 
 function toggleMetronomePlay() {
@@ -2535,7 +2509,7 @@ function toggleMetronomePlay() {
         btn.innerHTML = '<i class="fa-solid fa-play"></i>';
     } else {
         audioCtx.resume();
-        playClickSound(); // លេងមួយភ្លាមពេលចុច
+        playClickSound(); 
         metronomeTimer = setInterval(playClickSound, 60000 / currentBpm);
         isMetronomePlaying = true;
         btn.classList.add('active');
@@ -2543,21 +2517,13 @@ function toggleMetronomePlay() {
     }
 }
 
-// ត្រូវប្រាកដថាបានបិទ Metronome ពេលចេញពី Fullscreen
 const originalCloseFullScreen = closeFullScreenModalDirect;
 window.closeFullScreenModalDirect = function() {
-    if (isMetronomePlaying) toggleMetronomePlay(); // បិទសំឡេង
-    document.getElementById('metronomePanel').style.display = 'none'; // លាក់ផ្ទាំង
+    if (isMetronomePlaying) toggleMetronomePlay(); 
+    document.getElementById('metronomePanel').style.display = 'none'; 
     originalCloseFullScreen();
 }
 
-
-/* =========================================
-   ៦. មុខងារ Chord Diagram (បង្ហាញទម្រង់ចាប់)
-========================================= */
-
-// ទិន្នន័យ Chord ងាយៗ (-1 = ខ្សែមិនត្រូវដេញ(X), 0 = ខ្សែលែង(O), លេខផ្សេងៗ = លេខកន្លៀត(Fret))
-// លំដាប់ខ្សែ: [ខ្សែ៦(Eធំ), ខ្សែ៥(A), ខ្សែ៤(D), ខ្សែ៣(G), ខ្សែ២(B), ខ្សែ១(eតូច)]
 const basicChords = {
     "C": [-1, 3, 2, 0, 1, 0], "Cm": [-1, 3, 5, 5, 4, 3], "C#": [-1, 4, 6, 6, 6, 4],
     "D": [-1, -1, 0, 2, 3, 2], "Dm": [-1, -1, 0, 2, 3, 1], "D#": [-1, 6, 8, 8, 8, 6],
@@ -2586,23 +2552,18 @@ function showChordModal(chordName) {
     drawChordDiagram(chordName);
 }
 
-// អនុគមន៍រក Chord ជំនួស បើរកមិនឃើញរូបភាពពិតប្រាកដ
 function getBestChordMatch(chordName) {
-    // ១. រកមើលបេះបិទសិន (បើប្រើជាមួយ fullChordLibrary ពីមុន)
     if (typeof fullChordLibrary !== 'undefined' && fullChordLibrary[chordName]) return fullChordLibrary[chordName];
     if (typeof basicChords !== 'undefined' && basicChords[chordName]) return basicChords[chordName];
 
-    // ២. បើមាន Slash (ឧ. C/G) យើងយកតែ C មកបង្ហាញ
     let noSlash = chordName.split('/')[0];
     if (typeof fullChordLibrary !== 'undefined' && fullChordLibrary[noSlash]) return fullChordLibrary[noSlash];
     if (typeof basicChords !== 'undefined' && basicChords[noSlash]) return basicChords[noSlash];
 
-    // ៣. បើនៅតែអត់មាន កាត់កន្ទុយស្មុគស្មាញចោល (add9, maj9, 11, dim, aug, sus2...) ទុកតែមេ Major ឬ Minor
     let rootOnly = noSlash.replace(/add9|maj9|maj11|m11|dim7|dim|aug|sus2/g, '');
     if (typeof fullChordLibrary !== 'undefined' && fullChordLibrary[rootOnly]) return fullChordLibrary[rootOnly];
     if (typeof basicChords !== 'undefined' && basicChords[rootOnly]) return basicChords[rootOnly];
     
-    // ៤. ជម្រើសចុងក្រោយ យកតែតួអក្សរមេ និង m (ឧ. C#m7b5 ទៅជា C#m)
     let basicMatch = noSlash.match(/^[A-G][#b]?m?/);
     if (basicMatch) {
         let finalChord = basicMatch[0];
@@ -2610,7 +2571,7 @@ function getBestChordMatch(chordName) {
         if (typeof basicChords !== 'undefined' && basicChords[finalChord]) return basicChords[finalChord];
     }
 
-    return null; // បើអត់មែនទែន ទើបព្រមចុះចាញ់
+    return null; 
 }
 
 function drawChordDiagram(chordName) {
@@ -2619,7 +2580,6 @@ function drawChordDiagram(chordName) {
     const ctx = canvas.getContext('2d');
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     
-    // ប្រើអនុគមន៍ឆ្លាតវៃដើម្បីស្វែងរករូបភាព
     let positions = getBestChordMatch(chordName);
     
     if (!positions) {
@@ -2690,9 +2650,7 @@ function drawChordDiagram(chordName) {
         }
     }
 }
-/* =========================================
-   មុខងារ Guitar Tuner (នៅលើទំព័រដើម)
-========================================= */
+
 let tunerAudioCtx = null;
 let analyser = null;
 let microphone = null;
@@ -2714,11 +2672,11 @@ function toggleMainTunerPanel() {
     
     if (isShowing) {
         panel.style.display = 'none';
-        document.body.classList.remove('no-scroll'); // បន្ថែមបន្ទាត់នេះ
-        if (isTunerActive) toggleTunerAction(); // បិទ Mic ពេលបិទផ្ទាំង
+        document.body.classList.remove('no-scroll'); 
+        if (isTunerActive) toggleTunerAction(); 
     } else {
         panel.style.display = 'flex';
-        document.body.classList.add('no-scroll'); // បន្ថែមបន្ទាត់នេះ
+        document.body.classList.add('no-scroll'); 
     }
 }
 
@@ -2726,7 +2684,6 @@ async function toggleTunerAction() {
     const btn = document.getElementById('tunerBtn');
     
     if (isTunerActive) {
-        // បិទ
         if (tunerAnimFrame) cancelAnimationFrame(tunerAnimFrame);
         if (microphone) microphone.disconnect();
         if (tunerAudioCtx) await tunerAudioCtx.close();
@@ -2742,7 +2699,6 @@ async function toggleTunerAction() {
         return;
     }
 
-    // បើក
     try {
         const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
         tunerAudioCtx = new (window.AudioContext || window.webkitAudioContext)();
@@ -2753,7 +2709,7 @@ async function toggleTunerAction() {
         microphone.connect(analyser);
         
         isTunerActive = true;
-        btn.style.background = '#ef4444'; // ពណ៌ក្រហមបញ្ជាក់ថាកំពុងថត
+        btn.style.background = '#ef4444'; 
         btn.innerHTML = '<i class="fa-solid fa-stop"></i> បិទស្តាប់';
         
         updatePitch();
@@ -2820,7 +2776,6 @@ function updatePitch() {
         
         indicator.style.left = leftPercent + '%';
         
-        // កំណត់ពណ៌
         if (Math.abs(cents) < 5) {
             indicator.style.background = '#10b981'; 
             noteText.style.color = '#10b981';
@@ -2836,41 +2791,21 @@ function updatePitch() {
     tunerAnimFrame = requestAnimationFrame(updatePitch);
 }
 
-/* =========================================
-   មុខងារ Chord Library Tabs
-========================================= */
-
-// ទិន្នន័យ Chords ទូលំទូលាយ (អាចបន្ថែមខ្លួនឯងបានទៀត)
-// លំដាប់ខ្សែ: [Eធំ, A, D, G, B, eតូច] ។ (-1 = មិនដេញ (X), 0 = ខ្សែលែង (O))
 const fullChordLibrary = {
-    // ត្រកូល C
     "C": [-1, 3, 2, 0, 1, 0], "Cm": [-1, 3, 5, 5, 4, 3], "C7": [-1, 3, 2, 3, 1, 0], "Cm7": [-1, 3, 5, 3, 4, 3], "Cmaj7": [-1, 3, 2, 0, 0, 0], "Csus4": [-1, 3, 3, 0, 1, 0],
     "C#": [-1, 4, 6, 6, 6, 4], "C#m": [-1, 4, 6, 6, 5, 4], "C#7": [-1, 4, 6, 4, 6, 4], "C#m7": [-1, 4, 6, 4, 5, 4], "C#maj7": [-1, 4, 6, 5, 6, 4], "C#sus4": [-1, 4, 6, 6, 7, 4],
-    
-    // ត្រកូល D
     "D": [-1, -1, 0, 2, 3, 2], "Dm": [-1, -1, 0, 2, 3, 1], "D7": [-1, -1, 0, 2, 1, 2], "Dm7": [-1, -1, 0, 2, 1, 1], "Dmaj7": [-1, -1, 0, 2, 2, 2], "Dsus4": [-1, -1, 0, 2, 3, 3],
     "Eb": [-1, 6, 8, 8, 8, 6], "Ebm": [-1, 6, 8, 8, 7, 6], "Eb7": [-1, 6, 8, 6, 8, 6], "Ebm7": [-1, 6, 8, 6, 7, 6], "Ebmaj7": [-1, 6, 8, 7, 8, 6], "Ebsus4": [-1, 6, 8, 8, 9, 6],
-    
-    // ត្រកូល E
     "E": [0, 2, 2, 1, 0, 0], "Em": [0, 2, 2, 0, 0, 0], "E7": [0, 2, 0, 1, 0, 0], "Em7": [0, 2, 0, 0, 0, 0], "Emaj7": [0, 2, 1, 1, 0, 0], "Esus4": [0, 2, 2, 2, 0, 0],
-    
-    // ត្រកូល F
     "F": [1, 3, 3, 2, 1, 1], "Fm": [1, 3, 3, 1, 1, 1], "F7": [1, 3, 1, 2, 1, 1], "Fm7": [1, 3, 1, 1, 1, 1], "Fmaj7": [-1, -1, 3, 2, 1, 0], "Fsus4": [1, 3, 3, 3, 1, 1],
     "F#": [2, 4, 4, 3, 2, 2], "F#m": [2, 4, 4, 2, 2, 2], "F#7": [2, 4, 2, 3, 2, 2], "F#m7": [2, 4, 2, 2, 2, 2], "F#maj7": [-1, -1, 4, 3, 2, 1], "F#sus4": [2, 4, 4, 4, 2, 2],
-    
-    // ត្រកូល G
     "G": [3, 2, 0, 0, 0, 3], "Gm": [3, 5, 5, 3, 3, 3], "G7": [3, 2, 0, 0, 0, 1], "Gm7": [3, 5, 3, 3, 3, 3], "Gmaj7": [3, 2, 0, 0, 0, 2], "Gsus4": [3, 3, 0, 0, 1, 3],
     "G#": [4, 6, 6, 5, 4, 4], "G#m": [4, 6, 6, 4, 4, 4], "G#7": [4, 6, 4, 5, 4, 4], "G#m7": [4, 6, 4, 4, 4, 4], "G#maj7": [4, 6, 5, 5, 4, 4], "G#sus4": [4, 6, 6, 6, 4, 4],
-    
-    // ត្រកូល A
     "A": [-1, 0, 2, 2, 2, 0], "Am": [-1, 0, 2, 2, 1, 0], "A7": [-1, 0, 2, 0, 2, 0], "Am7": [-1, 0, 2, 0, 1, 0], "Amaj7": [-1, 0, 2, 1, 2, 0], "Asus4": [-1, 0, 2, 2, 3, 0],
     "Bb": [-1, 1, 3, 3, 3, 1], "Bbm": [-1, 1, 3, 3, 2, 1], "Bb7": [-1, 1, 3, 1, 3, 1], "Bbm7": [-1, 1, 3, 1, 2, 1], "Bbmaj7": [-1, 1, 3, 2, 3, 1], "Bbsus4": [-1, 1, 3, 3, 4, 1],
-    
-    // ត្រកូល B
     "B": [-1, 2, 4, 4, 4, 2], "Bm": [-1, 2, 4, 4, 3, 2], "B7": [-1, 2, 1, 2, 0, 2], "Bm7": [-1, 2, 4, 2, 3, 2], "Bmaj7": [-1, 2, 4, 3, 4, 2], "Bsus4": [-1, 2, 4, 4, 5, 2]
 };
 
-// អនុគមន៍ប្តូរ Tab ចុះឡើង
 function switchTunerTab(tabName) {
     const tunerBtn = document.getElementById('tabBtnTuner');
     const libBtn = document.getElementById('tabBtnLibrary');
@@ -2888,34 +2823,27 @@ function switchTunerTab(tabName) {
         tunerContent.style.display = 'none';
         libContent.style.display = 'flex';
         
-        // បិទសម្លេង Mic ប្រសិនបើកំពុងបើក Tuner ដើម្បីសន្សំថ្ម
         if (isTunerActive) toggleTunerAction();
         
-        // គូររូប Chord ទីមួយ (C) ពេលចូល Tab នេះដំបូង
         updateLibraryChord();
     }
 }
 
-// អនុគមន៍គូររូប Chord តាមអ្វីដែលអ្នកប្រើប្រាស់រើស
 function updateLibraryChord() {
     const root = document.getElementById('chordRootSelect').value;
     const type = document.getElementById('chordTypeSelect').value;
     const chordName = root + type;
     
     document.getElementById('libraryChordNameDisplay').innerText = chordName;
-    
-    // យើងអាចយកមុខងារ drawChordDiagram ដើមមកប្រើឡើងវិញ ដោយគ្រាន់តែប្តូរ Canvas ID
     drawCustomChordDiagram(chordName, 'libraryChordCanvas');
 }
 
-// អនុគមន៍ជំនួយសម្រាប់គូររូប Chord លើ Canvas ណាមួយ (Reuse Logic ចាស់)
 function drawCustomChordDiagram(chordName, canvasId) {
     const canvas = document.getElementById(canvasId);
     if (!canvas) return;
     const ctx = canvas.getContext('2d');
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     
-    // ទាញយកទិន្នន័យពី fullChordLibrary ថ្មី
     let positions = fullChordLibrary[chordName];
     
     if (!positions) {
@@ -2928,7 +2856,6 @@ function drawCustomChordDiagram(chordName, canvasId) {
 
     const startX = 30; const startY = 40; const stringSpacing = 20; const fretSpacing = 30;
 
-    // ឈ្មោះខ្សែ (E A D G B e)
     const stringsName = ['E', 'A', 'D', 'G', 'B', 'e'];
     ctx.font = "13px Arial"; ctx.fillStyle = "#94a3b8"; ctx.textAlign = "center";
     for(let i=0; i<6; i++) {
@@ -2941,7 +2868,7 @@ function drawCustomChordDiagram(chordName, canvasId) {
         ctx.beginPath(); ctx.moveTo(startX + i * stringSpacing, startY); ctx.lineTo(startX + i * stringSpacing, startY + 4 * fretSpacing); ctx.stroke();
     }
     
-    ctx.lineWidth = 4; // Nut
+    ctx.lineWidth = 4; 
     ctx.beginPath(); ctx.moveTo(startX, startY); ctx.lineTo(startX + 5 * stringSpacing, startY); ctx.stroke();
 
     ctx.lineWidth = 1.5;
@@ -2978,32 +2905,3 @@ function drawCustomChordDiagram(chordName, canvasId) {
         }
     }
 }
-
-// បន្ថែមមុខងារនេះពីក្រោមមុខងារ filterByPlaylist 
-function filterBySetlist(weekName) {
-    document.getElementById('searchInput').value = '';
-    document.getElementById('clearSearchBtn').style.display = 'none';
-
-    currentFilterType = 'SETLIST'; currentFilterValue = weekName; switchTab('songs');
-    document.getElementById('sectionTitleText').innerHTML = '📅 ' + escapeHtml(weekName);
-    document.getElementById('currentAlbumSubtitle').innerHTML = 'Public Setlist';
-    toggleFilterUI(true);
-    renderSongs();
-}
-
-function removeSongFromSetlist(songId, event) {
-    if(event) event.stopPropagation();
-    if (currentFilterType === 'SETLIST' && currentFilterValue && isEditor) {
-        const week = currentFilterValue;
-        if (confirm(`តើអ្នកពិតជាចង់ដកបទនេះចេញពី Setlist "${week}" មែនទេ?`)) {
-            const index = globalSetlists[week].indexOf(songId);
-            if (index !== -1) {
-                globalSetlists[week].splice(index, 1);
-                db.collection("public_settings").doc("setlists").set(globalSetlists, { merge: true });
-                showToast('បានដកចេញពី Setlist រួចរាល់', 'info');
-                renderSongs();
-            }
-        }
-    }
-}
-
