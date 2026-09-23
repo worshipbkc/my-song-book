@@ -80,14 +80,38 @@
                 "ចូរឱ្យជីវិតទាំងឡាយដែលមានដង្ហើម បានសរសើរដល់ព្រះយ៉េហូវ៉ាចុះ" <span style="font-style: normal; color: #0088cc;">ទំនុកតម្កើង ១៥០៖៦</span>
             </div>
 
-            <section class="home-hero" id="homeHero">
-                <div class="home-hero-art" id="homeHeroArt"></div>
-                <div class="home-hero-overlay"></div>
-                <div class="home-hero-content">
-                    <span class="home-kicker"><i class="fa-solid fa-sparkles"></i> បទណែនាំថ្ងៃនេះ</span>
-                    <h1 id="homeHeroTitle">កំពុងរៀបចំបណ្ដុំបទចម្រៀង...</h1>
-                    <p id="homeHeroArtist">សម្រាប់ពេលវេលាស្ងប់ស្ងាត់ និងការថ្វាយបង្គំ</p>
-                    <button class="home-hero-btn" id="homeHeroBtn"><i class="fa-solid fa-play"></i> បើកបទចម្រៀង</button>
+            <!-- ផ្នែក Banner ឈើឆ្កាង រចនាបថឆ្វេង (មិនបាំងឈើឆ្កាង) -->
+            <section class="home-hero" id="homeHero" style="min-height: 200px; position: relative; overflow: hidden; border-radius: 24px; margin-bottom: 20px; background-color: #111827;">
+                
+                <!-- រូបភាពផ្ទៃខាងក្រោយ (រុញទៅស្តាំកុំឲ្យបាត់ឈើឆ្កាង) -->
+                <div class="home-hero-art" id="homeHeroArt" style="background-image: url('https://lh3.googleusercontent.com/d/1gPNq53w86yDL2lBsLTPLeMtj1gqLYKi6'); background-size: cover; background-position: right center; position: absolute; inset: 0; z-index: 1;"></div>
+                
+                <!-- ស្រមោលងងឹតពីឆ្វេងទៅស្តាំ (ខាងស្តាំថ្លា ដើម្បីឃើញឈើឆ្កាងច្បាស់) -->
+                <div class="home-hero-overlay" style="background: linear-gradient(to right, rgba(15,23,42,0.95) 0%, rgba(15,23,42,0.8) 45%, rgba(15,23,42,0.05) 100%); position: absolute; inset: 0; z-index: 2;"></div>
+                
+                <!-- ខ្លឹមសារតម្រៀបមកឆ្វេង -->
+                <div class="home-hero-content" style="position: relative; z-index: 3; min-height: 200px; padding: 25px 20px; display: flex; flex-direction: column; justify-content: center; align-items: flex-start; text-align: left; max-width: 75%;">
+                    
+                    <span style="font-size: 0.65rem; font-weight: 700; color: #cbd5e1; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 8px;">
+                        ព្រះបន្ទូលប្រចាំថ្ងៃ
+                    </span>
+                    
+                    <!-- ចំណងជើង និង ឈ្មោះកណ្ឌគម្ពីរ (អក្សរធំ) -->
+                    <h1 style="font-family: 'Kantumruy Pro', sans-serif; font-size: 1.5rem; font-weight: 800; color: #ffffff; line-height: 1.3; margin: 0 0 8px 0; text-shadow: 0 2px 8px rgba(0,0,0,0.5);">
+                        សេចក្តីស្រឡាញ់<br>
+                        <span style="font-size: 1rem; font-weight: 600; color: #fbd38d;" id="dailyVerseRef">-</span>
+                    </h1>
+                    
+                    <!-- អត្ថបទខគម្ពីរ (អក្សរតូចល្មម) -->
+                    <p id="dailyVerseText" style="font-size: 0.8rem; line-height: 1.5; color: #e2e8f0; margin: 0 0 15px 0; font-style: italic; max-width: 100%; text-shadow: 0 1px 4px rgba(0,0,0,0.5); display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;">
+                        «កំពុងទាញយកព្រះបន្ទូល...»
+                    </p>
+                    
+                    <!-- ប៊ូតុង Play Now ពណ៌សរចនាបថថ្មី -->
+                    <button class="home-hero-btn" onclick="switchTab('songs');" style="background: #ffffff; color: #1e3a8a; padding: 8px 18px; font-size: 0.75rem; font-weight: 700; border-radius: 20px; border: none; display: flex; align-items: center; gap: 6px; box-shadow: 0 4px 10px rgba(0,0,0,0.15);">
+                        <i class="fa-solid fa-play"></i> ចូលស្តាប់ចម្រៀង
+                    </button>
+                    
                 </div>
             </section>
 
@@ -98,7 +122,7 @@
                 <button onclick="toggleMainTunerPanel()"><span class="quick-icon green"><i class="fa-solid fa-guitar"></i></span><span>Tuner</span></button>
             </div>
 
-            <!-- ១. ផ្នែក Setlist (ត្រូវបានរុញមកលើ) -->
+            <!-- ១. ផ្នែក Setlist -->
             <section class="home-section">
                 <div class="home-section-head" style="margin-bottom: 8px;">
                     <div><span class="home-section-label">សម្រាប់ថ្វាយបង្គំ</span><h2>Setlist ខែនេះ</h2></div>
@@ -110,7 +134,7 @@
                 <div class="home-horizontal-list" id="homeSetlistList"></div>
             </section>
 
-            <!-- ២. ផ្នែកប្រវត្តិអាន (ត្រូវបានរុញចុះក្រោម) -->
+            <!-- ២. ផ្នែកប្រវត្តិអាន -->
             <section class="home-section" id="homeContinueSection">
                 <div class="home-section-head">
                     <div><span class="home-section-label">បន្តពីមុន</span><h2>ប្រវត្តិមើល</h2></div>
