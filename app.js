@@ -459,6 +459,11 @@ function switchTab(tabName) {
     const mainHeader = document.getElementById('mainAppHeader');
     const isFiltered = (currentFilterType === 'ALBUM' || currentFilterType === 'PLAYLIST' || currentFilterType === 'SETLIST');
 
+    // បិទ Mic ដោយស្វ័យប្រវត្តិ ប្រសិនបើអ្នកប្រើប្រាស់ចាកចេញពីផ្ទាំង Tuner ទៅកាន់ផ្ទាំងផ្សេង
+    if (tabName !== 'tuner' && typeof isTunerActive !== 'undefined' && isTunerActive) {
+        toggleTunerAction(); 
+    }
+
     if (tabName === 'home') {
         if (mainHeader) mainHeader.style.display = 'none';
         document.getElementById('viewHome').classList.add('active');
@@ -480,7 +485,6 @@ function switchTab(tabName) {
     } else if (tabName === 'playlists') {
         if (mainHeader) mainHeader.style.display = 'none';
         document.getElementById('viewPlaylists').classList.add('active');
-        // កន្លែងនេះមិនចាំបាច់មាន .classList.add('active') សម្រាប់ navPlaylistsBtn ទៀតទេ ព្រោះយើងបានដកវាចេញ
         renderPlaylistsView();
     } else if (tabName === 'settings') {
         if (mainHeader) mainHeader.style.display = 'none';
@@ -489,6 +493,11 @@ function switchTab(tabName) {
         if (navBtn) navBtn.classList.add('active');
         closeNotificationsSubView();
         renderSettingsView();
+    } else if (tabName === 'tuner') {
+        // បន្ថែមលក្ខខណ្ឌសម្រាប់បើកផ្ទាំង Tuner
+        if (mainHeader) mainHeader.style.display = 'none';
+        document.getElementById('viewTuner').classList.add('active');
+        // យើងមិន Select ប៊ូតុងខាងក្រោមទេ ព្រោះ Tuner បើកតាមរយៈប៊ូតុង Home Quick Action
     }
 }
 
@@ -2658,19 +2667,6 @@ const guitarStrings = [
     { note: 'E', freq: 329.63 }
 ];
 
-function toggleMainTunerPanel() {
-    const panel = document.getElementById('mainTunerPanel');
-    const isShowing = panel.style.display === 'flex';
-    
-    if (isShowing) {
-        panel.style.display = 'none';
-        document.body.classList.remove('no-scroll'); 
-        if (isTunerActive) toggleTunerAction(); 
-    } else {
-        panel.style.display = 'flex';
-        document.body.classList.add('no-scroll'); 
-    }
-}
 
 async function toggleTunerAction() {
     const btn = document.getElementById('tunerBtn');
@@ -3406,3 +3402,35 @@ function applyChordsVisibility() {
 document.addEventListener('DOMContentLoaded', () => {
     applyChordsVisibility();
 });
+
+// មុខងារលាន់សំឡេងខ្សែហ្គីតា (Tone Generator) ពេលចុចលើប៊ូតុងអក្សរ
+function playStringTone(noteName, frequency, btnElement) {
+    if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    if (audioCtx.state === 'suspended') audioCtx.resume();
+
+    // បង្កើតសំឡេង Oscillator
+    const osc = audioCtx.createOscillator();
+    const gainNode = audioCtx.createGain();
+
+    osc.type = 'triangle'; // សំឡេងស្រទន់ស្រដៀងហ្គីតា
+    osc.frequency.value = frequency;
+
+    osc.connect(gainNode);
+    gainNode.connect(audioCtx.destination);
+
+    // បន្ថយសំឡេងបន្តិចម្តងៗ (Fade out) ក្នុងរយៈពេល 1.5 វិនាទី
+    gainNode.gain.setValueAtTime(0.5, audioCtx.currentTime);
+    gainNode.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 1.5);
+
+    osc.start();
+    osc.stop(audioCtx.currentTime + 1.5);
+
+    // ដាក់ Animation ប៊ូតុងឱ្យដុះពណ៌ខៀវបន្តិច
+    document.querySelectorAll('.string-btn').forEach(b => b.classList.remove('active'));
+    if (btnElement) btnElement.classList.add('active');
+    setTimeout(() => {
+        if (btnElement) btnElement.classList.remove('active');
+    }, 400);
+
+    showToast(`កំពុងចាក់សំឡេងខ្សែ: ${noteName}`, 'info');
+}
