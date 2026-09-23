@@ -3031,7 +3031,12 @@ function loadAdminMessages() {
     db.collection('messages').orderBy('createdAt', 'desc').limit(30).onSnapshot(snapshot => {
         const container = document.getElementById('newsListContainer');
         if (snapshot.empty) {
-            container.innerHTML = '<div style="text-align:center; color:var(--text-muted); font-size:0.85rem; padding: 20px;">មិនទាន់មានព័ត៌មានថ្មីៗទេ</div>';
+            // បង្ហាញនៅចំកណ្តាលអេក្រង់
+            container.innerHTML = `
+                <div style="display: flex; flex-direction: column; justify-content: center; align-items: center; height: 60vh; color: #94a3b8;">
+                    <i class="fa-regular fa-folder-open" style="font-size: 3.5rem; margin-bottom: 15px; color: #cbd5e1;"></i>
+                    <div style="font-size: 1.1rem; font-weight: 600; color: #64748b;">គ្មានព័ត៌មានទេ</div>
+                </div>`;
             return;
         }
         
@@ -3071,7 +3076,12 @@ function loadAdminMessages() {
 function renderNewSongsTab() {
     const container = document.getElementById('newSongsListContainer');
     if(!songsList || songsList.length === 0) {
-        container.innerHTML = '<div style="text-align:center; color:var(--text-muted); padding: 20px;">គ្មានទិន្នន័យបទចម្រៀងទេ</div>';
+        // បង្ហាញនៅចំកណ្តាលអេក្រង់
+        container.innerHTML = `
+            <div style="display: flex; flex-direction: column; justify-content: center; align-items: center; height: 60vh; color: #94a3b8;">
+                <i class="fa-solid fa-music" style="font-size: 3.5rem; margin-bottom: 15px; color: #cbd5e1;"></i>
+                <div style="font-size: 1.1rem; font-weight: 600; color: #64748b;">គ្មានព័ត៌មានទេ</div>
+            </div>`;
         return;
     }
 
@@ -3164,15 +3174,96 @@ function sendAdminMessage() {
     });
 }
 
-// ទាញយកព័ត៌មានថ្មីៗមកបង្ហាញ
-function loadAcledaAdminMessages() {
+// =========================================
+// កូដសម្រាប់ផ្ទាំងការជូនដំណឹង (Modern Music UI)
+// =========================================
+
+function openModernNotifScreen() {
+    document.getElementById('modernNotifScreen').style.display = 'block';
+    document.body.classList.add('no-scroll');
+    
+    const dot = document.getElementById('navNotifDot');
+    if(dot) dot.style.display = 'none';
+
+    switchModernTab('news');
+    loadModernAdminMessages();
+    renderModernNewSongs();
+}
+
+function closeModernNotifScreen() {
+    document.getElementById('modernNotifScreen').style.display = 'none';
+    document.body.classList.remove('no-scroll');
+}
+
+function switchModernTab(tabName) {
+    const btnNews = document.getElementById('modTabNews');
+    const btnSongs = document.getElementById('modTabSongs');
+    const contentNews = document.getElementById('modContentNews');
+    const contentSongs = document.getElementById('modContentSongs');
+
+    if (tabName === 'news') {
+        // Active News
+        btnNews.style.background = 'var(--primary)';
+        btnNews.style.color = 'white';
+        btnNews.style.border = 'none';
+        btnNews.style.boxShadow = '0 4px 10px rgba(37,99,235,0.2)';
+        
+        // Inactive Songs
+        btnSongs.style.background = 'var(--card-bg)';
+        btnSongs.style.color = 'var(--text-muted)';
+        btnSongs.style.border = '1px solid var(--border)';
+        btnSongs.style.boxShadow = 'none';
+
+        contentNews.style.display = 'flex';
+        contentSongs.style.display = 'none';
+    } else {
+        // Active Songs
+        btnSongs.style.background = 'var(--primary)';
+        btnSongs.style.color = 'white';
+        btnSongs.style.border = 'none';
+        btnSongs.style.boxShadow = '0 4px 10px rgba(37,99,235,0.2)';
+        
+        // Inactive News
+        btnNews.style.background = 'var(--card-bg)';
+        btnNews.style.color = 'var(--text-muted)';
+        btnNews.style.border = '1px solid var(--border)';
+        btnNews.style.boxShadow = 'none';
+
+        contentSongs.style.display = 'flex';
+        contentNews.style.display = 'none';
+    }
+}
+
+function sendModernAdminMessage() {
+    const msg = document.getElementById('modAdminMsgInput').value.trim();
+    if(!msg) return;
+    
+    db.collection('messages').add({
+        text: msg,
+        createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+        sender: currentUser ? currentUser.displayName : 'Admin'
+    }).then(() => {
+        document.getElementById('modAdminMsgInput').value = '';
+        showToast('បានផ្ញើសារជូនដំណឹងរួចរាល់', 'success');
+    }).catch((err) => {
+        showToast('មិនអាចផ្ញើសារបានទេ៖ ' + err.message, 'error');
+    });
+}
+
+function loadModernAdminMessages() {
     db.collection('messages').orderBy('createdAt', 'desc').limit(30).onSnapshot(snapshot => {
-        const container = document.getElementById('acledaNewsList');
+        const container = document.getElementById('modNewsList');
         if(!container) return;
         
         if (snapshot.empty) {
-            // បើកគ្មានព័ត៌មាន បង្ហាញផ្ទាំងពណ៌ស ដាក់អក្សរ "គ្មានព័ត៌មាន"
-            container.innerHTML = '<div style="background: white; border-radius: 12px; padding: 50px 20px; text-align: center; color: var(--text-muted); font-size: 1rem; font-weight: 600; box-shadow: 0 2px 8px rgba(0,0,0,0.04);">គ្មានព័ត៌មាន</div>';
+            container.innerHTML = `
+                <div style="display: flex; flex-direction: column; justify-content: center; align-items: center; flex: 1; color: var(--text-muted);">
+                    <div style="width: 80px; height: 80px; background: var(--card-bg); border-radius: 50%; display: flex; justify-content: center; align-items: center; margin-bottom: 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.05);">
+                        <i class="fa-regular fa-bell-slash" style="font-size: 2rem; color: var(--border);"></i>
+                    </div>
+                    <div style="font-size: 1.1rem; font-weight: 700; color: var(--text);">គ្មានព័ត៌មានទេ</div>
+                    <div style="font-size: 0.85rem; margin-top: 5px;">ព័ត៌មានថ្មីៗនឹងបង្ហាញនៅទីនេះ</div>
+                </div>`;
             return;
         }
         
@@ -3183,43 +3274,55 @@ function loadAcledaAdminMessages() {
             if (data.createdAt) {
                 const d = new Date(data.createdAt.toDate());
                 const khmerMonths = ["មករា", "កុម្ភៈ", "មីនា", "មេសា", "ឧសភា", "មិថុនា", "កក្កដា", "សីហា", "កញ្ញា", "តុលា", "វិច្ឆិកា", "ធ្នូ"];
-                dateStr = d.getDate() + ' ' + khmerMonths[d.getMonth()] + ' ' + d.getFullYear() + ' | ' + d.toLocaleTimeString('km-KH', {hour: '2-digit', minute:'2-digit'});
+                dateStr = d.getDate() + ' ' + khmerMonths[d.getMonth()] + ' ' + d.getFullYear() + ' • ' + d.toLocaleTimeString('km-KH', {hour: '2-digit', minute:'2-digit'});
             }
             
-            // រចនាប័ណ្ណបង្ហាញ (កាតពណ៌ស ផ្ទៃអក្សរស្រលះល្អ)
             html += `
-                <div style="background: white; border-radius: 12px; padding: 15px; display: flex; gap: 15px; align-items: flex-start; box-shadow: 0 2px 8px rgba(0,0,0,0.04);">
-                    <div style="background: #0f3566; color: #f59e0b; width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 1.1rem;">
+                <div style="background: var(--card-bg); border-radius: 18px; padding: 18px; display: flex; gap: 15px; align-items: flex-start; box-shadow: 0 4px 15px rgba(0,0,0,0.03); border: 1px solid var(--border);">
+                    <div style="background: rgba(37,99,235,0.1); color: var(--primary); width: 45px; height: 45px; border-radius: 14px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 1.2rem;">
                         <i class="fa-solid fa-bullhorn"></i>
                     </div>
                     <div>
-                        <div style="font-size: 0.95rem; color: #1e293b; font-weight: 700; margin-bottom: 4px;">សារជូនដំណឹង</div>
-                        <div style="font-size: 0.75rem; color: #64748b; margin-bottom: 8px;">${dateStr}</div>
-                        <div style="font-size: 0.85rem; color: #334155; line-height: 1.5;">${escapeHtml(data.text)}</div>
+                        <div style="font-size: 0.95rem; color: var(--text); font-weight: 700; margin-bottom: 4px; line-height: 1.4;">${escapeHtml(data.text)}</div>
+                        <div style="font-size: 0.75rem; color: var(--text-muted); font-weight: 600;">${dateStr}</div>
                     </div>
                 </div>
             `;
         });
         container.innerHTML = html;
+    }, error => {
+        const container = document.getElementById('modNewsList');
+        if(container) {
+            container.innerHTML = `
+                <div style="display: flex; flex-direction: column; justify-content: center; align-items: center; flex: 1; color: var(--text-muted);">
+                    <div style="width: 80px; height: 80px; background: var(--card-bg); border-radius: 50%; display: flex; justify-content: center; align-items: center; margin-bottom: 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.05);">
+                        <i class="fa-regular fa-bell-slash" style="font-size: 2rem; color: var(--border);"></i>
+                    </div>
+                    <div style="font-size: 1.1rem; font-weight: 700; color: var(--text);">គ្មានព័ត៌មានទេ</div>
+                </div>`;
+        }
     });
 }
 
-// ទាញយកចម្រៀងទើបបញ្ចូលថ្មី ២០បទមកបង្ហាញ
-function renderAcledaNewSongs() {
-    const container = document.getElementById('acledaSongsList');
+function renderModernNewSongs() {
+    const container = document.getElementById('modSongsList');
     if(!container) return;
     
     if(!songsList || songsList.length === 0) {
-        // បើកគ្មានព័ត៌មាន បង្ហាញផ្ទាំងពណ៌ស ដាក់អក្សរ "គ្មានព័ត៌មាន"
-        container.innerHTML = '<div style="background: white; border-radius: 12px; padding: 50px 20px; text-align: center; color: var(--text-muted); font-size: 1rem; font-weight: 600; box-shadow: 0 2px 8px rgba(0,0,0,0.04);">គ្មានព័ត៌មាន</div>';
+        container.innerHTML = `
+            <div style="display: flex; flex-direction: column; justify-content: center; align-items: center; flex: 1; color: var(--text-muted);">
+                <div style="width: 80px; height: 80px; background: var(--card-bg); border-radius: 50%; display: flex; justify-content: center; align-items: center; margin-bottom: 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.05);">
+                    <i class="fa-solid fa-music" style="font-size: 2rem; color: var(--border);"></i>
+                </div>
+                <div style="font-size: 1.1rem; font-weight: 700; color: var(--text);">គ្មានបទចម្រៀងទេ</div>
+            </div>`;
         return;
     }
 
-    // យកត្រឹម ២០បទចុងក្រោយ
     const top20 = songsList.slice(0, 20);
     let html = '';
     
-    top20.forEach((song, index) => {
+    top20.forEach((song) => {
         let dateStr = '';
         if (song.createdAt) {
             const d = new Date(song.createdAt.seconds * 1000);
@@ -3227,17 +3330,24 @@ function renderAcledaNewSongs() {
             dateStr = d.getDate() + ' ' + khmerMonths[d.getMonth()] + ' ' + d.getFullYear();
         }
 
+        let coverHtml = '';
+        if (song.imageUrl && song.imageUrl.length > 10) {
+            coverHtml = `<img src="${song.imageUrl}" style="width: 100%; height: 100%; object-fit: cover;" alt="cover">`;
+        } else {
+            coverHtml = `<i class="fa-solid fa-music"></i>`;
+        }
+
         html += `
-            <div onclick="openFullScreenModal('${song.id}'); closeAcledaNotifScreen();" style="background: white; border-radius: 12px; padding: 15px; display: flex; align-items: center; gap: 15px; box-shadow: 0 2px 8px rgba(0,0,0,0.04); cursor: pointer; transition: transform 0.2s;">
-                <div style="background: #0f3566; color: #f59e0b; width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 1rem; font-weight: bold;">
-                    ${index + 1}
+            <div onclick="openFullScreenModal('${song.id}'); closeModernNotifScreen();" style="background: var(--card-bg); border-radius: 16px; padding: 12px; display: flex; align-items: center; gap: 15px; box-shadow: 0 4px 12px rgba(0,0,0,0.03); border: 1px solid var(--border); cursor: pointer; transition: transform 0.2s;">
+                <div style="background: var(--bg); color: var(--primary); width: 55px; height: 55px; border-radius: 12px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 1.5rem; overflow: hidden;">
+                    ${coverHtml}
                 </div>
                 <div style="flex: 1; overflow: hidden;">
-                    <div style="font-size: 0.95rem; color: #1e293b; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-bottom: 4px;">${escapeHtml(song.title)}</div>
-                    <div style="font-size: 0.75rem; color: #64748b;">🎤 ${escapeHtml(song.artist || 'មិនស្គាល់')} • ${dateStr}</div>
+                    <div style="font-size: 1rem; color: var(--text); font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-bottom: 4px;">${escapeHtml(song.title)}</div>
+                    <div style="font-size: 0.78rem; color: var(--text-muted); font-weight: 600;">🎤 ${escapeHtml(song.artist || 'មិនស្គាល់')} • ${dateStr}</div>
                 </div>
-                <div style="color: #0f3566; font-size: 1.2rem;">
-                    <i class="fa-solid fa-play-circle"></i>
+                <div style="background: rgba(37,99,235,0.1); color: var(--primary); width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.9rem;">
+                    <i class="fa-solid fa-play"></i>
                 </div>
             </div>
         `;
