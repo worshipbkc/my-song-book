@@ -508,7 +508,7 @@ body.dark-mode .mini-player { box-shadow: 0 -4px 15px rgba(0,0,0,0.5); }
 /* រុញផ្ទាំង Transpose និងប្តូរទំហំអក្សរមកខាងក្រោម */
 .transpose-controls {
     top: auto !important; 
-    bottom: calc(90px + env(safe-area-inset-bottom)) !important; 
+    bottom: calc(30px + env(safe-area-inset-bottom)) !important; 
 }
 
 /* លាក់ប៊ូតុង និងមុខងារ Admin ពីអ្នកប្រើប្រាស់ធម្មតា */
@@ -757,3 +757,7 @@ body.dark-mode .profile-popup {
 .profile-popup-btn.danger:hover {
     background: rgba(239, 68, 68, 0.1);
 }
+
+/* មុខងារលាក់ខ័រ (Hide Chords) */
+.lyrics-chords-hidden .chord { display: none !important; }
+.lyrics-chords-hidden .lyric-line { line-height: 1.8 !important; }
