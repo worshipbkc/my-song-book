@@ -118,7 +118,10 @@
             <div class="home-quick-actions">
                 <button onclick="switchTab('songs'); setQuickFilter('RECENT', null)"><span class="quick-icon blue"><i class="fa-solid fa-wand-magic-sparkles"></i></span><span>បទថ្មី</span></button>
                 <button onclick="switchTab('songs'); setQuickFilter('FAV', null)"><span class="quick-icon rose"><i class="fa-solid fa-heart"></i></span><span>ចូលចិត្ត</span></button>
-                <button onclick="switchTab('songs'); setQuickFilter('HISTORY', null)"><span class="quick-icon violet"><i class="fa-solid fa-clock-rotate-left"></i></span><span>ប្រវត្តិ</span></button>
+                
+                <!-- ប្តូរពីប្រវត្តិ មកជាប៊ូតុង Playlist វិញ -->
+                <button onclick="switchTab('playlists')"><span class="quick-icon violet"><i class="fa-solid fa-list-ul"></i></span><span>Playlist</span></button>
+                
                 <button onclick="toggleMainTunerPanel()"><span class="quick-icon green"><i class="fa-solid fa-guitar"></i></span><span>Tuner</span></button>
             </div>
 
@@ -189,10 +192,24 @@
     </div>
 
     <div class="app-view" id="viewPlaylists">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
-            <h2 style="font-size: 1rem;">📂 Playlist ផ្ទាល់ខ្លួន</h2>
-            <button class="btn-add-playlist-title" onclick="openCreatePlaylistModal()" style="background:var(--primary); color:white; padding: 4px 8px; border-radius: 6px; font-size:0.75rem;"><i class="fa-solid fa-plus"></i> បង្កើត Playlist</button>
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; padding-top: 5px;">
+            
+            <!-- ប៊ូតុងថយក្រោយ និងចំណងជើង -->
+            <div style="display: flex; align-items: center; gap: 12px;">
+                <button onclick="switchTab('home')" style="background: var(--card-bg); border: 1px solid var(--border); color: var(--text); width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: 0 2px 8px rgba(0,0,0,0.05); transition: 0.2s;">
+                    <i class="fa-solid fa-arrow-left"></i>
+                </button>
+                <h2 style="font-size: 1.1rem; margin: 0; font-weight: 700;">បណ្ដុំបទចម្រៀង</h2>
+            </div>
+
+            <!-- ប៊ូតុងបង្កើតថ្មី -->
+            <button class="btn-add-playlist-title" onclick="openCreatePlaylistModal()" style="background: var(--primary); color: white; padding: 6px 12px; border-radius: 8px; font-size: 0.75rem; border: none; font-weight: 600; box-shadow: 0 4px 10px rgba(37,99,235,0.2);">
+                <i class="fa-solid fa-plus"></i> បង្កើតថ្មី
+            </button>
+            
         </div>
+        
+        <!-- មានតែ Playlist ផ្ទាល់ខ្លួនប៉ុណ្ណោះ លែងមាន Favorite ទៀតហើយ -->
         <div class="section-grid" id="playlistsGrid"></div>
     </div>
 
@@ -227,9 +244,6 @@
             <div class="settings-card">
                 <div class="settings-item">
                     <div class="settings-item-left"><i class="fa-solid fa-moon"></i> អេក្រង់ងងឹត (Dark Mode)</div><div class="toggle-switch" id="settingThemeToggle" onclick="toggleDarkModeSetting(this)"></div>
-                </div>
-                <div class="settings-item">
-                    <div class="settings-item-left"><i class="fa-solid fa-angles-down"></i> រំកិលស្វ័យប្រវត្តិ (Auto Scroll)</div><div class="toggle-switch" id="settingScrollToggle" onclick="toggleAutoScrollSetting(this)"></div>
                 </div>
                 <button class="settings-item" onclick="clearOfflineData()"><div class="settings-item-left"><i class="fa-solid fa-broom"></i> ជម្រះទិន្នន័យ (Clear Cache)</div><i class="fa-solid fa-chevron-right" style="color: var(--border);"></i></button>
             </div>
@@ -273,7 +287,7 @@
     <button class="bottom-nav-item active" id="navHomeBtn" onclick="switchTab('home')"><i class="fa-solid fa-house"></i><span>Home</span></button>
     <button class="bottom-nav-item" id="navSongsBtn" onclick="switchTab('songs')"><i class="fa-solid fa-layer-group"></i><span>Songs</span></button>
     <button class="bottom-nav-item" id="navAlbumsBtn" onclick="switchTab('albums')"><i class="fa-solid fa-record-vinyl"></i><span>Album</span></button>
-    <button class="bottom-nav-item" id="navPlaylistsBtn" onclick="switchTab('playlists')"><i class="fa-solid fa-list-ul"></i><span>Playlist</span></button>
+    <!-- ប៊ូតុង Playlist ត្រូវបានលុបចេញពីទីនេះ -->
     <button class="bottom-nav-item" id="navProfileBtn" onclick="switchTab('settings')"><i class="fa-regular fa-user"></i>Settings</button>
 </div>
 
@@ -283,18 +297,21 @@
 <!-- Fullscreen Viewer -->
 <div class="fullscreen-modal" id="fullScreenModal">
     <div class="fullscreen-header">
-        <div style="display: flex; align-items: center; gap: 10px; max-width: 80%;">
+        
+        <!-- ផ្នែកខាងឆ្វេង៖ ចំណងជើង និងលេខទំព័រ -->
+        <div style="display: flex; align-items: center; gap: 10px; flex: 1; min-width: 0; padding-right: 10px;">
             <div id="fullScreenTitle" style="font-weight: 700; font-size: 0.95rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;"></div>
-        <span id="pageCounter" style="background: rgba(255,255,255,0.25); color: #fff; padding: 2px 10px; border-radius: 12px; font-size: 0.75rem; font-weight: 700; white-space: nowrap; backdrop-filter: blur(4px);"></span>
+            <span id="pageCounter" style="background: rgba(255,255,255,0.25); color: #fff; padding: 2px 10px; border-radius: 12px; font-size: 0.75rem; font-weight: 700; white-space: nowrap; backdrop-filter: blur(4px); flex-shrink: 0;"></span>
         </div>
     
-    <!-- នេះជាកន្លែងដែលយើងប្រមូលប៊ូតុងទាំង ៣ ដាក់ចូលគ្នា -->
-    <div style="display: flex; gap: 15px; align-items: center;">
-        <button onclick="toggleMetronomePanel()" style="background:none; border:none; color:#10b981; font-size:1.2rem; cursor:pointer; padding: 4px;" title="Metronome"><i class="fa-solid fa-stopwatch"></i></button>
-        <button onclick="togglePresentationMode()" style="background:none; border:none; color:inherit; font-size:1.2rem; cursor:pointer; padding: 4px;" title="បញ្ចាំងលើអេក្រង់ធំ (Presentation)"><i class="fa-solid fa-desktop"></i></button>
-        <button onclick="window.print()" style="background:none; border:none; color:inherit; font-size:1.2rem; cursor:pointer; padding: 4px;" title="ព្រីន (Print)"><i class="fa-solid fa-print"></i></button>
-        <button onclick="closeFullScreenModalDirect()" style="background:none; border:none; color:inherit; font-size:1.5rem; cursor:pointer; padding: 4px;">✖</button>
-     </div>
+        <!-- ផ្នែកខាងស្តាំ៖ ប្រមូលប៊ូតុងទាំង ៤ ដាក់ចូលគ្នា មិនឲ្យរួញតូច (flex-shrink: 0) -->
+        <div style="display: flex; gap: 12px; align-items: center; flex-shrink: 0;">
+            <button onclick="toggleMetronomePanel()" style="background:none; border:none; color:#10b981; font-size:1.2rem; cursor:pointer; padding: 4px;" title="Metronome"><i class="fa-solid fa-stopwatch"></i></button>
+            <button onclick="togglePresentationMode()" style="background:none; border:none; color:inherit; font-size:1.2rem; cursor:pointer; padding: 4px;" title="បញ្ចាំងលើអេក្រង់ធំ (Presentation)"><i class="fa-solid fa-desktop"></i></button>
+            <button onclick="window.print()" style="background:none; border:none; color:inherit; font-size:1.2rem; cursor:pointer; padding: 4px;" title="ព្រីន (Print)"><i class="fa-solid fa-print"></i></button>
+            <button onclick="closeFullScreenModalDirect()" style="background:none; border:none; color:inherit; font-size:1.5rem; cursor:pointer; padding: 4px;">✖</button>
+        </div>
+        
     </div>
     <!-- ផ្ទាំងបញ្ជា Metronome -->
     <div class="metronome-panel" id="metronomePanel">
@@ -318,15 +335,27 @@
     </div>
 
     <!-- ប៊ូតុងប្តូរ Key (Transpose) -->
+    <!-- ប៊ូតុងប្តូរ Key (Transpose), បិទខ័រ និងកែទំហំអក្សរ -->
     <div class="transpose-controls" id="transposeControls" style="display: none;">
         <div id="capoSuggestion" class="capo-badge">💡 Capo 1 ➔ C</div>
+        
         <button onclick="changeTranspose(-1)">-</button>
         <div style="display: flex; flex-direction: column; align-items: center; justify-content: center;">
             <span style="font-size: 0.65rem; color: var(--text-muted); line-height: 1;">Key</span>
             <span id="transposeLabel" style="font-weight: 800; font-size: 1.1rem; color: var(--text); line-height: 1.2;">C</span>
         </div>
-            <button onclick="changeTranspose(1)">+</button>
-        <div class="font-size-controls">
+        <button onclick="changeTranspose(1)">+</button>
+        
+        <div style="width: 1px; height: 25px; background: var(--border); margin: 0 2px;"></div>
+        
+        <!-- ប៊ូតុងថ្មីសម្រាប់ បិទ/បើក ខ័រ -->
+        <button id="toggleChordsBtn" onclick="toggleChordsVisibility()" style="border-radius: 8px; width: auto; padding: 0 10px; gap: 5px;">
+            <i class="fa-solid fa-eye-slash" id="toggleChordsIcon"></i> <span id="toggleChordsText" style="font-size: 0.75rem; font-weight: 700;">បិទខ័រ</span>
+        </button>
+
+        <div style="width: 1px; height: 25px; background: var(--border); margin: 0 2px;"></div>
+
+        <div class="font-size-controls" style="margin-left: 0; padding-left: 0; border-left: none;">
             <button onclick="changeFontSize(-0.1)">A-</button>
             <button onclick="changeFontSize(0.1)">A+</button>
         </div>
@@ -341,13 +370,6 @@
     </div>
 
     <button class="fullscreen-nav-btn fullscreen-next" onclick="slideFullScreen(1, event)">❯</button>
-    
-    <div class="fullscreen-controls" id="fsScrollControls">
-        <button class="fs-scroll-toggle" id="autoScrollBtn" onclick="toggleAutoScroll()"><i class="fa-solid fa-angles-down"></i> Auto-Scroll</button>
-        <button class="fs-control-btn" onclick="adjustScrollSpeed(-0.2)">-</button>
-        <div class="fs-speed-label" id="scrollSpeedLabel">0.5x</div>
-        <button class="fs-control-btn" onclick="adjustScrollSpeed(0.2)">+</button>
-    </div>
 </div>
 
 <!-- Modal បញ្ចូលបទចម្រៀងថ្មី -->
