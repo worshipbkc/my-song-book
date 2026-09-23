@@ -59,10 +59,10 @@
     </div>
 
 <div style="display: flex; gap: 12px; align-items: center; position: relative;">
-    <button class="home-icon-btn" onclick="openAcledaNotifScreen()" aria-label="Notifications" style="position: relative;">
+    <button class="home-icon-btn" onclick="openModernNotifScreen()" aria-label="Notifications" style="position: relative;">
     <i class="fa-solid fa-bell"></i>
     <span class="nav-badge-dot" id="navNotifDot" style="top: 8px; right: 10px;"></span>
-</button>
+    </button>
     
     <!-- ទីតាំងប៊ូតុង Profile -->
     <div style="position: relative;">
@@ -502,44 +502,52 @@
     </div>
 </div>
 
-<!-- ផ្ទាំងការជូនដំណឹង (Full Screen រចនាបថដូច ACLEDA Mobile) -->
-<div id="acledaNotifScreen" style="display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: #f3f4f6; z-index: 99999; overflow-y: auto;">
+<!-- ផ្ទាំងការជូនដំណឹង (Modern Music UI) -->
+<div id="modernNotifScreen" style="display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: var(--bg); z-index: 99999; overflow-y: auto;">
     
-    <!-- Header ពណ៌ខៀវ និងប៊ូតុង Tab -->
-    <div style="background: #0f3566; padding: 15px 20px 20px; position: sticky; top: 0; z-index: 10; box-shadow: 0 4px 10px rgba(0,0,0,0.1);">
-        
-        <!-- ចំណងជើង និងប៊ូតុងថយក្រោយ -->
-        <div style="display: flex; align-items: center; color: white; margin-bottom: 20px;">
-            <button onclick="closeAcledaNotifScreen()" style="background: rgba(255,255,255,0.2); border: none; color: white; width: 34px; height: 34px; border-radius: 50%; font-size: 1rem; cursor: pointer; display: flex; justify-content: center; align-items: center; margin-right: 15px;">
+    <!-- Header ទាន់សម័យ (Glassmorphism) -->
+    <div style="position: sticky; top: 0; background: var(--bg-glass); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); padding: calc(15px + env(safe-area-inset-top)) 20px 15px; z-index: 10; border-bottom: 1px solid var(--border);">
+        <div style="display: flex; align-items: center; gap: 15px; margin-bottom: 18px;">
+            <button onclick="closeModernNotifScreen()" style="background: var(--card-bg); border: 1px solid var(--border); color: var(--text); width: 38px; height: 38px; border-radius: 50%; font-size: 1.1rem; cursor: pointer; display: flex; justify-content: center; align-items: center; box-shadow: 0 2px 8px rgba(0,0,0,0.05); transition: 0.2s;">
                 <i class="fa-solid fa-chevron-left"></i>
             </button>
-            <h2 style="margin: 0; font-size: 1.15rem; font-weight: 700;">ការជូនដំណឹង</h2>
+            <h2 style="margin: 0; font-size: 1.4rem; font-weight: 800; color: var(--text);">ការជូនដំណឹង</h2>
         </div>
-        
-        <!-- ប៊ូតុងរើស Tab (ដូចរចនាបថ ACLEDA) -->
-        <div style="display: flex; background: rgba(0,0,0,0.2); border-radius: 25px; padding: 4px; max-width: 400px; margin: 0 auto;">
-            <button id="tabBtnNews" onclick="switchAcledaTab('news')" style="flex: 1; padding: 10px 0; border: none; border-radius: 20px; font-family: 'Kantumruy Pro'; font-size: 0.85rem; font-weight: 700; cursor: pointer; transition: 0.3s; background: white; color: #0f3566;">ព័ត៌មានថ្មីៗ</button>
-            <button id="tabBtnSongs" onclick="switchAcledaTab('songs')" style="flex: 1; padding: 10px 0; border: none; border-radius: 20px; font-family: 'Kantumruy Pro'; font-size: 0.85rem; font-weight: 700; cursor: pointer; transition: 0.3s; background: transparent; color: white;">បទចម្រៀងថ្មី</button>
-        </div>
+
+        <!-- Modern Pill Tabs (ចែកស្មើគ្នា ៥០/៥០) -->
+    <div style="display: flex; gap: 10px; width: 100%; padding-bottom: 4px;">
+    
+        <button id="modTabNews" onclick="switchModernTab('news')" style="flex: 1; display: flex; align-items: center; justify-content: center; gap: 6px; padding: 10px 0; border: none; border-radius: 25px; font-family: 'Kantumruy Pro'; font-size: 0.88rem; font-weight: 700; cursor: pointer; transition: all 0.3s; background: var(--primary); color: white; box-shadow: 0 4px 10px rgba(37,99,235,0.2);">
+            📰 ព័ត៌មានថ្មីៗ
+         </button>
+    
+    <button id="modTabSongs" onclick="switchModernTab('songs')" style="flex: 1; display: flex; align-items: center; justify-content: center; gap: 6px; padding: 10px 0; border: 1px solid var(--border); border-radius: 25px; font-family: 'Kantumruy Pro'; font-size: 0.88rem; font-weight: 700; cursor: pointer; transition: all 0.3s; background: var(--card-bg); color: var(--text-muted);">
+        🎵 បទចម្រៀងថ្មី
+    </button>
+    
+</div>
     </div>
     
     <!-- ផ្ទៃបង្ហាញទិន្នន័យ (Content Area) -->
-    <div style="padding: 15px; max-width: 600px; margin: 0 auto;">
+    <div style="padding: 20px; max-width: 650px; margin: 0 auto; min-height: calc(100vh - 140px); display: flex; flex-direction: column;">
         
         <!-- Tab ទី១: ព័ត៌មានថ្មីៗ -->
-        <div id="tabContentNews" style="display: block;">
-            <!-- ប្រអប់សរសេរសារសម្រាប់ Admin (លាក់ពេលអ្នកធម្មតាមើល) -->
-            <div id="adminMessageContainer" class="editor-only" style="margin-bottom: 15px; background: white; padding: 15px; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.04);">
-                <textarea id="adminMsgInput" placeholder="សរសេរសារទីនេះ..." style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid var(--border); font-family: 'Kantumruy Pro'; resize: none;" rows="2"></textarea>
-                <button onclick="sendAdminMessage()" style="margin-top: 8px; width: 100%; padding: 10px; background: #0f3566; color: white; border: none; border-radius: 8px; font-weight: 600; cursor: pointer;">ផ្ញើសារជូនដំណឹង</button>
-            </div>
+        <div id="modContentNews" style="display: flex; flex-direction: column; flex: 1;">
             
-            <div id="acledaNewsList" style="display: flex; flex-direction: column; gap: 10px;"></div>
+            <div id="modNewsList" style="flex: 1; display: flex; flex-direction: column; gap: 15px; padding-bottom: 20px;"></div>
+
+            <!-- ប្រអប់សរសេរសារ (Admin Only) -->
+            <div class="editor-only" style="position: sticky; bottom: 20px; background: var(--card-bg); padding: 12px; border-radius: 16px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); border: 1px solid var(--border); display: flex; gap: 10px; align-items: stretch; margin-top: auto;">
+                <textarea id="modAdminMsgInput" placeholder="សរសេរព័ត៌មានថ្មីៗនៅទីនេះ..." style="flex: 1; padding: 12px 15px; border-radius: 10px; border: none; background: var(--bg); color: var(--text); font-family: 'Kantumruy Pro'; resize: none; margin: 0; outline: none; font-size: 0.95rem;" rows="1"></textarea>
+                <button onclick="sendModernAdminMessage()" style="padding: 0 20px; background: var(--primary); color: white; border: none; border-radius: 10px; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: 0.2s;">
+                    <i class="fa-solid fa-paper-plane"></i>
+                </button>
+            </div>
         </div>
 
         <!-- Tab ទី២: បទចម្រៀងទើបបញ្ចូលថ្មី (២០ បទ) -->
-        <div id="tabContentSongs" style="display: none;">
-            <div id="acledaSongsList" style="display: flex; flex-direction: column; gap: 10px;"></div>
+        <div id="modContentSongs" style="display: none; flex-direction: column; flex: 1;">
+            <div id="modSongsList" style="flex: 1; display: flex; flex-direction: column; gap: 12px; padding-bottom: 20px;"></div>
         </div>
         
     </div>
