@@ -233,14 +233,30 @@ function toggleFilterUI(isFiltered) {
 }
 
 function goBackToMain() {
+    // ចងចាំប្រភេទ និងឈ្មោះ Filter មុនពេលយើង Reset វា
     const prevFilterType = currentFilterType;
+    const prevFilterValue = currentFilterValue; 
+    
+    // Reset ត្រលប់ទៅសភាពដើម (ចម្រៀងទាំងអស់)
     resetFilters();
+    
+    // កំណត់ទិសដៅត្រលប់ក្រោយ (Back Navigation)
     if (prevFilterType === 'ALBUM') {
-        switchTab('albums');
+        switchTab('albums'); // ត្រលប់ទៅផ្ទាំង Album វិញ
+        
     } else if (prevFilterType === 'PLAYLIST') {
-        switchTab('playlists');
+        if (prevFilterValue === 'Favorite') {
+            switchTab('home'); // បើចេញពី Favorite ឲ្យត្រលប់មក Home វិញ
+        } else {
+            switchTab('playlists'); // បើចេញពី Playlist ផ្ទាល់ខ្លួន ឲ្យត្រលប់ទៅផ្ទាំង Playlist វិញ
+        }
+        
+    } else if (prevFilterType === 'SETLIST' || prevFilterType === 'RECENT' || prevFilterType === 'HISTORY') {
+        // ដោយសារមុខងារទាំង ៣ នេះស្ថិតនៅលើផ្ទាំង Home ដូច្នេះពេលថយក្រោយត្រូវមក Home វិញ
+        switchTab('home'); 
+        
     } else {
-        switchTab('songs');
+        switchTab('songs'); // លំនាំដើមត្រលប់ទៅផ្ទាំងបញ្ជីចម្រៀងធម្មតា
     }
 }
 
@@ -446,27 +462,31 @@ function switchTab(tabName) {
     if (tabName === 'home') {
         if (mainHeader) mainHeader.style.display = 'none';
         document.getElementById('viewHome').classList.add('active');
-        document.getElementById('navHomeBtn').classList.add('active');
+        const navBtn = document.getElementById('navHomeBtn');
+        if (navBtn) navBtn.classList.add('active');
         renderHomeView();
     } else if (tabName === 'songs') {
         if (mainHeader) mainHeader.style.display = 'none';
         document.getElementById('viewSongs').classList.add('active');
-        document.getElementById('navSongsBtn').classList.add('active');
+        const navBtn = document.getElementById('navSongsBtn');
+        if (navBtn) navBtn.classList.add('active');
         renderSongs();
     } else if (tabName === 'albums') {
         if (mainHeader) mainHeader.style.display = 'none';
         document.getElementById('viewAlbums').classList.add('active');
-        document.getElementById('navAlbumsBtn').classList.add('active');
+        const navBtn = document.getElementById('navAlbumsBtn');
+        if (navBtn) navBtn.classList.add('active');
         renderAlbumsView();
     } else if (tabName === 'playlists') {
         if (mainHeader) mainHeader.style.display = 'none';
         document.getElementById('viewPlaylists').classList.add('active');
-        document.getElementById('navPlaylistsBtn').classList.add('active');
+        // កន្លែងនេះមិនចាំបាច់មាន .classList.add('active') សម្រាប់ navPlaylistsBtn ទៀតទេ ព្រោះយើងបានដកវាចេញ
         renderPlaylistsView();
     } else if (tabName === 'settings') {
         if (mainHeader) mainHeader.style.display = 'none';
         document.getElementById('viewSettings').classList.add('active');
-        document.getElementById('navProfileBtn').classList.add('active');
+        const navBtn = document.getElementById('navProfileBtn');
+        if (navBtn) navBtn.classList.add('active');
         closeNotificationsSubView();
         renderSettingsView();
     }
@@ -1110,26 +1130,32 @@ function renderAlbumsView() {
 }
 
 function renderPlaylistsView() {
-    const grid = document.getElementById('playlistsGrid'); if (!grid) return;
+    const grid = document.getElementById('playlistsGrid');
+    if (!grid) return;
+
     const keys = Object.keys(playlists);
-    if (keys.length === 0) { 
-        grid.innerHTML = `<div class="empty-state" style="margin-top: 30px;">
-            <i class="fa-solid fa-folder-open empty-icon"></i>
-            <div class="empty-title">ពុំទាន់មាន Playlist ទេ</div>
-            <div class="empty-desc">អ្នកអាចបង្កើត Playlist ថ្មីដើម្បីងាយស្រួលរៀបចំបទចម្រៀងសម្រាប់ថ្វាយបង្គំ។</div>
-        </div>`; 
+    
+    // ចម្រាញ់យកតែ Playlist ផ្ទាល់ខ្លួន ដោយមិនយក Favorite មកបង្ហាញទេ
+    const customKeys = keys.filter(k => k !== 'Favorite');
+    
+    if (customKeys.length === 0) { 
+        grid.innerHTML = `
+            <div class="empty-state" style="margin-top: 30px; grid-column: 1 / -1;">
+                <i class="fa-regular fa-folder-open empty-icon" style="font-size: 3.5rem; margin-bottom: 10px;"></i>
+                <div class="empty-title" style="font-size: 1.1rem;">ពុំទាន់មាន Playlist ទេ</div>
+                <div class="empty-desc" style="font-size: 0.85rem;">ចុចប៊ូតុង "បង្កើតថ្មី" ខាងលើ ដើម្បីរៀបចំបទចម្រៀងសម្រាប់ការថ្វាយបង្គំ។</div>
+            </div>`; 
         return; 
     }
     
-    grid.innerHTML = keys.map(pName => {
+    grid.innerHTML = customKeys.map(pName => {
         const count = (playlists[pName] || []).length;
-        const isFav = (pName === 'Favorite');
         
         return `
             <div class="folder-card" onclick="filterByPlaylist('${escapeHtml(pName)}')">
-                ${!isFav ? `<button class="folder-delete-btn" onclick="deletePlaylist(event, '${escapeHtml(pName)}')"><i class="fa-solid fa-trash"></i></button>` : ''}
-                <div class="folder-icon-wrapper ${isFav ? 'fav-icon' : ''}">
-                    <i class="fa-solid ${isFav ? 'fa-heart' : 'fa-list-ul'}"></i>
+                <button class="folder-delete-btn" onclick="deletePlaylist(event, '${escapeHtml(pName)}')"><i class="fa-solid fa-trash"></i></button>
+                <div class="folder-icon-wrapper">
+                    <i class="fa-solid fa-list-ul"></i>
                 </div>
                 <div class="folder-name" title="${escapeHtml(pName)}">${escapeHtml(pName)}</div>
                 <div class="folder-count">${count} បទ</div>
@@ -1203,35 +1229,6 @@ async function clearOfflineData() {
     }
 }
 
-function toggleAutoScrollSetting(el) {
-    el.classList.toggle('active');
-    const isActive = el.classList.contains('active');
-    localStorage.setItem('setting_autoscroll', isActive ? 'true' : 'false');
-}
-
-function toggleAutoScroll() {
-    isAutoScrolling = !isAutoScrolling;
-    const btn = document.getElementById('autoScrollBtn');
-    if (isAutoScrolling) {
-        btn.classList.add('active');
-        requestAnimationFrame(autoScrollLoop);
-    } else {
-        btn.classList.remove('active');
-    }
-}
-function adjustScrollSpeed(delta) {
-    autoScrollSpeed += delta;
-    if (autoScrollSpeed < 0.1) autoScrollSpeed = 0.1;
-    if (autoScrollSpeed > 3.0) autoScrollSpeed = 3.0;
-    document.getElementById('scrollSpeedLabel').innerText = autoScrollSpeed.toFixed(1) + 'x';
-}
-function autoScrollLoop() {
-    if (!isAutoScrolling) return;
-    pointY -= autoScrollSpeed;
-    updateTransform();
-    requestAnimationFrame(autoScrollLoop);
-}
-
 function openFullScreenModal(songId) {
     const songIndex = currentFilteredSongs.findIndex(s => s.id === songId); if (songIndex === -1) return;
     let history = JSON.parse(localStorage.getItem('recent_history') || '[]');
@@ -1247,7 +1244,6 @@ function openFullScreenModal(songId) {
 
 function closeFullScreenModalDirect() { 
     document.getElementById('fullScreenModal').classList.remove('active'); 
-    if(isAutoScrolling) toggleAutoScroll();
     resetZoomState(); 
     releaseWakeLock(); 
 }
@@ -1640,7 +1636,8 @@ function generateLyricsImage(song, mode, playlistName) {
             const metaColor = isDark ? '#94a3b8' : '#64748b';
             const chordColor = isDark ? '#f87171' : '#ef4444';
             
-            let width = isTwoCol ? 1200 : 800; 
+            // បង្រួមមកទំហំស្តង់ដារ HD ដែលស័ក្តិសមបំផុតសម្រាប់ទូរស័ព្ទ និងកុំឲ្យធំពេក
+            let width = isTwoCol ? 1600 : 1080; 
             
             const lines = (song.lyrics || '').split('\n');
             let totalLines = 0;
@@ -1651,7 +1648,7 @@ function generateLyricsImage(song, mode, playlistName) {
             });
             
             let linesPerCol = isTwoCol ? Math.ceil(totalLines / 2) + 2 : totalLines;
-            let height = (linesPerCol * 45) + 200; 
+            let height = (linesPerCol * 45) + 380; 
             
             canvas.width = width;
             canvas.height = height; 
@@ -1687,7 +1684,8 @@ function generateLyricsImage(song, mode, playlistName) {
             ctx.stroke();
             
             let col1X = 50;
-            let col2X = 650;
+            // សារ៉េគម្លាតជួរទី ២ ឲ្យខិតចូលកណ្តាលល្មមស្អាត
+            let col2X = isTwoCol ? 850 : 650; 
             let startY = 210;
             let currentY = startY;
             let currentLineCount = 0;
@@ -1739,7 +1737,6 @@ function generateLyricsImage(song, mode, playlistName) {
         }
     });
 }
-
 function processExistingImage(imageUrl, mode, playlistName, songData) {
     return new Promise((resolve) => {
         const img = new Image();
@@ -2135,7 +2132,6 @@ function updateFullScreenContent() {
     const imgEl = document.getElementById('fullScreenImg');
     const lyricsEl = document.getElementById('fullScreenLyrics');
     const transposeEl = document.getElementById('transposeControls');
-    const scrollControls = document.getElementById('fsScrollControls');
 
     currentTransposeStep = 0; 
     
@@ -2159,10 +2155,6 @@ function updateFullScreenContent() {
         transposeEl.style.display = 'none';
     }
 
-    const showScroll = localStorage.getItem('setting_autoscroll') === 'true';
-    scrollControls.style.display = showScroll ? 'flex' : 'none';
-
-    if(isAutoScrolling) toggleAutoScroll();
     resetZoomState();
 }
 
@@ -3369,4 +3361,48 @@ function displayRandomVerse() {
 // ហៅមុខងារនេះឲ្យដំណើរការនៅពេលកម្មវិធីចាប់ផ្តើម
 document.addEventListener('DOMContentLoaded', () => {
     displayRandomVerse();
+});
+
+// =========================================
+// មុខងារ លាក់/បង្ហាញ ខ័រ (Hide/Show Chords)
+// =========================================
+
+// ទាញយកការកំណត់ចាស់ពី LocalStorage (បើសិនជាធ្លាប់បិទពីមុនមក)
+let isChordsHidden = localStorage.getItem('setting_hide_chords') === 'true';
+
+function toggleChordsVisibility() {
+    isChordsHidden = !isChordsHidden;
+    localStorage.setItem('setting_hide_chords', isChordsHidden ? 'true' : 'false');
+    applyChordsVisibility();
+    
+    // បង្កើតរំញ័រពេលចុចប៊ូតុង
+    vibratePhone(30); 
+}
+
+function applyChordsVisibility() {
+    const lyricsContainer = document.getElementById('fullScreenLyrics');
+    const toggleBtn = document.getElementById('toggleChordsBtn');
+    const toggleIcon = document.getElementById('toggleChordsIcon');
+    const toggleText = document.getElementById('toggleChordsText');
+    
+    if (!lyricsContainer || !toggleBtn) return;
+
+    if (isChordsHidden) {
+        // លាក់ខ័រ
+        lyricsContainer.classList.add('lyrics-chords-hidden');
+        toggleBtn.style.color = 'var(--danger)';
+        toggleIcon.className = 'fa-solid fa-eye';
+        toggleText.innerText = 'បើកខ័រ';
+    } else {
+        // បង្ហាញខ័រ
+        lyricsContainer.classList.remove('lyrics-chords-hidden');
+        toggleBtn.style.color = 'var(--text)';
+        toggleIcon.className = 'fa-solid fa-eye-slash';
+        toggleText.innerText = 'បិទខ័រ';
+    }
+}
+
+// ហៅមុខងារនេះឲ្យដំណើរការពេលបើកកម្មវិធីភ្លាម ដើម្បីឆែកមើលថាគេធ្លាប់កំណត់បិទឬអត់
+document.addEventListener('DOMContentLoaded', () => {
+    applyChordsVisibility();
 });
