@@ -761,3 +761,123 @@ body.dark-mode .profile-popup {
 /* មុខងារលាក់ខ័រ (Hide Chords) */
 .lyrics-chords-hidden .chord { display: none !important; }
 .lyrics-chords-hidden .lyric-line { line-height: 1.8 !important; }
+
+/* =========================================
+   GuitarTuna Style Tuner UI
+========================================= */
+.guitartuna-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
+    height: calc(100vh - 120px);
+    max-width: 500px;
+    margin: 0 auto;
+    padding: 10px 20px;
+    position: relative;
+}
+
+/* ផ្នែកកុងទ័រខាងលើ */
+.tuner-gauge-box {
+    width: 100%;
+    background: rgba(15, 23, 42, 0.9);
+    border-radius: 20px;
+    padding: 20px;
+    text-align: center;
+    color: white;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+    border: 1px solid rgba(255,255,255,0.1);
+}
+.tuner-note-display {
+    font-size: 4.5rem;
+    font-weight: 900;
+    color: #10b981;
+    line-height: 1;
+    margin-bottom: 5px;
+    text-shadow: 0 0 20px rgba(16, 185, 129, 0.4);
+}
+.tuner-bar-wrapper {
+    width: 100%;
+    background: #334155;
+    height: 8px;
+    border-radius: 4px;
+    position: relative;
+    margin: 15px 0 10px 0;
+}
+.tuner-needle {
+    width: 14px;
+    height: 22px;
+    background: #fff;
+    border-radius: 4px;
+    position: absolute;
+    top: -7px;
+    left: 50%;
+    transform: translateX(-50%);
+    transition: left 0.1s ease-out;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.4);
+}
+.tuner-bar-center {
+    width: 2px;
+    height: 22px;
+    background: #10b981;
+    position: absolute;
+    top: -7px;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+/* ផ្នែកក្បាលហ្គីតា និងប៊ូតុងអមសងខាង */
+.headstock-section {
+    position: relative;
+    width: 100%;
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 15px 0;
+}
+.headstock-img {
+    max-height: 300px; /* ដំឡើងពី 280px មក 330px ដើម្បីឱ្យរូបហ្គីតាចេញមកធំល្មមស្អាត */
+    object-fit: contain;
+    filter: drop-shadow(0 10px 20px rgba(0,0,0,0.3));
+}
+.string-btn {
+    position: absolute;
+    width: 55px;
+    height: 55px;
+    border-radius: 50%;
+    background: var(--card-bg);
+    border: 2px solid var(--border);
+    color: var(--text);
+    font-weight: 800;
+    font-size: 1.2rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: 0 6px 15px rgba(0,0,0,0.1);
+    transition: 0.2s;
+}
+.string-btn:active, .string-btn.active {
+    background: var(--primary);
+    color: white;
+    border-color: var(--primary);
+    transform: scale(0.92);
+    box-shadow: 0 2px 8px rgba(37, 99, 235, 0.4);
+}
+
+/* ទីតាំងប៊ូតុងឆ្វេង និងស្តាំ ឲ្យត្រូវនឹងទម្រង់ក្បាលហ្គីតា */
+/* ទីតាំងប៊ូតុងឆ្វេង និងស្តាំ ឲ្យចំជួរគ្នាស្មើនឹងខ្ចៅក្បាលហ្គីតា */
+.string-btn.left-1 { top: 12%; left: 10px; }
+.string-btn.left-2 { top: 38%; left: 10px; }
+.string-btn.left-3 { top: 64%; left: 10px; }
+
+.string-btn.right-1 { top: 12%; right: 10px; }
+.string-btn.right-2 { top: 38%; right: 10px; }
+.string-btn.right-3 { top: 64%; right: 10px; }
+
+.tuner-footer-controls {
+    width: 100%;
+    display: flex;
+    gap: 12px;
+}
