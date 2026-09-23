@@ -815,34 +815,16 @@ function checkAndResetMonthlySetlists() {
 }
 
 function renderHomeView() {
-    const heroArt = document.getElementById('homeHeroArt');
-    const heroTitle = document.getElementById('homeHeroTitle');
-    const heroArtist = document.getElementById('homeHeroArtist');
-    const heroBtn = document.getElementById('homeHeroBtn');
     const continueList = document.getElementById('homeContinueList');
     const setlistList = document.getElementById('homeSetlistList');
     
-    if (!heroArt || !heroTitle || !heroArtist) return;
-
     if (!songsList || songsList.length === 0) {
-        heroArt.style.backgroundImage = 'linear-gradient(135deg, #111827, #1e3a8a)';
-        heroTitle.innerText = 'ស្វាគមន៍មកកាន់បណ្ដុំចម្រៀង';
-        heroArtist.innerText = 'បទចម្រៀងសរសើរដំកើងព្រះខ្មែរ';
-        if (heroBtn) heroBtn.style.display = 'none';
         if (continueList) continueList.innerHTML = '<div class="home-empty-inline">កំពុងទាញយកបទចម្រៀង...</div>';
         if (setlistList) setlistList.innerHTML = '<div class="home-empty-inline">សូមរង់ចាំបន្តិច...</div>';
         return;
     }
 
-    const featured = songsList[0];
-    heroArt.style.backgroundImage = `url("${getSongCover(featured)}")`;
-    heroTitle.innerText = featured.title || 'បទចម្រៀងថ្មី';
-    heroArtist.innerText = featured.artist || 'មិនស្គាល់សិល្បករ';
-    if (heroBtn) {
-        heroBtn.style.display = 'inline-flex';
-        heroBtn.onclick = () => openFullScreenModal(featured.id);
-    }
-
+    // ១. រៀបចំបញ្ជី "ប្រវត្តិមើល" (Continue Reading)
     const history = getRecentHistorySongs(4);
     if (continueList) {
         const source = history.length ? history : songsList.slice(0, 4);
@@ -854,16 +836,14 @@ function renderHomeView() {
             </button>`).join('');
     }
 
+    // ២. រៀបចំបញ្ជី "Setlist ខែនេះ"
     if (setlistList) {
-        const descDiv = setlistList.previousElementSibling;
-        if (descDiv && descDiv.tagName === 'DIV' && descDiv.innerHTML.includes('💡')) {
-            descDiv.innerHTML = `💡 <strong style="color: var(--primary);">សម្រាប់ថ្វាយបង្គំថ្ងៃអាទិត្យ៖</strong> រៀបរៀងដោយអ្នកភ្លេង និងអ្នកចម្រៀង សូមព្រះប្រទានពរ!`;
-        }
-
         const khmerMonths = ["មករា", "កុម្ភៈ", "មីនា", "មេសា", "ឧសភា", "មិថុនា", "កក្កដា", "សីហា", "កញ្ញា", "តុលា", "វិច្ឆិកា", "ធ្នូ"];
         const currentMonthName = khmerMonths[new Date().getMonth()];
-        const setlistTitle = setlistList.previousElementSibling?.previousElementSibling?.querySelector('h2'); 
-        if (setlistTitle) setlistTitle.innerText = `Setlist ខែ${currentMonthName}`;
+        
+        // កំណត់ឈ្មោះខែឲ្យបានត្រឹមត្រូវ
+        const sectionHead = setlistList.parentElement.querySelector('.home-section-head h2');
+        if (sectionHead) sectionHead.innerText = `Setlist ខែ${currentMonthName}`;
 
         const totalSundays = getSundaysInCurrentMonth();
         const weeks = [];
@@ -3355,3 +3335,38 @@ function renderModernNewSongs() {
     
     container.innerHTML = html;
 }
+
+// =========================================
+// មុខងារបង្ហាញខគម្ពីរលើកទឹកចិត្តចៃដន្យ (Random Daily Verse)
+// =========================================
+
+const worshipVerses = [
+    { text: "«គួរឱ្យជីវិតទាំងឡាយដែលមានដង្ហើម បានសរសើរដល់ព្រះយ៉េហូវ៉ាចុះ។»", ref: "ទំនុកតម្កើង ១៥០:៦" },
+    { text: "«មកចុះ យើងនឹងច្រៀងថ្វាយព្រះយេហូវ៉ា ចូរយើងឡើងសំឡេងដោយអំណរដល់ថ្មដានៃសេចក្ដីសង្គ្រោះរបស់យើង»", ref: "ទំនុកតម្កើង ៩៥:១" },
+    { text: "«ចូរគោរពប្រតិបត្តិដល់ព្រះយេហូវ៉ា ដោយអរសប្បាយឲ្យចូលមកនៅចំពោះទ្រង់ ដោយច្រៀងចំរៀងចុះ»", ref: "ទំនុកតម្កើង ១០០:២" },
+    { text: "«ចូរច្រៀងបទថ្មីថ្វាយព្រះយេហូវ៉ាចូរឲ្យជនទាំងឡាយ នៅផែនដីច្រៀងថ្វាយព្រះយេហូវ៉ាចុះ»", ref: "ទំនុកតម្កើង ៩៦:១" },
+    { text: "«ចូរឲ្យព្រះបន្ទូលនៃព្រះគ្រីស្ទ បានសណ្ឋិតនៅក្នុងអ្នករាល់គ្នាជាបរិបូរ ដោយប្រាជ្ញាគ្រប់យ៉ាង ទាំងបង្រៀន ហើយទូន្មានគ្នា ដោយនូវទំនុកដំកើង ទំនុកបរិសុទ្ធ នឹងចំរៀងខាងឯវិញ្ញាណ ទាំងច្រៀងក្នុងចិត្តថ្វាយព្រះ ដោយព្រះគុណ»", ref: "កូលុស ៣:១៦" },
+    { text: "«ឱព្រះអម្ចាស់ ជាព្រះនៃទូលបង្គំអើយ ទូលបង្គំនឹងសរសើរទ្រង់ឲ្យអស់ពីចិត្ត ហើយនឹងលើកដំកើងព្រះនាមទ្រង់ជាដរាបតទៅ»", ref: "ទំនុកតម្កើង ៨៦:១២" },
+    { text: "«ខ្ញុំនឹងលើកសរសើរដល់ព្រះយេហូវ៉ាគ្រប់ ពេលវេលាសេចក្ដីសរសើរពីទ្រង់ នឹងនៅក្នុងមាត់ខ្ញុំជានិច្ច»", ref: "ទំនុកតម្កើង ៣៤:១" },
+    { text: "«សូមអនុញ្ញាតឲ្យបបូរមាត់ទូលបង្គំ បានពោលពាក្យសរសើរ ដ្បិតទ្រង់បង្រៀនអស់ទាំងបញ្ញត្តរបស់ទ្រង់ដល់ទូលបង្គំ»", ref: "ទំនុកតម្កើង ១១៩:១៧១" }
+];
+
+function displayRandomVerse() {
+    const verseTextEl = document.getElementById('dailyVerseText');
+    const verseRefEl = document.getElementById('dailyVerseRef');
+    
+    if (verseTextEl && verseRefEl) {
+        // ចាប់យកខគម្ពីរចៃដន្យ (Random) រាល់ពេលបើកកម្មវិធី
+        const randomIndex = Math.floor(Math.random() * worshipVerses.length);
+        const verse = worshipVerses[randomIndex];
+        
+        // ដាក់បញ្ចូលទៅក្នុង HTML
+        verseTextEl.innerText = verse.text;
+        verseRefEl.innerText = verse.ref;
+    }
+}
+
+// ហៅមុខងារនេះឲ្យដំណើរការនៅពេលកម្មវិធីចាប់ផ្តើម
+document.addEventListener('DOMContentLoaded', () => {
+    displayRandomVerse();
+});
