@@ -3466,8 +3466,9 @@ function playFloatingAudio(songId, event) {
     }
 }
 
-function toggleApplePlayPause() {
-    if (window.event) window.event.stopPropagation();
+function toggleApplePlayPause(event) {
+    if (event) event.stopPropagation();
+    else if (window.event) window.event.stopPropagation();
     
     if (currentAudioType === 'youtube') {
         if (isYoutubeReady && ytPlayer && ytPlayer.getPlayerState) {
@@ -3495,15 +3496,19 @@ function updatePlayButtons(htmlContent) {
     if (fullBtn) fullBtn.innerHTML = htmlContent;
 }
 
-function playNextSong() {
-    if (window.event) window.event.stopPropagation();
+function playNextSong(event) {
+    if (event) event.stopPropagation();
+    else if (window.event) window.event.stopPropagation();
+    
     if (currentQueueIndex >= 0 && currentQueueIndex < currentPlayQueue.length - 1) {
         playFloatingAudio(currentPlayQueue[currentQueueIndex + 1].id, null);
     }
 }
 
-function playPrevSong() {
-    if (window.event) window.event.stopPropagation();
+function playPrevSong(event) {
+    if (event) event.stopPropagation();
+    else if (window.event) window.event.stopPropagation();
+    
     if (currentQueueIndex > 0) {
         playFloatingAudio(currentPlayQueue[currentQueueIndex - 1].id, null);
     }
@@ -3522,8 +3527,9 @@ function closeAppleFullScreenPlayer() {
     }
 }
 
-function closeAppleMiniPlayer() {
-    if (window.event) window.event.stopPropagation();
+function closeAppleMiniPlayer(event) {
+    if (event) event.stopPropagation();
+    else if (window.event) window.event.stopPropagation();
     
     if (currentAudioType === 'youtube' && isYoutubeReady && ytPlayer.stopVideo) {
         ytPlayer.stopVideo();
