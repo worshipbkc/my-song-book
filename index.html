@@ -278,9 +278,10 @@
     <img src="https://via.placeholder.com/150/2563eb/ffffff?text=Worship" id="miniPlayerCover" class="mini-cover" alt="Cover">
     <div class="mini-title" id="miniPlayerTitle">Not Playing</div>
     <div class="mini-controls" onclick="event.stopPropagation()">
-        <button id="miniPlayPauseBtn" onclick="toggleApplePlayPause()"><i class="fa-solid fa-play"></i></button>
-        <button id="miniNextBtn" onclick="playNextSong()" style="opacity: 0.5;"><i class="fa-solid fa-forward-step"></i></button>
-    </div>
+    <button id="miniPlayPauseBtn" onclick="toggleApplePlayPause()"><i class="fa-solid fa-play"></i></button>
+    <button id="miniNextBtn" onclick="playNextSong()"><i class="fa-solid fa-forward-step"></i></button>
+    <button onclick="closeAppleMiniPlayer()" style="color: var(--text-muted); font-size: 1.1rem; margin-left: 5px;"><i class="fa-solid fa-xmark"></i></button>
+</div>
 </div>
 
 <div class="apple-full-player" id="appleFullPlayer">
