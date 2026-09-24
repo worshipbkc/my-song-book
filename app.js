@@ -19,7 +19,6 @@ const CLOUDINARY_UPLOAD_PRESET = "unsigned_preset";
 
 auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL).catch((error) => {});
 
-// អថេរទូទៅ
 let currentUser = null;
 let isEditor = false;
 let isAdmin = false;
@@ -2205,7 +2204,6 @@ function renderSongsListOnly() {
                     ${cardThumbnail}
                 </div>
                 
-                <!-- ផ្នែកខាងក្រោមនេះ គឺទម្រង់ដើមដែលត្រូវរក្សាទុក -->
                 <div class="song-info">
                     <div class="song-title-row">
                         <span class="song-title selectable-text" title="${escapeHtml(song.title)}">${escapeHtml(song.title)}</span>
@@ -2613,7 +2611,6 @@ const guitarStrings = [
     { note: 'B', freq: 246.94 },
     { note: 'E', freq: 329.63 }
 ];
-
 
 async function toggleTunerAction() {
     const btn = document.getElementById('tunerBtn');
@@ -3330,10 +3327,82 @@ function playStringTone(noteName, frequency, btnElement) {
 }
 
 // =========================================
-// Apple Music Style Player Logic
+// Apple Music Style Player Logic (ជាមួយ YouTube API)
 // =========================================
 let currentPlayQueue = [];
 let currentQueueIndex = -1;
+let currentAudioType = 'html5'; 
+
+let ytPlayer;
+let isYoutubeReady = false;
+let ytProgressTimer;
+
+document.addEventListener('DOMContentLoaded', () => {
+    if (!document.getElementById('ytplayer')) {
+        const ytDiv = document.createElement('div');
+        ytDiv.id = 'ytplayer';
+        ytDiv.style.cssText = 'position: fixed; bottom: 0; right: 0; width: 300px; height: 300px; z-index: -9999; opacity: 0.01; pointer-events: none;';
+        document.body.appendChild(ytDiv);
+    }
+    const tag = document.createElement('script');
+    tag.src = "https://www.youtube.com/iframe_api";
+    const firstScriptTag = document.getElementsByTagName('script')[0];
+    firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+});
+
+window.onYouTubeIframeAPIReady = function() {
+    ytPlayer = new YT.Player('ytplayer', {
+        height: '300',
+        width: '300',
+        videoId: '',
+        playerVars: {
+            'autoplay': 1, 
+            'playsinline': 1,
+            'controls': 0,
+            'disablekb': 1,
+            'fs': 0,
+            'rel': 0,
+            'showinfo': 0,
+            'iv_load_policy': 3,
+            'origin': window.location.origin
+        },
+        events: {
+            'onReady': () => { isYoutubeReady = true; },
+            'onStateChange': onPlayerStateChange,
+            'onError': (e) => { 
+                console.error("YouTube Error: ", e.data); 
+                const durationDisplay = document.getElementById('durationDisplay');
+                if (durationDisplay) durationDisplay.innerText = "Error!";
+                showToast('វីដេអូនេះមិនអនុញ្ញាតឲ្យចាក់ក្រៅ YouTube ទេ', 'error');
+            }
+        }
+    });
+};
+
+function onPlayerStateChange(event) {
+    if (event.data == YT.PlayerState.ENDED) {
+        playNextSong();
+    } else if (event.data == YT.PlayerState.PLAYING) {
+        startYtProgress();
+        updatePlayButtons('<i class="fa-solid fa-pause"></i>');
+    } else if (event.data == YT.PlayerState.PAUSED) {
+        stopYtProgress();
+        updatePlayButtons('<i class="fa-solid fa-play"></i>');
+    } else if (event.data == YT.PlayerState.BUFFERING) {
+        const durationDisplay = document.getElementById('durationDisplay');
+        if (durationDisplay) durationDisplay.innerText = "កំពុងផ្ទុក...";
+    }
+}
+
+function extractYouTubeID(url) {
+    let videoID = '';
+    const regExp = /^.*((youtu.be\/)|(v\/)|(\/u\/\w\/)|(embed\/)|(watch\?))\??v?=?([^#&?]*).*/;
+    const match = url.match(regExp);
+    if (match && match[7].length == 11) {
+        videoID = match[7];
+    }
+    return videoID;
+}
 
 function playFloatingAudio(songId, event) {
     if (event) event.stopPropagation();
@@ -3345,12 +3414,8 @@ function playFloatingAudio(songId, event) {
     const song = currentPlayQueue[currentQueueIndex];
     if (!song.mediaUrl) return;
 
-    if (song.mediaUrl.includes('youtube.com') || song.mediaUrl.includes('youtu.be')) {
-        window.open(song.mediaUrl, '_blank');
-        return;
-    }
-
     const audio = document.getElementById('audioElement');
+    const ytId = extractYouTubeID(song.mediaUrl);
     
     const miniTitle = document.getElementById('miniPlayerTitle');
     if (miniTitle) miniTitle.innerText = song.title || 'Unknown';
@@ -3367,25 +3432,59 @@ function playFloatingAudio(songId, event) {
     const miniPlayer = document.getElementById('appleMiniPlayer');
     if (miniPlayer) miniPlayer.classList.add('active');
     
-    audio.src = song.mediaUrl;
-    audio.play().then(() => {
+    if (ytId) {
+        currentAudioType = 'youtube';
+        if(audio) audio.pause(); 
+        
+        updateProgressBarUI(0, 0);
         updatePlayButtons('<i class="fa-solid fa-pause"></i>');
-    }).catch(err => {
-        showToast('មិនអាចចាក់ឯកសារសំឡេងនេះបានទេ', 'warning');
-    });
+        
+        if (isYoutubeReady && ytPlayer && ytPlayer.loadVideoById) {
+            ytPlayer.loadVideoById(ytId);
+            ytPlayer.playVideo(); 
+        } else {
+            showToast('កំពុងតភ្ជាប់ទៅ YouTube សូមរង់ចាំ...', 'info');
+            setTimeout(() => {
+                if (isYoutubeReady && ytPlayer && ytPlayer.loadVideoById) {
+                    ytPlayer.loadVideoById(ytId);
+                    ytPlayer.playVideo();
+                }
+            }, 1000);
+        }
+    } else {
+        currentAudioType = 'html5';
+        if (isYoutubeReady && ytPlayer && ytPlayer.pauseVideo) ytPlayer.pauseVideo(); 
+        
+        if(audio) {
+            audio.src = song.mediaUrl;
+            audio.play().then(() => {
+                updatePlayButtons('<i class="fa-solid fa-pause"></i>');
+            }).catch(err => {
+                showToast('មិនអាចចាក់ឯកសារសំឡេងនេះបានទេ', 'warning');
+            });
+        }
+    }
 }
 
 function toggleApplePlayPause() {
     if (window.event) window.event.stopPropagation();
-    const audio = document.getElementById('audioElement');
-    if (!audio || !audio.src) return;
     
-    if (audio.paused) {
-        audio.play();
-        updatePlayButtons('<i class="fa-solid fa-pause"></i>');
+    if (currentAudioType === 'youtube') {
+        if (isYoutubeReady && ytPlayer && ytPlayer.getPlayerState) {
+            const state = ytPlayer.getPlayerState();
+            if (state === YT.PlayerState.PLAYING) ytPlayer.pauseVideo();
+            else ytPlayer.playVideo();
+        }
     } else {
-        audio.pause();
-        updatePlayButtons('<i class="fa-solid fa-play"></i>');
+        const audio = document.getElementById('audioElement');
+        if (!audio || !audio.src) return;
+        if (audio.paused) {
+            audio.play();
+            updatePlayButtons('<i class="fa-solid fa-pause"></i>');
+        } else {
+            audio.pause();
+            updatePlayButtons('<i class="fa-solid fa-play"></i>');
+        }
     }
 }
 
@@ -3419,88 +3518,126 @@ function closeAppleFullScreenPlayer() {
     const player = document.getElementById('appleFullPlayer');
     if (player) {
         player.classList.remove('active');
-        // បន្ថែមកូដមួយបន្ទាត់នេះ ដើម្បីលុបទីតាំងដែលវាជាប់គាំងពេលទាញចុះក្រោម
         player.style.transform = ''; 
     }
 }
-// មុខងារសម្រាប់បិទផ្ទាំង Mini Player ទាំងស្រុង
+
 function closeAppleMiniPlayer() {
+    if (window.event) window.event.stopPropagation();
+    
+    if (currentAudioType === 'youtube' && isYoutubeReady && ytPlayer.stopVideo) {
+        ytPlayer.stopVideo();
+    }
     const audio = document.getElementById('audioElement');
-    if (audio) {
-        audio.pause();
-        audio.src = ''; // ផ្តាច់សំឡេងទាំងស្រុងកុំឲ្យដើរ
-    }
+    if (audio) { audio.pause(); audio.src = ''; }
+    
     const miniPlayer = document.getElementById('appleMiniPlayer');
-    if (miniPlayer) {
-        miniPlayer.classList.remove('active'); // លាក់ផ្ទាំង Mini Player
-    }
-    closeAppleFullScreenPlayer(); // ប្រាកដថា Full Screen ក៏ត្រូវបិទដែរ
+    if (miniPlayer) miniPlayer.classList.remove('active'); 
+    closeAppleFullScreenPlayer(); 
 }
 
 function formatTime(seconds) {
-    if (isNaN(seconds)) return "--:--";
+    if (isNaN(seconds) || !seconds) return "0:00";
     const mins = Math.floor(seconds / 60);
     const secs = Math.floor(seconds % 60);
     return `${mins}:${secs < 10 ? '0' : ''}${secs}`;
 }
 
-// អាប់ដេត Progress Bar និង Time សម្រាប់ Apple Music Style Player
-document.addEventListener('DOMContentLoaded', () => {
-    const audio = document.getElementById('audioElement');
+function startYtProgress() {
+    clearInterval(ytProgressTimer);
+    ytProgressTimer = setInterval(() => {
+        if (ytPlayer && ytPlayer.getCurrentTime && ytPlayer.getDuration) {
+            const currentTime = ytPlayer.getCurrentTime() || 0;
+            const duration = ytPlayer.getDuration() || 0;
+            updateProgressBarUI(currentTime, duration);
+        }
+    }, 500);
+}
+
+function stopYtProgress() {
+    clearInterval(ytProgressTimer);
+}
+
+function updateProgressBarUI(currentTime, duration) {
     const progressBar = document.getElementById('progressBar');
     const currentTimeDisplay = document.getElementById('currentTimeDisplay');
     const durationDisplay = document.getElementById('durationDisplay');
-    const volumeBar = document.getElementById('volumeBar');
 
-    if(audio && progressBar) {
-        audio.addEventListener('timeupdate', () => {
-            if(audio.duration) {
-                const percent = (audio.currentTime / audio.duration) * 100;
-                progressBar.value = percent;
-                
-                progressBar.style.background = `linear-gradient(to right, var(--text) ${percent}%, rgba(0,0,0,0.1) ${percent}%)`;
-                if(document.body.classList.contains('dark-mode')){
-                    progressBar.style.background = `linear-gradient(to right, var(--text) ${percent}%, rgba(255,255,255,0.1) ${percent}%)`;
-                }
-
-                if (currentTimeDisplay) currentTimeDisplay.innerText = formatTime(audio.currentTime);
-                if (durationDisplay) durationDisplay.innerText = "-" + formatTime(audio.duration - audio.currentTime);
+    if (!duration || duration <= 0) {
+        if (currentTimeDisplay) currentTimeDisplay.innerText = "0:00";
+        if (progressBar) {
+            progressBar.value = 0;
+            progressBar.style.background = `rgba(0,0,0,0.1)`;
+            if(document.body.classList.contains('dark-mode')) {
+                progressBar.style.background = `rgba(255,255,255,0.1)`;
             }
-        });
+        }
+        return; 
+    }
 
-        audio.addEventListener('ended', () => {
-            playNextSong(); 
-        });
-
-        progressBar.addEventListener('input', (e) => {
-            if(audio.duration) {
-                const seekTime = (e.target.value / 100) * audio.duration;
-                audio.currentTime = seekTime;
-            }
-        });
-        
-        if(volumeBar) {
-            volumeBar.addEventListener('input', (e) => {
-                audio.volume = e.target.value / 100;
-                const volPercent = e.target.value;
-                volumeBar.style.background = `linear-gradient(to right, var(--text) ${volPercent}%, rgba(0,0,0,0.1) ${volPercent}%)`;
-                if(document.body.classList.contains('dark-mode')){
-                    volumeBar.style.background = `linear-gradient(to right, var(--text) ${volPercent}%, rgba(255,255,255,0.1) ${volPercent}%)`;
-                }
-            });
+    const percent = (currentTime / duration) * 100;
+    
+    if (progressBar) {
+        progressBar.value = percent;
+        progressBar.style.background = `linear-gradient(to right, var(--text) ${percent}%, rgba(0,0,0,0.1) ${percent}%)`;
+        if(document.body.classList.contains('dark-mode')){
+            progressBar.style.background = `linear-gradient(to right, var(--text) ${percent}%, rgba(255,255,255,0.1) ${percent}%)`;
         }
     }
 
-    // មុខងារអូសចុះក្រោម (Swipe/Drag) ដើម្បីបិទ Full Player (គាំទ្រទាំង ទូរស័ព្ទ និង កុំព្យូទ័រ)
+    if (currentTimeDisplay) currentTimeDisplay.innerText = formatTime(currentTime);
+    if (durationDisplay) durationDisplay.innerText = "-" + formatTime(duration - currentTime);
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    const audio = document.getElementById('audioElement');
+    const progressBar = document.getElementById('progressBar');
+    const volumeBar = document.getElementById('volumeBar');
+
+    if(audio) {
+        audio.addEventListener('timeupdate', () => {
+            if (currentAudioType === 'html5') {
+                updateProgressBarUI(audio.currentTime, audio.duration);
+            }
+        });
+        audio.addEventListener('ended', () => {
+            if (currentAudioType === 'html5') playNextSong(); 
+        });
+    }
+
+    if(progressBar) {
+        progressBar.addEventListener('input', (e) => {
+            const percent = e.target.value / 100;
+            if (currentAudioType === 'youtube') {
+                if (isYoutubeReady && ytPlayer.getDuration) {
+                    ytPlayer.seekTo(percent * ytPlayer.getDuration(), true);
+                }
+            } else {
+                if(audio.duration) audio.currentTime = percent * audio.duration;
+            }
+        });
+    }
+    
+    if(volumeBar) {
+        volumeBar.addEventListener('input', (e) => {
+            const vol = e.target.value;
+            if (currentAudioType === 'youtube' && isYoutubeReady && ytPlayer.setVolume) ytPlayer.setVolume(vol);
+            if (audio) audio.volume = vol / 100;
+            
+            volumeBar.style.background = `linear-gradient(to right, var(--text) ${vol}%, rgba(0,0,0,0.1) ${vol}%)`;
+            if(document.body.classList.contains('dark-mode')){
+                volumeBar.style.background = `linear-gradient(to right, var(--text) ${vol}%, rgba(255,255,255,0.1) ${vol}%)`;
+            }
+        });
+    }
+
     const fullPlayer = document.getElementById('appleFullPlayer');
     if (fullPlayer) {
         let startY = 0;
         let isDragging = false;
 
         const handleDragStart = (e, y) => {
-            // កុំឲ្យទាញអេក្រង់ចុះក្រោម ពេលអ្នកប្រើប្រាស់កំពុងសារ៉េនាទី សំឡេង ឬចុចប៊ូតុង
             if (e.target.tagName === 'INPUT' || e.target.tagName === 'BUTTON' || e.target.closest('button')) return;
-            
             startY = y;
             isDragging = true;
             fullPlayer.style.transition = 'none';
@@ -3509,9 +3646,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const handleDragMove = (y) => {
             if (!isDragging) return;
             const distance = y - startY;
-            if (distance > 0) { // អនុញ្ញាតឲ្យទាញចុះក្រោមតែប៉ុណ្ណោះ
-                fullPlayer.style.transform = `translateY(${distance}px)`;
-            }
+            if (distance > 0) fullPlayer.style.transform = `translateY(${distance}px)`;
         };
 
         const handleDragEnd = (y) => {
@@ -3519,21 +3654,16 @@ document.addEventListener('DOMContentLoaded', () => {
             isDragging = false;
             fullPlayer.style.transition = 'transform 0.4s cubic-bezier(0.4, 0, 0.2, 1)';
             
-            if (y - startY > 100) { 
-                closeAppleFullScreenPlayer(); // បិទប្រសិនបើទាញចុះក្រោមលើស 100px
-            } else {
-                fullPlayer.style.transform = ''; // លោតទៅពេញអេក្រង់វិញ
-            }
+            if (y - startY > 100) closeAppleFullScreenPlayer(); 
+            else fullPlayer.style.transform = ''; 
         };
 
-        // សម្រាប់ទូរស័ព្ទ (Touch Event)
         fullPlayer.addEventListener('touchstart', e => handleDragStart(e, e.touches[0].screenY), { passive: true });
         fullPlayer.addEventListener('touchmove', e => handleDragMove(e.touches[0].screenY), { passive: true });
         fullPlayer.addEventListener('touchend', e => handleDragEnd(e.changedTouches[0].screenY), { passive: true });
 
-        // សម្រាប់កុំព្យូទ័រ (Mouse Event)
         fullPlayer.addEventListener('mousedown', e => handleDragStart(e, e.clientY));
         document.addEventListener('mousemove', e => handleDragMove(e.clientY));
         document.addEventListener('mouseup', e => handleDragEnd(e.clientY));
     }
-}); // ត្រូវប្រាកដថាមានសញ្ញាបិទជិតនេះ
+});
