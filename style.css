@@ -117,7 +117,6 @@ body.dark-mode .home-icon-btn.active {
 .home-verse-card p { font-size:.75rem; line-height:1.55; font-weight:600; margin:0 0 4px; }.home-verse-card span{font-size:.64rem;color:var(--primary);font-weight:800}
 .home-empty-inline { padding:20px; color:var(--text-muted); font-size:.75rem; border:1px dashed var(--border); border-radius:15px; min-width:100%; text-align:center; }
 body.dark-mode .home-icon-btn, body.dark-mode .home-quick-actions button, body.dark-mode .home-mini-card { box-shadow:0 8px 22px rgba(0,0,0,.2); }
-/* ស្វែងរកបន្ទាត់នេះ រួចកែពី 285px មកត្រឹម 200px */
 @media (max-width:390px){ .home-hero,.home-hero-content{min-height:200px}.home-hero h1{font-size:1.35rem}.home-new-grid{gap:8px}.home-mini-card{flex-basis:225px;min-width:225px}.home-album-card,.home-album-cover{width:112px}.home-album-card{flex-basis:112px}.home-album-cover{height:112px} }
 @media (min-width:768px){ .home-shell{max-width:860px}.home-new-grid{grid-template-columns:repeat(4,1fr)}.home-hero{min-height:350px}.home-hero-content{min-height:350px;padding:32px}.home-hero h1{font-size:1.9rem}.home-quick-actions{max-width:620px}.home-mini-card{flex-basis:280px;min-width:280px} }
 
@@ -127,12 +126,9 @@ body.dark-mode .home-icon-btn, body.dark-mode .home-quick-actions button, body.d
 
 .main-content { padding: 12px; width: 100%; max-width: 1200px; margin: 0 auto; color: var(--text); background-color: var(--bg); }
 
-/* ទុកត្រឹមប៉ុណ្ណេះវិញបានហើយ */
 #mainAppHeader { 
     display: flex; justify-content: space-between; align-items: center; padding: 12px 16px; background: rgba(255, 255, 255, 0.65); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border: 1px solid rgba(255, 255, 255, 0.8); border-radius: 20px; box-shadow: 6px 6px 15px rgba(180, 185, 200, 0.3), -6px -6px 15px rgba(255, 255, 255, 0.9); margin-bottom: 16px; 
 }
-
-
 body.dark-mode #mainAppHeader { background: rgba(30, 41, 59, 0.65); border-color: rgba(51, 65, 85, 0.8); box-shadow: 4px 4px 10px rgba(0,0,0,0.4), -4px -4px 10px rgba(255,255,255,0.05); }
 
 .header-brand { display: flex; align-items: center; gap: 15px; }
@@ -449,6 +445,7 @@ body.dark-mode .share-option-btn.active {
     border-top: 1px solid var(--border);
     padding-top: 16px;
 }
+
 /* =========================================
    មុខងារបន្ថែមថ្មី (New Features)
 ========================================= */
@@ -462,14 +459,6 @@ body.dark-mode .share-option-btn.active {
     .lyric-line { font-size: 14pt !important; color: black !important; }
     .chord-word .chord { color: #555 !important; }
 }
-
-/* ២. Mini Audio Player */
-.mini-player { position: fixed; bottom: calc(65px + env(safe-area-inset-bottom)); left: 10px; right: 10px; background: var(--card-bg); border: 1px solid var(--border); border-radius: 12px; padding: 10px 16px; display: none; align-items: center; justify-content: space-between; box-shadow: 0 -4px 15px rgba(0,0,0,0.1); z-index: 1050; backdrop-filter: blur(10px); }
-body.dark-mode .mini-player { box-shadow: 0 -4px 15px rgba(0,0,0,0.5); }
-.mini-player-info { display: flex; flex-direction: column; max-width: 65%; }
-.mini-player-title { font-size: 0.85rem; font-weight: 700; color: var(--text); overflow: hidden; white-space: nowrap; text-overflow: ellipsis; margin-bottom: 4px;}
-.mini-player-controls button { background: none; border: none; color: var(--primary); font-size: 1.5rem; cursor: pointer; padding: 0 10px; }
-.close-player-btn { color: var(--text-muted) !important; font-size: 1.2rem !important; }
 
 /* ៣. Font Size & Presentation Mode */
 .font-size-controls { display: flex; gap: 8px; align-items: center; margin-left: 10px; border-left: 1px solid var(--border); padding-left: 10px; }
@@ -837,7 +826,7 @@ body.dark-mode .profile-popup {
     margin: 15px 0;
 }
 .headstock-img {
-    max-height: 300px; /* ដំឡើងពី 280px មក 330px ដើម្បីឱ្យរូបហ្គីតាចេញមកធំល្មមស្អាត */
+    max-height: 300px;
     object-fit: contain;
     filter: drop-shadow(0 10px 20px rgba(0,0,0,0.3));
 }
@@ -866,12 +855,9 @@ body.dark-mode .profile-popup {
     box-shadow: 0 2px 8px rgba(37, 99, 235, 0.4);
 }
 
-/* ទីតាំងប៊ូតុងឆ្វេង និងស្តាំ ឲ្យត្រូវនឹងទម្រង់ក្បាលហ្គីតា */
-/* ទីតាំងប៊ូតុងឆ្វេង និងស្តាំ ឲ្យចំជួរគ្នាស្មើនឹងខ្ចៅក្បាលហ្គីតា */
 .string-btn.left-1 { top: 12%; left: 10px; }
 .string-btn.left-2 { top: 38%; left: 10px; }
 .string-btn.left-3 { top: 64%; left: 10px; }
-
 .string-btn.right-1 { top: 12%; right: 10px; }
 .string-btn.right-2 { top: 38%; right: 10px; }
 .string-btn.right-3 { top: 64%; right: 10px; }
@@ -880,4 +866,272 @@ body.dark-mode .profile-popup {
     width: 100%;
     display: flex;
     gap: 12px;
+}
+
+/* =========================================
+   Apple Music Style Player
+========================================= */
+.apple-mini-player {
+    position: fixed;
+    bottom: calc(75px + env(safe-area-inset-bottom));
+    left: 10px;
+    right: 10px;
+    height: 56px;
+    background: rgba(255, 255, 255, 0.85);
+    backdrop-filter: blur(25px);
+    -webkit-backdrop-filter: blur(25px);
+    border-radius: 14px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    display: flex;
+    align-items: center;
+    padding: 0 16px 0 8px;
+    z-index: 1050;
+    cursor: pointer;
+    transform: translateY(150%);
+    opacity: 0;
+    transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.3s ease;
+}
+body.dark-mode .apple-mini-player {
+    background: rgba(30, 41, 59, 0.85);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+}
+.apple-mini-player.active {
+    transform: translateY(0);
+    opacity: 1;
+}
+.mini-cover {
+    width: 40px;
+    height: 40px;
+    border-radius: 8px;
+    object-fit: cover;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+.mini-title {
+    flex: 1;
+    margin-left: 12px;
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: var(--text);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.mini-controls {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+.mini-controls button {
+    background: none;
+    border: none;
+    font-size: 1.2rem;
+    color: var(--text);
+    cursor: pointer;
+    padding: 5px;
+}
+
+/* Full Screen Player */
+/* Full Screen Player */
+.apple-full-player {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: #e2e8f0; 
+    z-index: 9999;
+    display: flex;
+    flex-direction: column;
+    transform: translateY(100%);
+    transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+body.dark-mode .apple-full-player {
+    background: #1e293b; 
+}
+.apple-full-player.active {
+    transform: translateY(0);
+}
+.full-player-drag-handle {
+    width: 40px;
+    height: 5px;
+    background: rgba(0,0,0,0.2);
+    border-radius: 3px;
+    margin: 15px auto 20px auto;
+}
+body.dark-mode .full-player-drag-handle { background: rgba(255,255,255,0.2); }
+.full-player-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    padding: 0 30px 30px 30px;
+    max-width: 500px;
+    margin: 0 auto;
+    width: 100%;
+    justify-content: flex-start;
+}
+.full-cover {
+    width: 100%;
+    max-width: 340px; /* កំណត់ទំហំរូបភាពកុំឲ្យធំពេក */
+    max-height: 45vh; /* ការពារកុំឲ្យរុញប៊ូតុងចុះក្រោមពេកនៅលើទូរស័ព្ទតូច */
+    aspect-ratio: 1 / 1;
+    border-radius: 12px;
+    object-fit: cover;
+    box-shadow: 0 15px 40px rgba(0,0,0,0.2);
+    margin: 0 auto 30px auto;
+    background: rgba(0,0,0,0.05);
+}
+.full-info-section {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 20px; /* បង្រួមចន្លោះល្វែងកណ្តាល */
+}
+.full-title-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+.full-title-col {
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+.full-title {
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: var(--text);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    margin-bottom: 2px;
+}
+.full-artist {
+    font-size: 1rem;
+    color: var(--primary); 
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* Progress Bar Customization */
+.progress-container {
+    width: 100%;
+}
+.progress-bar {
+    -webkit-appearance: none;
+    width: 100%;
+    height: 6px;
+    background: rgba(0,0,0,0.1);
+    border-radius: 3px;
+    outline: none;
+    margin-bottom: 8px;
+}
+body.dark-mode .progress-bar { background: rgba(255,255,255,0.1); }
+.progress-bar::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 0;
+    height: 0;
+}
+.time-display {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.7rem;
+    color: var(--text-muted);
+    font-weight: 600;
+}
+
+.full-main-controls {
+    display: flex;
+    justify-content: center; /* ដាក់ប៊ូតុងនៅចំកណ្តាល */
+    align-items: center;
+    gap: 50px; /* គម្លាតរវាងប៊ូតុង Play និង Next */
+    margin-top: 5px;
+}
+.full-main-controls button {
+    background: none;
+    border: none;
+    color: var(--text);
+    font-size: 2.2rem;
+    cursor: pointer;
+    transition: 0.2s;
+}
+.full-main-controls button:active {
+    transform: scale(0.85);
+}
+.play-btn-large {
+    font-size: 3.5rem !important; /* ពង្រីកប៊ូតុង Play ឲ្យធំ */
+}
+
+.volume-container {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-top: 10px;
+}
+.volume-bar {
+    -webkit-appearance: none;
+    flex: 1;
+    height: 6px;
+    background: rgba(0,0,0,0.1);
+    border-radius: 3px;
+    outline: none;
+}
+body.dark-mode .volume-bar { background: rgba(255,255,255,0.1); }
+.volume-bar::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background: white;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+    cursor: pointer;
+}
+
+.bottom-extra-controls {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 20px;
+    margin-top: auto; /* រុញប៊ូតុងតូចៗ៣នេះទៅជាប់គែមក្រោម */
+}
+.bottom-extra-controls button {
+    background: none;
+    border: none;
+    color: var(--text-muted);
+    font-size: 1.2rem;
+    cursor: pointer;
+}
+/* =========================================
+   ប៊ូតុង Play នៅលើកាតចម្រៀង (Song Card)
+========================================= */
+.card-play-btn {
+    position: absolute;
+    bottom: 10px;
+    right: 10px;
+    background: rgba(255, 255, 255, 0.85);
+    color: var(--primary);
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.1rem;
+    border: none;
+    cursor: pointer;
+    z-index: 10;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.25);
+    transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    backdrop-filter: blur(5px);
+}
+body.dark-mode .card-play-btn { 
+    background: rgba(30, 41, 59, 0.85); 
+    color: #fff; 
+}
+.card-play-btn:active, .card-play-btn:hover {
+    transform: scale(1.1);
+    background: var(--primary);
+    color: white;
 }
