@@ -956,7 +956,8 @@ body.dark-mode .apple-full-player {
     height: 5px;
     background: rgba(0,0,0,0.2);
     border-radius: 3px;
-    margin: 15px auto 20px auto;
+    /* កែ margin ខាងលើ ដោយបូកបញ្ចូល env(safe-area-inset-top) ដើម្បីរុញផ្ទាំងកាតចម្រៀងចុះក្រោមផុតក្បាល Notch iPhone */
+    margin: calc(25px + env(safe-area-inset-top)) auto 20px auto;
 }
 body.dark-mode .full-player-drag-handle { background: rgba(255,255,255,0.2); }
 .full-player-content {
