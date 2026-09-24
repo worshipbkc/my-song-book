@@ -274,14 +274,21 @@
 
 
 <!-- Apple Music Style Player -->
-<div class="apple-mini-player" id="appleMiniPlayer" onclick="openAppleFullScreenPlayer()">
-    <img src="https://via.placeholder.com/150/2563eb/ffffff?text=Worship" id="miniPlayerCover" class="mini-cover" alt="Cover">
-    <div class="mini-title" id="miniPlayerTitle">Not Playing</div>
-    <div class="mini-controls" onclick="event.stopPropagation()">
-    <button id="miniPlayPauseBtn" onclick="toggleApplePlayPause()"><i class="fa-solid fa-play"></i></button>
-    <button id="miniNextBtn" onclick="playNextSong()"><i class="fa-solid fa-forward-step"></i></button>
-    <button onclick="closeAppleMiniPlayer()" style="color: var(--text-muted); font-size: 1.1rem; margin-left: 5px;"><i class="fa-solid fa-xmark"></i></button>
-</div>
+<div class="apple-mini-player" id="appleMiniPlayer">
+    
+    <!-- ដាក់ onclick នៅត្រង់នេះ៖ ពេលចុចលើរូបភាព និងឈ្មោះបទ ទើបចេញ Full Screen -->
+    <div style="display: flex; align-items: center; flex: 1; overflow: hidden; cursor: pointer; height: 100%;" onclick="openAppleFullScreenPlayer()">
+        <img src="https://via.placeholder.com/150/2563eb/ffffff?text=Worship" id="miniPlayerCover" class="mini-cover" alt="Cover">
+        <div class="mini-title" id="miniPlayerTitle">Not Playing</div>
+    </div>
+    
+    <!-- ចំណែកប៊ូតុងទាំង៣នេះ ពេលចុចគឺវាមិនលោតចេញ Full Screen ទេ (ព្រោះយើងមាន event.stopPropagation() ក្នុង JS) -->
+    <div class="mini-controls">
+        <button id="miniPlayPauseBtn" onclick="toggleApplePlayPause(event)"><i class="fa-solid fa-play"></i></button>
+        <button id="miniNextBtn" onclick="playNextSong(event)"><i class="fa-solid fa-forward-step"></i></button>
+        <button onclick="closeAppleMiniPlayer(event)" style="color: var(--text-muted); font-size: 1.1rem; margin-left: 5px;"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    
 </div>
 
 <div class="apple-full-player" id="appleFullPlayer">
@@ -406,7 +413,6 @@
         </div>
     </div>
     
-    <button class="media-play-btn" id="fsMediaPlayBtn" title="ចាក់សំឡេង/វីដេអូ"><i class="fa-brands fa-youtube"></i></button>
     <button class="fullscreen-nav-btn fullscreen-prev" onclick="slideFullScreen(-1, event)">❮</button>
     
     <div class="fullscreen-img-container" id="fullScreenImgContainer">
