@@ -261,7 +261,7 @@ body.dark-mode .toggle-switch { background: #475569; }
 
 .bottom-nav { 
     position: fixed; 
-    bottom: 1px; /* ទម្លាក់ឲ្យទាបមកត្រឹម 12px ពីគែមអេក្រង់ */
+    bottom: 5px; /* ទម្លាក់ឲ្យទាបមកត្រឹម 12px ពីគែមអេក្រង់ */
     left: 10px; 
     right: 10px; 
     height: 65px; 
