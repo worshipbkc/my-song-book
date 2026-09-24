@@ -259,7 +259,18 @@ body.dark-mode .toggle-switch { background: #475569; }
 .status-online { background-color: #10b981; box-shadow: 0 0 8px #10b981; }
 .status-offline { background-color: #ef4444; box-shadow: 0 0 8px #ef4444; }
 
-.bottom-nav { position: fixed; bottom: max(8px, env(safe-area-inset-bottom)); left: 10px; right: 10px; height: 68px; background: var(--card-bg); border: 1px solid rgba(255,255,255,.7); display: flex; align-items: center; justify-content: space-around; z-index: 1000; box-shadow: 0 12px 35px rgba(15,23,42,.16); border-radius: 24px; backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); }
+.bottom-nav { 
+    position: fixed; 
+    bottom: env(safe-area-inset-bottom); 
+    left: 10px; right: 10px; height: 68px; 
+    background: var(--card-bg); 
+    border: 1px solid rgba(255,255,255,.7); 
+    display: flex; 
+    align-items: center; 
+    justify-content: space-around; 
+    z-index: 1000; box-shadow: 0 12px 35px rgba(15,23,42,.16); 
+    border-radius: 24px; 
+    backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); }
 .bottom-nav-item { display: flex; flex-direction: column; align-items: center; justify-content: center; flex: 1; height: 100%; color: var(--text-muted); text-decoration: none; font-size: 0.65rem; font-weight: 600; cursor: pointer; border: none; background: transparent; gap: 2px; position: relative; }
 .bottom-nav-item i { font-size: 1.05rem; }
 .bottom-nav-item.active { color: var(--primary); }
@@ -939,42 +950,23 @@ body.dark-mode .apple-mini-player {
 /* Full Screen Player */
 .apple-full-player {
     position: fixed;
-    top: max(35px, env(safe-area-inset-top)); 
+    top: 0;
     left: 0;
-    right: 0;
-    bottom: 0;
     width: 100vw;
-    height: auto;
+    height: 100vh;
     background: #e2e8f0; 
     z-index: 9999;
     display: flex;
     flex-direction: column;
     transform: translateY(100%);
-    
-    /* ថែម ២ បន្ទាត់នេះ ដើម្បីកុំឲ្យវាបាំងពីលើរូបភាព Song Card */
-    pointer-events: none;
-    visibility: hidden;
-    
-    transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1), visibility 0.4s;
-    border-top-left-radius: 24px;
-    border-top-right-radius: 24px;
-    box-shadow: 0 -10px 30px rgba(0,0,0,0.15);
+    transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 }
-
 body.dark-mode .apple-full-player {
     background: #1e293b; 
-    box-shadow: 0 -10px 30px rgba(0,0,0,0.5);
 }
-
 .apple-full-player.active {
     transform: translateY(0);
-    
-    /* ថែម ២ បន្ទាត់នេះ ឲ្យវាដំណើរការធម្មតាវិញពេលបើក */
-    pointer-events: auto;
-    visibility: visible;
 }
-
-
 .full-player-drag-handle {
     width: 40px;
     height: 5px;
