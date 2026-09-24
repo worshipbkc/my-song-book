@@ -868,9 +868,6 @@ body.dark-mode .profile-popup {
     gap: 12px;
 }
 
-/* =========================================
-   Apple Music Style Player
-========================================= */
 .apple-mini-player {
     position: fixed;
     bottom: calc(75px + env(safe-area-inset-bottom));
@@ -889,15 +886,23 @@ body.dark-mode .profile-popup {
     cursor: pointer;
     transform: translateY(150%);
     opacity: 0;
-    transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.3s ease;
+    /* បន្ថែមកូដ ២ បន្ទាត់នេះ ដើម្បីបិទការចុចពេលវាលាក់ខ្លួន */
+    pointer-events: none;
+    visibility: hidden;
+    transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.3s ease, visibility 0.3s;
 }
+
 body.dark-mode .apple-mini-player {
     background: rgba(30, 41, 59, 0.85);
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
 }
+
 .apple-mini-player.active {
     transform: translateY(0);
     opacity: 1;
+    /* បន្ថែមកូដ ២ បន្ទាត់នេះ ដើម្បីឱ្យអាចចុចបានវិញ ពេលវាលេចចេញមក */
+    pointer-events: auto;
+    visibility: visible;
 }
 .mini-cover {
     width: 40px;
