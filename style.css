@@ -261,7 +261,7 @@ body.dark-mode .toggle-switch { background: #475569; }
 
 .bottom-nav { 
     position: fixed; 
-    bottom: 12px; /* ទម្លាក់ឲ្យទាបមកត្រឹម 12px ពីគែមអេក្រង់ */
+    bottom: 1px; /* ទម្លាក់ឲ្យទាបមកត្រឹម 12px ពីគែមអេក្រង់ */
     left: 10px; 
     right: 10px; 
     height: 65px; 
@@ -272,7 +272,7 @@ body.dark-mode .toggle-switch { background: #475569; }
     justify-content: space-around; 
     z-index: 1000; 
     box-shadow: 0 12px 35px rgba(15,23,42,.16); 
-    border-radius: 24px; /* កោងទាំង ៤ ជ្រុង */
+    border-radius: 20px; /* កោងទាំង ៤ ជ្រុង */
     backdrop-filter: blur(16px); 
     -webkit-backdrop-filter: blur(16px); 
 }
