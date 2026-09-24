@@ -233,30 +233,23 @@ function toggleFilterUI(isFiltered) {
 }
 
 function goBackToMain() {
-    // ចងចាំប្រភេទ និងឈ្មោះ Filter មុនពេលយើង Reset វា
     const prevFilterType = currentFilterType;
     const prevFilterValue = currentFilterValue; 
     
-    // Reset ត្រលប់ទៅសភាពដើម (ចម្រៀងទាំងអស់)
     resetFilters();
     
-    // កំណត់ទិសដៅត្រលប់ក្រោយ (Back Navigation)
     if (prevFilterType === 'ALBUM') {
-        switchTab('albums'); // ត្រលប់ទៅផ្ទាំង Album វិញ
-        
+        switchTab('albums'); 
     } else if (prevFilterType === 'PLAYLIST') {
         if (prevFilterValue === 'Favorite') {
-            switchTab('home'); // បើចេញពី Favorite ឲ្យត្រលប់មក Home វិញ
+            switchTab('home'); 
         } else {
-            switchTab('playlists'); // បើចេញពី Playlist ផ្ទាល់ខ្លួន ឲ្យត្រលប់ទៅផ្ទាំង Playlist វិញ
+            switchTab('playlists'); 
         }
-        
     } else if (prevFilterType === 'SETLIST' || prevFilterType === 'RECENT' || prevFilterType === 'HISTORY') {
-        // ដោយសារមុខងារទាំង ៣ នេះស្ថិតនៅលើផ្ទាំង Home ដូច្នេះពេលថយក្រោយត្រូវមក Home វិញ
         switchTab('home'); 
-        
     } else {
-        switchTab('songs'); // លំនាំដើមត្រលប់ទៅផ្ទាំងបញ្ជីចម្រៀងធម្មតា
+        switchTab('songs'); 
     }
 }
 
@@ -336,21 +329,20 @@ window.onload = async function() {
     setupDropZoneHandlers();
 
     document.addEventListener('click', function(e) {
-    const searchBox = document.querySelector('.search-box');
-    if (searchBox && !searchBox.contains(e.target)) hideSearchDropdown();
+        const searchBox = document.querySelector('.search-box');
+        if (searchBox && !searchBox.contains(e.target)) hideSearchDropdown();
 
-    if (!e.target.closest('.card-dropdown') && !e.target.closest('.btn-more-options')) {
-        document.querySelectorAll('.card-dropdown').forEach(el => el.classList.remove('show'));
-    }
-    
-    // បន្ថែមកូដនេះ ដើម្បីបិទ Profile Popup ពេលចុចចេញក្រៅ
-    const profilePopup = document.getElementById('profilePopup');
-    const profileBtn = document.getElementById('homeProfileBtn');
-    if (profilePopup && profileBtn && !profilePopup.contains(e.target) && !profileBtn.contains(e.target)) {
-        profilePopup.classList.remove('show');
-        profileBtn.classList.remove('active');
-    }
-});
+        if (!e.target.closest('.card-dropdown') && !e.target.closest('.btn-more-options')) {
+            document.querySelectorAll('.card-dropdown').forEach(el => el.classList.remove('show'));
+        }
+        
+        const profilePopup = document.getElementById('profilePopup');
+        const profileBtn = document.getElementById('homeProfileBtn');
+        if (profilePopup && profileBtn && !profilePopup.contains(e.target) && !profileBtn.contains(e.target)) {
+            profilePopup.classList.remove('show');
+            profileBtn.classList.remove('active');
+        }
+    });
     
     document.querySelectorAll('.modal').forEach(modal => {
         modal.addEventListener('click', (e) => {
@@ -459,7 +451,6 @@ function switchTab(tabName) {
     const mainHeader = document.getElementById('mainAppHeader');
     const isFiltered = (currentFilterType === 'ALBUM' || currentFilterType === 'PLAYLIST' || currentFilterType === 'SETLIST');
 
-    // បិទ Mic ដោយស្វ័យប្រវត្តិ ប្រសិនបើអ្នកប្រើប្រាស់ចាកចេញពីផ្ទាំង Tuner ទៅកាន់ផ្ទាំងផ្សេង
     if (tabName !== 'tuner' && typeof isTunerActive !== 'undefined' && isTunerActive) {
         toggleTunerAction(); 
     }
@@ -494,10 +485,8 @@ function switchTab(tabName) {
         closeNotificationsSubView();
         renderSettingsView();
     } else if (tabName === 'tuner') {
-        // បន្ថែមលក្ខខណ្ឌសម្រាប់បើកផ្ទាំង Tuner
         if (mainHeader) mainHeader.style.display = 'none';
         document.getElementById('viewTuner').classList.add('active');
-        // យើងមិន Select ប៊ូតុងខាងក្រោមទេ ព្រោះ Tuner បើកតាមរយៈប៊ូតុង Home Quick Action
     }
 }
 
@@ -732,7 +721,6 @@ function updateUIRoles() {
     const body = document.getElementById('bodyContainer');
     if (isEditor) {
         body.classList.add('editor-authorized'); 
-        // ឱ្យ Admin រៀបចំ Setlist ទើបមិន Error
         checkAndResetMonthlySetlists();
     } else {
         body.classList.remove('editor-authorized');
@@ -811,7 +799,6 @@ function checkAndResetMonthlySetlists() {
     const currentMonthStr = `${now.getFullYear()}-${now.getMonth()}`;
     const lastMonthStr = localStorage.getItem('admin_last_setlist_month');
     
-    // បើនៅខែដដែល ហើយមានទិន្នន័យខ្លះហើយ មិនបាច់ Update ទៀតទេ
     if (lastMonthStr === currentMonthStr && Object.keys(globalSetlists).length > 0) return;
 
     let hasChanges = false;
@@ -853,7 +840,6 @@ function renderHomeView() {
         return;
     }
 
-    // ១. រៀបចំបញ្ជី "ប្រវត្តិមើល" (Continue Reading)
     const history = getRecentHistorySongs(4);
     if (continueList) {
         const source = history.length ? history : songsList.slice(0, 4);
@@ -865,12 +851,10 @@ function renderHomeView() {
             </button>`).join('');
     }
 
-    // ២. រៀបចំបញ្ជី "Setlist ខែនេះ"
     if (setlistList) {
         const khmerMonths = ["មករា", "កុម្ភៈ", "មីនា", "មេសា", "ឧសភា", "មិថុនា", "កក្កដា", "សីហា", "កញ្ញា", "តុលា", "វិច្ឆិកា", "ធ្នូ"];
         const currentMonthName = khmerMonths[new Date().getMonth()];
         
-        // កំណត់ឈ្មោះខែឲ្យបានត្រឹមត្រូវ
         const sectionHead = setlistList.parentElement.querySelector('.home-section-head h2');
         if (sectionHead) sectionHead.innerText = `Setlist ខែ${currentMonthName}`;
 
@@ -1144,7 +1128,6 @@ function renderPlaylistsView() {
 
     const keys = Object.keys(playlists);
     
-    // ចម្រាញ់យកតែ Playlist ផ្ទាល់ខ្លួន ដោយមិនយក Favorite មកបង្ហាញទេ
     const customKeys = keys.filter(k => k !== 'Favorite');
     
     if (customKeys.length === 0) { 
@@ -1645,7 +1628,6 @@ function generateLyricsImage(song, mode, playlistName) {
             const metaColor = isDark ? '#94a3b8' : '#64748b';
             const chordColor = isDark ? '#f87171' : '#ef4444';
             
-            // បង្រួមមកទំហំស្តង់ដារ HD ដែលស័ក្តិសមបំផុតសម្រាប់ទូរស័ព្ទ និងកុំឲ្យធំពេក
             let width = isTwoCol ? 1600 : 1080; 
             
             const lines = (song.lyrics || '').split('\n');
@@ -1693,7 +1675,6 @@ function generateLyricsImage(song, mode, playlistName) {
             ctx.stroke();
             
             let col1X = 50;
-            // សារ៉េគម្លាតជួរទី ២ ឲ្យខិតចូលកណ្តាលល្មមស្អាត
             let col2X = isTwoCol ? 850 : 650; 
             let startY = 210;
             let currentY = startY;
@@ -2135,7 +2116,7 @@ function updateFullScreenContent() {
     document.getElementById('pageCounter').innerText = `${currentFullscreenIndex + 1} / ${currentFilteredSongs.length}`;
     
     const mediaBtn = document.getElementById('fsMediaPlayBtn');
-    if(song.mediaUrl) { mediaBtn.style.display = 'flex'; mediaBtn.onclick = () => playAudio(song.mediaUrl, song.title); }
+    if(song.mediaUrl) { mediaBtn.style.display = 'flex'; mediaBtn.onclick = () => playFloatingAudio(song.id, null); }
     else { mediaBtn.style.display = 'none'; }
 
     const imgEl = document.getElementById('fullScreenImg');
@@ -2204,6 +2185,8 @@ function renderSongsListOnly() {
         const inFav = (playlists['Favorite'] || []).includes(song.id);
         const keyHtml = song.songKey ? `<span class="song-key-badge">${escapeHtml(song.songKey)}</span>` : '';
         
+        const playBtnHtml = song.mediaUrl ? `<button class="card-play-btn" onclick="playFloatingAudio('${song.id}', event)"><i class="fa-solid fa-play" style="margin-left:3px;"></i></button>` : '';
+        
         let cardThumbnail = `<div class="song-text-preview" onclick="openFullScreenModal('${song.id}')">
                                 ${getCardThumbnailHTML(song, false)}
                              </div>`;
@@ -2218,8 +2201,11 @@ function renderSongsListOnly() {
                     <button class="fav-img-btn ${inFav ? 'active' : ''}" onclick="toggleFavorite('${song.id}', event)">
                         <i class="${inFav ? 'fa-solid' : 'fa-regular'} fa-heart"></i>
                     </button>
+                    ${playBtnHtml}
                     ${cardThumbnail}
                 </div>
+                
+                <!-- ផ្នែកខាងក្រោមនេះ គឺទម្រង់ដើមដែលត្រូវរក្សាទុក -->
                 <div class="song-info">
                     <div class="song-title-row">
                         <span class="song-title selectable-text" title="${escapeHtml(song.title)}">${escapeHtml(song.title)}</span>
@@ -2390,45 +2376,6 @@ function togglePresentationMode() {
         modal.classList.remove('presentation-mode');
         showToast('បានបិទ Presentation Mode', 'info');
     }
-}
-
-function playAudio(mediaUrl, title) {
-    if(!mediaUrl) return;
-    if (mediaUrl.includes('youtube.com') || mediaUrl.includes('youtu.be')) {
-        window.open(mediaUrl, '_blank');
-        return;
-    }
-    const player = document.getElementById('miniPlayer');
-    const audio = document.getElementById('audioElement');
-    const titleEl = document.getElementById('miniPlayerTitle');
-    const playBtn = document.getElementById('playPauseBtn');
-    
-    player.style.display = 'flex';
-    titleEl.innerText = title;
-    audio.src = mediaUrl;
-    audio.play().then(() => {
-        playBtn.innerHTML = '<i class="fa-solid fa-pause"></i>';
-    }).catch(err => {
-        showToast('មិនអាចចាក់ឯកសារសំឡេងនេះបានទេ (សូមប្រើ Mp3 URL)', 'warning');
-    });
-}
-
-function togglePlayPause() {
-    const audio = document.getElementById('audioElement');
-    const playBtn = document.getElementById('playPauseBtn');
-    if (audio.paused) {
-        audio.play();
-        playBtn.innerHTML = '<i class="fa-solid fa-pause"></i>';
-    } else {
-        audio.pause();
-        playBtn.innerHTML = '<i class="fa-solid fa-play"></i>';
-    }
-}
-
-function closeMiniPlayer() {
-    const audio = document.getElementById('audioElement');
-    audio.pause();
-    document.getElementById('miniPlayer').style.display = 'none';
 }
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -2894,25 +2841,23 @@ function drawCustomChordDiagram(chordName, canvasId) {
     }
 }
 
-// បើក/បិទ ផ្ទាំង Profile Popup និងប្តូរពណ៌ប៊ូតុង
 function toggleProfilePopup(event) {
     if(event) event.stopPropagation();
     const popup = document.getElementById('profilePopup');
-    const profileBtn = document.getElementById('homeProfileBtn'); // យក Element របស់ប៊ូតុង
+    const profileBtn = document.getElementById('homeProfileBtn');
     
     if(popup) {
         popup.classList.toggle('show');
         
         if(popup.classList.contains('show')) {
-            if(profileBtn) profileBtn.classList.add('active'); // ដាក់ពណ៌ឲ្យប៊ូតុង ពេលបើក
+            if(profileBtn) profileBtn.classList.add('active'); 
             renderProfilePopup();
         } else {
-            if(profileBtn) profileBtn.classList.remove('active'); // ដកពណ៌ចេញវិញ ពេលបិទ
+            if(profileBtn) profileBtn.classList.remove('active'); 
         }
     }
 }
 
-// ទាញយកទិន្នន័យមកបង្ហាញក្នុង Profile Popup
 function renderProfilePopup() {
     const content = document.getElementById('profilePopupContent');
     if (!content) return;
@@ -2933,7 +2878,6 @@ function renderProfilePopup() {
             <button class="profile-popup-btn danger" onclick="handleLogout(); toggleProfilePopup();"><i class="fa-solid fa-right-from-bracket"></i> ចាកចេញ (Logout)</button>
         `;
     } else {
-        // បង្ហាញនៅពេលអ្នកប្រើប្រាស់មិនទាន់ Login
         content.innerHTML = `
             <div style="text-align: center; padding: 10px 0 15px 0;">
                 <i class="fa-regular fa-circle-user" style="font-size: 3.5rem; color: var(--text-muted); margin-bottom: 10px;"></i>
@@ -2944,15 +2888,13 @@ function renderProfilePopup() {
     }
 }
 
-// អនុញ្ញាតឱ្យបើកផ្ទាំង Modal និងកំណត់ Tab លំនាំដើម
 function openNotificationModal() {
     openModal('notificationModal');
-    switchNotifTab('news'); // បើក Tab "ព័ត៌មានថ្មីៗ" មុនគេ
-    loadAdminMessages();    // ទាញយកសារ
-    renderNewSongsTab();    // រៀបចំបទចម្រៀង២០បទ
+    switchNotifTab('news'); 
+    loadAdminMessages();    
+    renderNewSongsTab();    
 }
 
-// មុខងារប្តូរ Tab ពណ៌ស និងថ្លា
 function switchNotifTab(tab) {
     const btnNews = document.getElementById('btnTabNews');
     const btnSongs = document.getElementById('btnTabSongs');
@@ -2976,12 +2918,10 @@ function switchNotifTab(tab) {
     }
 }
 
-// មុខងារសម្រាប់ Admin ផ្ញើសារ
 function sendAdminMessage() {
     const msg = document.getElementById('adminMsgInput').value.trim();
     if(!msg) return;
     
-    // បង្កើត Collection ថ្មីឈ្មោះ messages ក្នុង Firebase
     db.collection('messages').add({
         text: msg,
         createdAt: firebase.firestore.FieldValue.serverTimestamp(),
@@ -2994,12 +2934,10 @@ function sendAdminMessage() {
     });
 }
 
-// មុខងារទាញយកសារមកបង្ហាញជាទម្រង់កាត (Card)
 function loadAdminMessages() {
     db.collection('messages').orderBy('createdAt', 'desc').limit(30).onSnapshot(snapshot => {
         const container = document.getElementById('newsListContainer');
         if (snapshot.empty) {
-            // បង្ហាញនៅចំកណ្តាលអេក្រង់
             container.innerHTML = `
                 <div style="display: flex; flex-direction: column; justify-content: center; align-items: center; height: 60vh; color: #94a3b8;">
                     <i class="fa-regular fa-folder-open" style="font-size: 3.5rem; margin-bottom: 15px; color: #cbd5e1;"></i>
@@ -3017,7 +2955,6 @@ function loadAdminMessages() {
                 dateStr = d.toLocaleDateString('km-KH') + ' | ' + d.toLocaleTimeString('km-KH', {hour: '2-digit', minute:'2-digit'});
             }
             
-            // រចនាប័ណ្ណសារ ស្រដៀងនឹងរូបភាពធនាគាររបស់អ្នក
             html += `
                 <div style="background: white; padding: 15px; border-radius: 12px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); text-align: left;">
                     <div style="display: flex; gap: 12px; align-items: flex-start;">
@@ -3040,11 +2977,9 @@ function loadAdminMessages() {
     });
 }
 
-// មុខងារបង្ហាញចម្រៀងទើបបញ្ចូលថ្មី ២០បទចុងក្រោយ
 function renderNewSongsTab() {
     const container = document.getElementById('newSongsListContainer');
     if(!songsList || songsList.length === 0) {
-        // បង្ហាញនៅចំកណ្តាលអេក្រង់
         container.innerHTML = `
             <div style="display: flex; flex-direction: column; justify-content: center; align-items: center; height: 60vh; color: #94a3b8;">
                 <i class="fa-solid fa-music" style="font-size: 3.5rem; margin-bottom: 15px; color: #cbd5e1;"></i>
@@ -3053,7 +2988,6 @@ function renderNewSongsTab() {
         return;
     }
 
-    // ដោយសារ songsList ត្រូវបាន sort តាមថ្ងៃបញ្ចូលរួចហើយ យើងគ្រាន់តែយក ២០បទដំបូងប៉ុណ្ណោះ
     const top20 = songsList.slice(0, 20);
     
     let html = '';
@@ -3076,12 +3010,6 @@ function renderNewSongsTab() {
     container.innerHTML = html;
 }
 
-// =========================================
-/// =========================================
-// កូដសម្រាប់ផ្ទាំងការជូនដំណឹង (រចនាបថអេស៊ីលីដា / Full Screen)
-// =========================================
-
-// បើកផ្ទាំងពេញអេក្រង់ និងទាញទិន្នន័យ
 function openAcledaNotifScreen() {
     document.getElementById('acledaNotifScreen').style.display = 'block';
     document.body.classList.add('no-scroll');
@@ -3089,19 +3017,16 @@ function openAcledaNotifScreen() {
     const dot = document.getElementById('navNotifDot');
     if(dot) dot.style.display = 'none';
 
-    // កំណត់បើក Tab ព័ត៌មានថ្មីៗមុនគេជានិច្ច
     switchAcledaTab('news');
     loadAcledaAdminMessages();
     renderAcledaNewSongs();
 }
 
-// បិទផ្ទាំង
 function closeAcledaNotifScreen() {
     document.getElementById('acledaNotifScreen').style.display = 'none';
     document.body.classList.remove('no-scroll');
 }
 
-// មុខងារចុចប្តូរ Tab បង្ហាញពណ៌ស/ខៀវ
 function switchAcledaTab(tabName) {
     const btnNews = document.getElementById('tabBtnNews');
     const btnSongs = document.getElementById('tabBtnSongs');
@@ -3125,7 +3050,6 @@ function switchAcledaTab(tabName) {
     }
 }
 
-// មុខងារ Admin ផ្ញើសារ
 function sendAdminMessage() {
     const msg = document.getElementById('adminMsgInput').value.trim();
     if(!msg) return;
@@ -3141,10 +3065,6 @@ function sendAdminMessage() {
         showToast('មិនអាចផ្ញើសារបានទេ៖ ' + err.message, 'error');
     });
 }
-
-// =========================================
-// កូដសម្រាប់ផ្ទាំងការជូនដំណឹង (Modern Music UI)
-// =========================================
 
 function openModernNotifScreen() {
     document.getElementById('modernNotifScreen').style.display = 'block';
@@ -3170,13 +3090,11 @@ function switchModernTab(tabName) {
     const contentSongs = document.getElementById('modContentSongs');
 
     if (tabName === 'news') {
-        // Active News
         btnNews.style.background = 'var(--primary)';
         btnNews.style.color = 'white';
         btnNews.style.border = 'none';
         btnNews.style.boxShadow = '0 4px 10px rgba(37,99,235,0.2)';
         
-        // Inactive Songs
         btnSongs.style.background = 'var(--card-bg)';
         btnSongs.style.color = 'var(--text-muted)';
         btnSongs.style.border = '1px solid var(--border)';
@@ -3185,13 +3103,11 @@ function switchModernTab(tabName) {
         contentNews.style.display = 'flex';
         contentSongs.style.display = 'none';
     } else {
-        // Active Songs
         btnSongs.style.background = 'var(--primary)';
         btnSongs.style.color = 'white';
         btnSongs.style.border = 'none';
         btnSongs.style.boxShadow = '0 4px 10px rgba(37,99,235,0.2)';
         
-        // Inactive News
         btnNews.style.background = 'var(--card-bg)';
         btnNews.style.color = 'var(--text-muted)';
         btnNews.style.border = '1px solid var(--border)';
@@ -3324,10 +3240,6 @@ function renderModernNewSongs() {
     container.innerHTML = html;
 }
 
-// =========================================
-// មុខងារបង្ហាញខគម្ពីរលើកទឹកចិត្តចៃដន្យ (Random Daily Verse)
-// =========================================
-
 const worshipVerses = [
     { text: "«គួរឱ្យជីវិតទាំងឡាយដែលមានដង្ហើម បានសរសើរដល់ព្រះយ៉េហូវ៉ាចុះ។»", ref: "ទំនុកតម្កើង ១៥០:៦" },
     { text: "«មកចុះ យើងនឹងច្រៀងថ្វាយព្រះយេហូវ៉ា ចូរយើងឡើងសំឡេងដោយអំណរដល់ថ្មដានៃសេចក្ដីសង្គ្រោះរបស់យើង»", ref: "ទំនុកតម្កើង ៩៥:១" },
@@ -3344,34 +3256,23 @@ function displayRandomVerse() {
     const verseRefEl = document.getElementById('dailyVerseRef');
     
     if (verseTextEl && verseRefEl) {
-        // ចាប់យកខគម្ពីរចៃដន្យ (Random) រាល់ពេលបើកកម្មវិធី
         const randomIndex = Math.floor(Math.random() * worshipVerses.length);
         const verse = worshipVerses[randomIndex];
-        
-        // ដាក់បញ្ចូលទៅក្នុង HTML
         verseTextEl.innerText = verse.text;
         verseRefEl.innerText = verse.ref;
     }
 }
 
-// ហៅមុខងារនេះឲ្យដំណើរការនៅពេលកម្មវិធីចាប់ផ្តើម
 document.addEventListener('DOMContentLoaded', () => {
     displayRandomVerse();
 });
 
-// =========================================
-// មុខងារ លាក់/បង្ហាញ ខ័រ (Hide/Show Chords)
-// =========================================
-
-// ទាញយកការកំណត់ចាស់ពី LocalStorage (បើសិនជាធ្លាប់បិទពីមុនមក)
 let isChordsHidden = localStorage.getItem('setting_hide_chords') === 'true';
 
 function toggleChordsVisibility() {
     isChordsHidden = !isChordsHidden;
     localStorage.setItem('setting_hide_chords', isChordsHidden ? 'true' : 'false');
     applyChordsVisibility();
-    
-    // បង្កើតរំញ័រពេលចុចប៊ូតុង
     vibratePhone(30); 
 }
 
@@ -3384,13 +3285,11 @@ function applyChordsVisibility() {
     if (!lyricsContainer || !toggleBtn) return;
 
     if (isChordsHidden) {
-        // លាក់ខ័រ
         lyricsContainer.classList.add('lyrics-chords-hidden');
         toggleBtn.style.color = 'var(--danger)';
         toggleIcon.className = 'fa-solid fa-eye';
         toggleText.innerText = 'បើកខ័រ';
     } else {
-        // បង្ហាញខ័រ
         lyricsContainer.classList.remove('lyrics-chords-hidden');
         toggleBtn.style.color = 'var(--text)';
         toggleIcon.className = 'fa-solid fa-eye-slash';
@@ -3398,34 +3297,29 @@ function applyChordsVisibility() {
     }
 }
 
-// ហៅមុខងារនេះឲ្យដំណើរការពេលបើកកម្មវិធីភ្លាម ដើម្បីឆែកមើលថាគេធ្លាប់កំណត់បិទឬអត់
 document.addEventListener('DOMContentLoaded', () => {
     applyChordsVisibility();
 });
 
-// មុខងារលាន់សំឡេងខ្សែហ្គីតា (Tone Generator) ពេលចុចលើប៊ូតុងអក្សរ
 function playStringTone(noteName, frequency, btnElement) {
     if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
     if (audioCtx.state === 'suspended') audioCtx.resume();
 
-    // បង្កើតសំឡេង Oscillator
     const osc = audioCtx.createOscillator();
     const gainNode = audioCtx.createGain();
 
-    osc.type = 'triangle'; // សំឡេងស្រទន់ស្រដៀងហ្គីតា
+    osc.type = 'triangle'; 
     osc.frequency.value = frequency;
 
     osc.connect(gainNode);
     gainNode.connect(audioCtx.destination);
 
-    // បន្ថយសំឡេងបន្តិចម្តងៗ (Fade out) ក្នុងរយៈពេល 1.5 វិនាទី
     gainNode.gain.setValueAtTime(0.5, audioCtx.currentTime);
     gainNode.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 1.5);
 
     osc.start();
     osc.stop(audioCtx.currentTime + 1.5);
 
-    // ដាក់ Animation ប៊ូតុងឱ្យដុះពណ៌ខៀវបន្តិច
     document.querySelectorAll('.string-btn').forEach(b => b.classList.remove('active'));
     if (btnElement) btnElement.classList.add('active');
     setTimeout(() => {
@@ -3434,3 +3328,199 @@ function playStringTone(noteName, frequency, btnElement) {
 
     showToast(`កំពុងចាក់សំឡេងខ្សែ: ${noteName}`, 'info');
 }
+
+// =========================================
+// Apple Music Style Player Logic
+// =========================================
+let currentPlayQueue = [];
+let currentQueueIndex = -1;
+
+function playFloatingAudio(songId, event) {
+    if (event) event.stopPropagation();
+    
+    currentPlayQueue = currentFilteredSongs.length > 0 ? currentFilteredSongs : songsList;
+    currentQueueIndex = currentPlayQueue.findIndex(s => s.id === songId);
+    
+    if (currentQueueIndex === -1) return;
+    const song = currentPlayQueue[currentQueueIndex];
+    if (!song.mediaUrl) return;
+
+    if (song.mediaUrl.includes('youtube.com') || song.mediaUrl.includes('youtu.be')) {
+        window.open(song.mediaUrl, '_blank');
+        return;
+    }
+
+    const audio = document.getElementById('audioElement');
+    
+    const miniTitle = document.getElementById('miniPlayerTitle');
+    if (miniTitle) miniTitle.innerText = song.title || 'Unknown';
+    const miniCover = document.getElementById('miniPlayerCover');
+    if (miniCover) miniCover.src = (song.imageUrl && song.imageUrl.length > 10) ? song.imageUrl : 'https://via.placeholder.com/150/2563eb/ffffff?text=Worship';
+    
+    const fullTitle = document.getElementById('fullPlayerTitle');
+    if (fullTitle) fullTitle.innerText = song.title || 'Unknown';
+    const fullArtist = document.getElementById('fullPlayerArtist');
+    if (fullArtist) fullArtist.innerText = song.artist || 'Unknown Artist';
+    const fullCover = document.getElementById('fullPlayerCover');
+    if (fullCover) fullCover.src = (song.imageUrl && song.imageUrl.length > 10) ? song.imageUrl : 'https://via.placeholder.com/600/2563eb/ffffff?text=Worship';
+
+    const miniPlayer = document.getElementById('appleMiniPlayer');
+    if (miniPlayer) miniPlayer.classList.add('active');
+    
+    audio.src = song.mediaUrl;
+    audio.play().then(() => {
+        updatePlayButtons('<i class="fa-solid fa-pause"></i>');
+    }).catch(err => {
+        showToast('មិនអាចចាក់ឯកសារសំឡេងនេះបានទេ', 'warning');
+    });
+}
+
+function toggleApplePlayPause() {
+    if (window.event) window.event.stopPropagation();
+    const audio = document.getElementById('audioElement');
+    if (!audio || !audio.src) return;
+    
+    if (audio.paused) {
+        audio.play();
+        updatePlayButtons('<i class="fa-solid fa-pause"></i>');
+    } else {
+        audio.pause();
+        updatePlayButtons('<i class="fa-solid fa-play"></i>');
+    }
+}
+
+function updatePlayButtons(htmlContent) {
+    const miniBtn = document.getElementById('miniPlayPauseBtn');
+    const fullBtn = document.getElementById('fullPlayPauseBtn');
+    if (miniBtn) miniBtn.innerHTML = htmlContent;
+    if (fullBtn) fullBtn.innerHTML = htmlContent;
+}
+
+function playNextSong() {
+    if (window.event) window.event.stopPropagation();
+    if (currentQueueIndex >= 0 && currentQueueIndex < currentPlayQueue.length - 1) {
+        playFloatingAudio(currentPlayQueue[currentQueueIndex + 1].id, null);
+    }
+}
+
+function playPrevSong() {
+    if (window.event) window.event.stopPropagation();
+    if (currentQueueIndex > 0) {
+        playFloatingAudio(currentPlayQueue[currentQueueIndex - 1].id, null);
+    }
+}
+
+function openAppleFullScreenPlayer() {
+    const player = document.getElementById('appleFullPlayer');
+    if (player) player.classList.add('active');
+}
+
+function closeAppleFullScreenPlayer() {
+    const player = document.getElementById('appleFullPlayer');
+    if (player) {
+        player.classList.remove('active');
+        // បន្ថែមកូដមួយបន្ទាត់នេះ ដើម្បីលុបទីតាំងដែលវាជាប់គាំងពេលទាញចុះក្រោម
+        player.style.transform = ''; 
+    }
+}
+
+function formatTime(seconds) {
+    if (isNaN(seconds)) return "--:--";
+    const mins = Math.floor(seconds / 60);
+    const secs = Math.floor(seconds % 60);
+    return `${mins}:${secs < 10 ? '0' : ''}${secs}`;
+}
+
+// អាប់ដេត Progress Bar និង Time សម្រាប់ Apple Music Style Player
+document.addEventListener('DOMContentLoaded', () => {
+    const audio = document.getElementById('audioElement');
+    const progressBar = document.getElementById('progressBar');
+    const currentTimeDisplay = document.getElementById('currentTimeDisplay');
+    const durationDisplay = document.getElementById('durationDisplay');
+    const volumeBar = document.getElementById('volumeBar');
+
+    if(audio && progressBar) {
+        audio.addEventListener('timeupdate', () => {
+            if(audio.duration) {
+                const percent = (audio.currentTime / audio.duration) * 100;
+                progressBar.value = percent;
+                
+                progressBar.style.background = `linear-gradient(to right, var(--text) ${percent}%, rgba(0,0,0,0.1) ${percent}%)`;
+                if(document.body.classList.contains('dark-mode')){
+                    progressBar.style.background = `linear-gradient(to right, var(--text) ${percent}%, rgba(255,255,255,0.1) ${percent}%)`;
+                }
+
+                if (currentTimeDisplay) currentTimeDisplay.innerText = formatTime(audio.currentTime);
+                if (durationDisplay) durationDisplay.innerText = "-" + formatTime(audio.duration - audio.currentTime);
+            }
+        });
+
+        audio.addEventListener('ended', () => {
+            playNextSong(); 
+        });
+
+        progressBar.addEventListener('input', (e) => {
+            if(audio.duration) {
+                const seekTime = (e.target.value / 100) * audio.duration;
+                audio.currentTime = seekTime;
+            }
+        });
+        
+        if(volumeBar) {
+            volumeBar.addEventListener('input', (e) => {
+                audio.volume = e.target.value / 100;
+                const volPercent = e.target.value;
+                volumeBar.style.background = `linear-gradient(to right, var(--text) ${volPercent}%, rgba(0,0,0,0.1) ${volPercent}%)`;
+                if(document.body.classList.contains('dark-mode')){
+                    volumeBar.style.background = `linear-gradient(to right, var(--text) ${volPercent}%, rgba(255,255,255,0.1) ${volPercent}%)`;
+                }
+            });
+        }
+    }
+
+    // មុខងារអូសចុះក្រោម (Swipe/Drag) ដើម្បីបិទ Full Player (គាំទ្រទាំង ទូរស័ព្ទ និង កុំព្យូទ័រ)
+    const fullPlayer = document.getElementById('appleFullPlayer');
+    if (fullPlayer) {
+        let startY = 0;
+        let isDragging = false;
+
+        const handleDragStart = (e, y) => {
+            // កុំឲ្យទាញអេក្រង់ចុះក្រោម ពេលអ្នកប្រើប្រាស់កំពុងសារ៉េនាទី សំឡេង ឬចុចប៊ូតុង
+            if (e.target.tagName === 'INPUT' || e.target.tagName === 'BUTTON' || e.target.closest('button')) return;
+            
+            startY = y;
+            isDragging = true;
+            fullPlayer.style.transition = 'none';
+        };
+
+        const handleDragMove = (y) => {
+            if (!isDragging) return;
+            const distance = y - startY;
+            if (distance > 0) { // អនុញ្ញាតឲ្យទាញចុះក្រោមតែប៉ុណ្ណោះ
+                fullPlayer.style.transform = `translateY(${distance}px)`;
+            }
+        };
+
+        const handleDragEnd = (y) => {
+            if (!isDragging) return;
+            isDragging = false;
+            fullPlayer.style.transition = 'transform 0.4s cubic-bezier(0.4, 0, 0.2, 1)';
+            
+            if (y - startY > 100) { 
+                closeAppleFullScreenPlayer(); // បិទប្រសិនបើទាញចុះក្រោមលើស 100px
+            } else {
+                fullPlayer.style.transform = ''; // លោតទៅពេញអេក្រង់វិញ
+            }
+        };
+
+        // សម្រាប់ទូរស័ព្ទ (Touch Event)
+        fullPlayer.addEventListener('touchstart', e => handleDragStart(e, e.touches[0].screenY), { passive: true });
+        fullPlayer.addEventListener('touchmove', e => handleDragMove(e.touches[0].screenY), { passive: true });
+        fullPlayer.addEventListener('touchend', e => handleDragEnd(e.changedTouches[0].screenY), { passive: true });
+
+        // សម្រាប់កុំព្យូទ័រ (Mouse Event)
+        fullPlayer.addEventListener('mousedown', e => handleDragStart(e, e.clientY));
+        document.addEventListener('mousemove', e => handleDragMove(e.clientY));
+        document.addEventListener('mouseup', e => handleDragEnd(e.clientY));
+    }
+}); // ត្រូវប្រាកដថាមានសញ្ញាបិទជិតនេះ
