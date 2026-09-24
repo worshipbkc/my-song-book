@@ -261,16 +261,21 @@ body.dark-mode .toggle-switch { background: #475569; }
 
 .bottom-nav { 
     position: fixed; 
-    bottom: env(safe-area-inset-bottom); 
-    left: 10px; right: 10px; height: 68px; 
+    bottom: 12px; /* ទម្លាក់ឲ្យទាបមកត្រឹម 12px ពីគែមអេក្រង់ */
+    left: 10px; 
+    right: 10px; 
+    height: 65px; 
     background: var(--card-bg); 
-    border: 1px solid rgba(255,255,255,.7); 
+    border: 1px solid var(--border); 
     display: flex; 
     align-items: center; 
     justify-content: space-around; 
-    z-index: 1000; box-shadow: 0 12px 35px rgba(15,23,42,.16); 
-    border-radius: 24px; 
-    backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); }
+    z-index: 1000; 
+    box-shadow: 0 12px 35px rgba(15,23,42,.16); 
+    border-radius: 24px; /* កោងទាំង ៤ ជ្រុង */
+    backdrop-filter: blur(16px); 
+    -webkit-backdrop-filter: blur(16px); 
+}
 .bottom-nav-item { display: flex; flex-direction: column; align-items: center; justify-content: center; flex: 1; height: 100%; color: var(--text-muted); text-decoration: none; font-size: 0.65rem; font-weight: 600; cursor: pointer; border: none; background: transparent; gap: 2px; position: relative; }
 .bottom-nav-item i { font-size: 1.05rem; }
 .bottom-nav-item.active { color: var(--primary); }
