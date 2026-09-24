@@ -951,11 +951,10 @@ body.dark-mode .apple-mini-player {
     flex-direction: column;
     transform: translateY(100%);
     
-    /* បន្ថែម ២ បន្ទាត់នេះ ដើម្បីកុំឲ្យវាបាំង Song Card ពេលកំពុងបិទ */
+    /* ថែម ២ បន្ទាត់នេះ ដើម្បីកុំឲ្យវាបាំងពីលើរូបភាព Song Card */
     pointer-events: none;
     visibility: hidden;
     
-    /* បន្ថែម visibility ទៅក្នុង transition ដើម្បឲ្យវារលូន */
     transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1), visibility 0.4s;
     border-top-left-radius: 24px;
     border-top-right-radius: 24px;
@@ -970,10 +969,11 @@ body.dark-mode .apple-full-player {
 .apple-full-player.active {
     transform: translateY(0);
     
-    /* បន្ថែម ២ បន្ទាត់នេះ ដើម្បីឲ្យអាចបញ្ជាបានវិញ ពេលវាលេចចេញមក */
+    /* ថែម ២ បន្ទាត់នេះ ឲ្យវាដំណើរការធម្មតាវិញពេលបើក */
     pointer-events: auto;
     visibility: visible;
 }
+
 
 .full-player-drag-handle {
     width: 40px;
