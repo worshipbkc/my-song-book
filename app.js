@@ -2114,9 +2114,10 @@ function updateFullScreenContent() {
     document.getElementById('fullScreenTitle').innerText = song.title || 'រូបភាព';
     document.getElementById('pageCounter').innerText = `${currentFullscreenIndex + 1} / ${currentFilteredSongs.length}`;
     
-    const mediaBtn = document.getElementById('fsMediaPlayBtn');
-    if(song.mediaUrl) { mediaBtn.style.display = 'flex'; mediaBtn.onclick = () => playFloatingAudio(song.id, null); }
-    else { mediaBtn.style.display = 'none'; }
+    // កូដ ៣ បន្ទាត់ខាងក្រោមនេះត្រូវតែលុបចោល ព្រោះវានាំឲ្យ Error ពេលរកប៊ូតុង fsMediaPlayBtn មិនឃើញ
+    // const mediaBtn = document.getElementById('fsMediaPlayBtn');
+    // if(song.mediaUrl) { mediaBtn.style.display = 'flex'; mediaBtn.onclick = () => playFloatingAudio(song.id, null); }
+    // else { mediaBtn.style.display = 'none'; }
 
     const imgEl = document.getElementById('fullScreenImg');
     const lyricsEl = document.getElementById('fullScreenLyrics');
