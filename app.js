@@ -3423,6 +3423,19 @@ function closeAppleFullScreenPlayer() {
         player.style.transform = ''; 
     }
 }
+// មុខងារសម្រាប់បិទផ្ទាំង Mini Player ទាំងស្រុង
+function closeAppleMiniPlayer() {
+    const audio = document.getElementById('audioElement');
+    if (audio) {
+        audio.pause();
+        audio.src = ''; // ផ្តាច់សំឡេងទាំងស្រុងកុំឲ្យដើរ
+    }
+    const miniPlayer = document.getElementById('appleMiniPlayer');
+    if (miniPlayer) {
+        miniPlayer.classList.remove('active'); // លាក់ផ្ទាំង Mini Player
+    }
+    closeAppleFullScreenPlayer(); // ប្រាកដថា Full Screen ក៏ត្រូវបិទដែរ
+}
 
 function formatTime(seconds) {
     if (isNaN(seconds)) return "--:--";
