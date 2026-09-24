@@ -272,15 +272,58 @@
     </div>
 </div>
 
-<div class="mini-player" id="miniPlayer">
-    <div class="mini-player-info">
-        <span class="mini-player-title" id="miniPlayerTitle">កំពុងចាក់...</span>
-        <audio id="audioElement" controls style="height: 25px; width: 100%; display: none;"></audio>
+
+<!-- Apple Music Style Player -->
+<div class="apple-mini-player" id="appleMiniPlayer" onclick="openAppleFullScreenPlayer()">
+    <img src="https://via.placeholder.com/150/2563eb/ffffff?text=Worship" id="miniPlayerCover" class="mini-cover" alt="Cover">
+    <div class="mini-title" id="miniPlayerTitle">Not Playing</div>
+    <div class="mini-controls" onclick="event.stopPropagation()">
+        <button id="miniPlayPauseBtn" onclick="toggleApplePlayPause()"><i class="fa-solid fa-play"></i></button>
+        <button id="miniNextBtn" onclick="playNextSong()" style="opacity: 0.5;"><i class="fa-solid fa-forward-step"></i></button>
     </div>
-    <div class="mini-player-controls">
-        <button onclick="togglePlayPause()" id="playPauseBtn"><i class="fa-solid fa-pause"></i></button>
-        <button class="close-player-btn" onclick="closeMiniPlayer()"><i class="fa-solid fa-xmark"></i></button>
+</div>
+
+<div class="apple-full-player" id="appleFullPlayer">
+    <div class="full-player-drag-handle" id="fullPlayerDragHandle" onclick="closeAppleFullScreenPlayer()" style="cursor: pointer;" title="បិទ (Close)"></div>
+    <div class="full-player-content">
+        <img src="https://via.placeholder.com/600/2563eb/ffffff?text=Worship" id="fullPlayerCover" class="full-cover" alt="Cover">
+        
+        <div class="full-info-section">
+            <div class="full-title-row">
+                <div class="full-title-col">
+                    <div id="fullPlayerTitle" class="full-title">Not Playing</div>
+                    <div id="fullPlayerArtist" class="full-artist">Unknown Artist</div>
+                </div>
+            </div>
+            
+            <div class="progress-container" id="progressContainer">
+                <input type="range" id="progressBar" class="progress-bar" value="0" min="0" max="100" step="1">
+                <div class="time-display">
+                    <span id="currentTimeDisplay">--:--</span>
+                    <span id="durationDisplay">--:--</span>
+                </div>
+            </div>
+            
+            <div class="full-main-controls">
+                <button onclick="playPrevSong()"><i class="fa-solid fa-backward-step"></i></button>
+                <button id="fullPlayPauseBtn" class="play-btn-large" onclick="toggleApplePlayPause()"><i class="fa-solid fa-play"></i></button>
+                <button onclick="playNextSong()"><i class="fa-solid fa-forward-step"></i></button>
+            </div>
+            
+            <div class="volume-container">
+                <i class="fa-solid fa-volume-low" style="font-size: 0.8rem; color: var(--text-muted);"></i>
+                <input type="range" id="volumeBar" class="volume-bar" value="100" min="0" max="100" step="1">
+                <i class="fa-solid fa-volume-high" style="font-size: 0.8rem; color: var(--text-muted);"></i>
+            </div>
+            
+            <div class="bottom-extra-controls">
+                <button><i class="fa-regular fa-comment"></i></button>
+                <button><i class="fa-solid fa-tower-broadcast"></i></button>
+                <button><i class="fa-solid fa-list-ul"></i></button>
+            </div>
+        </div>
     </div>
+    <audio id="audioElement" style="display: none;"></audio>
 </div>
 
 <div class="bottom-nav">
