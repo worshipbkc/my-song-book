@@ -1249,13 +1249,40 @@ function slideFullScreen(direction, event) {
 }
 
 let scale = 1, pointX = 0, pointY = 0, startX = 0, startY = 0, initialDist = 0, isDragging = false, isPinching = false, lastTapTime = 0, animFrame = null;
+let currentRotation = 0; // អញ្ញាតសម្រាប់កត់ត្រាមុំបង្វិល
+
 function resetZoomState() { scale = 1; pointX = 0; pointY = 0; updateTransform(); }
 function updateTransform() {
     if (animFrame) cancelAnimationFrame(animFrame);
     animFrame = requestAnimationFrame(() => {
         const img = document.getElementById('fullScreenImg');
-        if (img) img.style.transform = `translate3d(${pointX}px, ${pointY}px, 0px) scale(${scale})`;
+        const container = document.getElementById('fullScreenImgContainer');
+        
+        if (img && container) {
+            // ទាញយកទំហំពិតប្រាកដរបស់អេក្រង់ (ដកចន្លោះគែមខាងៗចេញ)
+            const style = window.getComputedStyle(container);
+            const cw = container.clientWidth - parseFloat(style.paddingLeft) - parseFloat(style.paddingRight);
+            const ch = container.clientHeight - parseFloat(style.paddingTop) - parseFloat(style.paddingBottom);
+
+            // កំណត់ទំហំរូបភាពឡើងវិញពេលបង្វិលផ្តេក ៩០ ឬ ២៧០ ដឺក្រេ 
+            if (currentRotation === 90 || currentRotation === 270) {
+                img.style.maxWidth = ch + "px";
+                img.style.maxHeight = cw + "px";
+            } else {
+                img.style.maxWidth = "100%";
+                img.style.maxHeight = "100%";
+            }
+
+            img.style.transform = "translate3d(" + pointX + "px, " + pointY + "px, 0px) scale(" + scale + ") rotate(" + currentRotation + "deg)";
+        }
     });
+}
+
+// Function ថ្មីសម្រាប់បង្វិលរូបភាពម្តង ៩០ដឺក្រេ
+function rotateImage() {
+    currentRotation += 90;
+    if (currentRotation >= 360) currentRotation = 0;
+    updateTransform();
 }
 
 function initPinchToZoom() {
@@ -2114,11 +2141,6 @@ function updateFullScreenContent() {
     document.getElementById('fullScreenTitle').innerText = song.title || 'រូបភាព';
     document.getElementById('pageCounter').innerText = `${currentFullscreenIndex + 1} / ${currentFilteredSongs.length}`;
     
-    // កូដ ៣ បន្ទាត់ខាងក្រោមនេះត្រូវតែលុបចោល ព្រោះវានាំឲ្យ Error ពេលរកប៊ូតុង fsMediaPlayBtn មិនឃើញ
-    // const mediaBtn = document.getElementById('fsMediaPlayBtn');
-    // if(song.mediaUrl) { mediaBtn.style.display = 'flex'; mediaBtn.onclick = () => playFloatingAudio(song.id, null); }
-    // else { mediaBtn.style.display = 'none'; }
-
     const imgEl = document.getElementById('fullScreenImg');
     const lyricsEl = document.getElementById('fullScreenLyrics');
     const transposeEl = document.getElementById('transposeControls');
@@ -2145,6 +2167,7 @@ function updateFullScreenContent() {
         transposeEl.style.display = 'none';
     }
 
+    currentRotation = 0; // <--- បន្ថែមបន្ទាត់នេះនៅទីនេះ
     resetZoomState();
 }
 
