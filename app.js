@@ -1278,11 +1278,15 @@ function updateTransform() {
     });
 }
 
-// Function ថ្មីសម្រាប់បង្វិលរូបភាពម្តង ៩០ដឺក្រេ
 function rotateImage() {
     currentRotation += 90;
     if (currentRotation >= 360) currentRotation = 0;
     updateTransform();
+    
+    // បង្ហាញសារប្រាប់អ្នកប្រើប្រាស់ ពេលរូបភាពផ្តេក
+    if (currentRotation === 90 || currentRotation === 270) {
+        showToast("ទម្រង់អានផ្តេក", "info");
+    }
 }
 
 function initPinchToZoom() {
@@ -1334,11 +1338,15 @@ function initPinchToZoom() {
             const diffX = e.changedTouches[0].clientX - startX; 
             if (Math.abs(diffX) > 60) diffX < 0 ? slideFullScreen(1) : slideFullScreen(-1); 
         }
-        const now = new Date().getTime(); const tapGap = now - lastTapTime;
-        if (tapGap < 300 && tapGap > 0) { 
-            if (scale > 1) resetZoomState(); 
-            else { scale = 2.5; pointX = 0; pointY = 0; updateTransform(); } 
-        }
+       const now = new Date().getTime(); const tapGap = now - lastTapTime;
+         if (tapGap < 300 && tapGap > 0) { 
+    // បន្ថែមលក្ខខណ្ឌបើមានការបង្វិល ក៏ត្រូវ Reset មកដើមវិញដែរ
+         if (scale > 1 || currentRotation !== 0) { 
+        currentRotation = 0; 
+        resetZoomState(); 
+    } 
+        else { scale = 2.5; pointX = 0; pointY = 0; updateTransform(); } 
+    }
         lastTapTime = now;
     });
 }
@@ -3697,3 +3705,256 @@ document.addEventListener('DOMContentLoaded', () => {
         document.addEventListener('mouseup', e => handleDragEnd(e.clientY));
     }
 });
+// ====================================================
+// មុខងារ AUTO-SCROLL (ແບບស្លាយចេញ/ចូល មិនបាំងអត្ថបទ)
+// ====================================================
+
+let scrollInterval = null;
+let currentScrollSpeed = 1;
+let isAutoScrollExpanded = false;
+
+function setupAutoScrollButton() {
+    if (document.getElementById('autoScrollFloatingBar')) return;
+
+    // បញ្ចូល Style សម្រាប់បែប Slide Animation
+    const style = document.createElement('style');
+    style.innerHTML = `
+        .autoscroll-bar {
+            position: absolute;
+            bottom: calc(85px + env(safe-area-inset-bottom));
+            right: 16px;
+            background: rgba(15, 23, 42, 0.9);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 30px;
+            padding: 4px;
+            display: none;
+            align-items: center;
+            gap: 6px;
+            z-index: 3050;
+            box-shadow: 0 6px 20px rgba(0,0,0,0.4);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .autoscroll-main-btn {
+            background: #10b981;
+            border: none;
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4);
+            transition: 0.2s;
+            flex-shrink: 0;
+        }
+        .autoscroll-main-btn.playing {
+            background: #ef4444;
+            box-shadow: 0 4px 12px rgba(239, 68, 68, 0.4);
+        }
+        .autoscroll-controls-panel {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            max-width: 0;
+            overflow: hidden;
+            opacity: 0;
+            transition: max-width 0.3s ease, opacity 0.2s ease;
+            white-space: nowrap;
+        }
+        .autoscroll-bar.expanded .autoscroll-controls-panel {
+            max-width: 150px;
+            opacity: 1;
+        }
+        .autoscroll-sub-btn {
+            background: rgba(255, 255, 255, 0.15);
+            border: none;
+            color: #ffffff;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8rem;
+            transition: 0.2s;
+        }
+        .autoscroll-sub-btn:active {
+            transform: scale(0.9);
+            background: var(--primary);
+        }
+        .autoscroll-speed-display {
+            color: #ffffff;
+            font-size: 0.75rem;
+            font-weight: 700;
+            min-width: 32px;
+            text-align: center;
+        }
+    `;
+    document.head.appendChild(style);
+
+    // បង្កើត Container ຕົ້ນមេ
+    const bar = document.createElement('div');
+    bar.id = 'autoScrollFloatingBar';
+    bar.className = 'autoscroll-bar';
+
+    // ប៊ូតុងគោល (ពេលចុចគឺ Play/Pause បើកពង្រីក)
+    const mainBtn = document.createElement('button');
+    mainBtn.className = 'autoscroll-main-btn';
+    mainBtn.id = 'scrollTogglePlayBtn';
+    mainBtn.innerHTML = 'A';
+    mainBtn.onclick = (e) => {
+        e.stopPropagation();
+        toggleExpandOrPlay();
+    };
+
+    // ផ្ទាំងបញ្ជាល្បឿនដែលលាក់/បង្ហាញ (Slide Panel)
+    const panel = document.createElement('div');
+    panel.className = 'autoscroll-controls-panel';
+
+    const btnMinus = document.createElement('button');
+    btnMinus.className = 'autoscroll-sub-btn';
+    btnMinus.innerText = '-';
+    btnMinus.onclick = (e) => { e.stopPropagation(); adjustScrollSpeed(-0.2); };
+
+    const speedLabel = document.createElement('span');
+    speedLabel.className = 'autoscroll-speed-display';
+    speedLabel.id = 'scrollSpeedText';
+    speedLabel.innerText = '1.0x';
+
+    const btnPlus = document.createElement('button');
+    btnPlus.className = 'autoscroll-sub-btn';
+    btnPlus.innerText = '+';
+    btnPlus.onclick = (e) => { e.stopPropagation(); adjustScrollSpeed(0.2); };
+
+    panel.appendChild(btnMinus);
+    panel.appendChild(speedLabel);
+    panel.appendChild(btnPlus);
+
+    bar.appendChild(mainBtn);
+    bar.appendChild(panel);
+
+    // ពេលចុចលើកន្លែងទទេ ឬប៊ូតុង ឱ្យវាបិទ Panel វិញបើកំពុងបើក
+    document.addEventListener('click', (e) => {
+        if (isAutoScrollExpanded && !bar.contains(e.target)) {
+            collapsePanel();
+        }
+    });
+
+    const modal = document.getElementById('fullScreenModal');
+    if (modal) modal.appendChild(bar);
+}
+
+// គ្រប់គ្រងការចុចលើប៊ូតុងមេ
+function toggleExpandOrPlay() {
+    const bar = document.getElementById('autoScrollFloatingBar');
+    
+    if (!isAutoScrollExpanded) {
+        // បើកឱ្យវាពង្រីកបង្ហាញផ្ទាំង -/+
+        bar.classList.add('expanded');
+        isAutoScrollExpanded = true;
+    } else {
+        // បើវាបើកស្រាប់ ចុចលើវាគឺចាប់ផ្តើម Play/Pause
+        executePlayPause();
+    }
+}
+
+function collapsePanel() {
+    const bar = document.getElementById('autoScrollFloatingBar');
+    if (bar) bar.classList.remove('expanded');
+    isAutoScrollExpanded = false;
+}
+
+function executePlayPause() {
+    const mainBtn = document.getElementById('scrollTogglePlayBtn');
+    const lyricsContainer = document.getElementById('fullScreenLyrics');
+
+    if (scrollInterval) {
+        stopAutoScroll();
+        if (mainBtn) {
+            mainBtn.classList.remove('playing');
+            mainBtn.innerHTML = 'A';
+        }
+        showToast("បានផ្អាក Auto-Scroll", "info");
+    } else {
+        if (!lyricsContainer) return;
+
+        scrollInterval = setInterval(() => {
+            lyricsContainer.scrollTop += currentScrollSpeed;
+            if (lyricsContainer.scrollTop + lyricsContainer.clientHeight >= lyricsContainer.scrollHeight - 5) {
+                stopAutoScroll();
+                if (mainBtn) {
+                    mainBtn.classList.remove('playing');
+                    mainBtn.innerHTML = 'A';
+                }
+            }
+        }, 40);
+
+        if (mainBtn) {
+            mainBtn.classList.add('playing');
+            mainBtn.innerHTML = 'A';
+        }
+        showToast("កំពុងរំកិលស្វ័យប្រវត្តិ...", "success");
+    }
+    collapsePanel();
+}
+
+function stopAutoScroll() {
+    if (scrollInterval) {
+        clearInterval(scrollInterval);
+        scrollInterval = null;
+    }
+}
+
+function adjustScrollSpeed(delta) {
+    currentScrollSpeed = Math.round((currentScrollSpeed + delta) * 10) / 10;
+    if (currentScrollSpeed < 0.4) currentScrollSpeed = 0.4;
+    if (currentScrollSpeed > 3.0) currentScrollSpeed = 3.0;
+
+    const label = document.getElementById('scrollSpeedText');
+    if (label) label.innerText = currentScrollSpeed.toFixed(1) + 'x';
+}
+
+function checkAndDisplayAutoScrollBar() {
+    setupAutoScrollButton();
+    const bar = document.getElementById('autoScrollFloatingBar');
+    const song = currentFilteredSongs[currentFullscreenIndex];
+
+    if (bar && song && song.lyrics && song.lyrics.length > 5) {
+        bar.style.display = 'flex';
+    } else if (bar) {
+        bar.style.display = 'none';
+        stopAutoScroll();
+        collapsePanel();
+    }
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    setupAutoScrollButton();
+});
+
+const nativeUpdateFullScreen = updateFullScreenContent;
+updateFullScreenContent = function() {
+    stopAutoScroll();
+    collapsePanel();
+    const mainBtn = document.getElementById('scrollTogglePlayBtn');
+    if (mainBtn) {
+        mainBtn.classList.remove('playing');
+        mainBtn.innerHTML = 'A';
+    }
+    nativeUpdateFullScreen();
+    checkAndDisplayAutoScrollBar();
+};
+
+const nativeCloseFS = closeFullScreenModalDirect;
+closeFullScreenModalDirect = function() {
+    stopAutoScroll();
+    collapsePanel();
+    const bar = document.getElementById('autoScrollFloatingBar');
+    if (bar) bar.style.display = 'none';
+    nativeCloseFS();
+};
