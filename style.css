@@ -261,7 +261,7 @@ body.dark-mode .toggle-switch { background: #475569; }
 
 .bottom-nav { 
     position: fixed; 
-    bottom: 12px; /* ទម្លាក់ឲ្យទាបមកត្រឹម 12px ពីគែមអេក្រង់ */
+    bottom: 10px; /* ទម្លាក់ឲ្យទាបមកត្រឹម 12px ពីគែមអេក្រង់ */
     left: 10px; 
     right: 10px; 
     height: 65px; 
@@ -315,10 +315,64 @@ body.dark-mode .skeleton-img, body.dark-mode .skeleton-line, body.dark-mode .ske
 .preview-container img { width: 100%; max-height: 110px; object-fit: contain; }
 .remove-img-btn { position: absolute; top: 4px; right: 4px; background: rgba(239, 68, 68, 0.9); color: white; border: none; border-radius: 50%; width: 24px; height: 24px; font-size: 0.75rem; cursor: pointer; }
 
-.fullscreen-modal { display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0, 0, 0, 0.95); z-index: 3000; flex-direction: column; align-items: center; justify-content: center; }
+/* ១. ផ្ទៃខាងក្រោយ Modal ទូទៅ (ពណ៌ខ្មៅ) */
+.fullscreen-modal { 
+    display: none; 
+    position: fixed; 
+    top: 0; 
+    left: 0; 
+    width: 100vw; 
+    height: 100vh; 
+    background: #000000; 
+    z-index: 3000; 
+    flex-direction: column; 
+    align-items: center; 
+    justify-content: center; 
+}
+/* ២. ស៊ុមខាងក្រោម (បន្ថយកម្ពស់ពី 50px មក 35px វិញ) */
+.fullscreen-modal::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: calc(35px + env(safe-area-inset-bottom)); 
+    background: #111827; 
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    z-index: 3010;
+    pointer-events: none;
+}
 .fullscreen-modal.active { display: flex; }
-.fullscreen-header { position: absolute; top: calc(10px + env(safe-area-inset-top)); left: 16px; right: 16px; display: flex; justify-content: space-between; align-items: center; color: white; z-index: 3010; }
-.fullscreen-img-container { width: 100vw; height: 100vh; display: flex; align-items: center; justify-content: center; position: relative; overflow: hidden; touch-action: none; padding: 40px 10px 10px 10px; }
+
+/* ៣. ស៊ុមខាងលើ (បន្ថយ Padding លើក្រោមពី 12px មក 8px វិញ) */
+.fullscreen-header { 
+    position: absolute; 
+    top: 0; 
+    left: 0; 
+    right: 0; 
+    background: #111827; 
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1); 
+    display: flex; 
+    justify-content: space-between; 
+    align-items: center; 
+    color: white; 
+    z-index: 3010;
+    /* គម្លាតតូចល្មម ឱ្យអក្សរនៅចំកណ្តាលស៊ុមស្អាត */
+    padding: calc(8px + env(safe-area-inset-top)) 16px 8px 16px; 
+}
+/* ៤. កន្លែងផ្ទុករូបភាព (បង្រួមចន្លោះ Padding ឱ្យស៊ីគ្នានឹងស៊ុមថ្មីដែលស្តើងជាងមុន) */
+.fullscreen-img-container { 
+    width: 100vw; 
+    height: 100vh; 
+    display: flex; 
+    align-items: center; 
+    justify-content: center; 
+    position: relative; 
+    overflow: hidden; 
+    touch-action: none; 
+    /* ទុកចន្លោះខាងលើតែ 50px និងខាងក្រោម 45px បានហើយ */
+    padding: calc(50px + env(safe-area-inset-top)) 10px calc(45px + env(safe-area-inset-bottom)) 10px; 
+}
 .fullscreen-img { max-width: 100%; max-height: 100%; object-fit: contain; transform-origin: center center; will-change: transform; }
 .fullscreen-nav-btn { position: absolute; top: 50%; transform: translateY(-50%); background: rgba(255, 255, 255, 0.2); color: white; border: none; font-size: 1.2rem; padding: 12px 8px; cursor: pointer; border-radius: 6px; z-index: 3010; }
 .fullscreen-prev { left: 8px; }
@@ -775,7 +829,8 @@ body.dark-mode .profile-popup {
     flex-direction: column;
     align-items: center;
     justify-content: space-between;
-    height: calc(100vh - 120px);
+    /* កាត់កម្ពស់ចេញបន្ថែម ឲ្យផុតពី bottom nav */
+    height: calc(100vh - 175px - env(safe-area-inset-bottom)); 
     max-width: 500px;
     margin: 0 auto;
     padding: 10px 20px;
@@ -842,7 +897,8 @@ body.dark-mode .profile-popup {
     margin: 15px 0;
 }
 .headstock-img {
-    max-height: 300px;
+    /* ឲ្យរូបភាពរួញតាមកម្ពស់អេក្រង់ កុំឲ្យវារុញប៊ូតុងខាងក្រោមបាត់ */
+    max-height: 30vh; 
     object-fit: contain;
     filter: drop-shadow(0 10px 20px rgba(0,0,0,0.3));
 }
@@ -882,22 +938,21 @@ body.dark-mode .profile-popup {
     width: 100%;
     display: flex;
     gap: 12px;
+    /* រុញប៊ូតុងឡើងលើបន្តិច ឲ្យផុតពីគែម */
+    margin-bottom: 150px; 
 }
 
 .apple-mini-player {
     position: fixed;
-    /* រៀបចំទីតាំងឲ្យនៅពីលើមីនុយ និងមានគម្លាត 8px ស្អាត */
-    bottom: 85px; 
-    /* កំណត់ទំហំឆ្វេងស្តាំឲ្យស្មើគ្នាបេះបិទនឹងមីនុយ (10px) */
+    bottom: calc(75px + env(safe-area-inset-bottom));
     left: 10px;
     right: 10px;
-    height: 58px;
-    background: var(--card-bg); /* ប្តូរពណ៌ផ្ទៃឲ្យដូចមីនុយ */
-    border: 1px solid var(--border); /* បន្ថែមបន្ទាត់គែមឲ្យដូចមីនុយ */
+    height: 56px;
+    background: rgba(255, 255, 255, 0.85);
     backdrop-filter: blur(25px);
     -webkit-backdrop-filter: blur(25px);
-    border-radius: 20px; /* កែភាពកោងឲ្យសមគ្នានឹងមីនុយ */
-    box-shadow: 0 8px 25px rgba(15, 23, 42, 0.1);
+    border-radius: 14px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
     display: flex;
     align-items: center;
     padding: 0 16px 0 8px;
@@ -905,11 +960,11 @@ body.dark-mode .profile-popup {
     cursor: pointer;
     transform: translateY(150%);
     opacity: 0;
+    /* បន្ថែមកូដ ២ បន្ទាត់នេះ ដើម្បីបិទការចុចពេលវាលាក់ខ្លួន */
     pointer-events: none;
     visibility: hidden;
     transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.3s ease, visibility 0.3s;
 }
-
 
 body.dark-mode .apple-mini-player {
     background: rgba(30, 41, 59, 0.85);
