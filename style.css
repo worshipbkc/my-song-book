@@ -944,15 +944,18 @@ body.dark-mode .profile-popup {
 
 .apple-mini-player {
     position: fixed;
-    bottom: calc(75px + env(safe-area-inset-bottom));
+    /* រៀបចំទីតាំងឲ្យនៅពីលើមីនុយ និងមានគម្លាត 8px ស្អាត */
+    bottom: 85px; 
+    /* កំណត់ទំហំឆ្វេងស្តាំឲ្យស្មើគ្នាបេះបិទនឹងមីនុយ (10px) */
     left: 10px;
     right: 10px;
-    height: 56px;
-    background: rgba(255, 255, 255, 0.85);
+    height: 58px;
+    background: var(--card-bg); /* ប្តូរពណ៌ផ្ទៃឲ្យដូចមីនុយ */
+    border: 1px solid var(--border); /* បន្ថែមបន្ទាត់គែមឲ្យដូចមីនុយ */
     backdrop-filter: blur(25px);
     -webkit-backdrop-filter: blur(25px);
-    border-radius: 14px;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    border-radius: 20px; /* កែភាពកោងឲ្យសមគ្នានឹងមីនុយ */
+    box-shadow: 0 8px 25px rgba(15, 23, 42, 0.1);
     display: flex;
     align-items: center;
     padding: 0 16px 0 8px;
@@ -960,11 +963,11 @@ body.dark-mode .profile-popup {
     cursor: pointer;
     transform: translateY(150%);
     opacity: 0;
-    /* បន្ថែមកូដ ២ បន្ទាត់នេះ ដើម្បីបិទការចុចពេលវាលាក់ខ្លួន */
     pointer-events: none;
     visibility: hidden;
     transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.3s ease, visibility 0.3s;
 }
+
 
 body.dark-mode .apple-mini-player {
     background: rgba(30, 41, 59, 0.85);
