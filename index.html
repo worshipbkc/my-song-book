@@ -159,7 +159,7 @@
 
         <!-- បានលុបកូដជាន់គ្នានៅត្រង់ viewSongs នេះចេញ -->
         <div class="app-view" id="viewSongs">
-            <div class="sticky-action-bar" style="padding: 10px 12px; box-sizing: border-box; width: 100%; overflow: hidden;">
+                        <div class="sticky-action-bar" style="padding: 10px 12px; box-sizing: border-box; width: 100%; position: sticky; top: 0; z-index: 100;">
         
                 <!-- ទម្រង់ដើម៖ ទុកចំណងជើងនៅឆ្វេង និង Icon នៅស្តាំដដែល -->
                 <div id="songsNormalHeader" style="display: flex; justify-content: space-between; align-items: center;">
@@ -175,20 +175,28 @@
                     </div>
                 </div>
 
-                <!-- ទម្រង់ Search៖ បង្រួមប្រអប់វាយអក្សរមិនឱ្យលាតពេញអេក្រង់ពេក -->
+                <!-- ទម្រង់ Search -->
                 <div id="songsSearchHeader" style="display: none; align-items: center; gap: 8px; width: 100%; box-sizing: border-box; margin-top: 5px; margin-bottom: 5px; justify-content: center;">
                     <button onclick="toggleSongsSearchMode(false)" style="background: transparent; border: none; color: var(--text); font-size: 1.2rem; cursor: pointer; padding: 5px 0 5px 5px; flex-shrink: 0;"><i class="fa-solid fa-arrow-left"></i></button>
                     
-                    <div class="home-search-bar-modern" style="position: relative; padding: 0; flex: 1; min-width: 0; margin: 0; max-width: 400px;">
+                    <!-- កំណត់ max-width: 100% ដើម្បីការពារកុំឱ្យរីកធំហួសអេក្រង់ -->
+                    <div class="home-search-bar-modern" style="position: relative; padding: 0; flex: 1; min-width: 0; margin: 0; max-width: 100%; z-index: 101;">
+                        
                         <input type="text" id="searchInput" placeholder="ស្វែងរកបទចម្រៀង..." oninput="handleSearchInput()" onfocus="handleSearchInput()" autocomplete="off" style="width: 100%; box-sizing: border-box; padding: 12px 70px 12px 16px; border: none; background: transparent; outline: none; color: var(--text); font-family: 'Kantumruy Pro'; font-size: 0.95rem;">
+                        
                         <button class="clear-btn" id="clearSearchBtn" onclick="clearSearchInput()" title="លុបអក្សរ" style="position: absolute; right: 38px; top: 50%; transform: translateY(-50%); background: none; border: none; color: var(--text-muted); cursor: pointer; padding: 4px; font-size: 0.9rem; display: none;"><i class="fa-solid fa-circle-xmark"></i></button>
+                        
                         <button class="voice-btn" id="voiceSearchBtn" onclick="startVoiceSearch()" title="ស្វែងរកដោយសំឡេង" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); background: none; border: none; color: var(--primary); cursor: pointer; padding: 4px; font-size: 1.1rem;"><i class="fa-solid fa-microphone"></i></button>
-                        <div class="search-dropdown" id="searchDropdown" style="top: 100%; margin-top: 8px; width: 100%; box-sizing: border-box;"></div>
+                        
+                        <!-- ដាក់ width: 100%, left: 0, right: 0, និង overflow-x: hidden ដើម្បីខ្ទប់កុំឱ្យលៀនចេញ -->
+                        <div class="search-dropdown" id="searchDropdown" style="position: absolute; top: 100%; left: 0; right: 0; width: 100%; max-width: 100%; box-sizing: border-box; overflow-x: hidden; overflow-y: auto; max-height: 50vh; z-index: 9999; margin-top: 8px;"></div>
+                        
                     </div>
                 </div>
                 
                 <div id="playlistDragInfo" style="display:none; font-size:0.75rem; color:var(--primary); text-align:right; margin-top: 8px;"><i class="fa-solid fa-right-left"></i> អូសប័ណ្ណបទចម្រៀងចុះឡើងដើម្បីប្តូរលំដាប់ទីតាំង</div>
             </div>
+
 
             <div class="song-grid" id="songGrid"></div>
         </div>
