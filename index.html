@@ -49,150 +49,163 @@
     </header>
     <div class="app-view active" id="viewHome">
         <div class="home-shell" id="homeShell">
-            <div class="home-topbar">
-    <div class="home-brand">
-        <img src="https://lh3.googleusercontent.com/d/12dt7uNglluI-nnVcc2jvslICE0HRoYIm" alt="Logo" class="home-logo">
-        <div>
-            <div class="home-eyebrow">ចម្រៀងសរសើរដំកើងព្រះ</div>
-            <div class="home-welcome"> Khmer Christian Worship Songs</div>
-        </div>
-    </div>
 
-<div style="display: flex; gap: 12px; align-items: center; position: relative;">
-    <button class="home-icon-btn" onclick="openModernNotifScreen()" aria-label="Notifications" style="position: relative;">
-    <i class="fa-solid fa-bell"></i>
-    <span class="nav-badge-dot" id="navNotifDot" style="top: 8px; right: 10px;"></span>
-    </button>
-    
-    <!-- ទីតាំងប៊ូតុង Profile -->
-    <div style="position: relative;">
-        <button class="home-icon-btn" id="homeProfileBtn" onclick="toggleProfilePopup(event)" aria-label="Profile">
-            <i class="fa-regular fa-user"></i>
-        </button>
-        <!-- ផ្ទាំង Profile Popup តូច -->
-        <div id="profilePopup" class="profile-popup">
-            <div id="profilePopupContent"></div>
-        </div>
-    </div>
-</div>
-</div>
-<div style="padding: 0 6px 16px; font-size: 0.7rem; color: var(--text-muted); font-weight: 600; font-style: italic; text-align: center; line-height: 1.6;">
-                "គួរឱ្យជីវិតទាំងឡាយដែលមានដង្ហើម បានសរសើរដល់ព្រះយ៉េហូវ៉ាចុះ" <span style="font-style: normal; color: #0088cc;">ទំនុកតម្កើង ១៥០៖៦</span>
+    <!-- Header ថ្មី ដែលមាន Logo និងប៊ូតុងនៅមួយជួរ -->
+    <!-- ចាប់ផ្តើម ខ្ចប់ Header និង Search ឱ្យជាប់ខាងលើ (Sticky) -->
+    <div class="home-sticky-wrapper">
+        
+        <!-- Header (Logo & Icons) -->
+        <div class="home-topbar-modern" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: nowrap; gap: 10px;">
+            <div class="home-brand-modern" style="display: flex; flex-direction: row; align-items: center; gap: 10px; flex: 1; min-width: 0;">
+                <img src="https://lh3.googleusercontent.com/d/12dt7uNglluI-nnVcc2jvslICE0HRoYIm" alt="Logo" style="width: 45px; height: auto; object-fit: contain; flex-shrink: 0;">
+                <div style="display: flex; flex-direction: column; line-height: 1.2; overflow: hidden;">
+                    <h1 style="font-family: 'Kantumruy Pro'; font-size: 1.2rem; font-weight: 800; color: var(--text); margin: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">ចម្រៀងសរសើរដំកើងព្រះ<span style="font-size: 1rem; position:relative; top:-5px; margin-left: 2px;">†</span></h1>
+                    <span style="font-size: 0.7rem; color: var(--text-muted); font-weight: 600; margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">Khmer Christian Songs</span>
+                </div>
             </div>
-
-            <!-- ផ្នែក Banner ឈើឆ្កាង រចនាបថឆ្វេង (មិនបាំងឈើឆ្កាង) -->
-            <section class="home-hero" id="homeHero" style="min-height: 200px; position: relative; overflow: hidden; border-radius: 24px; margin-bottom: 20px; background-color: #111827;">
-                
-                <!-- រូបភាពផ្ទៃខាងក្រោយ (រុញទៅស្តាំកុំឲ្យបាត់ឈើឆ្កាង) -->
-                <div class="home-hero-art" id="homeHeroArt" style="background-image: url('https://lh3.googleusercontent.com/d/1gPNq53w86yDL2lBsLTPLeMtj1gqLYKi6'); background-size: cover; background-position: right center; position: absolute; inset: 0; z-index: 1;"></div>
-                
-                <!-- ស្រមោលងងឹតពីឆ្វេងទៅស្តាំ (ខាងស្តាំថ្លា ដើម្បីឃើញឈើឆ្កាងច្បាស់) -->
-                <div class="home-hero-overlay" style="background: linear-gradient(to right, rgba(15,23,42,0.95) 0%, rgba(15,23,42,0.8) 45%, rgba(15,23,42,0.05) 100%); position: absolute; inset: 0; z-index: 2;"></div>
-                
-                <!-- ខ្លឹមសារតម្រៀបមកឆ្វេង -->
-                <div class="home-hero-content" style="position: relative; z-index: 3; min-height: 200px; padding: 25px 20px; display: flex; flex-direction: column; justify-content: center; align-items: flex-start; text-align: left; max-width: 75%;">
-                    
-                    <span style="font-size: 0.65rem; font-weight: 700; color: #cbd5e1; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 8px;">
-                        ព្រះបន្ទូលប្រចាំថ្ងៃ
-                    </span>
-                    
-                    <!-- ចំណងជើង និង ឈ្មោះកណ្ឌគម្ពីរ (អក្សរធំ) -->
-                    <h1 style="font-family: 'Kantumruy Pro', sans-serif; font-size: 1.3rem; font-weight: 700; color: #ffffff; line-height: 1.3; margin: 0 0 8px 0; text-shadow: 0 2px 8px rgba(0,0,0,0.5);">
-                        សេចក្តីស្រឡាញ់នៃព្រះ<br>
-                        <span style="font-size: 1rem; font-weight: 600; color: #fbd38d;" id="dailyVerseRef">-</span>
-                    </h1>
-                    
-                    <!-- អត្ថបទខគម្ពីរ (អក្សរតូចល្មម) -->
-                    <p id="dailyVerseText" style="font-size: 0.8rem; line-height: 1.5; color: #e2e8f0; margin: 0 0 15px 0; font-style: italic; max-width: 100%; text-shadow: 0 1px 4px rgba(0,0,0,0.5); display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;">
-                        «កំពុងទាញយកព្រះបន្ទូល...»
-                    </p>
-                    
-                    <!-- ប៊ូតុង Play Now ពណ៌សរចនាបថថ្មី -->
-                    <button class="home-hero-btn" onclick="switchTab('songs');" style="background: #ffffff; color: #1e3a8a; padding: 8px 18px; font-size: 0.75rem; font-weight: 700; border-radius: 20px; border: none; display: flex; align-items: center; gap: 6px; box-shadow: 0 4px 10px rgba(0,0,0,0.15);">
-                        <i class="fa-solid fa-play"></i> ចូលស្តាប់ចម្រៀង
+            <div style="display: flex; gap: 8px; align-items: center; flex-shrink: 0;">
+                <button class="icon-btn-modern" onclick="openModernNotifScreen()" style="position: relative;">
+                    <i class="fa-regular fa-bell"></i>
+                    <span class="nav-badge-dot" id="navNotifDot" style="top: 5px; right: 5px;"></span>
+                </button>
+                <div style="position: relative;">
+                    <button class="icon-btn-modern" id="homeProfileBtn" onclick="toggleProfilePopup(event)">
+                        <i class="fa-regular fa-user"></i>
                     </button>
-                    
+                    <div id="profilePopup" class="profile-popup"><div id="profilePopupContent"></div></div>
                 </div>
-            </section>
+            </div>
+        </div>
 
-            <div class="home-quick-actions">
-                <button onclick="switchTab('songs'); setQuickFilter('RECENT', null)"><span class="quick-icon blue"><i class="fa-solid fa-wand-magic-sparkles"></i></span><span>បទថ្មី</span></button>
-                <button onclick="switchTab('songs'); setQuickFilter('FAV', null)"><span class="quick-icon rose"><i class="fa-solid fa-heart"></i></span><span>ចូលចិត្ត</span></button>
-                
-                <!-- ប្តូរពីប្រវត្តិ មកជាប៊ូតុង Playlist វិញ -->
-                <button onclick="switchTab('playlists')"><span class="quick-icon violet"><i class="fa-solid fa-list-ul"></i></span><span>Playlist</span></button>
-                
-                <button onclick="switchTab('tuner')"><span class="quick-icon green"><i class="fa-solid fa-guitar"></i></span><span>Tuner</span></button>
+        <!-- Search Bar សម្រាប់ Home -->
+        <div class="home-search-bar-modern" style="position: relative; padding: 0;">
+            <i class="fa-solid fa-magnifying-glass" style="position: absolute; left: 16px; top: 50%; transform: translateY(-50%); color: var(--text-muted);"></i>
+            <input type="text" id="homeSearchInput" placeholder="Search songs, artists, or keywords..." oninput="handleHomeSearch()" onfocus="handleHomeSearch()" autocomplete="off" style="width: 100%; padding: 12px 40px; border: none; background: transparent; outline: none; color: var(--text); font-family: 'Kantumruy Pro'; font-size: 0.95rem;">
+            <button id="clearHomeSearchBtn" onclick="clearHomeSearch()" style="position: absolute; right: 12px; top: 50%; transform: translateY(-50%); background: none; border: none; color: var(--text-muted); display: none; cursor: pointer; padding: 4px;"><i class="fa-solid fa-circle-xmark"></i></button>
+            <div class="search-dropdown" id="homeSearchDropdown" style="top: 100%; margin-top: 8px;"></div>
+        </div>
+
+    </div>
+    <!-- បញ្ចប់ការខ្ចប់ Sticky -->
+
+
+
+    <!-- Featured Playlist (Banner) -->
+    <section class="home-hero-modern">
+        <!-- អ្នកអាចប្តូររូបភាព URL នេះបាន -->
+        <div class="home-hero-bg" style="background-image: url('https://images.unsplash.com/photo-1507692049790-de58290a4334?w=800&q=80');"></div>
+        <div class="home-hero-overlay-modern"></div>
+        <div class="home-hero-content-modern">
+            <span class="hero-tag-modern">FEATURED BIBLE VERSE</span>
+            <h2 class="hero-title-modern">សេចក្តីស្រឡាញ់នៃព្រះ</h2>
+            <h3 class="hero-subtitle-modern" id="dailyVerseRef">ទំនុកតម្កើង</h3>
+            <p class="hero-desc-modern" id="dailyVerseText">«កំពុងទាញយក...»</p>
+            <button class="hero-play-btn" onclick="switchTab('songs')"><i class="fa-solid fa-play"></i> Play Now</button>
+        </div>
+    </section>
+
+    <!-- Quick Actions (ប៊ូតុង ៤) -->
+    <div class="home-quick-modern">
+        <button class="quick-btn-modern" onclick="switchTab('songs'); setQuickFilter('RECENT', null)">
+            <div class="quick-icon-modern" style="background: #eef2ff; color: #4f46e5;"><i class="fa-solid fa-music"></i></div>
+            <strong>Worship</strong><span>New Songs</span>
+        </button>
+        <button class="quick-btn-modern" onclick="switchTab('playlists')">
+            <div class="quick-icon-modern" style="background: #f0fdf4; color: #16a34a;"><i class="fa-solid fa-book-bible"></i></div>
+            <strong>Playlists</strong><span>Collections</span>
+        </button>
+        <button class="quick-btn-modern" onclick="switchTab('tuner')">
+            <div class="quick-icon-modern" style="background: #fff7ed; color: #ea580c;"><i class="fa-solid fa-guitar"></i></div>
+            <strong>Tuner</strong><span>Tools</span>
+        </button>
+        <button class="quick-btn-modern" onclick="switchTab('songs'); setQuickFilter('FAV', null)">
+            <div class="quick-icon-modern" style="background: #faf5ff; color: #9333ea;"><i class="fa-solid fa-crown"></i></div>
+            <strong>Favorites</strong><span>My Songs</span>
+        </button>
+    </div>
+
+    <!-- ផ្នែកទី១: Setlist (Trending Now) -->
+    <section class="home-section-modern">
+        <div class="section-head-modern">
+            <h2>🔥 Setlist ខែនេះ</h2>
+            <button onclick="switchTab('playlists')">See All <i class="fa-solid fa-chevron-right"></i></button>
+        </div>
+        <div class="horizontal-scroll-modern" id="homeSetlistList"></div>
+    </section>
+
+    <!-- ផ្នែកទី២: ប្រវត្តិស្តាប់ (New Releases) -->
+    <section class="home-section-modern">
+        <div class="section-head-modern">
+            <h2>✨ ប្រវត្តិស្តាប់ថ្មីៗ</h2>
+            <button onclick="switchTab('songs'); setQuickFilter('HISTORY', null)">See All <i class="fa-solid fa-chevron-right"></i></button>
+        </div>
+        <div class="horizontal-scroll-modern" id="homeContinueList"></div>
+    </section>
+
+    <!-- Daily Worship Bottom Card -->
+                <div class="daily-worship-card-modern" onclick="switchTab('songs')">
+                 <div class="daily-icon-modern"><i class="fa-solid fa-hands-praying"></i></div>
+                    <div class="daily-info-modern">
+                     <strong>Daily Worship</strong>
+                    <span>A new song for your heart each day.</span>
+                    </div>
+                    <button class="daily-btn-modern">Explore <i class="fa-solid fa-chevron-right"></i></button>
+                </div>
             </div>
 
-            <!-- ១. ផ្នែក Setlist -->
-            <section class="home-section">
-                <div class="home-section-head" style="margin-bottom: 8px;">
-                    <div><span class="home-section-label">សម្រាប់ថ្វាយបង្គំ</span><h2>Setlist ខែនេះ</h2></div>
-                    <button onclick="switchTab('playlists')">មើល Playlist <i class="fa-solid fa-chevron-right"></i></button>
-                </div>
-                <div style="font-size: 0.68rem; color: var(--text-muted); margin-bottom: 12px; line-height: 1.4;">
-                    <strong style="color: var(--primary);">ចម្រៀងថ្វាយបង្គំ៖</strong> រៀបរាងដោយអ្នកដឹកនាំចម្រៀង និងក្រុមភ្លេង <strong>"ក្រុមជំនុំរស្មីវិជ្ជា"</strong> 
-                </div>
-                <div class="home-horizontal-list" id="homeSetlistList"></div>
-            </section>
 
-            <!-- ២. ផ្នែកប្រវត្តិអាន -->
-            <section class="home-section" id="homeContinueSection">
-                <div class="home-section-head">
-                    <div><span class="home-section-label">បន្តពីមុន</span><h2>ប្រវត្តិមើល</h2></div>
-                    <button onclick="switchTab('songs'); setQuickFilter('HISTORY', null)">មើលទាំងអស់ <i class="fa-solid fa-chevron-right"></i></button>
-                </div>
-                <div class="home-horizontal-list" id="homeContinueList"></div>
-            </section>
-
-            <div class="home-verse-card">
-                <div class="home-verse-icon"><i class="fa-solid fa-quote-left"></i></div>
-                <div><p>“ចូរឱ្យជីវិតទាំងឡាយដែលមានដង្ហើម បានសរសើរដល់ព្រះយ៉េហូវ៉ាចុះ”</p><span>ទំនុកតម្កើង ១៥០៖៦</span></div>
-            </div>
         </div>
     </div>
 
-    <div class="app-view" id="viewSongs">
-        <div class="sticky-action-bar">
-            <div class="controls">
-                <div class="search-box">
-                    <input type="text" id="searchInput" placeholder="ស្វែងរកបទចម្រៀង..." oninput="handleSearchInput()" onfocus="handleSearchInput()" autocomplete="off">
-                    <button class="voice-btn" id="voiceSearchBtn" onclick="startVoiceSearch()" title="ស្វែងរកដោយសំឡេង"><i class="fa-solid fa-microphone"></i></button>
-                    <button class="clear-btn" id="clearSearchBtn" onclick="clearSearchInput()" title="លុបអក្សរ"><i class="fa-solid fa-circle-xmark"></i></button>
-                    <button class="search-btn" onclick="renderSongs()">🔍</button>
-                    <div class="search-dropdown" id="searchDropdown"></div>
-                </div>
-            </div>
-
-           <div class="filter-chips">
-                <button class="chip-btn active" onclick="setQuickFilter('ALL', this)">🎵ទាំងអស់</button>
-                <button class="chip-btn" onclick="setQuickFilter('FAV', this)">❤️ ចូលចិត្ត</button>
-                <button class="chip-btn" id="viewToggleBtn" onclick="toggleViewMode()"><i class="fa-solid fa-list"></i> ទម្រង់ List</button>
+        <div class="app-view" id="viewSongs">
+                    <div class="sticky-action-bar" style="padding: 10px 12px;">
+        <!-- ទម្រង់ដើម៖ បង្ហាញចំណងជើង និង Icon (ដូច YouTube) -->
+        <div id="songsNormalHeader" style="display: flex; justify-content: space-between; align-items: center;">
+            <div class="section-title-wrapper" style="margin: 0;">
+                <button id="backButton" onclick="goBackToMain()" style="display: none; background: transparent; border: none; font-size: 1.2rem; color: var(--text); cursor: pointer; padding-right: 12px;"><i class="fa-solid fa-arrow-left"></i></button>
+                <h2 class="section-title"><span class="icon-circle"><i class="fa-solid fa-headphones-simple"></i></span> <span id="sectionTitleText">បទចម្រៀងទាំងអស់</span><span id="totalSongCountBadge" class="song-count-badge">...</span></h2>
             </div>
             
-            <div class="section-title-wrapper">
-                <button id="backButton" onclick="goBackToMain()" style="display: none; background: transparent; border: none; font-size: 1.2rem; color: var(--text); cursor: pointer; padding-right: 12px; transition: 0.2s;"><i class="fa-solid fa-arrow-left"></i></button>
-                <h2 class="section-title"><span class="icon-circle"><i class="fa-solid fa-headphones-simple"></i></span> <span id="sectionTitleText">បទចម្រៀងទាំងអស់</span><span id="totalSongCountBadge" class="song-count-badge">...</span></h2>
-                <button id="sharePlaylistBtn" class="btn-share-custom" style="display: none; margin-left: 8px; padding: 4px 10px; border-radius: 8px; font-size: 0.75rem; font-weight: 600; cursor: pointer; border-width: 1px; border-style: solid; align-items: center; gap: 4px;" onclick="handleShareCurrentPlaylist()"><i class="fa-solid fa-share-nodes"></i> Share</button>
-                <div class="section-divider"></div>
+            <!-- បន្ថែម margin-right: 8px ទីនេះដើម្បីរុញ Icon ចូលក្នុងបន្តិច -->
+            <div style="display: flex; gap: 15px; align-items: center; margin-right: 8px;">
+                <button onclick="toggleSongsSearchMode(true)" style="background: transparent; border: none; color: var(--text); font-size: 1.2rem; cursor: pointer;"><i class="fa-solid fa-magnifying-glass"></i></button>
+                <button id="viewToggleBtn" onclick="toggleViewMode()" style="background: transparent; border: none; color: var(--text); font-size: 1.2rem; cursor: pointer;"><i class="fa-solid fa-list"></i></button>
+                <button id="sharePlaylistBtn" class="btn-share-custom" style="display: none; padding: 4px 10px; border-radius: 8px; font-size: 0.75rem; font-weight: 600; cursor: pointer; border-width: 1px; border-style: solid; align-items: center; gap: 4px;" onclick="handleShareCurrentPlaylist()"><i class="fa-solid fa-share-nodes"></i> Share</button>
             </div>
-            <div id="playlistDragInfo" style="display:none; font-size:0.75rem; color:var(--primary); text-align:right; margin-bottom: 8px;"><i class="fa-solid fa-righ-lefht"></i> អូសប័ណ្ណបទចម្រៀងចុះឡើងដើម្បីប្តូរលំដាប់ទីតាំង</div>
         </div>
 
-        <div class="song-grid" id="songGrid"></div>
+        <!-- ទម្រង់ Search៖ ប្រើរចនាបថ home-search-bar-modern ឱ្យដូចទំព័រ Home -->
+        <div id="songsSearchHeader" style="display: none; align-items: center; gap: 10px; width: 100%; margin-top: 5px; margin-bottom: 5px;">
+            <button onclick="toggleSongsSearchMode(false)" style="background: transparent; border: none; color: var(--text); font-size: 1.2rem; cursor: pointer; padding: 5px;"><i class="fa-solid fa-arrow-left"></i></button>
+            
+            <div class="home-search-bar-modern" style="position: relative; padding: 0; flex: 1; margin: 0;">
+                <input type="text" id="searchInput" placeholder="ស្វែងរកបទចម្រៀង..." oninput="handleSearchInput()" onfocus="handleSearchInput()" autocomplete="off" style="width: 100%; padding: 12px 70px 12px 20px; border: none; background: transparent; outline: none; color: var(--text); font-family: 'Kantumruy Pro'; font-size: 0.95rem;">
+                
+                <button class="clear-btn" id="clearSearchBtn" onclick="clearSearchInput()" title="លុបអក្សរ" style="position: absolute; right: 38px; top: 50%; transform: translateY(-50%); background: none; border: none; color: var(--text-muted); cursor: pointer; padding: 4px; font-size: 0.9rem; display: none;"><i class="fa-solid fa-circle-xmark"></i></button>
+                
+                <button class="voice-btn" id="voiceSearchBtn" onclick="startVoiceSearch()" title="ស្វែងរកដោយសំឡេង" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); background: none; border: none; color: var(--primary); cursor: pointer; padding: 4px; font-size: 1.1rem;"><i class="fa-solid fa-microphone"></i></button>
+                
+                <div class="search-dropdown" id="searchDropdown" style="top: 100%; margin-top: 8px;"></div>
+            </div>
+        </div>
+        
+        <div id="playlistDragInfo" style="display:none; font-size:0.75rem; color:var(--primary); text-align:right; margin-top: 8px;"><i class="fa-solid fa-right-left"></i> អូសប័ណ្ណបទចម្រៀងចុះឡើងដើម្បីប្តូរលំដាប់ទីតាំង</div>
     </div>
+
+
+         <div class="song-grid" id="songGrid"></div>
+        </div>
     
-    <div class="app-view" id="viewAlbums">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+             <div class="app-view" id="viewAlbums">
+         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
             <h2 style="font-size: 1rem;">📁 អាល់ប៊ុមចម្រៀង</h2>
             <button class="btn-add-playlist-title editor-only" onclick="addNewAlbum()" style="background:var(--primary); color:white; padding: 4px 8px; border-radius: 6px; font-size:0.75rem;"><i class="fa-solid fa-plus"></i> Album ថ្មី</button>
-        </div>
-        <div class="section-grid" id="albumsGrid"></div>
-    </div>
+         </div>
+         <div class="section-grid" id="albumsGrid"></div>
+            </div>
 
-    <div class="app-view" id="viewPlaylists">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; padding-top: 5px;">
+            <div class="app-view" id="viewPlaylists">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; padding-top: 5px;">
             
             <!-- ប៊ូតុងថយក្រោយ និងចំណងជើង -->
             <div style="display: flex; align-items: center; gap: 12px;">
@@ -207,14 +220,14 @@
                 <i class="fa-solid fa-plus"></i> បង្កើតថ្មី
             </button>
             
-        </div>
+         </div>
         
-        <!-- មានតែ Playlist ផ្ទាល់ខ្លួនប៉ុណ្ណោះ លែងមាន Favorite ទៀតហើយ -->
-        <div class="section-grid" id="playlistsGrid"></div>
-    </div>
+            <!-- មានតែ Playlist ផ្ទាល់ខ្លួនប៉ុណ្ណោះ លែងមាន Favorite ទៀតហើយ -->
+         <div class="section-grid" id="playlistsGrid"></div>
+            </div>
 
-    <div class="app-view" id="viewSettings">
-        <div class="profile-container" style="padding: 10px 16px;" id="mainSettingsContainer">
+            <div class="app-view" id="viewSettings">
+          <div class="profile-container" style="padding: 10px 16px;" id="mainSettingsContainer">
             <div class="settings-section-title">គណនី (Account)</div>
             <div class="settings-card" id="settingsAccountArea"></div>
 
@@ -263,14 +276,14 @@
             </div>
             
             <div id="bottomAuthArea" style="margin-top: 24px; margin-bottom: 30px;"></div>
-        </div>
+            </div>
 
-        <div class="sub-settings-view" id="subViewNotifications" style="padding: 10px 16px;">
+            <div class="sub-settings-view" id="subViewNotifications" style="padding: 10px 16px;">
             <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 16px;"><button onclick="closeNotificationsSubView()" style="background: var(--card-bg); border: 1px solid var(--border); color: var(--text); width: 38px; height: 38px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 1rem;"><i class="fa-solid fa-arrow-left"></i></button><h2 style="font-size: 1.1rem; font-weight: 700;">🔔 ការជូនដំណឹងបទចម្រៀងថ្មី</h2></div>
-            <div class="settings-card" id="settingsNotificationsList"></div>
-        </div>
-    </div>
-</div>
+             <div class="settings-card" id="settingsNotificationsList"></div>
+         </div>
+           </div>
+            </div>
 
 
 <!-- Apple Music Style Player -->
