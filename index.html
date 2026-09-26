@@ -159,20 +159,27 @@
 
         <div class="app-view" id="viewSongs">
                     <div class="sticky-action-bar" style="padding: 10px 12px;">
-        <!-- ទម្រង់ដើម៖ បង្ហាញចំណងជើង និង Icon (ដូច YouTube) -->
-        <div id="songsNormalHeader" style="display: flex; justify-content: space-between; align-items: center;">
-            <div class="section-title-wrapper" style="margin: 0;">
-                <button id="backButton" onclick="goBackToMain()" style="display: none; background: transparent; border: none; font-size: 1.2rem; color: var(--text); cursor: pointer; padding-right: 12px;"><i class="fa-solid fa-arrow-left"></i></button>
-                <h2 class="section-title"><span class="icon-circle"><i class="fa-solid fa-headphones-simple"></i></span> <span id="sectionTitleText">បទចម្រៀងទាំងអស់</span><span id="totalSongCountBadge" class="song-count-badge">...</span></h2>
+                <!-- ទម្រង់ដើម៖ រំកិល Icon និងចំណងជើងឱ្យខិតចូលគ្នា -->
+        <div id="songsNormalHeader" style="display: flex; justify-content: space-between; align-items: center; gap: 10px;">
+            
+            <div class="section-title-wrapper" style="margin: 0; flex: 1; min-width: 0;">
+                <button id="backButton" onclick="goBackToMain()" style="display: none; background: transparent; border: none; font-size: 1.2rem; color: var(--text); cursor: pointer; padding-right: 8px;"><i class="fa-solid fa-arrow-left"></i></button>
+                <h2 class="section-title" style="margin: 0; display: flex; align-items: center; gap: 8px;">
+                    <span class="icon-circle" style="width: 28px; height: 28px; font-size: 0.75rem;"><i class="fa-solid fa-headphones-simple"></i></span> 
+                    <span id="sectionTitleText" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-size: 1rem;">បទចម្រៀងទាំងអស់</span>
+                    <span id="totalSongCountBadge" class="song-count-badge" style="margin-left: 4px;">...</span>
+                </h2>
             </div>
             
-            <!-- បន្ថែម margin-right: 8px ទីនេះដើម្បីរុញ Icon ចូលក្នុងបន្តិច -->
-            <div style="display: flex; gap: 15px; align-items: center; margin-right: 8px;">
-                <button onclick="toggleSongsSearchMode(true)" style="background: transparent; border: none; color: var(--text); font-size: 1.2rem; cursor: pointer;"><i class="fa-solid fa-magnifying-glass"></i></button>
-                <button id="viewToggleBtn" onclick="toggleViewMode()" style="background: transparent; border: none; color: var(--text); font-size: 1.2rem; cursor: pointer;"><i class="fa-solid fa-list"></i></button>
-                <button id="sharePlaylistBtn" class="btn-share-custom" style="display: none; padding: 4px 10px; border-radius: 8px; font-size: 0.75rem; font-weight: 600; cursor: pointer; border-width: 1px; border-style: solid; align-items: center; gap: 4px;" onclick="handleShareCurrentPlaylist()"><i class="fa-solid fa-share-nodes"></i> Share</button>
+            <!-- បន្ថយ Gap ពី 15px មក 5px ដើម្បីឱ្យប៊ូតុងកៀកគ្នា -->
+            <div style="display: flex; gap: 5px; align-items: center; flex-shrink: 0;">
+                <button onclick="toggleSongsSearchMode(true)" style="background: transparent; border: none; color: var(--text); font-size: 1.1rem; cursor: pointer; padding: 6px;"><i class="fa-solid fa-magnifying-glass"></i></button>
+                <button id="viewToggleBtn" onclick="toggleViewMode()" style="background: transparent; border: none; color: var(--text); font-size: 1.1rem; cursor: pointer; padding: 6px;"><i class="fa-solid fa-list"></i></button>
+                <button id="sharePlaylistBtn" class="btn-share-custom" style="display: none; padding: 4px 8px; border-radius: 8px; font-size: 0.75rem; font-weight: 600; cursor: pointer; border-width: 1px; border-style: solid; align-items: center; gap: 4px;" onclick="handleShareCurrentPlaylist()"><i class="fa-solid fa-share-nodes"></i> Share</button>
             </div>
+            
         </div>
+
 
                 <!-- ទម្រង់ Search៖ ឱ្យវាបត់បែនតាមអេក្រង់ កុំឱ្យហួសគែម -->
         <div id="songsSearchHeader" style="display: none; align-items: center; gap: 8px; flex: 1; margin-top: 5px; margin-bottom: 5px;">
