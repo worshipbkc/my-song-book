@@ -34,7 +34,19 @@ body.dark-mode {
     -ms-user-select: none;
     user-select: none;
 }
-body { background-color: var(--bg); color: var(--text); min-height: 100vh; padding-top: max(8px, env(safe-area-inset-top)); padding-bottom: calc(70px + env(safe-area-inset-bottom)); transition: background-color 0.2s, color 0.2s; overscroll-behavior-y: none; -webkit-overflow-scrolling: touch; }
+
+
+body { 
+    background-color: var(--bg); 
+    color: var(--text); 
+    min-height: 100vh; 
+    padding-top: max(8px, env(safe-area-inset-top)); 
+    padding-bottom: calc(70px + env(safe-area-inset-bottom)); 
+    transition: background-color 0.2s, color 0.2s; 
+    overscroll-behavior-y: none; 
+    -webkit-overflow-scrolling: touch; 
+}
+
 
 input, textarea, select { user-select: auto !important; -webkit-user-select: auto !important; }
 img { -webkit-touch-callout: none; pointer-events: none; }
@@ -213,7 +225,15 @@ body.dark-mode .home-icon-btn, body.dark-mode .home-quick-actions button, body.d
 .minimal-verse { font-size: 0.78rem; color: var(--text-muted); font-style: italic; line-height: 1.3; margin: 0 0 2px 0; }
 .minimal-ref { font-size: 0.72rem; font-weight: 600; color: var(--primary); margin: 0; }
 
-.main-content { padding: 12px; width: 100%; max-width: 1200px; margin: 0 auto; color: var(--text); background-color: var(--bg); }
+.main-content { 
+    padding: 12px; 
+    width: 100%; 
+    max-width: 1200px; 
+    margin: 0 auto; 
+    color: var(--text); 
+    background-color: var(--bg); 
+    overflow-x: hidden; /* បន្ថែមបន្ទាត់នេះ ដើម្បីកាត់ផ្តាច់ការលានហួសគែមឆ្វេងស្តាំ */
+}
 
 #mainAppHeader { 
     display: flex; justify-content: space-between; align-items: center; padding: 12px 16px; background: rgba(255, 255, 255, 0.65); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border: 1px solid rgba(255, 255, 255, 0.8); border-radius: 20px; box-shadow: 6px 6px 15px rgba(180, 185, 200, 0.3), -6px -6px 15px rgba(255, 255, 255, 0.9); margin-bottom: 16px; 
