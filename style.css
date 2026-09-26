@@ -77,12 +77,87 @@ body.dark-mode .home-icon-btn.active {
 .home-hero h1 { font-size:1.55rem; line-height:1.25; margin:0 0 5px; max-width:90%; }
 .home-hero p { margin:0 0 17px; color:rgba(255,255,255,.78); font-size:.82rem; }
 .home-hero-btn { width:max-content; border:0; border-radius:14px; padding:11px 16px; background:#fff; color:#111827; font-weight:800; font-size:.78rem; display:inline-flex; gap:8px; align-items:center; box-shadow:0 10px 24px rgba(0,0,0,.18); }
-.home-hero-btn:active,.home-quick-actions button:active,.home-mini-card:active,.home-new-card:active,.home-album-card:active { transform:scale(.97); }
+.home-hero-btn:active,.home-quick-actions button:active,.home-mini-card:active,.home-new-card:active,
+.home-album-card:active {
+    transform: scale(0.96);
+}
+
+/* រចនាបថបញ្ជីបញ្ឈរសម្រាប់ប្រវត្តិមើល (Vertical History List) */
+.home-vertical-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 10px;
+}
+.home-vertical-card {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 14px;
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    cursor: pointer;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.02);
+    transition: transform 0.2s ease, background-color 0.2s ease;
+}
+.home-vertical-card:active {
+    transform: scale(0.98);
+    background: var(--bg);
+}
+.home-vertical-cover {
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    overflow: hidden;
+    background: var(--bg);
+    flex-shrink: 0;
+}
+.home-vertical-cover img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+.home-vertical-info {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    text-align: left;
+}
+.home-vertical-info strong {
+    font-size: 0.88rem;
+    color: var(--text);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.home-vertical-info span {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.home-vertical-play {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: rgba(37, 99, 235, 0.1);
+    color: var(--primary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.75rem;
+    flex-shrink: 0;
+}
+
 .home-quick-actions { display:grid; grid-template-columns:repeat(4,1fr); gap:8px; margin:14px 0 22px; }
 .home-quick-actions button { border:1px solid var(--border); background:var(--card-bg); color:var(--text); border-radius:18px; padding:11px 5px 9px; min-width:0; display:flex; flex-direction:column; align-items:center; gap:7px; font-size:.67rem; font-weight:800; transition:transform .18s ease; }
 .quick-icon { width:36px; height:36px; border-radius:12px; display:grid; place-items:center; font-size:.92rem; }
 .quick-icon.blue{background:rgba(37,99,235,.11);color:#2563eb}.quick-icon.rose{background:rgba(244,63,94,.11);color:#e11d48}.quick-icon.violet{background:rgba(124,58,237,.11);color:#7c3aed}.quick-icon.green{background:rgba(16,185,129,.11);color:#059669}
-.home-section { margin-top:20px; }
+.home-section { margin-top:32px; }
 .home-section-head { display:flex; align-items:end; justify-content:space-between; gap:10px; margin-bottom:12px; }
 .home-section-head h2 { font-size:1.08rem; margin:1px 0 0; }
 .home-section-label { color:var(--text-muted); font-size:.64rem; font-weight:700; }
@@ -106,7 +181,21 @@ body.dark-mode .home-icon-btn.active {
 .home-new-card strong { font-size:.72rem; }
 .home-new-card small { margin-top:2px; font-size:.61rem; color:var(--text-muted); }
 .home-albums-section { margin-bottom:4px; }
-.home-album-card { flex:0 0 125px; width:125px; border:0; background:none; color:var(--text); text-align:left; padding:0; }
+.home-album-card {
+    flex: 0 0 130px !important;
+    width: 130px !important;
+    padding: 14px 10px !important;
+    border-radius: 20px !important;
+    background: var(--card-bg) !important;
+    border: 1px solid var(--border) !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    text-align: center !important;
+    gap: 10px !important;
+    box-shadow: 0 6px 20px rgba(0,0,0,0.04) !important;
+    transition: transform 0.2s ease !important;
+}
 .home-album-cover { position:relative; width:125px; height:125px; overflow:hidden; border-radius:20px; background:var(--bg); box-shadow:0 8px 22px rgba(15,23,42,.08); margin-bottom:7px; }
 .home-album-cover img { width:100%; height:100%; object-fit:cover; }
 .home-album-glow { position:absolute; inset:0; background:linear-gradient(135deg,rgba(37,99,235,.1),transparent 55%); }
@@ -1227,4 +1316,107 @@ body.dark-mode .card-play-btn {
     transform: scale(1.1);
     background: var(--primary);
     color: white;
+}
+/* =========================================
+   Modern UI Styles (Apple Music / App Store style)
+========================================= */
+home-topbar-modern { padding: 10px 4px 5px; display: flex; justify-content: space-between; align-items: center; }
+.home-brand-modern { display: flex; flex-direction: column; line-height: 1.2; }
+.icon-btn-modern { background: transparent; border: none; font-size: 1.4rem; color: var(--text); padding: 8px; cursor: pointer; transition: 0.2s; }
+.icon-btn-modern:active { transform: scale(0.85); color: var(--primary); }
+
+.home-search-bar-modern { margin: 10px 4px 20px; background: var(--card-bg); border: 1px solid var(--border); padding: 12px 16px; border-radius: 12px; display: flex; align-items: center; gap: 10px; color: var(--text-muted); font-size: 0.9rem; font-weight: 500; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.03); transition: 0.2s; }
+.home-search-bar-modern:active { transform: scale(0.98); }
+body.dark-mode .home-search-bar-modern { background: #1e293b; border-color: #334155; }
+
+/* Featured Banner */
+.home-hero-modern { position: relative; margin: 0 4px 12px; border-radius: 16px; overflow: hidden; min-height: 200px; display: flex; align-items: center; padding: 25px 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.15); }
+.home-hero-bg { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background-size: cover; background-position: center; z-index: 1; filter: brightness(0.9); }
+.home-hero-overlay-modern { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(to right, rgba(15,23,42,0.9), rgba(15,23,42,0.3)); z-index: 2; }
+.home-hero-content-modern { position: relative; z-index: 3; color: white; max-width: 75%; }
+.hero-tag-modern { font-size: 0.65rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; color: #cbd5e1; margin-bottom: 8px; display: block; }
+.hero-title-modern { font-size: 1.8rem; font-family: 'Kantumruy Pro'; font-weight: 700; margin: 0 0 5px; line-height: 1.2; }
+.hero-subtitle-modern { font-size: 1rem; font-weight: 500; color: #fff; margin: 0 0 10px; opacity: 0.9; }
+.hero-desc-modern { font-size: 0.75rem; color: #e2e8f0; margin: 0 0 15px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; opacity: 0.8; }
+.hero-play-btn { background: white; color: #0f172a; border: none; padding: 10px 18px; border-radius: 20px; font-weight: 700; font-size: 0.85rem; display: inline-flex; align-items: center; gap: 8px; cursor: pointer; transition: 0.2s; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+.hero-play-btn:active { transform: scale(0.92); }
+
+/* Quick Buttons */
+.home-quick-modern { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin: 0 4px 15px; }
+.quick-btn-modern { background: transparent; border: none; display: flex; flex-direction: column; align-items: center; cursor: pointer; transition: 0.2s; }
+.quick-btn-modern:active { transform: scale(0.9); }
+.quick-icon-modern { width: 60px; height: 60px; border-radius: 18px; display: flex; justify-content: center; align-items: center; font-size: 1.5rem; margin-bottom: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+.quick-btn-modern strong { font-size: 0.75rem; color: var(--text); font-weight: 700; margin-bottom: 2px; }
+.quick-btn-modern span { font-size: 0.65rem; color: var(--text-muted); }
+body.dark-mode .quick-icon-modern { filter: brightness(0.85); box-shadow: none; }
+
+/* Horizontal Lists (Trending & New Releases) */
+.home-section-modern { margin-bottom: 15px; }
+.section-head-modern { display: flex; justify-content: space-between; align-items: flex-end; padding: 0 4px; margin-bottom: 8px; }
+.section-head-modern h2 { font-size: 1.15rem; font-weight: 800; color: var(--text); margin: 0; display: flex; align-items: center; gap: 8px; }
+.section-head-modern button { background: none; border: none; color: var(--text-muted); font-size: 0.8rem; font-weight: 700; cursor: pointer; transition: 0.2s; }
+.section-head-modern button:active { color: var(--primary); transform: scale(0.95); }
+
+.horizontal-scroll-modern { display: flex; gap: 15px; overflow-x: auto; padding: 0 4px 10px; scrollbar-width: none; }
+.horizontal-scroll-modern::-webkit-scrollbar { display: none; }
+
+.modern-square-card, .modern-landscape-card { flex-shrink: 0; display: flex; flex-direction: column; gap: 8px; cursor: pointer; transition: 0.2s; }
+.modern-square-card { width: 150px; }
+.modern-landscape-card { width: 230px; }
+.modern-square-card:active, .modern-landscape-card:active { transform: scale(0.96); }
+
+.modern-card-img-wrapper { position: relative; width: 100%; border-radius: 14px; overflow: hidden; background: var(--border); box-shadow: 0 6px 15px rgba(0,0,0,0.08); }
+body.dark-mode .modern-card-img-wrapper { box-shadow: 0 6px 15px rgba(0,0,0,0.5); }
+.modern-card-img-wrapper.square { aspect-ratio: 1 / 1; }
+.modern-card-img-wrapper.landscape { aspect-ratio: 16 / 10; }
+.modern-card-img-wrapper img, .fallback-cover { width: 100%; height: 100%; object-fit: cover; }
+.fallback-cover { display: flex; align-items: center; justify-content: center; font-size: 2.5rem; color: white; background: linear-gradient(135deg, var(--primary), #4f46e5); }
+
+/* ប៊ូតុង Play តូចលើរូប */
+.modern-play-btn { position: absolute; bottom: 10px; left: 10px; width: 32px; height: 32px; border-radius: 50%; background: rgba(0,0,0,0.5); color: white; display: flex; justify-content: center; align-items: center; border: 1px solid rgba(255,255,255,0.2); font-size: 0.75rem; backdrop-filter: blur(8px); cursor: pointer; transition: 0.2s; }
+.modern-play-btn:hover, .modern-play-btn:active { background: white; color: var(--text); transform: scale(1.1); }
+
+.modern-card-info { display: flex; justify-content: space-between; align-items: flex-start; margin-top: 2px; }
+.modern-card-text { display: flex; flex-direction: column; overflow: hidden; flex: 1; padding-right: 5px; }
+.modern-card-text strong { font-size: 0.88rem; font-weight: 700; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.modern-card-text span { font-size: 0.75rem; color: var(--text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-top: 2px; }
+.modern-heart-btn { background: none; border: none; color: var(--text-muted); font-size: 1.1rem; cursor: pointer; padding: 2px; transition: 0.2s; }
+.modern-heart-btn:active { transform: scale(0.8); }
+.modern-heart-btn.active { color: var(--danger); }
+
+/* Daily Worship Bottom Card */
+.daily-worship-card-modern { margin: 0 4px 15px; background: #eef2ff; border: 1px solid #e0e7ff; border-radius: 16px; padding: 16px; display: flex; align-items: center; gap: 15px; cursor: pointer; transition: 0.2s; }
+.daily-worship-card-modern:active { transform: scale(0.97); }
+body.dark-mode .daily-worship-card-modern { background: rgba(55, 48, 163, 0.15); border-color: rgba(67, 56, 202, 0.3); }
+.daily-icon-modern { width: 45px; height: 45px; background: white; color: var(--primary); border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.4rem; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
+body.dark-mode .daily-icon-modern { background: var(--card-bg); }
+.daily-info-modern { flex: 1; display: flex; flex-direction: column; }
+.daily-info-modern strong { font-size: 0.95rem; font-weight: 700; color: var(--text); margin-bottom: 2px; }
+.daily-info-modern span { font-size: 0.75rem; color: var(--text-muted); }
+.daily-btn-modern { background: white; border: 1px solid var(--border); padding: 8px 14px; border-radius: 20px; font-size: 0.75rem; font-weight: 700; color: var(--primary); cursor: pointer; display: flex; align-items: center; gap: 6px; box-shadow: 0 2px 5px rgba(0,0,0,0.02); pointer-events: none; }
+body.dark-mode .daily-btn-modern { background: var(--card-bg); }
+
+/* =========================================
+   Sticky Wrapper សម្រាប់ Home Page
+========================================= */
+.home-sticky-wrapper {
+    position: sticky;
+    top: 0;
+    z-index: 1200; /* ធ្វើឱ្យវានៅខាងលើគេជានិច្ច */
+    background: var(--bg-glass); /* ពណ៌ថ្លាៗ */
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    margin: -12px -4px 15px -4px; /* ទាញវាឱ្យកៀកគែមអេក្រង់ខាងលើ និងសងខាង */
+    padding: 12px 4px 5px 4px; /* រុញរបស់ខាងក្នុងកុំឱ្យប៉ះគែមពេក */
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05); /* បន្ទាត់ស្តើងខាងក្រោម */
+    transition: background 0.3s;
+}
+
+body.dark-mode .home-sticky-wrapper {
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+/* កែសម្រួល Margin របស់ Search Bar ខាងក្នុង Sticky កុំឱ្យមានចន្លោះខាងក្រោមធំពេក */
+.home-sticky-wrapper .home-search-bar-modern {
+    margin-bottom: 5px; 
 }
