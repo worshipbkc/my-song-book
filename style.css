@@ -151,17 +151,15 @@ body.dark-mode .chip-btn { box-shadow: 4px 4px 10px rgba(0,0,0,0.4), -4px -4px 1
 .app-view.active { display: block; opacity: 1; }
 
 .controls { z-index: 1000; background: transparent; padding: 4px 0; margin-bottom: 4px; display: flex; align-items: center; gap: 8px; }
-/* កែប្រែនៅក្នុងឯកសារ style.css */
 .sticky-action-bar { 
     position: sticky; 
-    top: env(safe-area-inset-top, 0px); /* ផ្លាស់ប្តូរត្រង់នេះ */
+    top: 0; 
     z-index: 1200; 
     background: var(--bg-glass); 
-    backdrop-filter: blur(16px); 
-    -webkit-backdrop-filter: blur(16px); 
+    backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); 
     margin: 0 -12px; 
-    padding: 10px 12px 0 12px; 
-    border-bottom: 1px solid rgba(255, 255, 255, 0.5); 
+    padding: 2px 8px 0 8px; 
+    border-bottom: 1px solid rgba(255, 255, 255, 0.5);
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.03); 
 }
 
