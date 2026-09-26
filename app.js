@@ -207,24 +207,15 @@ function initIndexedDB() {
 }
 
 function toggleFilterUI(isFiltered) {
-    const header = document.getElementById('mainAppHeader');
-    const greeting = document.querySelector('.minimal-greeting');
-    const controls = document.querySelector('.controls');
     const filterChips = document.querySelector('.filter-chips');
     const backBtn = document.getElementById('backButton');
     const iconCircle = document.querySelector('.section-title .icon-circle');
 
     if (isFiltered) {
-        if (header) header.style.display = 'none';
-        if (greeting) greeting.style.display = 'none';
-        if (controls) controls.style.display = 'none';
         if (filterChips) filterChips.style.display = 'none';
         if (iconCircle) iconCircle.style.display = 'none';
         if (backBtn) backBtn.style.display = 'block';
     } else {
-        if (header) header.style.display = 'flex';
-        if (greeting) greeting.style.display = 'block';
-        if (controls) controls.style.display = 'flex';
         if (filterChips) filterChips.style.display = 'flex';
         if (iconCircle) iconCircle.style.display = 'flex';
         if (backBtn) backBtn.style.display = 'none';
@@ -834,51 +825,85 @@ function renderHomeView() {
     const setlistList = document.getElementById('homeSetlistList');
     
     if (!songsList || songsList.length === 0) {
-        if (continueList) continueList.innerHTML = '<div class="home-empty-inline">កំពុងទាញយកបទចម្រៀង...</div>';
-        if (setlistList) setlistList.innerHTML = '<div class="home-empty-inline">សូមរង់ចាំបន្តិច...</div>';
+        if (continueList) continueList.innerHTML = '<div class="home-empty-inline" style="width:100%;">កំពុងទាញយកបទចម្រៀង...</div>';
+        if (setlistList) setlistList.innerHTML = '<div class="home-empty-inline" style="width:100%;">សូមរង់ចាំបន្តិច...</div>';
         return;
     }
 
-    const history = getRecentHistorySongs(4);
+    // ផ្នែក New Releases (ប្រវត្តិស្តាប់ថ្មីៗ) - Card ទ្រវែង
+    const history = getRecentHistorySongs(6);
     if (continueList) {
-        const source = history.length ? history : songsList.slice(0, 4);
-        continueList.innerHTML = source.map(song => `
-            <button class="home-mini-card" onclick="openFullScreenModal('${song.id}')">
-                <div class="home-mini-cover">${getCardThumbnailHTML(song, true)}</div>
-                <div class="home-mini-info"><strong>${escapeHtml(song.title || 'បទចម្រៀង')}</strong><span>${escapeHtml(song.artist || 'មិនស្គាល់')}</span></div>
-                <span class="home-mini-play"><i class="fa-solid fa-play"></i></span>
-            </button>`).join('');
+        const source = history.length ? history : songsList.slice(0, 6);
+        continueList.innerHTML = source.map(song => {
+            const inFav = (playlists['Favorite'] || []).includes(song.id);
+            let coverHtml = '';
+            if (song.imageUrl && song.imageUrl.length > 10) {
+                coverHtml = `<img src="${song.imageUrl}" alt="${escapeHtml(song.title)}" loading="lazy">`;
+            } else {
+                coverHtml = `<div class="fallback-cover"><i class="fa-solid fa-music"></i></div>`;
+            }
+            return `
+            <div class="modern-landscape-card" onclick="openFullScreenModal('${song.id}')">
+                <div class="modern-card-img-wrapper landscape">
+                    ${coverHtml}
+                    <!-- ប៊ូតុង Play តូចនៅមុំខាងឆ្វេង -->
+                    <button class="modern-play-btn" onclick="playFloatingAudio('${song.id}', event)"><i class="fa-solid fa-play"></i></button>
+                </div>
+                <div class="modern-card-info">
+                    <div class="modern-card-text">
+                        <strong>${escapeHtml(song.title || 'បទចម្រៀង')}</strong>
+                        <span>${escapeHtml(song.artist || 'មិនស្គាល់')}</span>
+                    </div>
+                    <button class="modern-heart-btn ${inFav ? 'active' : ''}" onclick="toggleFavorite('${song.id}', event)">
+                        <i class="${inFav ? 'fa-solid' : 'fa-regular'} fa-heart"></i>
+                    </button>
+                </div>
+            </div>`;
+        }).join('');
     }
 
+    // ផ្នែក Trending Now (Setlists) - Card ការ៉េ
     if (setlistList) {
-        const khmerMonths = ["មករា", "កុម្ភៈ", "មីនា", "មេសា", "ឧសភា", "មិថុនា", "កក្កដា", "សីហា", "កញ្ញា", "តុលា", "វិច្ឆិកា", "ធ្នូ"];
-        const currentMonthName = khmerMonths[new Date().getMonth()];
-        
-        const sectionHead = setlistList.parentElement.querySelector('.home-section-head h2');
-        if (sectionHead) sectionHead.innerText = `Setlist ខែ${currentMonthName}`;
-
         const totalSundays = getSundaysInCurrentMonth();
         const weeks = [];
         for (let i = 1; i <= totalSundays; i++) {
             weeks.push(`សប្តាហ៍ទី${i}`);
         }
-
         if (!globalSetlists) globalSetlists = {};
 
-        setlistList.innerHTML = weeks.map(week => {
+        // រូបភាពជំនួសសម្រាប់ Setlist (Random)
+        const genericImages = [
+            "https://lh3.googleusercontent.com/d/18AIuYlcZ16nBkcnNdjfg-q1TXBWvpZlJ",
+            "https://lh3.googleusercontent.com/d/1EMRwJM4HMRmtioSp0Zsy-Vu8qFQhIJUB",
+            "https://lh3.googleusercontent.com/d/1U5WYEYYJ6r9ZD9T4C0qBpU1SvZXrBTtQ",
+            "https://lh3.googleusercontent.com/d/1Bd0FVs00khBVM9qlhz4z7aWz9XUCEFh4",
+            "https://lh3.googleusercontent.com/d/1JY-gKNv73mJocbJ0bWBBnQRjUY3bbBmI"
+        ];
+
+        setlistList.innerHTML = weeks.map((week, index) => {
             const count = (globalSetlists[week] || []).length;
-            return `<button class="home-album-card" style="width: 140px; flex: 0 0 140px; padding: 10px; border-radius: 14px; background: var(--card-bg); border: 1px solid var(--border); display: flex; align-items: center; gap: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.05);" onclick="filterBySetlist('${week}')">
-                <div style="width: 36px; height: 36px; border-radius: 10px; background: rgba(37, 99, 235, 0.1); color: var(--primary); display: flex; align-items: center; justify-content: center; font-size: 1.2rem; flex-shrink: 0;">
-                    <i class="fa-solid fa-calendar-check"></i>
+            const imgUrl = genericImages[index % genericImages.length];
+            return `
+            <div class="modern-square-card" onclick="filterBySetlist('${week}')">
+                <div class="modern-card-img-wrapper square">
+                    <img src="${imgUrl}" alt="${week}" loading="lazy">
+                    <div class="modern-play-btn"><i class="fa-solid fa-list"></i></div>
                 </div>
-                <div style="display: flex; flex-direction: column; align-items: flex-start; overflow: hidden;">
-                    <strong style="font-size: 0.8rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${week}</strong>
-                    <span style="font-size: 0.65rem; color: var(--text-muted); margin-top: 2px;">${count} បទ</span>
+                <div class="modern-card-info">
+                    <div class="modern-card-text">
+                        <strong>${week}</strong>
+                        <span>${count} បទចម្រៀង</span>
+                    </div>
+                    <button class="modern-heart-btn" onclick="event.stopPropagation(); filterBySetlist('${week}')">
+                        <i class="fa-solid fa-arrow-right"></i>
+                    </button>
                 </div>
-            </button>`;
+            </div>`;
         }).join('');
     }
 }
+
+
 
 
 function handleDragStart(e, songId) {
@@ -1649,8 +1674,8 @@ function toggleViewMode() {
     const btn = document.getElementById('viewToggleBtn');
     if (btn) {
         btn.innerHTML = isListView 
-            ? '<i class="fa-solid fa-table-cells-large"></i> ទម្រង់ Grid' 
-            : '<i class="fa-solid fa-list"></i> ទម្រង់ List';
+            ? '<i class="fa-solid fa-table-cells-large"></i>' 
+            : '<i class="fa-solid fa-list"></i>';
     }
 }
 
@@ -1659,9 +1684,10 @@ function applyStoredViewMode() {
         const grid = document.getElementById('songGrid');
         if (grid) grid.classList.add('list-view');
         const btn = document.getElementById('viewToggleBtn');
-        if (btn) btn.innerHTML = '<i class="fa-solid fa-table-cells-large"></i> ទម្រង់ Grid';
+        if (btn) btn.innerHTML = '<i class="fa-solid fa-table-cells-large"></i>';
     }
 }
+
 
 function escapeHtml(str) { if (!str) return ''; return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;"); }
 
@@ -2572,6 +2598,12 @@ document.addEventListener('click', function(e) {
         let chordName = e.target.innerText.trim();
         showChordModal(chordName);
     }
+            const homeSearchBox = document.querySelector('.home-search-bar-modern');
+        const homeDropdown = document.getElementById('homeSearchDropdown');
+        if (homeSearchBox && homeDropdown && !homeSearchBox.contains(e.target)) {
+            homeDropdown.style.display = 'none';
+        }
+
 });
 
 function closeChordModal() {
@@ -4013,3 +4045,70 @@ closeFullScreenModalDirect = function() {
     if (bar) bar.style.display = 'none';
     nativeCloseFS();
 };
+
+// បិទបើកកន្លែង Search នៅទំព័រចម្រៀង (YouTube Style)
+function toggleSongsSearchMode(isActive) {
+    const normalHeader = document.getElementById('songsNormalHeader');
+    const searchHeader = document.getElementById('songsSearchHeader');
+    const searchInput = document.getElementById('searchInput');
+
+    if (isActive) {
+        normalHeader.style.display = 'none';
+        searchHeader.style.display = 'flex';
+        setTimeout(() => searchInput.focus(), 100);
+    } else {
+        normalHeader.style.display = 'flex';
+        searchHeader.style.display = 'none';
+        clearSearchInput();
+    }
+}
+
+// មុខងារ Search ដោយឡែកសម្រាប់ Home Page
+function handleHomeSearch() {
+    const input = document.getElementById('homeSearchInput');
+    const clearBtn = document.getElementById('clearHomeSearchBtn');
+    const dropdown = document.getElementById('homeSearchDropdown');
+    const rawVal = input.value;
+    
+    if (rawVal.trim().length > 0) clearBtn.style.display = 'block';
+    else clearBtn.style.display = 'none';
+
+    const rawTerms = rawVal.split(/\s+/).filter(t => t.length > 0);
+    const searchTerms = rawTerms.map(t => cleanKhmerChars(t));
+
+    if (searchTerms.length === 0) { dropdown.style.display = 'none'; return; }
+
+    let matches = songsList.filter(s => {
+        const fullText = cleanKhmerChars((s.title || '') + ' ' + (s.artist || '')).replace(/\s+/g, '');
+        return searchTerms.every(term => fullText.includes(term.replace(/\s+/g, '')));
+    });
+
+    matches = matches.slice(0, 15); // បង្ហាញ ១៥ បទ
+
+    if (matches.length > 0) {
+        dropdown.innerHTML = matches.map(s => `
+            <div class="search-dropdown-item" onclick="openFullScreenModal('${s.id}'); clearHomeSearch();">
+                <div style="display:flex; align-items:center; gap: 10px;">
+                    <div style="width:35px; height:35px; border-radius:8px; overflow:hidden; background:var(--bg); flex-shrink:0;">
+                        ${s.imageUrl && s.imageUrl.length > 10 ? `<img src="${s.imageUrl}" style="width:100%; height:100%; object-fit:cover;">` : `<div style="width:100%; height:100%; display:flex; align-items:center; justify-content:center; background:var(--primary); color:white;"><i class="fa-solid fa-music"></i></div>`}
+                    </div>
+                    <div>
+                        <div class="search-dropdown-title">${escapeHtml(s.title)}</div>
+                        <div class="search-dropdown-artist">🎤 ${escapeHtml(s.artist || 'មិនស្គាល់')}</div>
+                    </div>
+                </div>
+                <i class="fa-solid fa-play" style="font-size: 0.9rem; color: var(--primary);"></i>
+            </div>
+        `).join('');
+        dropdown.style.display = 'block';
+    } else {
+        dropdown.innerHTML = '<div class="search-dropdown-item" style="color:var(--text-muted); justify-content:center;">រកមិនឃើញចម្រៀងឡើយ</div>';
+        dropdown.style.display = 'block';
+    }
+}
+
+function clearHomeSearch() {
+    document.getElementById('homeSearchInput').value = '';
+    document.getElementById('clearHomeSearchBtn').style.display = 'none';
+    document.getElementById('homeSearchDropdown').style.display = 'none';
+}
