@@ -4174,3 +4174,112 @@ function clearHomeSearch() {
     document.getElementById('clearHomeSearchBtn').style.display = 'none';
     document.getElementById('homeSearchDropdown').style.display = 'none';
 }
+
+document.addEventListener('keydown', (e) => {
+    // មិនត្រូវដំណើរការ Shortcut ទេ បើសិនជាអ្នកប្រើប្រាស់កំពុងพิมพ์ក្នុង ô ស្វែងរក ឬ Textarea
+    if (['INPUT', 'TEXTAREA'].includes(document.activeElement.tagName)) {
+        return;
+    }
+
+    // ១. ចុចปุ่ม Space ដើម្បី Play/Pause អូឌីយ៉ូ
+    if (e.code === 'Space') {
+        e.preventDefault(); // ការពារកុំឱ្យទំព័ររំកិលចុះក្រោមពេលចុច Space
+        toggleApplePlayPause();
+    }
+
+    // ២. ចុចព្រួញស្តាំ (ArrowRight) ដើម្បីទៅបទបន្ទាប់
+    if (e.code === 'ArrowRight') {
+        playNextSong();
+    }
+
+    // ៣. ចុចព្រួញឆ្វេង (ArrowLeft) ដើម្បីថយទៅបទមុន
+    if (e.code === 'ArrowLeft') {
+        playPrevSong();
+    }
+
+    // ៤. ចុចปุ่ม Escape (Esc) ដើម្បីបិទ Fullscreen Modal ឬ Modal ផ្សេងៗ
+    if (e.code === 'Escape') {
+        const fullScreenModal = document.getElementById('fullScreenModal');
+        const appleFullPlayer = document.getElementById('appleFullPlayer');
+        
+        if (fullScreenModal && fullScreenModal.classList.contains('active')) {
+            closeFullScreenModalDirect();
+        } else if (appleFullPlayer && appleFullPlayer.classList.contains('active')) {
+            closeAppleFullScreenPlayer();
+        } else {
+            // បិទ Modal ទូទៅផ្សេងទៀត
+            document.querySelectorAll('.modal.active').forEach(modal => {
+                modal.classList.remove('active');
+                document.body.classList.remove('no-scroll');
+            });
+        }
+    }
+});
+
+// =========================================
+// មុខងារ Swipe អូសឆ្វេង/ស្តាំ ដើម្បីប្តូរ Tab លើទូរស័ព្ទ
+// =========================================
+document.addEventListener('DOMContentLoaded', () => {
+    const mainContent = document.querySelector('.main-content');
+    if (!mainContent) return;
+
+    let touchStartX = 0;
+    let touchStartY = 0;
+    let touchEndX = 0;
+    let touchEndY = 0;
+
+    // លំដាប់ Tab ខាងក្រោម (ពីឆ្វេងទៅស្តាំ)
+    const tabOrder = ['home', 'songs', 'albums', 'settings'];
+
+    mainContent.addEventListener('touchstart', e => {
+        touchStartX = e.changedTouches[0].screenX;
+        touchStartY = e.changedTouches[0].screenY;
+    }, { passive: true });
+
+    mainContent.addEventListener('touchend', e => {
+        touchEndX = e.changedTouches[0].screenX;
+        touchEndY = e.changedTouches[0].screenY;
+        handleSwipeGesture(e.target);
+    }, { passive: true });
+
+    function handleSwipeGesture(target) {
+        // បើកំពុងបើកមើលរូប Fullscreen ឬកំពុងអូសលើកន្លែងដែលអូសផ្តេកស្រាប់ (Slider) មិនឱ្យប្តូរ Tab ទេ
+        if (document.getElementById('fullScreenModal')?.classList.contains('active') ||
+            target.closest('.horizontal-scroll-modern') || 
+            target.closest('.filter-chips') || 
+            target.closest('input') || 
+            target.closest('textarea')) {
+            return;
+        }
+
+        const diffX = touchEndX - touchStartX;
+        const diffY = touchEndY - touchStartY;
+
+        // កំណត់ថាជាការអូសផ្តេកពិតប្រាកដ បើចម្ងាយអូសផ្តេកវែងជាងបញ្ឈរ និងអូសលើសពី ៨០px
+        if (Math.abs(diffX) > Math.abs(diffY) && Math.abs(diffX) > 80) {
+            
+            // រកមើលថាបច្ចុប្បន្នយើងកំពុងនៅ Tab ណា
+            const currentActiveView = document.querySelector('.app-view.active');
+            if (!currentActiveView) return;
+
+            // កាត់យកតែឈ្មោះដើម ឧ. viewHome ទៅជា home
+            const currentTabId = currentActiveView.id.replace('view', '').toLowerCase();
+            const currentIndex = tabOrder.indexOf(currentTabId);
+
+            // បើមិនមែនជា Main Tab ទាំង៤ ទេ មិនដំណើរការឡើយ
+            if (currentIndex === -1) return;
+
+            if (diffX < 0) {
+                // អូសទៅឆ្វេង (Swipe Left) => ប្តូរទៅ Tab ខាងស្តាំបន្ទាប់
+                if (currentIndex < tabOrder.length - 1) {
+                    switchTab(tabOrder[currentIndex + 1]);
+                }
+            } else {
+                // អូសទៅស្តាំ (Swipe Right) => ត្រឡប់មក Tab ខាងឆ្វេងមុន
+                if (currentIndex > 0) {
+                    switchTab(tabOrder[currentIndex - 1]);
+                }
+            }
+        }
+    }
+});
