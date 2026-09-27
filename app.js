@@ -620,7 +620,7 @@ function fetchAllSongsSilently() {
     });
 }
 
-function fetchAllSongsWithProgress() {
+async function fetchAllSongsWithProgress() {
     const fetchBtn = document.getElementById('fetchAllBtn');
     const fetchIcon = document.getElementById('fetchIcon');
     const percentLabel = document.getElementById('progressPercent');
@@ -630,37 +630,73 @@ function fetchAllSongsWithProgress() {
     percentLabel.innerText = '0%';
     fetchIcon.className = 'fa-solid fa-spinner fa-spin';
 
-    let progress = 0;
-    const interval = setInterval(() => {
-        progress += 20;
-        if (progress > 80) progress = 80;
-        percentLabel.innerText = progress + '%';
-    }, 100);
-
-    db.collection("songs").orderBy("createdAt", "desc").get().then((snapshot) => {
-        clearInterval(interval);
-        percentLabel.innerText = '100%';
+    try {
+        // ១. ទាញយកទិន្នន័យពី Firebase
+        const snapshot = await db.collection("songs").orderBy("createdAt", "desc").get();
         songsList = [];
+        let imageUrlsToCache = [];
+
         snapshot.forEach((doc) => {
             const data = doc.data();
-            songsList.push({ id: doc.id, ...data, createdAt: data.createdAt ? { seconds: data.createdAt.seconds } : null, updatedAt: data.updatedAt ? { seconds: data.updatedAt.seconds } : null });
+            const song = { 
+                id: doc.id, 
+                ...data, 
+                createdAt: data.createdAt ? { seconds: data.createdAt.seconds } : null, 
+                updatedAt: data.updatedAt ? { seconds: data.updatedAt.seconds } : null 
+            };
+            songsList.push(song);
+
+            // ប្រមូល URL រូបភាពសម្រាប់ទាញយកទុក (មិនខ្វល់ពី Audio ទេ)
+            if (song.imageUrl && song.imageUrl.startsWith('http')) {
+                imageUrlsToCache.push(song.imageUrl);
+            }
         });
+
+        // ២. រក្សាទុកអត្ថបទចូល IndexedDB
+        saveSongsToIndexedDB(songsList);
+
+        // ៣. ទាញយករូបភាពចូល Cache Storage
+        if ('caches' in window && imageUrlsToCache.length > 0) {
+            const cache = await caches.open('SongApp-Image-Cache-v1');
+            let loadedImages = 0;
+            let totalImages = imageUrlsToCache.length;
+
+            for (const url of imageUrlsToCache) {
+                try {
+                    // ទាញយករូបភាពពី Server (ប្រើ mode: 'cors' សម្រាប់ Cloudinary/Firebase)
+                    const response = await fetch(url, { mode: 'cors' });
+                    if (response.ok) {
+                        await cache.put(url, response);
+                    }
+                } catch (err) {
+                    console.warn('មិនអាចទាញយករូបភាព៖', url);
+                }
+                
+                loadedImages++;
+                // បង្ហាញភាគរយពិតប្រាកដ
+                let progress = Math.round((loadedImages / totalImages) * 100);
+                percentLabel.innerText = progress + '%';
+            }
+        } else {
+            percentLabel.innerText = '100%';
+        }
+
         isDataLoaded = true;
         renderSongs();
         updateTotalSongCount();
-        saveSongsToIndexedDB(songsList);
         checkNewSongsNotification();
 
         setTimeout(() => markFetchCompleted(), 300);
         vibratePhone(100);
-        showToast('ទាញយកដោយជោគជ័យ', 'success');
-    }).catch(err => {
-        clearInterval(interval);
+        showToast('ទាញយកអត្ថបទ និងរូបភាពរួចរាល់', 'success');
+
+    } catch (err) {
+        console.error(err);
         fetchBtn.disabled = false;
         percentLabel.style.display = 'none';
         fetchIcon.className = 'fa-solid fa-cloud-arrow-down';
-        showToast('បរាជ័យក្នុងការទាញយកទិន្នន័យ', 'error');
-    });
+        showToast('បរាជ័យក្នុងការទាញយក', 'error');
+    }
 }
 
 function markFetchCompleted() {
@@ -1005,7 +1041,13 @@ function handleSearchInput() {
 
     if (searchTerms.length === 0) { hideSearchDropdown(); return; }
 
-    let matches = songsList.filter(s => {
+    // 🔴 កំណត់ទិន្នន័យគោលសម្រាប់ស្វែងរក (បើកំពុងបើក Album យកតែបទក្នុង Album នោះមកបង្ហាញ)
+    let sourceList = songsList;
+    if (currentFilterType === 'ALBUM') {
+        sourceList = songsList.filter(s => s.album === currentFilterValue);
+    }
+
+    let matches = sourceList.filter(s => {
         const fullText = cleanKhmerChars((s.title || '') + ' ' + (s.artist || ''))
                          .replace(/\s+/g, ''); // លុប Space ចេញពីទិន្នន័យដើម
         return searchTerms.every(term => fullText.includes(term.replace(/\s+/g, '')));
@@ -1114,6 +1156,19 @@ function renderSongs() {
         if (dragInfo) dragInfo.style.display = 'none';
         if (shareBtn) shareBtn.style.display = 'none';
     }
+    const searchBtn = document.getElementById('searchSongBtn');
+    const viewToggleBtn = document.getElementById('viewToggleBtn');
+
+    if (currentFilterType === 'PLAYLIST') {
+        // លាក់ប៊ូតុងពេលចូល Playlist ឬ Favorite
+        if (searchBtn) searchBtn.style.display = 'none';
+        if (viewToggleBtn) viewToggleBtn.style.display = 'none';
+    } else {
+        // បង្ហាញប៊ូតុងវិញពេលនៅទំព័រផ្សេង
+        if (searchBtn) searchBtn.style.display = 'inline-block';
+        if (viewToggleBtn) viewToggleBtn.style.display = 'inline-block';
+    }
+
 
     renderSongsListOnly();
 }
@@ -1289,11 +1344,18 @@ function renderSettingsView() {
 }
 
 async function clearOfflineData() {
-    if(confirm('តើអ្នកពិតជាចង់លុបទិន្នន័យ Offline ទាំងអស់មែនទេ? (វានឹងមិនលុប Playlist របស់អ្នកឡើយ)')) {
+    if(confirm('តើអ្នកពិតជាចង់លុបទិន្នន័យ និងរូបភាព Offline ទាំងអស់មែនទេ? (វានឹងមិនលុប Playlist របស់អ្នកឡើយ)')) {
+        // លុបអត្ថបទពី IndexedDB
         if(dbIndexed) {
             const tx = dbIndexed.transaction('offlineSongs', 'readwrite');
             tx.objectStore('offlineSongs').clear();
         }
+        
+        // លុបរូបភាពពី Cache Storage
+        if ('caches' in window) {
+            await caches.delete('SongApp-Image-Cache-v1');
+        }
+        
         vibratePhone(50);
         showToast('ជម្រះទិន្នន័យរួចរាល់', 'success');
         setTimeout(() => window.location.reload(), 1000);
