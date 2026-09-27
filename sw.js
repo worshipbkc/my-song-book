@@ -13,40 +13,30 @@ const ASSETS_TO_CACHE = [
   'https://fonts.googleapis.com/css2?family=Kantumruy+Pro:wght@400;500;600;700&display=swap'
 ];
 
-// Install Event - ចុះឈ្មោះ Cache ថ្មី
-self.addEventListener('install', (event) => {
-  self.skipWaiting(); // បង្ខំឱ្យ Service Worker ថ្មីដំណើរការភ្លាមៗ
-  event.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => {
-      return cache.addAll(ASSETS_TO_CACHE);
-    })
-  );
-});
-
-// Activate Event - លុប Cache ចាស់ៗចោលស្វ័យប្រវត្តិ
-self.addEventListener('activate', (event) => {
-  event.waitUntil(
-    caches.keys().then((cacheNames) => {
-      return Promise.all(
-        cacheNames.map((cache) => {
-          if (cache !== CACHE_NAME) {
-            return caches.delete(cache);
-          }
-        })
-      );
-    }).then(() => self.clients.claim())
-  );
-});
-
-// Fetch Event - Network-First Strategy សម្រាប់កូដ UI
-// ព្យាយាមទាញយកកូដថ្មីពី Server មុន បើគ្មានអ៊ីនធឺណិត ទើបយកកូដក្នុង Cache មកប្រើ
+// Fetch Event - ចែកចេញជា ២ យុទ្ធសាស្ត្រ (សម្រាប់រូបភាព និង សម្រាប់កូដ)
 self.addEventListener('fetch', (event) => {
-  // មិនធ្វើ Cache លើ Request របស់ Firebase Firestore ឡើយ (ដើម្បីកុំឱ្យជាន់គ្នា)
+  // មិនធ្វើ Cache លើ Request របស់ Firebase ឡើយ
   if (event.request.url.includes('firestore.googleapis.com') || 
       event.request.url.includes('identitytoolkit.googleapis.com')) {
     return;
   }
 
+  // ១. យុទ្ធសាស្ត្រ "Cache-First" សម្រាប់រូបភាព (សន្សំសំចៃអ៊ីនធឺណិត)
+  if (event.request.destination === 'image' || event.request.url.includes('res.cloudinary.com')) {
+    event.respondWith(
+      caches.match(event.request).then((cachedResponse) => {
+        // បើមានរូបភាពក្នុង Cache ស្រាប់ (ដែលបាន Download ទុក) គឺយកមកបង្ហាញភ្លាមៗ
+        if (cachedResponse) {
+          return cachedResponse;
+        }
+        // បើគ្មានទេ ទើបព្យាយាមទាញយកពីអ៊ីនធឺណិត
+        return fetch(event.request);
+      })
+    );
+    return;
+  }
+
+  // ២. យុទ្ធសាស្ត្រ "Network-First" សម្រាប់កូដ HTML, CSS, JS ដូចចាស់ 
   event.respondWith(
     fetch(event.request)
       .then((networkResponse) => {
