@@ -226,13 +226,13 @@ body.dark-mode .home-icon-btn, body.dark-mode .home-quick-actions button, body.d
 .minimal-ref { font-size: 0.72rem; font-weight: 600; color: var(--primary); margin: 0; }
 
 .main-content { 
-    padding: 12px; 
+    padding: 10px; 
     width: 100%; 
     max-width: 1200px; 
     margin: 0 auto; 
     color: var(--text); 
     background-color: var(--bg); 
-    overflow-x: hidden; /* បន្ថែមបន្ទាត់នេះ ដើម្បីកាត់ផ្តាច់ការលានហួសគែមឆ្វេងស្តាំ */
+    overflow-x: clip; /* បន្ថែមបន្ទាត់នេះ ដើម្បីកាត់ផ្តាច់ការលានហួសគែមឆ្វេងស្តាំ */
 }
 
 #mainAppHeader { 
@@ -266,8 +266,8 @@ body.dark-mode .chip-btn { box-shadow: 4px 4px 10px rgba(0,0,0,0.4), -4px -4px 1
     z-index: 1200; 
     background: var(--bg-glass); 
     backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); 
-    margin: 0 -12px; 
-    padding: 2px 8px 0 8px; 
+    margin: 0; 
+    padding: 10px 16px; /* 🔴 កែត្រង់នេះ៖ បន្ថែម 16px ដើម្បីរុញ Icon និងអក្សរចូលក្នុងឱ្យស្មើនឹង Bottom Nav */
     border-bottom: 1px solid rgba(255, 255, 255, 0.5);
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.03); 
 }
@@ -304,8 +304,18 @@ body.dark-mode .song-count-badge { box-shadow: 2px 2px 6px rgba(0,0,0,0.4), -2px
 
 .selectable-text { user-select: none !important; -webkit-user-select: none !important; pointer-events: none; }
 
-.song-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 18px; }
-.song-grid.list-view { display: flex; flex-direction: column; gap: 12px; }
+.song-grid { 
+    display: grid; 
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); 
+    gap: 18px; 
+    padding: 0 16px; /* 🔴 បន្ថែមបន្ទាត់នេះ ដើម្បីរុញកាតឱ្យចូលក្នុងស្មើនឹង Header */
+}
+.song-grid.list-view { 
+    display: flex; 
+    flex-direction: column; 
+    gap: 12px; 
+    padding: 0 16px; /* 🔴 បន្ថែមបន្ទាត់នេះ ដើម្បីឱ្យទម្រង់បញ្ជី (List View) រំកិលចូលក្នុងស្មើគ្នាដែរ */
+}
 .song-grid.list-view .song-card { flex-direction: row; height: 110px; align-items: center; }
 .song-grid.list-view .song-img-container { width: 110px; height: 100%; min-height: unset; flex-shrink: 0; }
 .song-grid.list-view .song-info { flex: 1; padding: 8px 12px; display: flex; flex-direction: column; justify-content: center; }
@@ -385,17 +395,32 @@ body.dark-mode .toggle-switch { background: #475569; }
     right: 10px; 
     height: 65px; 
     background: var(--card-bg); 
-    border: 1px solid var(--border); 
+    border: 3px solid var(--border); 
     display: flex; 
     align-items: center; 
     justify-content: space-around; 
     z-index: 1000; 
     box-shadow: 0 12px 35px rgba(15,23,42,.16); 
-    border-radius: 20px; /* កោងទាំង ៤ ជ្រុង */
+    border-radius: 10px; /* កោងទាំង ៤ ជ្រុង */
     backdrop-filter: blur(16px); 
     -webkit-backdrop-filter: blur(16px); 
 }
-.bottom-nav-item { display: flex; flex-direction: column; align-items: center; justify-content: center; flex: 1; height: 100%; color: var(--text-muted); text-decoration: none; font-size: 0.65rem; font-weight: 600; cursor: pointer; border: none; background: transparent; gap: 2px; position: relative; }
+.bottom-nav-item { 
+    display: flex; 
+    flex-direction: column; 
+    align-items: center; 
+    justify-content: center; 
+    flex: 1; height: 100%; 
+    color: var(--text-muted); 
+    text-decoration: none; 
+    font-size: 0.65rem; 
+    font-weight: 600; 
+    cursor: pointer; 
+    border: none; 
+    background: transparent; 
+    gap: 2px; 
+    position: relative; 
+}
 .bottom-nav-item i { font-size: 1.05rem; }
 .bottom-nav-item.active { color: var(--primary); }
 .bottom-nav-item.active::before { content:""; position:absolute; width:44px; height:30px; border-radius:12px; background:rgba(37,99,235,.10); z-index:-1; top:8px; }
@@ -524,12 +549,75 @@ body.dark-mode .card-dropdown { box-shadow: 0 4px 15px rgba(0,0,0,0.5); }
     .modal-content { max-width: 700px; }
 }
 @media (min-width: 1025px) {
-    body { display: flex; padding-bottom: 0; }
-    .bottom-nav { position: fixed; top: 0; left: 0; right: auto; bottom: 0; width: 260px; height: 100vh; flex-direction: column; justify-content: flex-start; padding-top: 30px; border-top: none; border-right: 1px solid var(--border); border-radius: 0; box-shadow: 4px 0 15px rgba(0,0,0,0.03); }
-    .bottom-nav-item { flex: none; height: 50px; width: 85%; margin: 8px auto; flex-direction: row; justify-content: flex-start; padding-left: 24px; border-radius: 12px; font-size: 0.95rem; gap: 16px; transition: all 0.2s; }
+    body { 
+        display: block; 
+        padding-bottom: 0; 
+        padding-left: 80px; /* 🔴 គន្លឹះនៅទីនេះ៖ រុញតួវេបសាយទាំងមូលចេញពីគែមឆ្វេង 80px */
+        box-sizing: border-box;
+    }
+    
+    .bottom-nav { 
+        position: fixed; 
+        top: 0; 
+        left: 0; 
+        bottom: 0; 
+        width: 80px; 
+        height: 100vh; 
+        flex-direction: column; 
+        justify-content: flex-start; 
+        align-items: flex-start; 
+        padding-top: 30px; 
+        border-top: none; 
+        border-right: 1px solid var(--border); 
+        border-radius: 0; 
+        background: var(--card-bg); /* បញ្ជាក់ពណ៌ផ្ទៃខាងក្រោយកុំឱ្យថ្លា */
+        box-shadow: 4px 0 15px rgba(0,0,0,0.03); 
+        transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        overflow: hidden;
+        white-space: nowrap; 
+        z-index: 2000; /* 🔴 ដាក់លេខធំ ដើម្បីឱ្យមីនុយនៅពីលើគេជានិច្ច ពេលវាលាតចេញ */
+    }
+    
+    .bottom-nav:hover {
+        width: 260px; 
+    }
+
+    .bottom-nav-item { 
+        flex: none; 
+        height: 50px; 
+        width: 50px; 
+        margin: 8px 15px; 
+        padding: 0; 
+        flex-direction: row; 
+        justify-content: flex-start; 
+        border-radius: 12px; 
+        font-size: 0.95rem; 
+        gap: 0; 
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        overflow: hidden;
+    }
+
+    .bottom-nav:hover .bottom-nav-item {
+        width: calc(100% - 30px);
+    }
+
+    .bottom-nav-item i {
+        min-width: 50px;
+        text-align: center;
+        font-size: 1.25rem;
+    }
+    
     .bottom-nav-item:hover { background: rgba(37, 99, 235, 0.08); }
     body.dark-mode .bottom-nav-item:hover { background: rgba(59, 130, 246, 0.15); }
-    .main-content { margin-left: 260px; max-width: calc(100% - 260px); padding: 30px 40px; }
+    
+    .main-content { 
+        margin: 0 auto !important; /* ទុកឱ្យវានៅកណ្តាលធម្មតា ព្រោះ body ត្រូវរុញចេញ 80px រួចហើយ */
+        width: 100% !important;
+        max-width: 1200px !important;
+        padding: 30px 40px !important; 
+        box-sizing: border-box;
+    }
+    
     .offline-sync-badge { bottom: 20px; right: 20px; }
     .modal { align-items: center; }
     .modal-content { border-radius: 20px; transform: translateY(-20px) scale(0.95); border: 1px solid var(--border); box-shadow: 0 10px 40px rgba(0,0,0,0.2); }
@@ -1439,4 +1527,8 @@ body.dark-mode .home-sticky-wrapper {
 /* កែសម្រួល Margin របស់ Search Bar ខាងក្នុង Sticky កុំឱ្យមានចន្លោះខាងក្រោមធំពេក */
 .home-sticky-wrapper .home-search-bar-modern {
     margin-bottom: 5px; 
+}
+/* រំកិលទំព័រ អាល់ប៊ុម និង Playlist ឱ្យចូលក្នុងស្មើនឹង Bottom Nav */
+#viewAlbums, #viewPlaylists {
+    padding: 0 16px; 
 }
