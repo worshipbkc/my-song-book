@@ -1,12 +1,14 @@
-// ប្តូរលេខ Version នេះទៅ v3 ដើម្បីបង្ខំឱ្យ App Update ទិន្នន័យថ្មី
-const CACHE_NAME = 'worship-app-v3';
+const CACHE_NAME = 'worship-app-v15'; // ដូរទៅ v13
 
-// ឯកសារ Static ដែលត្រូវ Cache ទុកប្រើ Offline
 const ASSETS_TO_CACHE = [
   './',
   './index.html',
-  './style.css',      // បន្ថែម File CSS ថ្មី
-  './app.js',         // បន្ថែម File JS ថ្មី
+  './style.css',      
+  './ui-features.js', // បន្ថែមបន្ទាត់នេះ
+  './admin.js',       
+  './player.js',      
+  './tuner.js',       
+  './app.js',         
   './manifest.json',
   './icon.jpg',
   'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css',
