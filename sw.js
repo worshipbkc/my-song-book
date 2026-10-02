@@ -1,4 +1,4 @@
-const CACHE_NAME = 'worship-app-v15'; // ដូរទៅ v13
+const CACHE_NAME = 'worship-app-v16'; // ដូរទៅ v13
 
 const ASSETS_TO_CACHE = [
   './',
