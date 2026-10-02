@@ -1532,3 +1532,174 @@ body.dark-mode .home-sticky-wrapper {
 #viewAlbums, #viewPlaylists {
     padding: 0 16px; 
 }
+
+/* =========================================
+   UI/UX Improvements for Large Phones & Tablets
+========================================= */
+
+/* ១. ពង្រីកទំហំប៊ូតុង ងាយស្រួលចុច (Touch Targets) សម្រាប់ទូរស័ព្ទ */
+.transpose-controls button {
+    width: 44px !important;  /* ពង្រីកពី 34px មក 44px */
+    height: 44px !important;
+    font-size: 1.4rem !important; /* ឱ្យសញ្ញា + និង - ធំជាងមុន */
+}
+
+#toggleChordsBtn {
+    padding: 8px 14px !important;
+    font-size: 0.85rem !important;
+}
+
+.font-size-controls button {
+    padding: 8px 14px !important;
+    font-size: 0.95rem !important;
+}
+
+/* ២. ប្តូរ Apple Full Player ទៅជា Split-view ពេលបើកលើ iPad ឬអេក្រង់ធំ (ចាប់ពី 768px ឡើងទៅ) */
+@media (min-width: 768px) {
+    .full-player-content {
+        flex-direction: row !important; /* តម្រៀបជាជួរដេក */
+        max-width: 900px !important; /* ពង្រីកប្រអប់ឱ្យធំជាង 500px ចាស់ */
+        align-items: center !important;
+        gap: 60px !important;
+        padding-top: 40px !important;
+    }
+    
+    .full-cover {
+        max-width: 400px !important; /* រូប Cover ធំបំផុតត្រឹម 400px */
+        margin: 0 !important; /* ដកការរុញកណ្តាលចេញ ដើម្បីឱ្យនៅស្អិតខាងឆ្វេង */
+        box-shadow: 0 20px 50px rgba(0,0,0,0.3) !important;
+    }
+    
+    .full-info-section {
+        flex: 1; /* ឱ្យផ្នែកខាងស្តាំយកទំហំដែលនៅសល់ទាំងអស់ */
+        justify-content: center;
+        margin-top: -20px;
+    }
+    
+    /* ធ្វើឱ្យប៊ូតុង Play/Pause ធំជាងមុនលើអេក្រង់ធំ */
+    .full-main-controls button {
+        font-size: 2.8rem !important;
+    }
+    .play-btn-large {
+        font-size: 4rem !important;
+    }
+    
+    /* ពង្រីកទំហំអក្សរចំណងជើងបទចម្រៀង */
+    .full-title {
+        font-size: 2rem !important;
+        margin-bottom: 8px !important;
+    }
+    .full-artist {
+        font-size: 1.2rem !important;
+    }
+}
+/* =========================================
+   UI/UX Improvements for Large Phones & Tablets
+========================================= */
+
+/* ១. ប៊ូតុង Transpose ធំជាងមុន មានស៊ុម និងរាងជ្រុងកោង (ងាយកត់សម្គាល់) */
+.transpose-controls button {
+    width: 44px !important;  
+    height: 44px !important;
+    font-size: 1.4rem !important; 
+    border-radius: 12px !important; /* ប្តូរពីរាងមូល ទៅរាងកោងជ្រុង */
+    border: 2px solid var(--primary) !important; /* បន្ថែមបន្ទាត់គែមពណ៌ខៀវលេចធ្លោ */
+    background: var(--bg) !important;
+}
+
+#toggleChordsBtn, .font-size-controls button {
+    padding: 8px 14px !important;
+    font-size: 0.95rem !important;
+    border-radius: 12px !important;
+}
+
+/* ២. ប្តូរ Apple Full Player ទៅជា Split-view ពេលបើកលើ iPad (ចាប់ពី 768px ឡើងទៅ) */
+@media (min-width: 768px) {
+    .full-player-content {
+        flex-direction: row !important;
+        max-width: 900px !important; 
+        align-items: center !important;
+        gap: 60px !important;
+        padding-top: 40px !important;
+    }
+    
+    .full-cover {
+        max-width: 400px !important; 
+        margin: 0 !important; 
+        box-shadow: 0 20px 50px rgba(0,0,0,0.3) !important;
+    }
+    
+    .full-info-section {
+        flex: 1; 
+        justify-content: center;
+        margin-top: -20px;
+    }
+    
+    .full-main-controls button {
+        font-size: 2.8rem !important;
+    }
+    .play-btn-large {
+        font-size: 4.5rem !important;
+        color: var(--primary) !important; /* ប្តូរពណ៌ប៊ូតុង Play លើ iPad ឱ្យលេចធ្លោ */
+    }
+    
+    .full-title {
+        font-size: 2.2rem !important;
+        margin-bottom: 8px !important;
+    }
+    .full-artist {
+        font-size: 1.4rem !important;
+    }
+}
+/* =========================================
+   រក្សា UI ដើម តែបន្ថែមស៊ុម និងពន្លឺជុំវិញ Icon ទាំង ៤ (Glowing Border)
+========================================= */
+
+.quick-icon-modern {
+    /* ប្រើ currentColor ដើម្បីឱ្យស៊ុមដូរពណ៌តាម Icon នីមួយៗ (ខៀវ, បៃតង, ទឹកក្រូច, ស្វាយ) */
+    border: 2px solid currentColor !important; 
+    
+    /* ស្រមោលទន់ៗជុំវិញប្រអប់ */
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1) !important; 
+    
+    /* រក្សារាងកោងដូចដើម */
+    border-radius: 18px !important; 
+    
+    transition: all 0.2s ease !important;
+}
+
+/* ពេលបើក Dark Mode ឱ្យវាមានស្រមោលសតិចៗ */
+body.dark-mode .quick-icon-modern {
+    box-shadow: 0 4px 15px rgba(255, 255, 255, 0.08) !important;
+}
+
+/* នៅពេលដែលចុចលើវា (Active) ឱ្យវាបញ្ចេញពន្លឺពណ៌ (Glow) តាមពណ៌របស់វា */
+.quick-btn-modern:active .quick-icon-modern {
+    transform: scale(0.92) !important;
+    box-shadow: 0 0 15px currentColor !important;
+}
+
+/* =========================================
+   Mini Player UI សម្រាប់ Tablet & Desktop Mode
+========================================= */
+
+/* សម្រាប់ Tablet (iPad) អេក្រង់ចាប់ពី 768px ឡើងទៅ */
+@media (min-width: 768px) {
+    .apple-mini-player {
+        left: auto !important; /* ដកការទាញទំហំពេញអេក្រង់ចេញ */
+        right: 20px !important; /* ឱ្យអណ្តែតនៅខាងស្តាំ */
+        width: 360px !important; /* កំណត់ប្រវែងខ្លីល្មមសមរម្យ */
+        bottom: 90px !important; /* ទុកចន្លោះឱ្យផុតពី Bottom Nav លើ iPad */
+        border-radius: 18px !important;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.15) !important;
+    }
+}
+
+/* សម្រាប់ Desktop / Laptop អេក្រង់ចាប់ពី 1025px ឡើងទៅ (មាន Menu ខាងឆ្វេង) */
+@media (min-width: 1025px) {
+    .apple-mini-player {
+        bottom: 25px !important; /* ទម្លាក់ចុះមកកៀកគែមក្រោម ព្រោះគ្មាន Bottom Nav ទេ */
+        right: 30px !important;
+        width: 380px !important; /* ពង្រីកបន្តិចឱ្យសមនឹងអេក្រង់កុំព្យូទ័រ */
+    }
+}
