@@ -1159,12 +1159,13 @@ function renderSongs() {
     const searchBtn = document.getElementById('searchSongBtn');
     const viewToggleBtn = document.getElementById('viewToggleBtn');
 
-    if (currentFilterType === 'PLAYLIST') {
-        // លាក់ប៊ូតុងពេលចូល Playlist ឬ Favorite
+   // ថែមលក្ខខណ្ឌ currentFilterType === 'SETLIST' បញ្ចូល
+    if (currentFilterType === 'PLAYLIST' || currentFilterType === 'SETLIST') {
+        // លាក់ប៊ូតុងពេលចូល Playlist, Favorite ឬ Setlist
         if (searchBtn) searchBtn.style.display = 'none';
         if (viewToggleBtn) viewToggleBtn.style.display = 'none';
     } else {
-        // បង្ហាញប៊ូតុងវិញពេលនៅទំព័រផ្សេង
+        // បង្ហាញប៊ូតុងវិញពេលនៅទំព័រផ្សេងៗ (ឧ. Home, Songs, Albums)
         if (searchBtn) searchBtn.style.display = 'inline-block';
         if (viewToggleBtn) viewToggleBtn.style.display = 'inline-block';
     }
