@@ -322,8 +322,35 @@ body.dark-mode .song-count-badge { box-shadow: 2px 2px 6px rgba(0,0,0,0.4), -2px
 .song-grid.list-view .song-info { flex: 1; padding: 8px 12px; display: flex; flex-direction: column; justify-content: center; }
 .song-grid.list-view .card-dropdown { bottom: auto; top: 40px; right: 15px; }
 
-.song-card { background: var(--card-bg); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border: 1px solid rgba(255,255,255,0.5); border-radius: 20px; overflow: hidden; display: flex; flex-direction: column; position: relative; box-shadow: 6px 6px 15px rgba(180, 185, 200, 0.4), -6px -6px 15px rgba(255, 255, 255, 0.9); transition: transform 0.2s, border-color 0.2s; }
-body.dark-mode .song-card { border-color: rgba(51, 65, 85, 0.5); box-shadow: 4px 4px 15px rgba(0,0,0,0.5), -4px -4px 15px rgba(255,255,255,0.02); }
+/* បន្ថែមចលនា (Hover Effect) ទៅលើកាត */
+.song-card { 
+    background: var(--card-bg); 
+    backdrop-filter: blur(16px); 
+    -webkit-backdrop-filter: blur(16px); 
+    border: 1px solid rgba(255,255,255,0.5); 
+    border-radius: 20px; 
+    overflow: hidden; 
+    display: flex; 
+    flex-direction: column; 
+    position: relative; 
+    box-shadow: 6px 6px 15px rgba(180, 185, 200, 0.4), -6px -6px 15px rgba(255, 255, 255, 0.9); 
+    /* ថែម transition សម្រាប់ចលនាទន់ភ្លន់ */
+    transition: transform 0.3s cubic-bezier(0.25, 0.8, 0.25, 1), box-shadow 0.3s ease; 
+}
+/* ពេលដាក់ Mouse ពីលើ (Hover) ឱ្យកាតងើបឡើងលើបន្តិច */
+@media (hover: hover) {
+    .song-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 8px 12px 25px rgba(180, 185, 200, 0.5), -8px -8px 20px rgba(255, 255, 255, 1);
+    }
+    body.dark-mode .song-card:hover {
+        box-shadow: 6px 10px 20px rgba(0,0,0,0.6), -4px -4px 15px rgba(255,255,255,0.05);
+    }
+}
+body.dark-mode .song-card { 
+    border-color: rgba(51, 65, 85, 0.5); 
+    box-shadow: 4px 4px 15px rgba(0,0,0,0.5), -4px -4px 15px rgba(255,255,255,0.02); 
+}
 .song-card.dragging { opacity: 0.4; transform: scale(0.98); border: 2px dashed var(--primary); }
 .song-card.drag-over { border-top: 4px solid var(--primary); }
 
@@ -331,6 +358,12 @@ body.dark-mode .song-card { border-color: rgba(51, 65, 85, 0.5); box-shadow: 4px
 body.dark-mode .song-key-badge { background: #334155; color: #e2e8f0; border-color: #475569; }
 
 .song-img-container { width: 100%; min-height: 220px; background: #eaebe7; display: flex; align-items: center; justify-content: center; overflow: hidden; cursor: pointer; position: relative; }
+/* ពង្រីករូបភាពបន្តិចពេល Hover */
+@media (hover: hover) {
+    .song-card:hover .song-img {
+        transform: scale(1.05);
+    }
+}
 body.dark-mode .song-img-container { background: #0f172a; }
 .song-img { width: 100%; height: 100%; max-height: 380px; object-fit: contain; display: block; padding: 2px; }
 .fav-img-btn { position: absolute; top: 10px; right: 10px; background: rgba(0, 0, 0, 0.4); backdrop-filter: blur(4px); border: none; color: #ffffff; width: 34px; height: 34px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.1rem; cursor: pointer; z-index: 10; transition: transform 0.2s; }
@@ -1150,20 +1183,20 @@ body.dark-mode .profile-popup {
     margin-bottom: 150px; 
 }
 
+/* === Mini Player === */
 .apple-mini-player {
+    /* រក្សាទីតាំងដដែល តែប្តូរពណ៌និងស្រមោលឱ្យភ្លឺរលោង */
     position: fixed;
-    /* រៀបចំទីតាំងឲ្យនៅពីលើមីនុយ និងមានគម្លាត 8px ស្អាត */
     bottom: 85px; 
-    /* កំណត់ទំហំឆ្វេងស្តាំឲ្យស្មើគ្នាបេះបិទនឹងមីនុយ (10px) */
     left: 10px;
     right: 10px;
-    height: 58px;
-    background: var(--card-bg); /* ប្តូរពណ៌ផ្ទៃឲ្យដូចមីនុយ */
-    border: 1px solid var(--border); /* បន្ថែមបន្ទាត់គែមឲ្យដូចមីនុយ */
-    backdrop-filter: blur(25px);
-    -webkit-backdrop-filter: blur(25px);
-    border-radius: 20px; /* កែភាពកោងឲ្យសមគ្នានឹងមីនុយ */
-    box-shadow: 0 8px 25px rgba(15, 23, 42, 0.1);
+    height: 60px; /* ដំឡើងកម្ពស់បន្តិចពី 58px ទៅ 60px */
+    background: rgba(255, 255, 255, 0.75); /* ធ្វើឱ្យថ្លាជាងមុនបន្តិច */
+    border: 1px solid rgba(255, 255, 255, 0.4);
+    backdrop-filter: blur(30px);
+    -webkit-backdrop-filter: blur(30px);
+    border-radius: 20px; 
+    box-shadow: 0 10px 30px rgba(15, 23, 42, 0.15), 0 1px 3px rgba(255,255,255,0.6) inset;
     display: flex;
     align-items: center;
     padding: 0 16px 0 8px;
@@ -1176,10 +1209,10 @@ body.dark-mode .profile-popup {
     transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.3s ease, visibility 0.3s;
 }
 
-
 body.dark-mode .apple-mini-player {
-    background: rgba(30, 41, 59, 0.85);
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+    background: rgba(30, 41, 59, 0.75);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6), 0 1px 3px rgba(255,255,255,0.05) inset;
 }
 
 .apple-mini-player.active {
@@ -1260,16 +1293,26 @@ body.dark-mode .full-player-drag-handle { background: rgba(255,255,255,0.2); }
     width: 100%;
     justify-content: flex-start;
 }
+/* === Full Screen Player === */
 .full-cover {
     width: 100%;
-    max-width: 340px; /* កំណត់ទំហំរូបភាពកុំឲ្យធំពេក */
-    max-height: 45vh; /* ការពារកុំឲ្យរុញប៊ូតុងចុះក្រោមពេកនៅលើទូរស័ព្ទតូច */
+    max-width: 340px; 
+    max-height: 45vh; 
     aspect-ratio: 1 / 1;
-    border-radius: 12px;
+    border-radius: 16px; /* បង្កើនភាពកោងពី 12px ទៅ 16px */
     object-fit: cover;
-    box-shadow: 0 15px 40px rgba(0,0,0,0.2);
+    /* បន្ថែមស្រមោលឱ្យជ្រៅមើលទៅអណ្តែត */
+    box-shadow: 0 25px 50px rgba(0,0,0,0.25), 0 0 0 1px rgba(0,0,0,0.05);
     margin: 0 auto 30px auto;
     background: rgba(0,0,0,0.05);
+    /* ត្រៀមសម្រាប់ចលនារួញ/ពង្រីកពេល Play/Pause */
+    transform: scale(0.9);
+    transition: transform 0.5s cubic-bezier(0.25, 1, 0.5, 1), box-shadow 0.5s ease;
+}
+/* Class ថ្មីនឹងត្រូវបញ្ជាពី Javascript ពេលភ្លេងកំពុងលេង */
+.apple-full-player.is-playing .full-cover {
+    transform: scale(1);
+    box-shadow: 0 35px 60px rgba(0,0,0,0.35), 0 0 0 1px rgba(0,0,0,0.05);
 }
 .full-info-section {
     width: 100%;
@@ -1429,17 +1472,21 @@ body.dark-mode .card-play-btn {
 /* =========================================
    Modern UI Styles (Apple Music / App Store style)
 ========================================= */
-home-topbar-modern { padding: 10px 4px 5px; display: flex; justify-content: space-between; align-items: center; }
+
+/* ១. បន្ថែមសញ្ញា (.) ពីមុខ home-topbar-modern និងកំណត់គម្លាត 10px សងខាង */
+.home-topbar-modern { padding: 10px 10px 5px; display: flex; justify-content: space-between; align-items: center; }
+
 .home-brand-modern { display: flex; flex-direction: column; line-height: 1.2; }
 .icon-btn-modern { background: transparent; border: none; font-size: 1.4rem; color: var(--text); padding: 8px; cursor: pointer; transition: 0.2s; }
 .icon-btn-modern:active { transform: scale(0.85); color: var(--primary); }
 
-.home-search-bar-modern { margin: 10px 4px 20px; background: var(--card-bg); border: 1px solid var(--border); padding: 12px 16px; border-radius: 12px; display: flex; align-items: center; gap: 10px; color: var(--text-muted); font-size: 0.9rem; font-weight: 500; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.03); transition: 0.2s; }
+/* ២. កំណត់ Margin 10px សងខាងសម្រាប់ Search Bar */
+.home-search-bar-modern { margin: 10px 10px 20px; background: var(--card-bg); border: 1px solid var(--border); padding: 12px 16px; border-radius: 12px; display: flex; align-items: center; gap: 10px; color: var(--text-muted); font-size: 0.9rem; font-weight: 500; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.03); transition: 0.2s; }
 .home-search-bar-modern:active { transform: scale(0.98); }
 body.dark-mode .home-search-bar-modern { background: #1e293b; border-color: #334155; }
 
-/* Featured Banner */
-.home-hero-modern { position: relative; margin: 0 4px 12px; border-radius: 16px; overflow: hidden; min-height: 200px; display: flex; align-items: center; padding: 25px 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.15); }
+/* ៣. កំណត់ Margin 10px សងខាងសម្រាប់ Banner */
+.home-hero-modern { position: relative; margin: 0 10px 12px; border-radius: 16px; overflow: hidden; min-height: 200px; display: flex; align-items: center; padding: 25px 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.15); }
 .home-hero-bg { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background-size: cover; background-position: center; z-index: 1; filter: brightness(0.9); }
 .home-hero-overlay-modern { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(to right, rgba(15,23,42,0.9), rgba(15,23,42,0.3)); z-index: 2; }
 .home-hero-content-modern { position: relative; z-index: 3; color: white; max-width: 75%; }
@@ -1450,8 +1497,8 @@ body.dark-mode .home-search-bar-modern { background: #1e293b; border-color: #334
 .hero-play-btn { background: white; color: #0f172a; border: none; padding: 10px 18px; border-radius: 20px; font-weight: 700; font-size: 0.85rem; display: inline-flex; align-items: center; gap: 8px; cursor: pointer; transition: 0.2s; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
 .hero-play-btn:active { transform: scale(0.92); }
 
-/* Quick Buttons */
-.home-quick-modern { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin: 0 4px 15px; }
+/* ៤. កំណត់ Margin 10px សងខាងសម្រាប់មីនុយរហ័សទាំង ៤ */
+.home-quick-modern { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin: 0 10px 15px; }
 .quick-btn-modern { background: transparent; border: none; display: flex; flex-direction: column; align-items: center; cursor: pointer; transition: 0.2s; }
 .quick-btn-modern:active { transform: scale(0.9); }
 .quick-icon-modern { width: 60px; height: 60px; border-radius: 18px; display: flex; justify-content: center; align-items: center; font-size: 1.5rem; margin-bottom: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
@@ -1459,14 +1506,14 @@ body.dark-mode .home-search-bar-modern { background: #1e293b; border-color: #334
 .quick-btn-modern span { font-size: 0.65rem; color: var(--text-muted); }
 body.dark-mode .quick-icon-modern { filter: brightness(0.85); box-shadow: none; }
 
-/* Horizontal Lists (Trending & New Releases) */
+/* ៥. កំណត់ Padding 10px សងខាងសម្រាប់ចំណងជើង និង កាតរុញៗ (Horizontal Scroll) */
 .home-section-modern { margin-bottom: 15px; }
-.section-head-modern { display: flex; justify-content: space-between; align-items: flex-end; padding: 0 4px; margin-bottom: 8px; }
+.section-head-modern { display: flex; justify-content: space-between; align-items: flex-end; padding: 0 10px; margin-bottom: 8px; }
 .section-head-modern h2 { font-size: 1.15rem; font-weight: 800; color: var(--text); margin: 0; display: flex; align-items: center; gap: 8px; }
 .section-head-modern button { background: none; border: none; color: var(--text-muted); font-size: 0.8rem; font-weight: 700; cursor: pointer; transition: 0.2s; }
 .section-head-modern button:active { color: var(--primary); transform: scale(0.95); }
 
-.horizontal-scroll-modern { display: flex; gap: 15px; overflow-x: auto; padding: 0 4px 10px; scrollbar-width: none; }
+.horizontal-scroll-modern { display: flex; gap: 15px; overflow-x: auto; padding: 0 10px 10px; scrollbar-width: none; }
 .horizontal-scroll-modern::-webkit-scrollbar { display: none; }
 
 .modern-square-card, .modern-landscape-card { flex-shrink: 0; display: flex; flex-direction: column; gap: 8px; cursor: pointer; transition: 0.2s; }
@@ -1481,7 +1528,6 @@ body.dark-mode .modern-card-img-wrapper { box-shadow: 0 6px 15px rgba(0,0,0,0.5)
 .modern-card-img-wrapper img, .fallback-cover { width: 100%; height: 100%; object-fit: cover; }
 .fallback-cover { display: flex; align-items: center; justify-content: center; font-size: 2.5rem; color: white; background: linear-gradient(135deg, var(--primary), #4f46e5); }
 
-/* ប៊ូតុង Play តូចលើរូប */
 .modern-play-btn { position: absolute; bottom: 10px; left: 10px; width: 32px; height: 32px; border-radius: 50%; background: rgba(0,0,0,0.5); color: white; display: flex; justify-content: center; align-items: center; border: 1px solid rgba(255,255,255,0.2); font-size: 0.75rem; backdrop-filter: blur(8px); cursor: pointer; transition: 0.2s; }
 .modern-play-btn:hover, .modern-play-btn:active { background: white; color: var(--text); transform: scale(1.1); }
 
@@ -1493,8 +1539,8 @@ body.dark-mode .modern-card-img-wrapper { box-shadow: 0 6px 15px rgba(0,0,0,0.5)
 .modern-heart-btn:active { transform: scale(0.8); }
 .modern-heart-btn.active { color: var(--danger); }
 
-/* Daily Worship Bottom Card */
-.daily-worship-card-modern { margin: 0 4px 15px; background: #eef2ff; border: 1px solid #e0e7ff; border-radius: 16px; padding: 16px; display: flex; align-items: center; gap: 15px; cursor: pointer; transition: 0.2s; }
+/* ៦. កំណត់ Margin 10px សម្រាប់ Daily Worship Bottom Card */
+.daily-worship-card-modern { margin: 0 10px 15px; background: #eef2ff; border: 1px solid #e0e7ff; border-radius: 16px; padding: 16px; display: flex; align-items: center; gap: 15px; cursor: pointer; transition: 0.2s; }
 .daily-worship-card-modern:active { transform: scale(0.97); }
 body.dark-mode .daily-worship-card-modern { background: rgba(55, 48, 163, 0.15); border-color: rgba(67, 56, 202, 0.3); }
 .daily-icon-modern { width: 45px; height: 45px; background: white; color: var(--primary); border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.4rem; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
@@ -1506,18 +1552,18 @@ body.dark-mode .daily-icon-modern { background: var(--card-bg); }
 body.dark-mode .daily-btn-modern { background: var(--card-bg); }
 
 /* =========================================
-   Sticky Wrapper សម្រាប់ Home Page
+   ៧. Sticky Wrapper សម្រាប់ Home Page (កែឲ្យស្មើ)
 ========================================= */
 .home-sticky-wrapper {
     position: sticky;
     top: 0;
-    z-index: 1200; /* ធ្វើឱ្យវានៅខាងលើគេជានិច្ច */
-    background: var(--bg-glass); /* ពណ៌ថ្លាៗ */
+    z-index: 1200; 
+    background: var(--bg-glass); 
     backdrop-filter: blur(20px);
     -webkit-backdrop-filter: blur(20px);
-    margin: -12px -4px 15px -4px; /* ទាញវាឱ្យកៀកគែមអេក្រង់ខាងលើ និងសងខាង */
-    padding: 12px 4px 5px 4px; /* រុញរបស់ខាងក្នុងកុំឱ្យប៉ះគែមពេក */
-    border-bottom: 1px solid rgba(0, 0, 0, 0.05); /* បន្ទាត់ស្តើងខាងក្រោម */
+    margin: -12px 0 15px 0; /* 🔴 កែត្រង់នេះ៖ ប្តូរពី -4px មក 0 សងខាងកុំឱ្យលៀនចេញក្រៅ */
+    padding: 12px 0 5px 0; /* 🔴 កែត្រង់នេះ៖ លុប padding សងខាង ដើម្បីឱ្យ Search Bar ទាញគម្លាតខ្លួនឯង 10px */
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05); 
     transition: background 0.3s;
 }
 
@@ -1525,15 +1571,9 @@ body.dark-mode .home-sticky-wrapper {
     border-bottom: 1px solid rgba(255, 255, 255, 0.05);
 }
 
-/* កែសម្រួល Margin របស់ Search Bar ខាងក្នុង Sticky កុំឱ្យមានចន្លោះខាងក្រោមធំពេក */
 .home-sticky-wrapper .home-search-bar-modern {
     margin-bottom: 5px; 
 }
-/* រំកិលទំព័រ អាល់ប៊ុម និង Playlist ឱ្យចូលក្នុងស្មើនឹង Bottom Nav */
-#viewAlbums, #viewPlaylists {
-    padding: 0 16px; 
-}
-
 /* =========================================
    UI/UX Improvements for Large Phones & Tablets
 ========================================= */
@@ -1703,4 +1743,30 @@ body.dark-mode .quick-icon-modern {
         right: 30px !important;
         width: 380px !important; /* ពង្រីកបន្តិចឱ្យសមនឹងអេក្រង់កុំព្យូទ័រ */
     }
+}
+
+/* =========================================
+   តម្រឹមគម្លាត (Alignment) 10px សម្រាប់ទំព័រទាំងអស់ (Songs, Albums, Playlists) ឱ្យស្មើ Bottom Nav
+========================================= */
+
+/* ១. ទំព័រចម្រៀងទាំងអស់ (Songs) */
+.song-grid {
+    padding: 0 10px !important; /* ទាញកាតចម្រៀងឱ្យចូលមកគម្លាត 10px */
+}
+.song-grid.list-view {
+    padding: 0 10px !important;
+}
+.sticky-action-bar {
+    padding: 10px 10px !important; /* ទាញ Header ទំព័រចម្រៀងឱ្យស្មើ 10px */
+}
+
+/* ២. ទំព័រអាល់ប៊ុម (Albums) និង Playlist */
+#viewAlbums, #viewPlaylists {
+    padding: 0 10px !important; /* ទាញកាតអាល់ប៊ុម និង Playlist ឱ្យចូលមក 10px */
+}
+
+/* ៣. កែសម្រួល Header អាល់ប៊ុម (ដែលមានកូដ Inline Style លៀនចេញក្រៅ -16px ពីមុន) */
+#viewAlbums > div:first-child {
+    margin: 0 -10px 15px -10px !important; /* ឱ្យ Background កញ្ចក់ថ្លាៗ (Glassmorphism) រត់ពេញគែមអេក្រង់សងខាង */
+    padding: 12px 10px !important; /* រុញអក្សរ និងប៊ូតុងចូលក្នុង 10px ស្មើនឹងកាត និង Bottom Nav ខាងក្រោមបេះបិទ */
 }
