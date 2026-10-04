@@ -35,6 +35,7 @@ function listenToGlobalSetlists() {
         } else {
             globalSetlists = {};
         }
+        
         if (isEditor && !hasCheckedMonthlySetlists) {
             hasCheckedMonthlySetlists = true;
             checkAndResetMonthlySetlists();
@@ -752,7 +753,6 @@ function updateUIRoles() {
     const body = document.getElementById('bodyContainer');
     if (isEditor) {
         body.classList.add('editor-authorized'); 
-        
     } else {
         body.classList.remove('editor-authorized');
         const adminPanel = document.getElementById('secretAdminPanel');
@@ -826,39 +826,51 @@ function getSundaysInCurrentMonth() {
 function checkAndResetMonthlySetlists() {
     if (!isEditor) return;
 
+    const khmerNums = ['១', '២', '៣', '៤', '៥']; 
     const now = new Date();
-    const currentMonthStr = `${now.getFullYear()}-${now.getMonth()}`;
+    const currentMonthStr = `\({now.getFullYear()}-\){now.getMonth()}`;
     const lastMonthStr = localStorage.getItem('admin_last_setlist_month');
     
-    if (lastMonthStr === currentMonthStr && Object.keys(globalSetlists).length > 0) return;
-
     let hasChanges = false;
-    let newSetlists = { ...globalSetlists };
+    let newSetlists = {}; 
+    const totalSundays = getSundaysInCurrentMonth();
+    
+    let expectedKeys = [];
+    for (let i = 1; i <= totalSundays; i++) {
+        expectedKeys.push(`សប្តាហ៍ទី${khmerNums[i-1]}`);
+    }
 
-    if (lastMonthStr && lastMonthStr !== currentMonthStr) {
-        ['សប្តាហ៍ទី១', 'សប្តាហ៍ទី២', 'សប្តាហ៍ទី៣', 'សប្តាហ៍ទី៤', 'សប្តាហ៍ទី៥'].forEach(week => {
-            newSetlists[week] = [];
-            hasChanges = true;
+    let isNewMonth = (lastMonthStr !== currentMonthStr);
+
+    if (isNewMonth) {
+        expectedKeys.forEach(key => {
+            newSetlists[key] = [];
+        });
+        hasChanges = true;
+    } else {
+        expectedKeys.forEach(key => {
+            if (globalSetlists[key]) {
+                newSetlists[key] = globalSetlists[key];
+            } else {
+                newSetlists[key] = [];
+                hasChanges = true;
+            }
         });
     }
 
-    const totalSundays = getSundaysInCurrentMonth();
-    for (let i = 1; i <= totalSundays; i++) {
-        const weekName = `សប្តាហ៍ទី${i}`;
-        if (!newSetlists[weekName]) {
-            newSetlists[weekName] = [];
-            hasChanges = true;
-        }
-    }
+    const currentKeys = Object.keys(globalSetlists);
+    const hasExtraKeys = currentKeys.some(key => !expectedKeys.includes(key));
+    if (hasExtraKeys) hasChanges = true;
 
     if (hasChanges) {
-        db.collection("public_settings").doc("setlists").set(newSetlists, { merge: true }).catch(err => {
+        db.collection("public_settings").doc("setlists").set(newSetlists).then(() => {
+            localStorage.setItem('admin_last_setlist_month', currentMonthStr);
+        }).catch(err => {
             console.error("Setlist update error:", err);
-            showToast("បញ្ហា Firebase Rules: សូមពិនិត្យ Database Rules", "error");
         });
+    } else {
+        localStorage.setItem('admin_last_setlist_month', currentMonthStr);
     }
-    
-    localStorage.setItem('admin_last_setlist_month', currentMonthStr);
 }
 
 function renderHomeView() {
@@ -903,12 +915,13 @@ function renderHomeView() {
         }).join('');
     }
 
-    // ផ្នែក Trending Now (Setlists) - Card ការ៉េ
+   // ផ្នែក Trending Now (Setlists) - Card ការ៉េ
     if (setlistList) {
         const totalSundays = getSundaysInCurrentMonth();
+        const khmerNums = ['១', '២', '៣', '៤', '៥']; 
         const weeks = [];
         for (let i = 1; i <= totalSundays; i++) {
-            weeks.push(`សប្តាហ៍ទី${i}`);
+            weeks.push(`សប្តាហ៍ទី${khmerNums[i-1]}`);
         }
         if (!globalSetlists) globalSetlists = {};
 
