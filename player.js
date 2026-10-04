@@ -178,6 +178,18 @@ function updatePlayButtons(htmlContent) {
     const fullBtn = document.getElementById('fullPlayPauseBtn');
     if (miniBtn) miniBtn.innerHTML = htmlContent;
     if (fullBtn) fullBtn.innerHTML = htmlContent;
+    
+    // បន្ថែម Logic សម្រាប់ចលនារូបភាព Cover របស់ Full Player
+    const fullPlayer = document.getElementById('appleFullPlayer');
+    if (fullPlayer) {
+        if (htmlContent.includes('fa-pause')) {
+            // បើមានពាក្យ pause មានន័យថាកំពុងលេងភ្លេង (Playing)
+            fullPlayer.classList.add('is-playing');
+        } else {
+            // បើកំពុង Pause
+            fullPlayer.classList.remove('is-playing');
+        }
+    }
 }
 
 function playNextSong(event) {
