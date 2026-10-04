@@ -26,6 +26,7 @@ let songsList = [];
 let customAlbums = ['ទំនុកដំកើង', 'ទំនុកខ្មែរបរិសុទ្ធ'];
 let playlists = JSON.parse(localStorage.getItem('user_playlists') || '{}');
 let globalSetlists = {};
+let hasCheckedMonthlySetlists = false;
 
 function listenToGlobalSetlists() {
     db.collection("public_settings").doc("setlists").onSnapshot((doc) => {
@@ -33,6 +34,10 @@ function listenToGlobalSetlists() {
             globalSetlists = doc.data();
         } else {
             globalSetlists = {};
+        }
+        if (isEditor && !hasCheckedMonthlySetlists) {
+            hasCheckedMonthlySetlists = true;
+            checkAndResetMonthlySetlists();
         }
         
         const viewHome = document.getElementById('viewHome');
@@ -747,7 +752,7 @@ function updateUIRoles() {
     const body = document.getElementById('bodyContainer');
     if (isEditor) {
         body.classList.add('editor-authorized'); 
-        checkAndResetMonthlySetlists();
+        
     } else {
         body.classList.remove('editor-authorized');
         const adminPanel = document.getElementById('secretAdminPanel');
