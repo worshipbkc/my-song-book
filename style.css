@@ -226,9 +226,9 @@ body.dark-mode .home-icon-btn, body.dark-mode .home-quick-actions button, body.d
 .minimal-ref { font-size: 0.72rem; font-weight: 600; color: var(--primary); margin: 0; }
 
 .main-content { 
-    /* ⬅️ យើងរុញចន្លោះ Bottom Nav និង Safe Area មកដាក់ទីនេះវិញ */
-    padding: 10px 10px calc(80px + env(safe-area-inset-bottom)) 10px; 
+    
     width: 100%; 
+    bottom: 0;
     max-width: 1200px; 
     margin: 0 auto; 
     color: var(--text); 
@@ -552,8 +552,8 @@ body.dark-mode .card-dropdown { box-shadow: 0 4px 15px rgba(0,0,0,0.5); }
 @media (min-width: 1025px) {
     body { 
         display: block; 
-        padding-bottom: 0 !important; 
-        padding-left: 80px; 
+        padding-bottom: 0; 
+        padding-left: 80px; /* 🔴 គន្លឹះនៅទីនេះ៖ រុញតួវេបសាយទាំងមូលចេញពីគែមឆ្វេង 80px */
         box-sizing: border-box;
     }
     
@@ -571,12 +571,12 @@ body.dark-mode .card-dropdown { box-shadow: 0 4px 15px rgba(0,0,0,0.5); }
         border-top: none; 
         border-right: 1px solid var(--border); 
         border-radius: 0; 
-        background: var(--card-bg);
+        background: var(--card-bg); /* បញ្ជាក់ពណ៌ផ្ទៃខាងក្រោយកុំឱ្យថ្លា */
         box-shadow: 4px 0 15px rgba(0,0,0,0.03); 
         transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         overflow: hidden;
         white-space: nowrap; 
-        z-index: 2000;
+        z-index: 2000; /* 🔴 ដាក់លេខធំ ដើម្បីឱ្យមីនុយនៅពីលើគេជានិច្ច ពេលវាលាតចេញ */
     }
     
     .bottom-nav:hover {
@@ -612,11 +612,10 @@ body.dark-mode .card-dropdown { box-shadow: 0 4px 15px rgba(0,0,0,0.5); }
     body.dark-mode .bottom-nav-item:hover { background: rgba(59, 130, 246, 0.15); }
     
     .main-content { 
-        margin: 0 auto !important; 
+        margin: 0 auto !important; /* ទុកឱ្យវានៅកណ្តាលធម្មតា ព្រោះ body ត្រូវរុញចេញ 80px រួចហើយ */
         width: 100% !important;
         max-width: 1200px !important;
-        /* ⬅️ កែត្រង់នេះ៖ បន្ថយគម្លាតខាងក្រោមមកនៅត្រឹម 15px */
-        padding: 30px 40px 15px 40px !important; 
+        padding: 30px 40px !important; 
         box-sizing: border-box;
     }
     
