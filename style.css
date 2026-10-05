@@ -711,8 +711,41 @@ body.dark-mode .card-dropdown { box-shadow: 0 4px 15px rgba(0,0,0,0.5); }
 .tab-btn { flex: 1; padding: 8px; border: none; background: transparent; border-radius: 6px; font-size: 0.85rem; font-weight: 600; color: var(--text-muted); cursor: pointer; transition: 0.2s; }
 .tab-btn.active { background: var(--card-bg); color: var(--primary); box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
 
-.lyric-textarea { width: 100%; padding: 12px; border: 1px solid var(--border); border-radius: 8px; background: var(--bg); color: var(--text); font-family: 'Courier New', monospace; font-size: 0.95rem; line-height: 1.6; resize: vertical; outline: none; }
-.lyric-textarea:focus { border-color: var(--primary); }
+/* =========================================
+   A4 Paper Style Textarea សម្រាប់បញ្ចូលអត្ថបទ
+========================================= */
+.a4-lyric-textarea {
+    width: 100%;                /* ឱ្យលាតពេញផ្ទាំង Modal */
+    box-sizing: border-box;     /* ការពារកុំឱ្យលៀនចេញក្រៅ */
+    aspect-ratio: 1 / 1.414;    /* មាត្រដ្ឋានទំហំក្រដាស A4 */
+    min-height: 400px;          
+    max-height: 55vh;        
+    padding: 30px;              /* ទុកគែមជុំវិញអក្សរឱ្យទូលាយដូចក្រដាសពិតៗ */
+    border: 1px solid #cbd5e1;
+    border-radius: 6px;      
+    background: #f8fafc;        /* ពណ៌សស្រទន់ កុំឱ្យចាំងភ្នែកពេក */
+    color: #0f172a;          
+    font-family: 'Courier New', monospace; /* ជួយឱ្យការតម្រឹម Chord បានត្រង់ជួរល្អ */
+    font-size: 1rem;
+    line-height: 1.8;           /* គម្លាតបន្ទាត់ទូលាយ ស្រួលមើល Chord */
+    resize: vertical;
+    outline: none;
+    box-shadow: 2px 4px 15px rgba(0,0,0,0.08); /* ស្រមោលអណ្តែត */
+}
+
+/* ពេលបើក Dark Mode ដាក់ពណ៌ក្រដាសឱ្យស្រអាប់បន្តិច */
+body.dark-mode .a4-lyric-textarea {
+    background: #e2e8f0;     
+    color: #0f172a;
+    border-color: #94a3b8;
+    box-shadow: 2px 4px 15px rgba(0,0,0,0.4);
+}
+
+/* ពេលចុចវាយអត្ថបទ ឱ្យលោតស៊ុមពណ៌ខៀវ */
+.a4-lyric-textarea:focus {
+    border-color: var(--primary);
+    box-shadow: 0 0 0 2px rgba(37,99,235,0.2), 2px 4px 15px rgba(0,0,0,0.08);
+}
 
 /* =========================================
    រចនាបថសម្រាប់ផ្ទាំង Share ថ្មី
