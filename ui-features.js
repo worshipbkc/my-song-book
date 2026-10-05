@@ -49,7 +49,10 @@ function generateLyricsImage(song, mode, playlistName) {
             const metaColor = isDark ? '#94a3b8' : '#64748b';
             const chordColor = isDark ? '#f87171' : '#ef4444';
             
-            let width = isTwoCol ? 1600 : 1080; 
+            // 🔴 កំណត់ទំហំស្តង់ដារ A4 (មាត្រដ្ឋាន 1 : 1.414) ក្នុងកម្រិតច្បាស់ (1080p Base)
+            // A4 បញ្ឈរ (Portrait) = 1080 x 1527 | A4 ផ្តេក (Landscape) = 1527 x 1080
+            let width = isTwoCol ? 1527 : 1080; 
+            let minHeight = isTwoCol ? 1080 : 1527; 
             
             const lines = (song.lyrics || '').split('\n');
             let totalLines = 0;
@@ -60,7 +63,10 @@ function generateLyricsImage(song, mode, playlistName) {
             });
             
             let linesPerCol = isTwoCol ? Math.ceil(totalLines / 2) + 2 : totalLines;
-            let height = (linesPerCol * 45) + 380; 
+            
+            // ការពារករណីបទចម្រៀងវែងពេក យើងបន្តសន្លឹកឱ្យវែងតាមហ្នឹង (PDF នឹងទាញវាឱ្យ Fit អូតូ)
+            let contentHeight = (linesPerCol * 45) + 380; 
+            let height = Math.max(minHeight, contentHeight); 
             
             canvas.width = width;
             canvas.height = height; 
@@ -68,6 +74,7 @@ function generateLyricsImage(song, mode, playlistName) {
             ctx.fillStyle = bgColor;
             ctx.fillRect(0, 0, canvas.width, canvas.height);
             
+            // របារចំណងជើង Playlist ខាងលើ
             if (playlistName) {
                 ctx.fillStyle = isDark ? '#1e293b' : '#f1f5f9';
                 ctx.fillRect(0, 0, canvas.width, 40);
@@ -78,26 +85,30 @@ function generateLyricsImage(song, mode, playlistName) {
                 ctx.textAlign = 'left'; 
             }
             
+            // ចំណងជើងបទចម្រៀង
             ctx.fillStyle = titleColor;
             ctx.font = 'bold 36px "Kantumruy Pro", sans-serif';
-            ctx.fillText(song.title || 'គ្មានចំណងជើង', 50, 90);
+            ctx.fillText(song.title || 'គ្មានចំណងជើង', 60, 100);
             
+            // ព័ត៌មានអ្នកចម្រៀង និង Key
             ctx.fillStyle = metaColor;
             ctx.font = '24px "Kantumruy Pro", sans-serif';
             let printKey = song.songKey || 'C';
             printKey = printKey.split(/[\s,/-]+/)[0].trim();
-            ctx.fillText(`🎤 ${song.artist || 'មិនស្គាល់'}   |   🎼 Key: ${printKey}`, 50, 130);
+            ctx.fillText(`🎤 ${song.artist || 'មិនស្គាល់'}   |   🎼 Key: ${printKey}`, 60, 140);
             
+            // បន្ទាត់គូសខណ្ឌ
             ctx.strokeStyle = isDark ? '#334155' : '#d4d8e5';
             ctx.lineWidth = 2;
             ctx.beginPath();
-            ctx.moveTo(50, 150);
-            ctx.lineTo(width - 50, 150);
+            ctx.moveTo(60, 160);
+            ctx.lineTo(width - 60, 160);
             ctx.stroke();
             
-            let col1X = 50;
-            let col2X = isTwoCol ? 850 : 650; 
-            let startY = 210;
+            // ការកំណត់ជួរឈរ (Columns)
+            let col1X = 60;
+            let col2X = isTwoCol ? (width / 2) + 40 : 650; 
+            let startY = 220;
             let currentY = startY;
             let currentLineCount = 0;
             let isSecondCol = false;
@@ -148,6 +159,7 @@ function generateLyricsImage(song, mode, playlistName) {
         }
     });
 }
+
 function processExistingImage(imageUrl, mode, playlistName, songData) {
     return new Promise((resolve) => {
         const img = new Image();
