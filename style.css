@@ -1770,3 +1770,105 @@ body.dark-mode .quick-icon-modern {
     margin: 0 -10px 15px -10px !important; /* ឱ្យ Background កញ្ចក់ថ្លាៗ (Glassmorphism) រត់ពេញគែមអេក្រង់សងខាង */
     padding: 12px 10px !important; /* រុញអក្សរ និងប៊ូតុងចូលក្នុង 10px ស្មើនឹងកាត និង Bottom Nav ខាងក្រោមបេះបិទ */
 }
+
+/* =========================================
+   Home Header & Search Bar Styles 
+========================================= */
+
+/* Topbar Elements */
+.home-brand-modern {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 10px;
+    flex: 1;
+    min-width: 0;
+}
+.home-logo-modern {
+    width: 45px;
+    height: auto;
+    object-fit: contain;
+    flex-shrink: 0;
+}
+.home-title-wrapper {
+    display: flex;
+    flex-direction: column;
+    line-height: 1.2;
+    overflow: hidden;
+}
+.home-main-title {
+    font-size: 1.2rem;
+    font-weight: 800;
+    color: var(--text);
+    margin: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.home-title-icon {
+    font-size: 1rem;
+    position: relative;
+    top: -5px;
+    margin-left: 2px;
+}
+.home-sub-title {
+    font-size: 0.7rem;
+    color: var(--text-muted);
+    font-weight: 600;
+    margin-top: 2px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.home-actions-modern {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    flex-shrink: 0;
+}
+
+/* Utilities (អាចប្រើប្រាស់បានច្រើនកន្លែង) */
+.pos-relative {
+    position: relative !important;
+}
+.no-padding {
+    padding: 0 !important;
+}
+.badge-top-right {
+    top: 5px;
+    right: 5px;
+}
+
+/* Search Bar Elements */
+.search-icon-left {
+    position: absolute;
+    left: 16px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--text-muted);
+}
+.home-search-input {
+    width: 100%;
+    padding: 12px 40px;
+    border: none;
+    background: transparent;
+    outline: none;
+    color: var(--text);
+    font-size: 0.95rem;
+}
+.clear-search-btn {
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    color: var(--text-muted);
+    display: none; /* នឹងត្រូវបង្ហាញដោយ JS */
+    cursor: pointer;
+    padding: 4px;
+}
+.home-search-dropdown-spacing {
+    top: 100%;
+    margin-top: 8px;
+}
