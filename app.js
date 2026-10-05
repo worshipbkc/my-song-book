@@ -2442,277 +2442,9 @@ function playStringTone(noteName, frequency, btnElement) {
     showToast(`កំពុងចាក់សំឡេងខ្សែ: ${noteName}`, 'info');
 }
 
-// ====================================================
-// មុខងារ AUTO-SCROLL (ແບບស្លាយចេញ/ចូល មិនបាំងអត្ថបទ)
-// ====================================================
-
-let scrollInterval = null;
-let currentScrollSpeed = 1;
-let isAutoScrollExpanded = false;
-
-function setupAutoScrollButton() {
-    if (document.getElementById('autoScrollFloatingBar')) return;
-
-    // បញ្ចូល Style សម្រាប់បែប Slide Animation
-    const style = document.createElement('style');
-    style.innerHTML = `
-        .autoscroll-bar {
-            position: absolute;
-            bottom: calc(85px + env(safe-area-inset-bottom));
-            right: 16px;
-            background: rgba(15, 23, 42, 0.9);
-            backdrop-filter: blur(12px);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            border-radius: 30px;
-            padding: 4px;
-            display: none;
-            align-items: center;
-            gap: 6px;
-            z-index: 3050;
-            box-shadow: 0 6px 20px rgba(0,0,0,0.4);
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-        .autoscroll-main-btn {
-            background: #10b981;
-            border: none;
-            color: white;
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1rem;
-            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4);
-            transition: 0.2s;
-            flex-shrink: 0;
-        }
-        .autoscroll-main-btn.playing {
-            background: #ef4444;
-            box-shadow: 0 4px 12px rgba(239, 68, 68, 0.4);
-        }
-        .autoscroll-controls-panel {
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            max-width: 0;
-            overflow: hidden;
-            opacity: 0;
-            transition: max-width 0.3s ease, opacity 0.2s ease;
-            white-space: nowrap;
-        }
-        .autoscroll-bar.expanded .autoscroll-controls-panel {
-            max-width: 150px;
-            opacity: 1;
-        }
-        .autoscroll-sub-btn {
-            background: rgba(255, 255, 255, 0.15);
-            border: none;
-            color: #ffffff;
-            width: 30px;
-            height: 30px;
-            border-radius: 50%;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 0.8rem;
-            transition: 0.2s;
-        }
-        .autoscroll-sub-btn:active {
-            transform: scale(0.9);
-            background: var(--primary);
-        }
-        .autoscroll-speed-display {
-            color: #ffffff;
-            font-size: 0.75rem;
-            font-weight: 700;
-            min-width: 32px;
-            text-align: center;
-        }
-    `;
-    document.head.appendChild(style);
-
-    // បង្កើត Container ຕົ້ນមេ
-    const bar = document.createElement('div');
-    bar.id = 'autoScrollFloatingBar';
-    bar.className = 'autoscroll-bar';
-
-    // ប៊ូតុងគោល (ពេលចុចគឺ Play/Pause បើកពង្រីក)
-    const mainBtn = document.createElement('button');
-    mainBtn.className = 'autoscroll-main-btn';
-    mainBtn.id = 'scrollTogglePlayBtn';
-    mainBtn.innerHTML = 'A';
-    mainBtn.onclick = (e) => {
-        e.stopPropagation();
-        toggleExpandOrPlay();
-    };
-
-    // ផ្ទាំងបញ្ជាល្បឿនដែលលាក់/បង្ហាញ (Slide Panel)
-    const panel = document.createElement('div');
-    panel.className = 'autoscroll-controls-panel';
-
-    const btnMinus = document.createElement('button');
-    btnMinus.className = 'autoscroll-sub-btn';
-    btnMinus.innerText = '-';
-    btnMinus.onclick = (e) => { e.stopPropagation(); adjustScrollSpeed(-0.2); };
-
-    const speedLabel = document.createElement('span');
-    speedLabel.className = 'autoscroll-speed-display';
-    speedLabel.id = 'scrollSpeedText';
-    speedLabel.innerText = '1.0x';
-
-    const btnPlus = document.createElement('button');
-    btnPlus.className = 'autoscroll-sub-btn';
-    btnPlus.innerText = '+';
-    btnPlus.onclick = (e) => { e.stopPropagation(); adjustScrollSpeed(0.2); };
-
-    panel.appendChild(btnMinus);
-    panel.appendChild(speedLabel);
-    panel.appendChild(btnPlus);
-
-    bar.appendChild(mainBtn);
-    bar.appendChild(panel);
-
-    // ពេលចុចលើកន្លែងទទេ ឬប៊ូតុង ឱ្យវាបិទ Panel វិញបើកំពុងបើក
-    document.addEventListener('click', (e) => {
-        if (isAutoScrollExpanded && !bar.contains(e.target)) {
-            collapsePanel();
-        }
-    });
-
-    const modal = document.getElementById('fullScreenModal');
-    if (modal) modal.appendChild(bar);
-}
-
-// គ្រប់គ្រងការចុចលើប៊ូតុងមេ
-function toggleExpandOrPlay() {
-    const bar = document.getElementById('autoScrollFloatingBar');
-    
-    if (!isAutoScrollExpanded) {
-        // បើកឱ្យវាពង្រីកបង្ហាញផ្ទាំង -/+
-        bar.classList.add('expanded');
-        isAutoScrollExpanded = true;
-    } else {
-        // បើវាបើកស្រាប់ ចុចលើវាគឺចាប់ផ្តើម Play/Pause
-        executePlayPause();
-    }
-}
-
-function collapsePanel() {
-    const bar = document.getElementById('autoScrollFloatingBar');
-    if (bar) bar.classList.remove('expanded');
-    isAutoScrollExpanded = false;
-}
-
-function executePlayPause() {
-    const mainBtn = document.getElementById('scrollTogglePlayBtn');
-    const lyricsContainer = document.getElementById('fullScreenLyrics');
-
-    // បើកំពុងតែរំកិលស្រាប់ (មាន autoScrollFrameReq) យើងនឹងបញ្ឈប់វា
-    if (autoScrollFrameReq) {
-        stopAutoScroll();
-        if (mainBtn) {
-            mainBtn.classList.remove('playing');
-            mainBtn.innerHTML = 'A';
-        }
-        showToast("បានផ្អាក Auto-Scroll", "info");
-    } else {
-        if (!lyricsContainer) return;
-
-        // បង្កើតមុខងារតូចមួយសម្រាប់ Loop ការរំកិល
-        function scrollStep() {
-            lyricsContainer.scrollTop += currentScrollSpeed;
-            
-            // ឆែកមើលថាដល់ខាងក្រោមឬនៅ (ដក 2px ដើម្បីចៀសវាងការគណនាខុសបន្តិចបន្តួច)
-            if (lyricsContainer.scrollTop + lyricsContainer.clientHeight >= lyricsContainer.scrollHeight - 2) {
-                stopAutoScroll();
-                if (mainBtn) {
-                    mainBtn.classList.remove('playing');
-                    mainBtn.innerHTML = 'A';
-                }
-            } else {
-                // ហៅមុខងារនេះម្តងទៀតនៅ Frame បន្ទាប់
-                autoScrollFrameReq = requestAnimationFrame(scrollStep);
-            }
-        }
-
-        // ចាប់ផ្តើមការរំកិល
-        autoScrollFrameReq = requestAnimationFrame(scrollStep);
-
-        if (mainBtn) {
-            mainBtn.classList.add('playing');
-            mainBtn.innerHTML = 'A';
-        }
-        showToast("កំពុងរំកិលស្វ័យប្រវត្តិ...", "success");
-    }
-    collapsePanel();
-}
-
-function stopAutoScroll() {
-    if (autoScrollFrameReq) {
-        cancelAnimationFrame(autoScrollFrameReq);
-        autoScrollFrameReq = null;
-    }
-    // ទុកកូដនេះដើម្បីការពារក្រែងលោនៅសល់ការរំកិលចាស់
-    if (scrollInterval) {
-        clearInterval(scrollInterval);
-        scrollInterval = null;
-    }
-}
-
-
-function adjustScrollSpeed(delta) {
-    currentScrollSpeed = Math.round((currentScrollSpeed + delta) * 10) / 10;
-    if (currentScrollSpeed < 0.4) currentScrollSpeed = 0.4;
-    if (currentScrollSpeed > 3.0) currentScrollSpeed = 3.0;
-
-    const label = document.getElementById('scrollSpeedText');
-    if (label) label.innerText = currentScrollSpeed.toFixed(1) + 'x';
-}
-
-function checkAndDisplayAutoScrollBar() {
-    setupAutoScrollButton();
-    const bar = document.getElementById('autoScrollFloatingBar');
-    const song = currentFilteredSongs[currentFullscreenIndex];
-
-    if (bar && song && song.lyrics && song.lyrics.length > 5) {
-        bar.style.display = 'flex';
-    } else if (bar) {
-        bar.style.display = 'none';
-        stopAutoScroll();
-        collapsePanel();
-    }
-}
-
-document.addEventListener('DOMContentLoaded', () => {
-    setupAutoScrollButton();
-});
-
-const nativeUpdateFullScreen = updateFullScreenContent;
-updateFullScreenContent = function() {
-    stopAutoScroll();
-    collapsePanel();
-    const mainBtn = document.getElementById('scrollTogglePlayBtn');
-    if (mainBtn) {
-        mainBtn.classList.remove('playing');
-        mainBtn.innerHTML = 'A';
-    }
-    nativeUpdateFullScreen();
-    checkAndDisplayAutoScrollBar();
-};
-
-const nativeCloseFS = closeFullScreenModalDirect;
-closeFullScreenModalDirect = function() {
-    stopAutoScroll();
-    collapsePanel();
-    const bar = document.getElementById('autoScrollFloatingBar');
-    if (bar) bar.style.display = 'none';
-    nativeCloseFS();
-};
-
+// =========================================
 // បិទបើកកន្លែង Search នៅទំព័រចម្រៀង (YouTube Style)
+// =========================================
 function toggleSongsSearchMode(isActive) {
     const normalHeader = document.getElementById('songsNormalHeader');
     const searchHeader = document.getElementById('songsSearchHeader');
@@ -2729,7 +2461,9 @@ function toggleSongsSearchMode(isActive) {
     }
 }
 
+// =========================================
 // មុខងារ Search ដោយឡែកសម្រាប់ Home Page
+// =========================================
 function handleHomeSearch() {
     const input = document.getElementById('homeSearchInput');
     const clearBtn = document.getElementById('clearHomeSearchBtn');
@@ -2749,7 +2483,7 @@ function handleHomeSearch() {
         return searchTerms.every(term => fullText.includes(term.replace(/\s+/g, '')));
     });
 
-    matches = matches.slice(0, 15); // បង្ហាញ ១៥ បទ
+    matches = matches.slice(0, 15); 
 
     if (matches.length > 0) {
         dropdown.innerHTML = matches.map(s => `
@@ -2780,28 +2514,23 @@ function clearHomeSearch() {
 }
 
 document.addEventListener('keydown', (e) => {
-    // មិនត្រូវដំណើរការ Shortcut ទេ បើសិនជាអ្នកប្រើប្រាស់កំពុងพิมพ์ក្នុង ô ស្វែងរក ឬ Textarea
     if (['INPUT', 'TEXTAREA'].includes(document.activeElement.tagName)) {
         return;
     }
 
-    // ១. ចុចปุ่ม Space ដើម្បី Play/Pause អូឌីយ៉ូ
     if (e.code === 'Space') {
-        e.preventDefault(); // ការពារកុំឱ្យទំព័ររំកិលចុះក្រោមពេលចុច Space
+        e.preventDefault(); 
         toggleApplePlayPause();
     }
 
-    // ២. ចុចព្រួញស្តាំ (ArrowRight) ដើម្បីទៅបទបន្ទាប់
     if (e.code === 'ArrowRight') {
         playNextSong();
     }
 
-    // ៣. ចុចព្រួញឆ្វេង (ArrowLeft) ដើម្បីថយទៅបទមុន
     if (e.code === 'ArrowLeft') {
         playPrevSong();
     }
 
-    // ៤. ចុចปุ่ม Escape (Esc) ដើម្បីបិទ Fullscreen Modal ឬ Modal ផ្សេងៗ
     if (e.code === 'Escape') {
         const fullScreenModal = document.getElementById('fullScreenModal');
         const appleFullPlayer = document.getElementById('appleFullPlayer');
@@ -2811,7 +2540,6 @@ document.addEventListener('keydown', (e) => {
         } else if (appleFullPlayer && appleFullPlayer.classList.contains('active')) {
             closeAppleFullScreenPlayer();
         } else {
-            // បិទ Modal ទូទៅផ្សេងទៀត
             document.querySelectorAll('.modal.active').forEach(modal => {
                 modal.classList.remove('active');
                 document.body.classList.remove('no-scroll');
@@ -2832,7 +2560,6 @@ document.addEventListener('DOMContentLoaded', () => {
     let touchEndX = 0;
     let touchEndY = 0;
 
-    // លំដាប់ Tab ខាងក្រោម (ពីឆ្វេងទៅស្តាំ)
     const tabOrder = ['home', 'songs', 'albums', 'settings'];
 
     mainContent.addEventListener('touchstart', e => {
@@ -2847,7 +2574,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }, { passive: true });
 
     function handleSwipeGesture(target) {
-        // បើកំពុងបើកមើលរូប Fullscreen ឬកំពុងអូសលើកន្លែងដែលអូសផ្តេកស្រាប់ (Slider) មិនឱ្យប្តូរ Tab ទេ
         if (document.getElementById('fullScreenModal')?.classList.contains('active') ||
             target.closest('.horizontal-scroll-modern') || 
             target.closest('.filter-chips') || 
@@ -2859,27 +2585,20 @@ document.addEventListener('DOMContentLoaded', () => {
         const diffX = touchEndX - touchStartX;
         const diffY = touchEndY - touchStartY;
 
-        // កំណត់ថាជាការអូសផ្តេកពិតប្រាកដ បើចម្ងាយអូសផ្តេកវែងជាងបញ្ឈរ និងអូសលើសពី ៨០px
         if (Math.abs(diffX) > Math.abs(diffY) && Math.abs(diffX) > 80) {
-            
-            // រកមើលថាបច្ចុប្បន្នយើងកំពុងនៅ Tab ណា
             const currentActiveView = document.querySelector('.app-view.active');
             if (!currentActiveView) return;
 
-            // កាត់យកតែឈ្មោះដើម ឧ. viewHome ទៅជា home
             const currentTabId = currentActiveView.id.replace('view', '').toLowerCase();
             const currentIndex = tabOrder.indexOf(currentTabId);
 
-            // បើមិនមែនជា Main Tab ទាំង៤ ទេ មិនដំណើរការឡើយ
             if (currentIndex === -1) return;
 
             if (diffX < 0) {
-                // អូសទៅឆ្វេង (Swipe Left) => ប្តូរទៅ Tab ខាងស្តាំបន្ទាប់
                 if (currentIndex < tabOrder.length - 1) {
                     switchTab(tabOrder[currentIndex + 1]);
                 }
             } else {
-                // អូសទៅស្តាំ (Swipe Right) => ត្រឡប់មក Tab ខាងឆ្វេងមុន
                 if (currentIndex > 0) {
                     switchTab(tabOrder[currentIndex - 1]);
                 }
@@ -2887,6 +2606,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 });
+
 // =========================================
 // មុខងារអូសចុះក្រោមដើម្បីបិទ (Swipe Down to Dismiss)
 // =========================================
@@ -2900,11 +2620,9 @@ document.addEventListener('DOMContentLoaded', () => {
     let isDetermined = false;
     
     fullScreenModal.addEventListener('touchstart', (e) => {
-        // បើកំពុងបើកមុខងារពង្រីករូប (Pinch Zoom) មិនអនុញ្ញាតឲ្យអូសបិទទេ
         if (typeof scale !== 'undefined' && scale > 1) return; 
         if (e.touches.length > 1) return;
         
-        // បើកំពុងអានអត្ថបទ (Lyrics Mode) ត្រូវប្រាកដថា Scroll នៅលើគេបង្អស់ ទើបឲ្យអូសបិទបាន
         if (fullScreenModal.classList.contains('lyrics-mode') && lyricsContainer.scrollTop > 5) {
             return;
         }
@@ -2914,12 +2632,10 @@ document.addEventListener('DOMContentLoaded', () => {
         isDraggingDown = false;
         isDetermined = false;
         
-        // បិទចលនា Transition ពេលកំពុងអូស ដើម្បីឲ្យផ្ទាំងរអិលតាមម្រាមដៃភ្លាមៗ
         fullScreenModal.style.transition = 'none';
     }, { passive: true });
     
     fullScreenModal.addEventListener('touchmove', (e) => {
-        // កុំដំណើរការបើកំពុងបើកមុខងារ Auto-scroll
         if (typeof isAutoScrolling !== 'undefined' && isAutoScrolling) return; 
 
         const currentY = e.touches[0].screenY;
@@ -2927,7 +2643,6 @@ document.addEventListener('DOMContentLoaded', () => {
         const diffY = currentY - startY;
         const diffX = currentX - startX;
         
-        // កំណត់ថាជាការអូសចុះក្រោម បើចម្ងាយអូសបញ្ឈរវែងជាងផ្តេក និងរំកិលចុះក្រោម
         if (!isDetermined) {
             if (Math.abs(diffY) > Math.abs(diffX) && diffY > 10) {
                 isDraggingDown = true;
@@ -2937,10 +2652,9 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
         
-        // បើបញ្ជាក់ថាអូសចុះក្រោមមែន ធ្វើការទាញផ្ទាំង Modal ទាំងមូលចុះ
         if (isDraggingDown && diffY > 0) {
             fullScreenModal.style.transform = `translateY(${diffY}px)`;
-            if (e.cancelable) e.preventDefault(); // ការពារកុំឲ្យវា Scroll ធម្មតា
+            if (e.cancelable) e.preventDefault(); 
         }
     }, { passive: false });
     
@@ -2950,20 +2664,111 @@ document.addEventListener('DOMContentLoaded', () => {
         isDetermined = false;
         
         const diffY = e.changedTouches[0].screenY - startY;
-        
-        // បើកចលនា Transition វិញ ដើម្បីឲ្យវាលោតទៅទីតាំងវិញយ៉ាងរលូន
         fullScreenModal.style.transition = 'transform 0.3s cubic-bezier(0.4, 0, 0.2, 1)';
         
-        // បើអូសចុះក្រោមលើសពី 120px នោះធ្វើការបិទ Modal
         if (diffY > 120) {
             closeFullScreenModalDirect();
-            // ទុកពេលឲ្យវាលោតបិទរួចរាល់ សឹម Reset ទីតាំងវិញ សម្រាប់ប្រើលើកក្រោយ
             setTimeout(() => { 
                 fullScreenModal.style.transform = ''; 
             }, 300);
         } else {
-            // បើអូសមិនដល់កំណត់ទេ ផ្ទាំងនឹងលោតត្រឡប់ទៅទីតាំងដើមវិញ
             fullScreenModal.style.transform = '';
         }
     }, { passive: true });
+});
+
+// ====================================================
+// មុខងារ AUTO-SCROLL (បញ្ចូលក្នុងផ្ទាំង Key រួចរាល់)
+// ====================================================
+
+let currentScrollSpeed = 1.0;
+let isAutoScrollExpanded = false;
+
+function toggleExpandOrPlay(e) {
+    if(e) e.stopPropagation();
+    const panel = document.getElementById('autoScrollSpeedPanel');
+    
+    if (!isAutoScrollExpanded) {
+        panel.style.display = 'flex';
+        isAutoScrollExpanded = true;
+    } else {
+        executePlayPause();
+    }
+}
+
+function collapsePanel() {
+    const panel = document.getElementById('autoScrollSpeedPanel');
+    if (panel) panel.style.display = 'none';
+    isAutoScrollExpanded = false;
+}
+
+function executePlayPause() {
+    const mainBtn = document.getElementById('scrollTogglePlayBtn');
+    const lyricsContainer = document.getElementById('fullScreenLyrics');
+
+    if (autoScrollFrameReq) {
+        stopAutoScroll();
+        if (mainBtn) mainBtn.classList.remove('playing');
+        showToast("បានផ្អាក Auto-Scroll", "info");
+    } else {
+        if (!lyricsContainer) return;
+
+        function scrollStep() {
+            lyricsContainer.scrollTop += currentScrollSpeed;
+            if (lyricsContainer.scrollTop + lyricsContainer.clientHeight >= lyricsContainer.scrollHeight - 2) {
+                stopAutoScroll();
+                if (mainBtn) mainBtn.classList.remove('playing');
+            } else {
+                autoScrollFrameReq = requestAnimationFrame(scrollStep);
+            }
+        }
+
+        autoScrollFrameReq = requestAnimationFrame(scrollStep);
+        if (mainBtn) mainBtn.classList.add('playing');
+        showToast("កំពុងរំកិលស្វ័យប្រវត្តិ...", "success");
+    }
+}
+
+function stopAutoScroll() {
+    if (autoScrollFrameReq) {
+        cancelAnimationFrame(autoScrollFrameReq);
+        autoScrollFrameReq = null;
+    }
+}
+
+function adjustScrollSpeed(delta, e) {
+    if(e) e.stopPropagation();
+    currentScrollSpeed = Math.round((currentScrollSpeed + delta) * 10) / 10;
+    if (currentScrollSpeed < 0.4) currentScrollSpeed = 0.4;
+    if (currentScrollSpeed > 3.0) currentScrollSpeed = 3.0;
+
+    const label = document.getElementById('scrollSpeedText');
+    if (label) label.innerText = currentScrollSpeed.toFixed(1) + 'x';
+}
+
+function checkAndDisplayAutoScrollBar() {
+    stopAutoScroll();
+    collapsePanel();
+    const mainBtn = document.getElementById('scrollTogglePlayBtn');
+    if (mainBtn) mainBtn.classList.remove('playing');
+}
+
+const nativeUpdateFullScreen = updateFullScreenContent;
+updateFullScreenContent = function() {
+    nativeUpdateFullScreen();
+    checkAndDisplayAutoScrollBar();
+};
+
+const nativeCloseFS = closeFullScreenModalDirect;
+closeFullScreenModalDirect = function() {
+    stopAutoScroll();
+    collapsePanel();
+    nativeCloseFS();
+};
+
+document.addEventListener('click', (e) => {
+    const transposeControls = document.getElementById('transposeControls');
+    if (isAutoScrollExpanded && transposeControls && !transposeControls.contains(e.target)) {
+        collapsePanel();
+    }
 });
