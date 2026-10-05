@@ -2887,3 +2887,83 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 });
+// =========================================
+// មុខងារអូសចុះក្រោមដើម្បីបិទ (Swipe Down to Dismiss)
+// =========================================
+document.addEventListener('DOMContentLoaded', () => {
+    const fullScreenModal = document.getElementById('fullScreenModal');
+    const lyricsContainer = document.getElementById('fullScreenLyrics');
+    
+    let startY = 0;
+    let startX = 0;
+    let isDraggingDown = false;
+    let isDetermined = false;
+    
+    fullScreenModal.addEventListener('touchstart', (e) => {
+        // បើកំពុងបើកមុខងារពង្រីករូប (Pinch Zoom) មិនអនុញ្ញាតឲ្យអូសបិទទេ
+        if (typeof scale !== 'undefined' && scale > 1) return; 
+        if (e.touches.length > 1) return;
+        
+        // បើកំពុងអានអត្ថបទ (Lyrics Mode) ត្រូវប្រាកដថា Scroll នៅលើគេបង្អស់ ទើបឲ្យអូសបិទបាន
+        if (fullScreenModal.classList.contains('lyrics-mode') && lyricsContainer.scrollTop > 5) {
+            return;
+        }
+        
+        startX = e.touches[0].screenX;
+        startY = e.touches[0].screenY;
+        isDraggingDown = false;
+        isDetermined = false;
+        
+        // បិទចលនា Transition ពេលកំពុងអូស ដើម្បីឲ្យផ្ទាំងរអិលតាមម្រាមដៃភ្លាមៗ
+        fullScreenModal.style.transition = 'none';
+    }, { passive: true });
+    
+    fullScreenModal.addEventListener('touchmove', (e) => {
+        // កុំដំណើរការបើកំពុងបើកមុខងារ Auto-scroll
+        if (typeof isAutoScrolling !== 'undefined' && isAutoScrolling) return; 
+
+        const currentY = e.touches[0].screenY;
+        const currentX = e.touches[0].screenX;
+        const diffY = currentY - startY;
+        const diffX = currentX - startX;
+        
+        // កំណត់ថាជាការអូសចុះក្រោម បើចម្ងាយអូសបញ្ឈរវែងជាងផ្តេក និងរំកិលចុះក្រោម
+        if (!isDetermined) {
+            if (Math.abs(diffY) > Math.abs(diffX) && diffY > 10) {
+                isDraggingDown = true;
+            }
+            if (Math.abs(diffY) > 10 || Math.abs(diffX) > 10) {
+                isDetermined = true;
+            }
+        }
+        
+        // បើបញ្ជាក់ថាអូសចុះក្រោមមែន ធ្វើការទាញផ្ទាំង Modal ទាំងមូលចុះ
+        if (isDraggingDown && diffY > 0) {
+            fullScreenModal.style.transform = `translateY(${diffY}px)`;
+            if (e.cancelable) e.preventDefault(); // ការពារកុំឲ្យវា Scroll ធម្មតា
+        }
+    }, { passive: false });
+    
+    fullScreenModal.addEventListener('touchend', (e) => {
+        if (!isDraggingDown) return;
+        isDraggingDown = false;
+        isDetermined = false;
+        
+        const diffY = e.changedTouches[0].screenY - startY;
+        
+        // បើកចលនា Transition វិញ ដើម្បីឲ្យវាលោតទៅទីតាំងវិញយ៉ាងរលូន
+        fullScreenModal.style.transition = 'transform 0.3s cubic-bezier(0.4, 0, 0.2, 1)';
+        
+        // បើអូសចុះក្រោមលើសពី 120px នោះធ្វើការបិទ Modal
+        if (diffY > 120) {
+            closeFullScreenModalDirect();
+            // ទុកពេលឲ្យវាលោតបិទរួចរាល់ សឹម Reset ទីតាំងវិញ សម្រាប់ប្រើលើកក្រោយ
+            setTimeout(() => { 
+                fullScreenModal.style.transform = ''; 
+            }, 300);
+        } else {
+            // បើអូសមិនដល់កំណត់ទេ ផ្ទាំងនឹងលោតត្រឡប់ទៅទីតាំងដើមវិញ
+            fullScreenModal.style.transform = '';
+        }
+    }, { passive: true });
+});
