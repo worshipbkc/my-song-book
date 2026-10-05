@@ -663,11 +663,47 @@ body.dark-mode .card-dropdown { box-shadow: 0 4px 15px rgba(0,0,0,0.5); }
    កូដទម្រង់អត្ថបទចម្រៀង និង Chord (Lyrics Mode)
 ========================================= */
 
-.fullscreen-modal.lyrics-mode { background: var(--card-bg); }
-.fullscreen-modal.lyrics-mode .fullscreen-header { color: var(--text); }
-.fullscreen-modal.lyrics-mode .fullscreen-header button { color: var(--text); }
-.fullscreen-modal.lyrics-mode #pageCounter { background: var(--border); color: var(--text); }
-.fullscreen-modal.lyrics-mode #fullScreenTitle { color: var(--text); }
+/* =========================================
+   ធ្វើឱ្យផ្ទាំង FullScreen Lyrics ចេញជារាងក្រដាស A4
+========================================= */
+
+/* ផ្ទៃខាងក្រោយក្រៅក្រដាស (Backdrop) ឱ្យងងឹតរហូតងាយស្រួលមើលក្រដាស */
+.fullscreen-modal.lyrics-mode { 
+    background: #0f172a !important; 
+}
+.fullscreen-modal.lyrics-mode .fullscreen-header,
+.fullscreen-modal.lyrics-mode .fullscreen-header button,
+.fullscreen-modal.lyrics-mode #fullScreenTitle { 
+    color: #ffffff !important; 
+}
+.fullscreen-modal.lyrics-mode #pageCounter { 
+    background: rgba(255,255,255,0.25) !important; 
+    color: #ffffff !important; 
+}
+
+/* ទម្រង់សន្លឹកក្រដាស A4 ចំកណ្តាលអេក្រង់ */
+.fullscreen-lyrics { 
+    width: 100vw; 
+    max-width: 794px; /* ទំហំទទឹងក្រដាស A4 ស្តង់ដារ */
+    height: 100vh; 
+    margin: 0 auto; /* រុញឱ្យនៅចំកណ្តាលអេក្រង់ */
+    padding: calc(100px + env(safe-area-inset-top)) 40px calc(120px + env(safe-area-inset-bottom)) 40px; 
+    
+    background: #ffffff; /* ផ្ទៃពណ៌សដូចក្រដាសពិតៗ */
+    color: #0f172a;      /* អក្សរពណ៌ខ្មៅ ងាយស្រួលអាន */
+    
+    overflow-y: auto; 
+    text-align: left; 
+    -webkit-overflow-scrolling: touch; 
+    box-shadow: 0 0 25px rgba(0,0,0,0.5); /* ស្រមោលធ្វើឱ្យក្រដាសអណ្តែត */
+}
+
+/* សម្រាប់ Dark Mode ឱ្យពណ៌ក្រដាសរាងប្រផេះ កុំឱ្យពណ៌សចាំងភ្នែកខ្លាំងពេក */
+body.dark-mode .fullscreen-lyrics {
+    background: #e2e8f0;
+    color: #0f172a;
+    box-shadow: 0 0 30px rgba(0,0,0,0.8);
+}
 
 .transpose-controls { position: absolute; top: calc(60px + env(safe-area-inset-top)); left: 50%; transform: translateX(-50%); background: var(--bg); color: var(--text); padding: 4px 16px; border-radius: 20px; display: flex; align-items: center; gap: 16px; z-index: 3020; box-shadow: 0 4px 15px rgba(0,0,0,0.1); border: 1px solid var(--border); }
 .transpose-controls button { background: var(--card-bg); border: 1px solid var(--border); color: var(--text); font-size: 1.2rem; width: 34px; height: 34px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: 0.2s; }
@@ -675,14 +711,41 @@ body.dark-mode .card-dropdown { box-shadow: 0 4px 15px rgba(0,0,0,0.5); }
 
 .fullscreen-lyrics { width: 100vw; height: 100vh; padding: calc(120px + env(safe-area-inset-top)) 20px calc(120px + env(safe-area-inset-bottom)) 20px; color: var(--text); overflow-y: auto; text-align: left; -webkit-overflow-scrolling: touch; }
 
+/* =========================================
+   កែសម្រួលគម្លាតអត្ថបទ និង Chord មិនឱ្យគងគ្នា
+========================================= */
+
 .lyric-line { 
     display: block; 
-    line-height: 2.8; 
-    font-family: 'Kantumruy Pro', sans-serif; 
-    font-size: 1.05rem; 
+    line-height: 1.8; /* គម្លាតបន្ទាត់ធម្មតា */
+    margin-top: 24px; /* 🔴 ទុកចន្លោះពីលើ ២៤px ជានិច្ច ដើម្បីទប់កុំឱ្យ Chord ប៉ះបន្ទាត់ខាងលើ */
     margin-bottom: 2px; 
+    font-family: 'Courier New', 'Kantumruy Pro', monospace; 
+    font-size: 1.05rem; 
     white-space: pre-wrap; 
     word-wrap: break-word; 
+}
+
+.chord-word { 
+    display: inline-block; 
+    position: relative; 
+    line-height: 1; /* ការពារកុំឱ្យអក្សរខាងក្រោមធ្លាក់ឃ្លាតពីខ័រពេក */
+}
+
+.chord-word .chord { 
+    position: absolute; 
+    bottom: 100%; /* 🔴 រុញ Chord ឱ្យឈរនៅចំពីលើអក្សរ (Lyric) ជានិច្ច */
+    left: 0; 
+    margin-bottom: 2px; /* ទុកចន្លោះ ២px ពីលើអក្សរ កុំឱ្យ Chord អង្គុយសង្កត់លើអក្សរពេក */
+    color: #ef4444; 
+    font-weight: 800; 
+    font-family: Arial, sans-serif; 
+    font-size: 0.95rem; 
+    white-space: nowrap; 
+}
+
+body.dark-mode .chord-word .chord {
+    color: #dc2626; /* ពណ៌ខ័រសម្រាប់ Dark Mode */
 }
 .chord-word { 
     display: inline-block; 
