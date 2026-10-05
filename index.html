@@ -50,47 +50,44 @@
     <div class="app-view active" id="viewHome">
         <div class="home-shell" id="homeShell">
 
-    <!-- Header ថ្មី ដែលមាន Logo និងប៊ូតុងនៅមួយជួរ -->
-    <!-- ចាប់ផ្តើម ខ្ចប់ Header និង Search ឱ្យជាប់ខាងលើ (Sticky) -->
-    <div class="home-sticky-wrapper">
-        
-        <!-- Header (Logo & Icons) -->
-        <div class="home-topbar-modern" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: nowrap; gap: 10px;">
-            <div class="home-brand-modern" style="display: flex; flex-direction: row; align-items: center; gap: 10px; flex: 1; min-width: 0;">
-                <img src="https://lh3.googleusercontent.com/d/12dt7uNglluI-nnVcc2jvslICE0HRoYIm" alt="Logo" style="width: 45px; height: auto; object-fit: contain; flex-shrink: 0;">
-                <div style="display: flex; flex-direction: column; line-height: 1.2; overflow: hidden;">
-                    <h1 style="font-family: 'Kantumruy Pro'; font-size: 1.2rem; font-weight: 800; color: var(--text); margin: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">ចម្រៀងសរសើរដំកើងព្រះ<span style="font-size: 1rem; position:relative; top:-5px; margin-left: 2px;">†</span></h1>
-                    <span style="font-size: 0.7rem; color: var(--text-muted); font-weight: 600; margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">Khmer Christian Songs</span>
-                </div>
+    <!-- បញ្ចូលទៅក្នុង index.html ជំនួសកូដចាស់ -->
+<div class="home-sticky-wrapper">
+    
+    <!-- Header (Logo & Icons) -->
+    <div class="home-topbar-modern">
+        <div class="home-brand-modern">
+            <img src="https://lh3.googleusercontent.com/d/12dt7uNglluI-nnVcc2jvslICE0HRoYIm" alt="Logo" class="home-logo-modern">
+            <div class="home-title-wrapper">
+                <h1 class="home-main-title">ចម្រៀងសរសើរដំកើងព្រះ<span class="home-title-icon">†</span></h1>
+                <span class="home-sub-title">Khmer Christian Songs</span>
             </div>
-            <div style="display: flex; gap: 8px; align-items: center; flex-shrink: 0;">
-                <button class="icon-btn-modern" onclick="openModernNotifScreen()" style="position: relative;">
-                    <i class="fa-regular fa-bell"></i>
-                    <span class="nav-badge-dot" id="navNotifDot" style="top: 5px; right: 5px;"></span>
+        </div>
+        <div class="home-actions-modern">
+            <button class="icon-btn-modern pos-relative" onclick="openModernNotifScreen()">
+                <i class="fa-regular fa-bell"></i>
+                <span class="nav-badge-dot badge-top-right" id="navNotifDot"></span>
+            </button>
+            <div class="pos-relative">
+                <button class="icon-btn-modern" id="homeProfileBtn" onclick="toggleProfilePopup(event)">
+                    <i class="fa-regular fa-user"></i>
                 </button>
-                <div style="position: relative;">
-                    <button class="icon-btn-modern" id="homeProfileBtn" onclick="toggleProfilePopup(event)">
-                        <i class="fa-regular fa-user"></i>
-                    </button>
-                    <div id="profilePopup" class="profile-popup"><div id="profilePopupContent"></div></div>
-                </div>
+                <div id="profilePopup" class="profile-popup"><div id="profilePopupContent"></div></div>
             </div>
         </div>
-
-        <!-- Search Bar សម្រាប់ Home -->
-        <div class="home-search-bar-modern" style="position: relative; padding: 0;">
-            <i class="fa-solid fa-magnifying-glass" style="position: absolute; left: 16px; top: 50%; transform: translateY(-50%); color: var(--text-muted);"></i>
-            <input type="text" id="homeSearchInput" placeholder="Search songs, artists, or keywords..." oninput="handleHomeSearch()" onfocus="handleHomeSearch()" autocomplete="off" style="width: 100%; padding: 12px 40px; border: none; background: transparent; outline: none; color: var(--text); font-family: 'Kantumruy Pro'; font-size: 0.95rem;">
-            <button id="clearHomeSearchBtn" onclick="clearHomeSearch()" style="position: absolute; right: 12px; top: 50%; transform: translateY(-50%); background: none; border: none; color: var(--text-muted); display: none; cursor: pointer; padding: 4px;"><i class="fa-solid fa-circle-xmark"></i></button>
-            <div class="search-dropdown" id="homeSearchDropdown" style="top: 100%; margin-top: 8px;"></div>
-        </div>
-
     </div>
-    <!-- បញ្ចប់ការខ្ចប់ Sticky -->
 
+    <!-- Search Bar សម្រាប់ Home -->
+    <div class="home-search-bar-modern pos-relative no-padding">
+        <i class="fa-solid fa-magnifying-glass search-icon-left"></i>
+        <input type="text" id="homeSearchInput" class="home-search-input" placeholder="Search songs, artists, or keywords..." oninput="handleHomeSearch()" onfocus="handleHomeSearch()" autocomplete="off">
+        <button id="clearHomeSearchBtn" class="clear-search-btn" onclick="clearHomeSearch()">
+            <i class="fa-solid fa-circle-xmark"></i>
+        </button>
+        <div class="search-dropdown home-search-dropdown-spacing" id="homeSearchDropdown"></div>
+    </div>
 
-
-    <!-- Featured Playlist (Banner) -->
+</div>
+   <!-- Featured Playlist (Banner) -->
     <section class="home-hero-modern">
         <!-- អ្នកអាចប្តូររូបភាព URL នេះបាន -->
         <div class="home-hero-bg" style="background-image: url('https://images.unsplash.com/photo-1507692049790-de58290a4334?w=800&q=80');"></div>
@@ -127,7 +124,7 @@
     <!-- ផ្នែកទី១: Setlist (Trending Now) -->
     <section class="home-section-modern">
         <div class="section-head-modern">
-            <h2>🔥 Setlist ខែនេះ</h2>
+            <h2>🔥 កម្មវិធីចម្រៀងថ្វាយបង្គំនៅ<strong>ក្រុមជំនុំរស្មីវិជ្ជា</strong> </h2>
             <button onclick="switchTab('playlists')">See All <i class="fa-solid fa-chevron-right"></i></button>
         </div>
         <div class="horizontal-scroll-modern" id="homeSetlistList"></div>
@@ -478,12 +475,14 @@
                 </div>
                 <div id="addSectionText" style="display: none;">
                     <div style="font-size: 0.72rem; color: var(--primary); margin-bottom: 8px; font-weight: 600;">
-                        💡 របៀបសរសេរ៖ ដាក់ Chord ក្នុងវង់ក្រចក [ ] ចំពីមុខពាក្យ។ ឧទាហរណ៍៖<br>
+                    💡 របៀបសរសេរ៖ ដាក់ Chord ក្នុងវង់ក្រចក [ ] ចំពីមុខពាក្យ។ ឧទាហរណ៍៖<br>
                         Intro: | [C] | [Am] | [F] | [G] |<br>
-                        I. [C]តើជើងកុំសង្ឃឹម[Am]ពេក...
+                    I. [C]តើជើងកុំសង្ឃឹម[Am]ពេក...
                     </div>
-                    <textarea id="songLyricsInput" class="lyric-textarea" rows="10" placeholder="បញ្ចូលអត្ថបទទីនេះ..."></textarea>
+                    <!-- ប្តូរ Class នៅទីនេះ -->
+                    <textarea id="songLyricsInput" class="a4-lyric-textarea" placeholder="បញ្ចូលអត្ថបទទីនេះ..."></textarea>
                 </div>
+
             </div>
             <div style="text-align: right; margin-top: 18px; display: flex; gap: 10px; justify-content: flex-end;">
                 <button type="button" onclick="closeModal('addSongModal')" style="background: var(--border); color: var(--text); padding: 10px 16px; border-radius:8px; border:none; font-size: 0.9rem; font-weight: 600;">បោះបង់</button>
@@ -522,8 +521,10 @@
                     <div style="margin-top: 6px;"><input type="url" id="editSongImageUrlDirect" placeholder="ឬដាក់ Image URL ថ្មី"></div>
                 </div>
                 <div id="editSectionText" style="display: none;">
-                    <textarea id="editSongLyricsInput" class="lyric-textarea" rows="10"></textarea>
+                        <!-- ប្តូរ Class នៅទីនេះ -->
+                    <textarea id="editSongLyricsInput" class="a4-lyric-textarea" placeholder="បញ្ចូលអត្ថបទទីនេះ..."></textarea>
                 </div>
+
             </div>
             <div style="text-align: right; margin-top: 18px; display: flex; gap: 10px; justify-content: flex-end;">
                 <button type="button" onclick="closeModal('editSongModal')" style="background: var(--border); color: var(--text); padding: 10px 16px; border-radius:8px; border:none; font-size:0.9rem; font-weight: 600;">បោះបង់</button>
