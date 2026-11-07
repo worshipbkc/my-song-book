@@ -54,6 +54,17 @@ function listenToGlobalSetlists() {
         if(isEditor) showToast("បញ្ហា Firebase Rules: " + error.message, "error");
     });
 }
+// មុខងារ Debounce ពន្យារពេល Search
+function debounce(func, delay) {
+    let timeoutId;
+    return function (...args) {
+        clearTimeout(timeoutId);
+        timeoutId = setTimeout(() => { func.apply(this, args); }, delay);
+    };
+}
+const debouncedSearchInput = debounce(handleSearchInput, 300);
+const debouncedHomeSearch = debounce(handleHomeSearch, 300);
+
 
 let currentFilterType = 'ALL';      
 let currentFilterValue = 'ALL';     
@@ -576,8 +587,9 @@ function loadMoreChunks() {
     else grid.appendChild(skeletonContainer);
 
     setTimeout(() => {
+        const oldItemCount = displayedItemCount; // កត់ត្រាចំនួនចាស់
         displayedItemCount += CHUNK_SIZE;
-        renderSongsListOnly();
+        renderSongsListOnly(true, oldItemCount); // បោះតម្លៃ true ដើម្បប្រាប់ថាជាការ Append
         isLoadingMore = false;
     }, 500);
 }
@@ -1389,7 +1401,9 @@ function openFullScreenModal(songId) {
     if (history.length > 15) history.pop();
     localStorage.setItem('recent_history', JSON.stringify(history));
     
-    currentFullscreenIndex = songIndex; updateFullScreenContent(); document.getElementById('fullScreenModal').classList.add('active');
+    currentFullscreenIndex = songIndex; updateFullScreenContent(); 
+    document.getElementById('fullScreenModal').classList.add('active');
+    history.pushState({ modal: true }, '', ''); // ចំណាំទុកក្នុងប្រវត្តិ ពេលបើក Modal
     requestWakeLock(); 
     document.body.classList.remove('no-scroll');
 }
@@ -1873,16 +1887,28 @@ function updateFullScreenContent() {
         modal.classList.add('lyrics-mode');
         imgEl.style.display = 'none';
         lyricsEl.style.display = 'block';
-        transposeEl.style.display = 'flex';
+        
+        // ធានាថាផ្ទាំង Transpose ត្រូវតែជា flex តែលាក់សិន (រង់ចាំចុច)
+        transposeEl.style.display = 'flex'; 
+        transposeEl.classList.remove('show-tools'); 
+        
+        // បង្ហាញប៊ូតុង Tools នៅក្នុងរបារខាងក្រោម
+        const toolsBtn = document.getElementById('toolbarToolsBtn');
+        if (toolsBtn) toolsBtn.style.display = 'flex';
+        
         renderLyricsToHTML(song.lyrics);
     } else {
+        // ... (កូដសម្រាប់ពេលមានតែរូបភាព គឺទុកនៅដដែល)
         modal.classList.remove('lyrics-mode');
         imgEl.style.display = 'block';
         imgEl.src = song.imageUrl || 'https://via.placeholder.com/300x400?text=No+Image'; 
         lyricsEl.style.display = 'none';
         transposeEl.style.display = 'none';
+        
+        // លាក់ប៊ូតុង Tools បើចម្រៀងមានតែរូបភាព
+        const toolsBtn = document.getElementById('toolbarToolsBtn');
+        if (toolsBtn) toolsBtn.style.display = 'none';
     }
-
     currentRotation = 0; // <--- បន្ថែមបន្ទាត់នេះនៅទីនេះ
     resetZoomState();
 }
@@ -1903,7 +1929,7 @@ function removeSongFromSetlist(songId, event) {
     }
 }
 
-function renderSongsListOnly() {
+function renderSongsListOnly(isAppending = false, startIndex = 0) {
     const grid = document.getElementById('songGrid');
     if (!grid) return;
 
@@ -1918,18 +1944,21 @@ function renderSongsListOnly() {
 
     const isCustomPlaylist = currentFilterType === 'PLAYLIST' && currentFilterValue !== 'Favorite';
     const isSetlistAdmin = currentFilterType === 'SETLIST' && isEditor;
-    const itemsToDisplay = currentFilteredSongs.slice(0, displayedItemCount);
+    
+    // កំណត់ថាត្រូវយកទិន្នន័យពីណាដល់ណា
+    let itemsToDisplay = [];
+    if (isAppending) {
+        itemsToDisplay = currentFilteredSongs.slice(startIndex, displayedItemCount);
+    } else {
+        itemsToDisplay = currentFilteredSongs.slice(0, displayedItemCount);
+    }
 
     let html = itemsToDisplay.map((song) => {
         const inFav = (playlists['Favorite'] || []).includes(song.id);
         const keyHtml = song.songKey ? `<span class="song-key-badge">${escapeHtml(song.songKey)}</span>` : '';
-        
         const playBtnHtml = song.mediaUrl ? `<button class="card-play-btn" onclick="playFloatingAudio('${song.id}', event)"><i class="fa-solid fa-play" style="margin-left:3px;"></i></button>` : '';
         
-        let cardThumbnail = `<div class="song-text-preview" onclick="openFullScreenModal('${song.id}')">
-                                ${getCardThumbnailHTML(song, false)}
-                             </div>`;
-                             
+        let cardThumbnail = `<div class="song-text-preview" onclick="openFullScreenModal('${song.id}')">${getCardThumbnailHTML(song, false)}</div>`;
         if (song.imageUrl && song.imageUrl.length > 10) {
              cardThumbnail = `<img src="${song.imageUrl}" class="song-img" alt="${escapeHtml(song.title)}" loading="lazy" onclick="openFullScreenModal('${song.id}')">`;
         }
@@ -1937,13 +1966,10 @@ function renderSongsListOnly() {
         return `
             <div class="song-card" id="song-card-${song.id}" ${(isCustomPlaylist || isSetlistAdmin) ? `draggable="true" ondragstart="handleDragStart(event, '${song.id}')" ondragover="handleDragOver(event)" ondrop="handleDrop(event, '${song.id}')" ondragend="handleDragEnd(event)"` : ''}>
                 <div class="song-img-container">
-                    <button class="fav-img-btn ${inFav ? 'active' : ''}" onclick="toggleFavorite('${song.id}', event)">
-                        <i class="${inFav ? 'fa-solid' : 'fa-regular'} fa-heart"></i>
-                    </button>
+                    <button class="fav-img-btn ${inFav ? 'active' : ''}" onclick="toggleFavorite('${song.id}', event)"><i class="${inFav ? 'fa-solid' : 'fa-regular'} fa-heart"></i></button>
                     ${playBtnHtml}
                     ${cardThumbnail}
                 </div>
-                
                 <div class="song-info">
                     <div class="song-title-row">
                         <span class="song-title selectable-text" title="${escapeHtml(song.title)}">${escapeHtml(song.title)}</span>
@@ -1957,8 +1983,8 @@ function renderSongsListOnly() {
                         ${song.mediaUrl ? `<button class="card-dropdown-item" onclick="window.open('${song.mediaUrl}', '_blank')"><i class="fa-solid fa-play"></i> ស្តាប់ភ្លេង</button>` : ''}
                         <button class="card-dropdown-item" onclick="shareSongImage('${song.id}')"><i class="fa-solid fa-share-nodes"></i> Share ចម្រៀង</button>
                         <button class="card-dropdown-item" onclick="downloadSongAction('${song.id}')"><i class="fa-solid fa-download"></i> Save ទុក</button>
-                        ${(currentFilterType === 'PLAYLIST' && currentFilterValue !== 'Favorite') ? `<button class="card-dropdown-item danger" onclick="removeSongFromPlaylist('${song.id}', event)"><i class="fa-solid fa-minus"></i> ដកចេញពី Playlist</button>` : ''}
-                        ${(currentFilterType === 'SETLIST' && isEditor) ? `<button class="card-dropdown-item danger" onclick="removeSongFromSetlist('${song.id}', event)"><i class="fa-solid fa-minus"></i> ដកចេញពី Setlist</button>` : ''}
+                        ${(isCustomPlaylist) ? `<button class="card-dropdown-item danger" onclick="removeSongFromPlaylist('${song.id}', event)"><i class="fa-solid fa-minus"></i> ដកចេញពី Playlist</button>` : ''}
+                        ${(isSetlistAdmin) ? `<button class="card-dropdown-item danger" onclick="removeSongFromSetlist('${song.id}', event)"><i class="fa-solid fa-minus"></i> ដកចេញពី Setlist</button>` : ''}
                         <button class="card-dropdown-item editor-only" onclick="openEditSongModal('${song.id}')"><i class="fa-solid fa-pen"></i> កែប្រែ (Edit)</button>
                         <button class="card-dropdown-item danger editor-only" onclick="deleteSong('${song.id}')"><i class="fa-solid fa-trash"></i> លុបចោល</button>
                     </div>
@@ -1966,10 +1992,27 @@ function renderSongsListOnly() {
             </div>`;
     }).join('');
 
-    if (displayedItemCount < currentFilteredSongs.length) { html += `<div id="scrollSentinel" style="height: 1px; width: 100%; grid-column: 1 / -1;"></div>`; }
-    grid.innerHTML = html; observeSentinel();
+    if (isAppending) {
+        // លុបកូដ Loading ចាស់ចេញ រួចវាយបញ្ចួលតែថ្មីចូលខាងក្រោម (មិនប៉ះពាល់កាតចាស់)
+        const spinner = document.getElementById('loadingSpinner');
+        if (spinner) spinner.remove();
+        const oldSentinel = document.getElementById('scrollSentinel');
+        if (oldSentinel) oldSentinel.remove();
+        
+        grid.insertAdjacentHTML('beforeend', html);
+        
+        if (displayedItemCount < currentFilteredSongs.length) { 
+            grid.insertAdjacentHTML('beforeend', `<div id="scrollSentinel" style="height: 1px; width: 100%; grid-column: 1 / -1;"></div>`); 
+        }
+        observeSentinel();
+    } else {
+        if (displayedItemCount < currentFilteredSongs.length) { 
+            html += `<div id="scrollSentinel" style="height: 1px; width: 100%; grid-column: 1 / -1;"></div>`; 
+        }
+        grid.innerHTML = html; 
+        observeSentinel();
+    }
 }
-
 
 
 function removeSongFromPlaylist(songId, event) {
@@ -2766,9 +2809,93 @@ closeFullScreenModalDirect = function() {
     nativeCloseFS();
 };
 
+// បើអ្នកប្រើប្រាស់ចុចកន្លែងផ្សេងលើអេក្រង់ ឲ្យវាលាក់ផ្ទាំងនេះទៅវិញដោយស្វ័យប្រវត្តិ
 document.addEventListener('click', (e) => {
-    const transposeControls = document.getElementById('transposeControls');
-    if (isAutoScrollExpanded && transposeControls && !transposeControls.contains(e.target)) {
-        collapsePanel();
+    const panel = document.getElementById('transposeControls');
+    const btn = document.getElementById('toolbarToolsBtn'); // ប្តូរ ID ត្រង់នេះ
+    if (panel && panel.classList.contains('show-tools') && !panel.contains(e.target) && btn && !btn.contains(e.target)) {
+        panel.classList.remove('show-tools');
     }
 });
+// ទប់ស្កាត់ការចុច Back Button លើទូរស័ព្ទ កុំឲ្យចេញពីកម្មវិធី
+window.addEventListener('popstate', function(event) {
+    // ១. បិទផ្ទាំងអត្ថបទ (Full Screen) បើវាកំពុងបើក
+    const fsModal = document.getElementById('fullScreenModal');
+    if (fsModal && fsModal.classList.contains('active')) closeFullScreenModalDirect();
+    
+    // ២. បិទផ្ទាំងចាក់ភ្លេង (Apple Player) បើវាកំពុងបើក
+    const applePlayer = document.getElementById('appleFullPlayer');
+    if (applePlayer && applePlayer.classList.contains('active')) closeAppleFullScreenPlayer();
+    
+    // ៣. បិទ Modal តូចៗផ្សេងៗ
+    document.querySelectorAll('.modal.active').forEach(modal => {
+        modal.classList.remove('active');
+        document.body.classList.remove('no-scroll');
+    });
+});
+// បញ្ឈប់ Auto-scroll ពេលអ្នកប្រើប្រាស់ប៉ះអូសអត្ថបទ
+document.addEventListener('DOMContentLoaded', () => {
+    const lyricsContainer = document.getElementById('fullScreenLyrics');
+    if (lyricsContainer) {
+        lyricsContainer.addEventListener('touchstart', () => {
+            // បើ Auto-scroll កំពុងដើរ យើងបញ្ជាឲ្យវាឈប់
+            if (typeof autoScrollFrameReq !== 'undefined' && autoScrollFrameReq) {
+                executePlayPause(); 
+                showToast("បានផ្អាកការអូសស្វ័យប្រវត្តិ", "info");
+            }
+        }, { passive: true });
+        
+        // សម្រាប់ពេលអូស Mouse (Scroll) លើកុំព្យូទ័រ
+        lyricsContainer.addEventListener('wheel', () => {
+            if (typeof autoScrollFrameReq !== 'undefined' && autoScrollFrameReq) {
+                executePlayPause(); 
+            }
+        }, { passive: true });
+    }
+});
+function toggleMusicTools(e) {
+    if(e) e.stopPropagation();
+    const panel = document.getElementById('transposeControls');
+    if (!panel) return;
+    
+    if (panel.classList.contains('show-tools')) {
+        panel.classList.remove('show-tools');
+        // ទុកពេលឱ្យ CSS Animation ដើរចប់សិន សឹមបិទ display
+        setTimeout(() => {
+            if (!panel.classList.contains('show-tools')) {
+                panel.style.display = 'none';
+            }
+        }, 300);
+    } else {
+        panel.style.display = 'flex';
+        // ប្រើ requestAnimationFrame ដើម្បីធានាថាធាតុបង្ហាញចេញសិន ទើបបន្ថែម Class ស្លាយ
+        requestAnimationFrame(() => {
+            requestAnimationFrame(() => {
+                panel.classList.add('show-tools');
+            });
+        });
+    }
+}
+
+// លាក់ផ្ទាំងនេះទៅវិញដោយស្វ័យប្រវត្តិ ពេលចុចកន្លែងផ្សេងលើអេក្រង់
+document.addEventListener('click', (e) => {
+    const panel = document.getElementById('transposeControls');
+    const btn = document.getElementById('toolbarToolsBtn');
+    if (panel && panel.classList.contains('show-tools')) {
+        // បើកន្លែងដែលចុច មិនមែនជាផ្ទាំង panel ហើយក៏មិនមែនជាប៊ូតុង Tools នោះលាក់វាវិញ
+        if (!panel.contains(e.target) && btn && !btn.contains(e.target)) {
+            panel.classList.remove('show-tools');
+        }
+    }
+});
+// មុខងារចុច Share និង Save ពីផ្ទាំង Full Screen
+function handleFullScreenAction(action) {
+    const song = currentFilteredSongs[currentFullscreenIndex];
+    if (!song) return;
+
+    if (action === 'share') {
+        shareSongImage(song.id); // ហៅមុខងារ Share 
+    } else if (action === 'save') {
+        downloadSongAction(song.id); // ហៅមុខងារ ទាញយក
+    }
+}
