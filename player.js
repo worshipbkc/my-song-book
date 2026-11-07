@@ -106,8 +106,27 @@ function playFloatingAudio(songId, event) {
     const miniPlayer = document.getElementById('appleMiniPlayer');
     if (miniPlayer) miniPlayer.classList.add('active');
     
+    // បន្ថែមកូដនេះថ្មី សម្រាប់បញ្ជាពី Lock Screen
+    if ('mediaSession' in navigator) {
+        navigator.mediaSession.metadata = new MediaMetadata({
+            title: song.title || 'Unknown',
+            artist: song.artist || 'Unknown Artist',
+            album: song.album || 'ចម្រៀងសរសើរដំកើងព្រះ',
+            artwork: [
+                { src: (song.imageUrl && song.imageUrl.length > 10) ? song.imageUrl : 'https://via.placeholder.com/512/2563eb/ffffff?text=Worship', sizes: '512x512', type: 'image/jpeg' }
+            ]
+        });
+        navigator.mediaSession.setActionHandler('play', () => toggleApplePlayPause());
+        navigator.mediaSession.setActionHandler('pause', () => toggleApplePlayPause());
+        navigator.mediaSession.setActionHandler('previoustrack', () => playPrevSong());
+        navigator.mediaSession.setActionHandler('nexttrack', () => playNextSong());
+    }
+    // បញ្ចប់កូដថែមថ្មី
+    
+    
     if (ytId) {
         currentAudioType = 'youtube';
+        showToast('កំពុងចាក់ពី YouTube (មិនអាចបិទអេក្រង់បានទេ)', 'info');
         if(audio) audio.pause(); 
         
         updateProgressBarUI(0, 0);
@@ -162,32 +181,23 @@ function toggleApplePlayPause(event) {
         }
     }
 }
-// ... កូដ function updatePlayButtons ...
-// ... កូដ function playNextSong ...
-// ... កូដ function playPrevSong ...
-// ... កូដ function openAppleFullScreenPlayer ...
-// ... កូដ function closeAppleFullScreenPlayer ...
-// ... កូដ function closeAppleMiniPlayer ...
-// ... កូដ function formatTime ...
-// ... កូដ function startYtProgress ...
-// ... កូដ function stopYtProgress ...
-// ... កូដ function updateProgressBarUI ...
-// ... កូដ document.addEventListener('DOMContentLoaded' ... សម្រាប់ audio និង progress bar
+
 function updatePlayButtons(htmlContent) {
     const miniBtn = document.getElementById('miniPlayPauseBtn');
     const fullBtn = document.getElementById('fullPlayPauseBtn');
     if (miniBtn) miniBtn.innerHTML = htmlContent;
     if (fullBtn) fullBtn.innerHTML = htmlContent;
     
-    // បន្ថែម Logic សម្រាប់ចលនារូបភាព Cover របស់ Full Player
     const fullPlayer = document.getElementById('appleFullPlayer');
     if (fullPlayer) {
         if (htmlContent.includes('fa-pause')) {
-            // បើមានពាក្យ pause មានន័យថាកំពុងលេងភ្លេង (Playing)
             fullPlayer.classList.add('is-playing');
+            // ប្រាប់ Lock Screen ថាកំពុងលេង
+            if ('mediaSession' in navigator) navigator.mediaSession.playbackState = 'playing'; 
         } else {
-            // បើកំពុង Pause
             fullPlayer.classList.remove('is-playing');
+            // ប្រាប់ Lock Screen ថាបាន Pause
+            if ('mediaSession' in navigator) navigator.mediaSession.playbackState = 'paused';
         }
     }
 }
@@ -212,7 +222,10 @@ function playPrevSong(event) {
 
 function openAppleFullScreenPlayer() {
     const player = document.getElementById('appleFullPlayer');
-    if (player) player.classList.add('active');
+    if (player) {
+        player.classList.add('active');
+        history.pushState({ modal: true }, '', ''); // ចំណាំទុកក្នុងប្រវត្តិ
+    }
 }
 
 function closeAppleFullScreenPlayer() {
@@ -369,3 +382,20 @@ document.addEventListener('DOMContentLoaded', () => {
         document.addEventListener('mouseup', e => handleDragEnd(e.clientY));
     }
 });
+// មុខងារសម្រាប់បញ្ជាប៊ូតុងទាំង ៣ ក្នុងផ្ទាំងចាក់ភ្លេង
+function handlePlayerAction(actionType) {
+    if (currentQueueIndex === -1) return;
+    const songId = currentPlayQueue[currentQueueIndex].id;
+    
+    if (actionType === 'lyrics') { 
+        closeAppleFullScreenPlayer(); 
+        openFullScreenModal(songId); 
+    }
+    else if (actionType === 'share') { 
+        shareSongImage(songId); 
+    }
+    else if (actionType === 'playlist') { 
+        closeAppleFullScreenPlayer(); 
+        openPlaylistChooserModal(songId); 
+    }
+}
