@@ -134,7 +134,12 @@ function generateLyricsImage(song, mode, playlistName) {
                         if (part.startsWith('[')) {
                             if (!hideChords) {
                                 let rawChord = part.replace(/[\[\]]/g, '');
-                                let drawText = `[${rawChord}]`;
+                                
+                                // ថែម ២ បន្ទាត់នេះ ដើម្បីឲ្យវាគណនា Key ដែលបានប្តូរ រួចទើបគូរជារូបភាព
+                                let currentStep = (typeof currentTransposeStep !== 'undefined') ? currentTransposeStep : 0;
+                                let transposedChord = transposeSingleChord(rawChord, currentStep);
+                                
+                                let drawText = `[${transposedChord}]`; // ប្រើ Key ថ្មី
                                 ctx.fillStyle = chordColor;
                                 ctx.font = 'bold 24px Arial, sans-serif';
                                 ctx.fillText(drawText, currentX, currentY);
@@ -753,3 +758,49 @@ function renderModernNewSongs() {
     
     container.innerHTML = html;
 }
+// មុខងារចុច Share និង Save ពីផ្ទាំង Full Screen
+function handleFullScreenAction(action) {
+    if (typeof currentFullscreenIndex === 'undefined' || typeof currentFilteredSongs === 'undefined') return;
+    
+    const song = currentFilteredSongs[currentFullscreenIndex];
+    if (!song) return;
+
+    if (action === 'share') {
+        shareSongImage(song.id);
+    } else if (action === 'save') {
+        downloadSongAction(song.id); 
+    }
+}
+// បន្ថែមមុខងារចុចលើអេក្រង់ដើម្បី លាក់/បង្ហាញ UI (Telegram Style)
+document.addEventListener('DOMContentLoaded', () => {
+    const imgContainer = document.getElementById('fullScreenImgContainer');
+    
+    if (imgContainer) {
+        imgContainer.addEventListener('click', (e) => {
+            // ការពារកុំឱ្យបិទបើក UI ពេលចុចចំលើប៊ូតុង ឬផ្ទាំងអត្ថបទ
+            if (e.target.closest('button') || 
+                e.target.closest('.transpose-controls') || 
+                e.target.closest('.fullscreen-header')) {
+                return;
+            }
+            
+            // ការពារមិនឱ្យវាធ្វើការពេលកំពុង Zoom ឬអូស
+            if (typeof isDragging !== 'undefined' && isDragging) return;
+            if (typeof isPinching !== 'undefined' && isPinching) return;
+
+            const modal = document.getElementById('fullScreenModal');
+            if (modal && modal.classList.contains('active')) {
+                modal.classList.toggle('ui-hidden');
+                
+                // ប្រសិនបើ UI ត្រូវលាក់, ត្រូវបិទផ្ទាំង Tools និង Metronome ផងដែរ
+                if (modal.classList.contains('ui-hidden')) {
+                    const toolsPanel = document.getElementById('transposeControls');
+                    const metroPanel = document.getElementById('metronomePanel');
+                    
+                    if (toolsPanel) toolsPanel.classList.remove('show-tools');
+                    if (metroPanel) metroPanel.style.display = 'none';
+                }
+            }
+        });
+    }
+});
