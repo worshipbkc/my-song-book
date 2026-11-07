@@ -466,15 +466,44 @@ body.dark-mode .empty-icon { color: #334155; }
 .empty-title { font-size: 1.1rem; font-weight: 700; color: var(--text); }
 .empty-desc { font-size: 0.85rem; color: var(--text-muted); max-width: 250px; line-height: 1.4; }
 
-.skeleton-card { background: var(--card-bg); border-radius: 20px; overflow: hidden; display: flex; flex-direction: column; box-shadow: 6px 6px 15px rgba(180, 185, 200, 0.4), -6px -6px 15px rgba(255, 255, 255, 0.9); }
-body.dark-mode .skeleton-card { box-shadow: 4px 4px 15px rgba(0,0,0,0.5), -4px -4px 15px rgba(255,255,255,0.02); }
-.skeleton-img { width: 100%; height: 220px; background: #e2e8f0; animation: pulse 1.5s infinite ease-in-out; }
-.skeleton-info { padding: 12px; }
-.skeleton-line { height: 14px; background: #e2e8f0; border-radius: 4px; margin-bottom: 8px; animation: pulse 1.5s infinite ease-in-out; }
-.skeleton-line.short { width: 60%; margin-bottom: 16px; }
-.skeleton-btns { display: flex; gap: 6px; }
-.skeleton-btn { flex: 1; height: 28px; background: #e2e8f0; border-radius: 6px; animation: pulse 1.5s infinite ease-in-out; }
-@keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.5; } 100% { opacity: 1; } }
+/* =========================================
+   Modern Shimmer Skeleton Loading
+========================================= */
+.skeleton-card { 
+    background: var(--card-bg); 
+    border-radius: 20px; 
+    overflow: hidden; 
+    display: flex; 
+    flex-direction: column; 
+    box-shadow: 6px 6px 15px rgba(180, 185, 200, 0.4), -6px -6px 15px rgba(255, 255, 255, 0.9);
+    border: 1px solid var(--border);
+}
+body.dark-mode .skeleton-card { 
+    box-shadow: 4px 4px 15px rgba(0,0,0,0.5), -4px -4px 15px rgba(255,255,255,0.02); 
+}
+
+/* បង្កើតរលកពន្លឺ (Shimmer Effect) */
+.shimmer-effect {
+    background: #f1f5f9;
+    background-image: linear-gradient(90deg, #f1f5f9 0px, #e2e8f0 40px, #f1f5f9 80px);
+    background-size: 200% 100%;
+    animation: shimmer 1.5s infinite linear;
+}
+body.dark-mode .shimmer-effect {
+    background: #1e293b;
+    background-image: linear-gradient(90deg, #1e293b 0px, #334155 40px, #1e293b 80px);
+}
+@keyframes shimmer {
+    0% { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+}
+
+.skeleton-img { width: 100%; height: 220px; border-radius: 20px 20px 0 0; }
+.skeleton-info { padding: 15px; }
+.skeleton-line { height: 16px; border-radius: 8px; margin-bottom: 10px; }
+.skeleton-line.short { width: 60%; margin-bottom: 20px; height: 12px; }
+.skeleton-btns { display: flex; gap: 8px; justify-content: space-between; }
+.skeleton-btn { width: 80px; height: 30px; border-radius: 10px; }
 body.dark-mode .skeleton-img, body.dark-mode .skeleton-line, body.dark-mode .skeleton-btn { background: #334155; }
 
 .modal { 
@@ -1903,4 +1932,283 @@ body.dark-mode .home-sticky-wrapper {
     opacity: 0 !important;
     pointer-events: none !important;
     transform: translateX(-50%) translateY(20px) scale(0.95) !important;
+}
+/* =========================================
+   1. ចលនាផ្លាស់ប្តូរទំព័ររលូន (Page Transitions)
+========================================= */
+.app-view { 
+    display: none; 
+    opacity: 0; 
+    transform: scale(0.98) translateY(15px); /* រួញនិងទម្លាក់ចុះក្រោមបន្តិច */
+    transition: opacity 0.3s cubic-bezier(0.25, 0.8, 0.25, 1), transform 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+    padding-bottom: 90px; 
+}
+.app-view.active { 
+    display: block; 
+    opacity: 1; 
+    transform: scale(1) translateY(0); /* ងើបឡើងមកទំហំដើមយ៉ាងរលូន */
+}
+
+/* =========================================
+   2. ទម្រង់ Bottom Sheet សម្រាប់ Mobile
+========================================= */
+.modal { 
+    align-items: flex-end !important; /* បង្ខំឱ្យ Modal ធ្លាក់មកជាប់គែមក្រោមជានិច្ច */
+    padding: 0 !important; 
+}
+.modal-content { 
+    border-radius: 24px 24px 0 0 !important; /* កោងតែជ្រុងលើ */
+    padding: 24px 20px calc(24px + env(safe-area-inset-bottom)) !important; /* ទុក Safe Area ខាងក្រោម */
+    margin: 0 !important; 
+    max-width: 100% !important; /* លាតពេញអេក្រង់ទូរស័ព្ទ */
+    box-shadow: 0 -10px 40px rgba(0,0,0,0.15) !important; 
+}
+body.dark-mode .modal-content {
+    box-shadow: 0 -10px 40px rgba(0,0,0,0.5) !important;
+}
+
+/* សម្រាប់ Desktop ឱ្យ Modal មកនៅកណ្តាលអេក្រង់វិញ */
+@media (min-width: 768px) {
+    .modal { align-items: center !important; padding: 20px !important; }
+    .modal-content { 
+        border-radius: 20px !important; 
+        max-width: 500px !important; 
+        padding: 24px !important; 
+        margin: 0 auto !important; 
+    }
+}
+/* =========================================
+   Pull-to-Refresh Indicator
+========================================= */
+.ptr-indicator {
+    position: absolute;
+    top: -50px; /* លាក់នៅខាងលើអេក្រង់ */
+    left: 50%;
+    transform: translateX(-50%);
+    width: 40px;
+    height: 40px;
+    background: var(--card-bg);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+    z-index: 1000;
+    color: var(--primary);
+    transition: top 0.2s ease-out; /* ចលនាលោតចូល/ចេញ */
+}
+body.dark-mode .ptr-indicator { box-shadow: 0 4px 15px rgba(0,0,0,0.5); }
+.ptr-icon { transition: transform 0.1s; font-size: 1.1rem; }
+.ptr-loading .ptr-icon { animation: ptr-spin 0.8s linear infinite; }
+@keyframes ptr-spin { 100% { transform: rotate(360deg); } }
+
+/* =========================================
+   Ripple Effect (រលកពន្លឺពេលប៉ះ)
+========================================= */
+.song-card, .modern-landscape-card, .modern-square-card, .folder-card, .settings-item {
+    position: relative;
+    overflow: hidden; /* ការពារកុំឱ្យរលកចេញក្រៅស៊ុម */
+}
+.ripple-effect {
+    position: absolute;
+    border-radius: 50%;
+    transform: scale(0);
+    animation: ripple-anim 0.6s linear;
+    background-color: rgba(37, 99, 235, 0.15); /* ពណ៌រលកខៀវស្រាល */
+    pointer-events: none; /* កុំឱ្យបាំងការចុចផ្សេងៗ */
+}
+body.dark-mode .ripple-effect {
+    background-color: rgba(255, 255, 255, 0.1);
+}
+@keyframes ripple-anim {
+    to {
+        transform: scale(4);
+        opacity: 0;
+    }
+}
+/* =========================================
+   1. Modern Toast Notifications (សាររាងគ្រាប់ថ្នាំ Pill Style)
+========================================= */
+.toast-container {
+    position: fixed !important;
+    top: calc(15px + env(safe-area-inset-top)) !important; /* លោតពីលើចុះក្រោមវិញ ស្អាតជាង និងមិនបាំងប៊ូតុងក្រោម */
+    bottom: auto !important;
+    left: 50% !important;
+    transform: translateX(-50%) !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    gap: 10px !important;
+    z-index: 99999 !important;
+    pointer-events: none !important;
+    width: 90% !important;
+    max-width: 400px !important;
+}
+
+.toast {
+    background: rgba(15, 23, 42, 0.95) !important;
+    backdrop-filter: blur(12px) !important;
+    -webkit-backdrop-filter: blur(12px) !important;
+    color: #fff !important;
+    padding: 12px 24px !important;
+    border-radius: 50px !important; /* រាងគ្រាប់ថ្នាំ (Pill) */
+    font-size: 0.85rem !important;
+    font-weight: 600 !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 10px !important;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.2) !important;
+    
+    /* ត្រៀមចលនាលោតពីលើចុះក្រោម */
+    opacity: 0 !important;
+    transform: translateY(-20px) scale(0.9) !important;
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) !important;
+}
+
+/* ពេលសារបង្ហាញចេញមក */
+.toast.show {
+    opacity: 1 !important;
+    transform: translateY(0) scale(1) !important;
+}
+
+/* ពណ៌ Icon តាមប្រភេទសារ */
+.toast.success i { color: #10b981 !important; font-size: 1.1rem !important; }
+.toast.error i { color: #ef4444 !important; font-size: 1.1rem !important; }
+.toast.warning i { color: #f59e0b !important; font-size: 1.1rem !important; }
+.toast.info i { color: #3b82f6 !important; font-size: 1.1rem !important; }
+
+/* ពណ៌ស្រាលស្រទន់សម្រាប់ Dark Mode */
+body.dark-mode .toast {
+    background: rgba(255, 255, 255, 0.95) !important;
+    color: #0f172a !important;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5) !important;
+}
+
+/* =========================================
+   2. Smooth Image Fade-in (ចលនារូបភាពពេល Load ចេញ)
+========================================= */
+/* ការពារកុំឱ្យរូបភាពលោតចេញមកកន្ត្រាក់ៗ គឺឱ្យវាព្រាលច្បាស់បន្តិចម្តងៗ */
+.song-img, .home-album-cover img, .modern-card-img-wrapper img, .home-vertical-cover img {
+    opacity: 0;
+    animation: fadeInImage 0.6s cubic-bezier(0.25, 0.8, 0.25, 1) forwards;
+}
+
+@keyframes fadeInImage {
+    from { opacity: 0; transform: scale(0.95); filter: blur(5px); }
+    to { opacity: 1; transform: scale(1); filter: blur(0); }
+}
+
+/* =========================================
+   3. Bottom Nav Bounce Effect (ចលនា Icon ពេលប្តូរ Tab)
+========================================= */
+.bottom-nav-item i {
+    transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) !important;
+}
+
+/* ពេលយកម្រាមដៃសង្កត់ */
+.bottom-nav-item:active i {
+    transform: scale(0.75) !important;
+}
+
+/* ពេល Tab នោះកំពុងឈរ (Active) ឱ្យវាលោតងើបឡើងលើបន្តិច */
+.bottom-nav-item.active i {
+    transform: translateY(-4px) scale(1.15) !important;
+    color: var(--primary) !important;
+    text-shadow: 0 4px 10px rgba(37, 99, 235, 0.3); /* ស្រមោលពន្លឺខាងក្រោម Icon */
+}
+/* =========================================
+   1. Smooth Theme Transition (ប្តូរ Dark/Light Mode យ៉ាងរលូន)
+========================================= */
+body, .app-view, .song-card, .bottom-nav, .home-sticky-wrapper, .modal-content, .fullscreen-lyrics, .settings-card, input, textarea {
+    transition: background-color 0.4s ease, color 0.4s ease, border-color 0.4s ease, box-shadow 0.4s ease, transform 0.3s cubic-bezier(0.25, 0.8, 0.25, 1) !important;
+}
+
+/* =========================================
+   2. Lyrics Reading Progress Bar (របារភាគរយអានអត្ថបទចម្រៀង)
+========================================= */
+.reading-progress-container {
+    position: absolute;
+    /* ដាក់ឱ្យនៅខាងក្រោម Header នៃផ្ទាំង Full Screen បន្តិច */
+    top: calc(42px + env(safe-area-inset-top)); 
+    left: 0;
+    width: 100%;
+    height: 3px;
+    background: rgba(255, 255, 255, 0.1);
+    z-index: 3015;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+}
+
+/* បង្ហាញរបារនេះ តែនៅពេលបើកអត្ថបទចម្រៀង (Lyrics Mode) និងពេល UI មិនត្រូវលាក់ */
+.fullscreen-modal.lyrics-mode:not(.ui-hidden) .reading-progress-container {
+    opacity: 1;
+}
+
+.reading-progress-bar {
+    height: 100%;
+    width: 0%;
+    background: var(--primary);
+    box-shadow: 0 0 10px var(--primary);
+    border-radius: 0 2px 2px 0;
+    transition: width 0.1s ease-out; /* ឱ្យរបាររត់រលូនតាមម្រាមដៃ */
+}
+/* =========================================
+   The Final Touch: Custom Scrollbar & Text Selection
+========================================= */
+
+/* ១. កែពណ៌ពេល Highlight អក្សរ (ពណ៌ខៀវស្រាល ស៊ីនឹង Theme) */
+::selection {
+    background: rgba(37, 99, 235, 0.2); 
+    color: var(--primary);
+}
+body.dark-mode ::selection {
+    background: rgba(59, 130, 246, 0.3);
+    color: #93c5fd;
+}
+
+/* ២. កែសម្រួលរបារអូស (Scrollbar) ឱ្យតូច ស្អាត និងទំនើប */
+::-webkit-scrollbar {
+    width: 5px; /* ទំហំតូចល្មម មិនរំខានភ្នែក */
+    height: 5px;
+}
+::-webkit-scrollbar-track {
+    background: transparent;
+}
+::-webkit-scrollbar-thumb {
+    background: rgba(100, 116, 139, 0.3); /* ពណ៌ប្រផេះស្រអាប់ */
+    border-radius: 10px;
+}
+::-webkit-scrollbar-thumb:hover {
+    background: rgba(100, 116, 139, 0.6);
+}
+body.dark-mode ::-webkit-scrollbar-thumb {
+    background: rgba(148, 163, 184, 0.2);
+}
+body.dark-mode ::-webkit-scrollbar-thumb:hover {
+    background: rgba(148, 163, 184, 0.5);
+}
+
+/* លាក់ Scrollbar សម្រាប់ធាតុដែលអូសផ្ដេក (Horizontal Scroll) ដើម្បីមើលទៅស្អាតដូច App */
+.horizontal-scroll-modern::-webkit-scrollbar,
+.filter-chips::-webkit-scrollbar {
+    display: none;
+}
+/* =========================================
+   តម្រឹមគម្លាតសងខាងនៃទំព័រ Album និង Playlist (10px)
+========================================= */
+#viewAlbums, #viewPlaylists {
+    padding: 0 10px !important;
+}
+
+/* តម្រឹម Header របស់ Album ឱ្យលាតពេញ Background តែកៀកអក្សរចូល 10px វិញ */
+#viewAlbums > div:first-child {
+    margin: 0 -10px 15px -10px !important;
+    padding: 12px 10px !important;
+}
+
+/* តម្រឹម Header របស់ Playlist */
+#viewPlaylists > div:first-child {
+    margin-top: 10px !important;
+    padding: 0 !important;
 }
