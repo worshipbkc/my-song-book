@@ -34,6 +34,10 @@
     <img src="https://lh3.googleusercontent.com/d/1E2J-kXOZCTkQJ7g739qDcgcqfUQOysTc" alt="Splash Screen">
 </div>
 <div class="main-content">
+    <!-- Pull to Refresh Indicator -->
+    <div id="ptr-indicator" class="ptr-indicator">
+        <i class="fa-solid fa-arrow-rotate-right ptr-icon"></i>
+    </div>
     <header id="mainAppHeader" style="display: none;">
     <div class="header-brand">
         <img src="https://lh3.googleusercontent.com/d/12dt7uNglluI-nnVcc2jvslICE0HRoYIm" alt="Logo" class="app-logo">
@@ -639,7 +643,21 @@
         </div>
     </div>
 </div>
-
+<!-- Custom Confirm Dialog ជំនួសឱ្យ confirm() របស់ Browser -->
+<div class="modal" id="customConfirmModal" style="z-index: 99999;">
+    <!-- ប្រើ style ផ្ទាល់ដើម្បីឱ្យវានៅចំកណ្តាលទោះលើ Mobile ក៏ដោយ (ព្រោះវាជា Alert) -->
+    <div class="modal-content" style="max-width: 320px !important; margin: auto !important; border-radius: 24px !important; padding: 24px !important; text-align: center; align-self: center !important;">
+        <div style="font-size: 3.5rem; color: var(--danger); margin-bottom: 15px;">
+            <i class="fa-solid fa-circle-exclamation"></i>
+        </div>
+        <h3 id="confirmDialogTitle" style="font-size: 1.2rem; font-weight: 800; margin-bottom: 8px;">បញ្ជាក់</h3>
+        <p id="confirmDialogMessage" style="color: var(--text-muted); font-size: 0.9rem; line-height: 1.5; margin-bottom: 24px;">តើអ្នកពិតជាចង់បន្តមែនទេ?</p>
+        <div style="display: flex; gap: 12px;">
+            <button id="btnConfirmCancel" style="flex: 1; padding: 12px; border-radius: 14px; border: none; background: var(--bg); color: var(--text); font-weight: 700; font-size: 0.95rem; cursor: pointer; transition: 0.2s;">បោះបង់</button>
+            <button id="btnConfirmOk" style="flex: 1; padding: 12px; border-radius: 14px; border: none; background: var(--danger); color: white; font-weight: 700; font-size: 0.95rem; cursor: pointer; transition: 0.2s; box-shadow: 0 4px 10px rgba(239, 68, 68, 0.3);">យល់ព្រម</button>
+        </div>
+    </div>
+</div>
 <!-- ផ្ទាំងការជូនដំណឹង (Modern Music UI) -->
 <div id="modernNotifScreen" style="display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: var(--bg); z-index: 99999; overflow-y: auto;">
     
