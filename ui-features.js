@@ -804,3 +804,224 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 });
+/* =========================================
+   1. មុខងារ Pull-to-Refresh (ទាញចុះក្រោមដើម្បី Update)
+========================================= */
+document.addEventListener('DOMContentLoaded', () => {
+    let ptrStartY = 0;
+    let ptrCurrentY = 0;
+    let isPulling = false;
+    const ptrIndicator = document.getElementById('ptr-indicator');
+    const ptrIcon = document.querySelector('.ptr-icon');
+
+    if (!ptrIndicator) return;
+
+    // ចាប់ផ្តើមប៉ះ
+    document.addEventListener('touchstart', (e) => {
+        // អនុញ្ញាតឱ្យទាញបាន តែពេលអេក្រង់នៅខាងលើគេ (Scroll Top = 0)
+        if (window.scrollY === 0) {
+            ptrStartY = e.touches[0].screenY;
+            isPulling = true;
+        }
+    }, { passive: true });
+
+    // កំពុងអូសចុះក្រោម
+    document.addEventListener('touchmove', (e) => {
+        if (!isPulling) return;
+        ptrCurrentY = e.touches[0].screenY;
+        const pullDistance = ptrCurrentY - ptrStartY;
+        
+        if (pullDistance > 0 && window.scrollY === 0) {
+            // ទាញរង្វង់ចុះមកក្រោមបណ្តើរៗ តែលីមីតត្រឹម 65px
+            const translateY = Math.min(pullDistance * 0.4, 65);
+            ptrIndicator.style.top = `${translateY - 40}px`; // -40px គឺទីតាំងលាក់ដើម
+            // បង្វិល Icon តាមទំហំដែលបានទាញ
+            if (ptrIcon) ptrIcon.style.transform = `rotate(${translateY * 4}deg)`;
+        }
+    }, { passive: true });
+
+    // លែងដៃ
+    document.addEventListener('touchend', () => {
+        if (!isPulling) return;
+        isPulling = false;
+        const pullDistance = ptrCurrentY - ptrStartY;
+        
+        // បើទាញចុះក្រោមលើសពី 100px នោះយើងចាត់ទុកថាជាការ Refresh
+        if (pullDistance > 100 && window.scrollY === 0) {
+            ptrIndicator.classList.add('ptr-loading');
+            ptrIndicator.style.top = '15px'; // ទម្លាក់រង្វង់មកនៅចំកណ្តាល
+            vibratePhone(30); // ញ័រតិចៗ
+            
+            // ហៅមុខងារទាញយកទិន្នន័យ (Fetch Data) មកវិញ
+            if (typeof fetchAllSongsSilently === 'function') {
+                fetchAllSongsSilently();
+            }
+            
+            // បិទរង្វង់វិលវិញក្រោយ ២វិនាទី
+            setTimeout(() => {
+                ptrIndicator.classList.remove('ptr-loading');
+                ptrIndicator.style.top = '-50px';
+                showToast('ទិន្នន័យត្រូវបានធ្វើបច្ចុប្បន្នភាព', 'success');
+            }, 1500);
+            
+        } else {
+            // បើទាញមិនដល់កំណត់ ឱ្យវាលោតទៅលាក់ខ្លួនវិញ
+            ptrIndicator.style.top = '-50px';
+        }
+        ptrStartY = 0;
+        ptrCurrentY = 0;
+    });
+});
+
+/* =========================================
+   2. មុខងារ Ripple Effect (រលកពន្លឺពេលម្រាមដៃប៉ះកាត)
+========================================= */
+document.addEventListener('click', function (e) {
+    // កំណត់គោលដៅតែលើ Card ឬ Item ដែលយើងចង់ឱ្យមាន Effect
+    const target = e.target.closest('.song-card, .modern-landscape-card, .modern-square-card, .folder-card, .settings-item');
+    if (!target) return;
+
+    // គណនាទីតាំងម្រាមដៃ និងទំហំរបស់កាត
+    const rect = target.getBoundingClientRect();
+    const ripple = document.createElement('span');
+    const diameter = Math.max(rect.width, rect.height);
+    const radius = diameter / 2;
+
+    ripple.style.width = ripple.style.height = `${diameter}px`;
+    ripple.style.left = `${e.clientX - rect.left - radius}px`;
+    ripple.style.top = `${e.clientY - rect.top - radius}px`;
+    ripple.classList.add('ripple-effect');
+
+    // លុបរលកចាស់ចោលបើសិនមាន
+    const existingRipple = target.querySelector('.ripple-effect');
+    if (existingRipple) {
+        existingRipple.remove();
+    }
+
+    target.appendChild(ripple);
+    
+    // លុបរលកថ្មីចោលវិញក្រោយពេលចលនាដើរចប់ (0.6s)
+    setTimeout(() => {
+        ripple.remove();
+    }, 600);
+});
+/* =========================================
+   មុខងារ Swipe-to-Go-Back (អូសពីគែមអេក្រង់ដើម្បីថយក្រោយ ស្ទីល iOS)
+========================================= */
+document.addEventListener('DOMContentLoaded', () => {
+    let edgeStartX = 0;
+    let edgeStartY = 0;
+    let isEdgeSwiping = false;
+    const edgeThreshold = 30; // អនុញ្ញាតឱ្យអូសបាន តែពេលចាប់ផ្តើមពីគែមអេក្រង់ (តិចជាង 30px)
+
+    document.addEventListener('touchstart', (e) => {
+        // កុំដំណើរការបើមានម្រាមដៃច្រើន (ឧ. កំពុង Zoom) 
+        if (e.touches.length > 1 || (typeof scale !== 'undefined' && scale > 1)) return;
+        
+        const touch = e.touches[0];
+        // ឆែកមើលថាតើម្រាមដៃស្ថិតនៅគែមខាងឆ្វេងអេក្រង់ដែរឬទេ
+        if (touch.clientX < edgeThreshold) {
+            edgeStartX = touch.clientX;
+            edgeStartY = touch.clientY;
+            isEdgeSwiping = true;
+        }
+    }, { passive: true });
+
+    document.addEventListener('touchmove', (e) => {
+        if (!isEdgeSwiping) return;
+        const touch = e.touches[0];
+        const diffX = touch.clientX - edgeStartX;
+        const diffY = touch.clientY - edgeStartY;
+
+        // បើអ្នកប្រើប្រាស់អូសឡើងលើ ឬចុះក្រោមខ្លាំងជាងឆ្វេងស្តាំ គឺផ្តាច់ការថយក្រោយ
+        if (Math.abs(diffY) > Math.abs(diffX)) {
+            isEdgeSwiping = false;
+            return;
+        }
+    }, { passive: true });
+
+    document.addEventListener('touchend', (e) => {
+        if (!isEdgeSwiping) return;
+        isEdgeSwiping = false;
+        
+        const touch = e.changedTouches[0];
+        const diffX = touch.clientX - edgeStartX;
+        
+        // បើអូសពីឆ្វេងទៅស្តាំលើសពី 80px នោះយើងចាត់ទុកថាជាការបញ្ជា "Back"
+        if (diffX > 80) {
+            // ១. បិទផ្ទាំង Full Screen បើវាកំពុងបើក
+            const fsModal = document.getElementById('fullScreenModal');
+            if (fsModal && fsModal.classList.contains('active')) {
+                closeFullScreenModalDirect();
+                vibratePhone(30); // ញ័រតិចៗប្រាប់ថាបានបិទ
+                return;
+            }
+            
+            // ២. បិទផ្ទាំងចាក់ភ្លេង Apple Full Player បើវាកំពុងបើក
+            const applePlayer = document.getElementById('appleFullPlayer');
+            if (applePlayer && applePlayer.classList.contains('active')) {
+                closeAppleFullScreenPlayer();
+                vibratePhone(30);
+                return;
+            }
+            
+            // ៣. បិទ Modal ផ្សេងៗ (ដូចជាផ្ទាំង Share, ផ្ទាំងកែប្រែបទចម្រៀង)
+            const activeModals = document.querySelectorAll('.modal.active');
+            if (activeModals.length > 0) {
+                // រកមើល Modal ណាដែលកំពុងបង្ហាញខាងលើគេ រួចបិទវា
+                const topModal = activeModals[activeModals.length - 1];
+                if (topModal.id) {
+                    closeModal(topModal.id);
+                    vibratePhone(30);
+                    return;
+                }
+            }
+            
+            // ៤. ថយក្រោយទៅ Home ប្រសិនបើកំពុងស្ថិតនៅក្នុង Album ឬ Playlist
+            if (currentFilterType !== 'ALL') {
+                goBackToMain();
+                vibratePhone(30);
+            }
+        }
+    }, { passive: true });
+});
+/* =========================================
+   ដំណើរការ Reading Progress Bar & Haptic Feedback
+========================================= */
+document.addEventListener('DOMContentLoaded', () => {
+    // 1. បង្កើត និងបញ្ចូល Progress Bar ទៅក្នុង Full Screen Modal
+    const fsModal = document.getElementById('fullScreenModal');
+    if (fsModal) {
+        const progressContainer = document.createElement('div');
+        progressContainer.className = 'reading-progress-container';
+        progressContainer.innerHTML = '<div class="reading-progress-bar" id="lyricProgressBar"></div>';
+        fsModal.appendChild(progressContainer);
+    }
+
+    // 2. ចាប់យកការ Scroll របស់ Lyrics ដើម្បីឱ្យរបាររត់តាម
+    const lyricsContainer = document.getElementById('fullScreenLyrics');
+    const progressBar = document.getElementById('lyricProgressBar');
+
+    if (lyricsContainer && progressBar) {
+        lyricsContainer.addEventListener('scroll', () => {
+            // គណនាភាគរយនៃការអូសអានអត្ថបទ
+            const scrollTop = lyricsContainer.scrollTop;
+            const scrollHeight = lyricsContainer.scrollHeight - lyricsContainer.clientHeight;
+            
+            if (scrollHeight > 0) {
+                const scrollPercent = (scrollTop / scrollHeight) * 100;
+                progressBar.style.width = `${scrollPercent}%`;
+            } else {
+                progressBar.style.width = '0%';
+            }
+        }, { passive: true });
+    }
+    
+    // 3. បន្ថែម Haptic Feedback (រំញ័រតិចៗ 15ms) ពេលចុចប្តូរ Tab ខាងក្រោម
+    const navItems = document.querySelectorAll('.bottom-nav-item');
+    navItems.forEach(item => {
+        item.addEventListener('click', () => {
+            if (typeof vibratePhone === 'function') vibratePhone(15);
+        });
+    });
+});
