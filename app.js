@@ -556,19 +556,35 @@ function observeSentinel() {
 }
 
 function getSkeletonHTML(count = 6) {
-    return Array(count).fill(`
+    // ឆែកមើលថាតើអ្នកប្រើកំពុងបើកទម្រង់បញ្ឈរ (List View) ឬទេ
+    const isListView = document.getElementById('songGrid')?.classList.contains('list-view');
+    
+    return Array(count).fill(
+        isListView 
+        ? `
+        <div class="song-card" style="flex-direction: row; height: 110px; align-items: center; padding: 10px; gap: 12px;">
+            <div class="shimmer-effect" style="width: 90px; height: 90px; border-radius: 12px; flex-shrink: 0;"></div>
+            <div style="flex: 1; display: flex; flex-direction: column; gap: 10px; justify-content: center;">
+                <div class="skeleton-line shimmer-effect" style="width: 85%; margin: 0; height: 14px;"></div>
+                <div class="skeleton-line shimmer-effect" style="width: 50%; margin: 0; height: 12px;"></div>
+            </div>
+            <div class="shimmer-effect" style="width: 32px; height: 32px; border-radius: 50%; flex-shrink: 0;"></div>
+        </div>
+        ` 
+        : `
         <div class="skeleton-card">
-            <div class="skeleton-img"></div>
+            <div class="skeleton-img shimmer-effect"></div>
             <div class="skeleton-info">
-                <div class="skeleton-line"></div>
-                <div class="skeleton-line short"></div>
+                <div class="skeleton-line shimmer-effect"></div>
+                <div class="skeleton-line short shimmer-effect"></div>
                 <div class="skeleton-btns">
-                    <div class="skeleton-btn"></div>
-                    <div class="skeleton-btn"></div>
+                    <div class="skeleton-btn shimmer-effect"></div>
+                    <div class="skeleton-btn shimmer-effect"></div>
                 </div>
             </div>
         </div>
-    `).join('');
+        `
+    ).join('');
 }
 
 function loadMoreChunks() {
@@ -1436,10 +1452,43 @@ function slideFullScreen(direction, event) {
     vibratePhone(30);
 }
 
-let scale = 1, pointX = 0, pointY = 0, startX = 0, startY = 0, initialDist = 0, isDragging = false, isPinching = false, lastTapTime = 0, animFrame = null;
-let currentRotation = 0; // អញ្ញាតសម្រាប់កត់ត្រាមុំបង្វិល
+// =========================================
+// មុខងារ Zoom និងអូសរូបភាព (Smooth & Native Feel)
+// =========================================
+let scale = 1, pointX = 0, pointY = 0, startX = 0, startY = 0;
+let initialDist = 0, initialScale = 1; 
+let isDragging = false, isPinching = false, lastTapTime = 0, animFrame = null;
+let currentRotation = 0;
 
-function resetZoomState() { scale = 1; pointX = 0; pointY = 0; updateTransform(); }
+function resetZoomState() { 
+    scale = 1; pointX = 0; pointY = 0; 
+    updateTransform(); 
+}
+
+// មុខងារទប់កុំឱ្យអូសរូបភាពចេញផុតពីកញ្ចក់អេក្រង់
+function clampPan() {
+    if (scale <= 1) { pointX = 0; pointY = 0; return; }
+    
+    const img = document.getElementById('fullScreenImg');
+    const container = document.getElementById('fullScreenImgContainer');
+    if (!img || !container) return;
+
+    let imgWidth = img.clientWidth;
+    let imgHeight = img.clientHeight;
+
+    // គណនាទំហំឡើងវិញពេលរូបភាពត្រូវបង្វិល (Rotate)
+    if (currentRotation === 90 || currentRotation === 270) {
+        imgWidth = img.clientHeight;
+        imgHeight = img.clientWidth;
+    }
+
+    const maxPanX = Math.max(0, (imgWidth * scale - container.clientWidth) / 2);
+    const maxPanY = Math.max(0, (imgHeight * scale - container.clientHeight) / 2);
+
+    pointX = Math.min(Math.max(pointX, -maxPanX), maxPanX);
+    pointY = Math.min(Math.max(pointY, -maxPanY), maxPanY);
+}
+
 function updateTransform() {
     if (animFrame) cancelAnimationFrame(animFrame);
     animFrame = requestAnimationFrame(() => {
@@ -1447,12 +1496,10 @@ function updateTransform() {
         const container = document.getElementById('fullScreenImgContainer');
         
         if (img && container) {
-            // ទាញយកទំហំពិតប្រាកដរបស់អេក្រង់ (ដកចន្លោះគែមខាងៗចេញ)
-            const style = window.getComputedStyle(container);
-            const cw = container.clientWidth - parseFloat(style.paddingLeft) - parseFloat(style.paddingRight);
-            const ch = container.clientHeight - parseFloat(style.paddingTop) - parseFloat(style.paddingBottom);
+            // កំណត់ទំហំរូបភាពឱ្យសមនឹងអេក្រង់ពេលបង្វិល
+            const cw = container.clientWidth - parseFloat(window.getComputedStyle(container).paddingLeft) * 2;
+            const ch = container.clientHeight - parseFloat(window.getComputedStyle(container).paddingTop) * 2;
 
-            // កំណត់ទំហំរូបភាពឡើងវិញពេលបង្វិលផ្តេក ៩០ ឬ ២៧០ ដឺក្រេ 
             if (currentRotation === 90 || currentRotation === 270) {
                 img.style.maxWidth = ch + "px";
                 img.style.maxHeight = cw + "px";
@@ -1461,7 +1508,16 @@ function updateTransform() {
                 img.style.maxHeight = "100%";
             }
 
-            img.style.transform = "translate3d(" + pointX + "px, " + pointY + "px, 0px) scale(" + scale + ") rotate(" + currentRotation + "deg)";
+            clampPan(); // គណនាទប់រូបភាពកុំឱ្យលៀនចេញមុននឹងធ្វើចលនា
+            
+            // ដាក់ Transition ឱ្យរលូន តែពេលលែងដៃប៉ុណ្ណោះ (ពេលកំពុងអូសត្រូវដកចេញឱ្យទាន់ចិត្ត)
+            if (!isDragging && !isPinching) {
+                img.style.transition = 'transform 0.25s cubic-bezier(0.25, 0.8, 0.25, 1)';
+            } else {
+                img.style.transition = 'none';
+            }
+
+            img.style.transform = `translate3d(${pointX}px, ${pointY}px, 0px) scale(${scale}) rotate(${currentRotation}deg)`;
         }
     });
 }
@@ -1470,23 +1526,27 @@ function rotateImage() {
     currentRotation += 90;
     if (currentRotation >= 360) currentRotation = 0;
     updateTransform();
-    
-    // បង្ហាញសារប្រាប់អ្នកប្រើប្រាស់ ពេលរូបភាពផ្តេក
     if (currentRotation === 90 || currentRotation === 270) {
         showToast("ទម្រង់អានផ្តេក", "info");
     }
 }
 
 function initPinchToZoom() {
-    const container = document.getElementById('fullScreenImgContainer'); const img = document.getElementById('fullScreenImg');
+    const container = document.getElementById('fullScreenImgContainer'); 
+    const img = document.getElementById('fullScreenImg');
     if (!container || !img) return;
-    function getDistance(touches) { return Math.hypot(touches[0].clientX - touches[1].clientX, touches[0].clientY - touches[1].clientY); }
+    
+    function getDistance(touches) { 
+        return Math.hypot(touches[0].clientX - touches[1].clientX, touches[0].clientY - touches[1].clientY); 
+    }
     
     container.addEventListener('touchstart', (e) => {
         if (e.touches.length === 2) { 
+            e.preventDefault(); // ទប់កុំឱ្យ Browser ធ្វើការ
             isPinching = true; 
             isDragging = false; 
             initialDist = getDistance(e.touches); 
+            initialScale = scale; // កត់ត្រាទំហំមុនពេលចាប់ផ្តើម Zoom
         } else if (e.touches.length === 1) { 
             if (scale > 1) { 
                 isDragging = true; 
@@ -1496,47 +1556,60 @@ function initPinchToZoom() {
                 startX = e.touches[0].clientX; 
             } 
         }
-    }, { passive: true });
+    }, { passive: false }); // ដូរមក false ទើប preventDefault() ដើរ
 
     container.addEventListener('touchmove', (e) => {
-        if (isAutoScrolling) { e.preventDefault(); return; }
+        if (typeof isAutoScrolling !== 'undefined' && isAutoScrolling) { e.preventDefault(); return; }
 
         if (isPinching && e.touches.length === 2) { 
+            e.preventDefault();
             const newDist = getDistance(e.touches); 
             if (initialDist > 0) { 
-                scale = Math.min(Math.max(1, scale * (newDist / initialDist)), 4); 
-                initialDist = newDist; 
-                if (scale === 1) { pointX = 0; pointY = 0; } 
+                // អនុញ្ញាតឱ្យ Zoom ធំបំផុតដល់ 5x (ច្បាស់ជាងមុន)
+                scale = Math.min(Math.max(1, initialScale * (newDist / initialDist)), 5); 
                 updateTransform(); 
             } 
         } else if (isDragging && e.touches.length === 1 && scale > 1) { 
+            e.preventDefault(); // ទប់កុំឱ្យទាញប្តូរបទពេលកំពុងពង្រីក
             pointX = e.touches[0].clientX - startX; 
             pointY = e.touches[0].clientY - startY; 
             updateTransform(); 
         }
-    }, { passive: true });
+    }, { passive: false }); 
 
     container.addEventListener('touchend', (e) => {
         if (e.touches.length < 2) isPinching = false; 
+        
         if (e.touches.length === 0) { 
-            if (scale <= 1) resetZoomState(); 
+            if (scale <= 1) {
+                resetZoomState(); 
+            } else {
+                updateTransform(); // ឱ្យវាលោតចូលគែមវិញយ៉ាងរលូន (Snap to boundary)
+            }
             isDragging = false; 
         }
+        
+        // អនុញ្ញាតឱ្យទាញប្តូរបទ (Swipe) តែពេលរូបភាពមានទំហំធម្មតា (Scale = 1) និងមិនមែនកំពុង Zoom
         if (e.changedTouches.length === 1 && scale === 1 && !isPinching) { 
             const diffX = e.changedTouches[0].clientX - startX; 
-            if (Math.abs(diffX) > 60) diffX < 0 ? slideFullScreen(1) : slideFullScreen(-1); 
+            if (Math.abs(diffX) > 70) diffX < 0 ? slideFullScreen(1) : slideFullScreen(-1); 
         }
-       const now = new Date().getTime(); const tapGap = now - lastTapTime;
-         if (tapGap < 300 && tapGap > 0) { 
-    // បន្ថែមលក្ខខណ្ឌបើមានការបង្វិល ក៏ត្រូវ Reset មកដើមវិញដែរ
-         if (scale > 1 || currentRotation !== 0) { 
-        currentRotation = 0; 
-        resetZoomState(); 
-    } 
-        else { scale = 2.5; pointX = 0; pointY = 0; updateTransform(); } 
-    }
+
+        // ចុច ២ ដង ដើម្បី Zoom (Double Tap)
+        const now = new Date().getTime(); 
+        const tapGap = now - lastTapTime;
+        if (tapGap < 300 && tapGap > 0) { 
+             if (scale > 1 || currentRotation !== 0) { 
+                 currentRotation = 0; 
+                 resetZoomState(); 
+             } else { 
+                 scale = 2.5; // Double tap ពង្រីក 2.5x
+                 pointX = 0; pointY = 0; 
+                 updateTransform(); 
+             } 
+        }
         lastTapTime = now;
-    });
+    }, { passive: false });
 }
 
 function shareAppDirectly() {
@@ -1638,15 +1711,18 @@ function saveNewPlaylist() {
 
 function deletePlaylist(event, pName) { 
     event.stopPropagation(); 
-    if (confirm(`លុប Playlist "${pName}"?`)) { 
-        delete playlists[pName]; 
-        localStorage.setItem('user_playlists', JSON.stringify(playlists)); 
-        syncPlaylistsToCloud();
-        renderPlaylistsView(); 
-        showToast('លុប Playlist រួចរាល់', 'info'); 
-    } 
+    showCustomConfirm(
+        'លុប Playlist', 
+        `តើអ្នកពិតជាចង់លុប Playlist "${pName}" មែនទេ? ទិន្នន័យនេះមិនអាចទាញមកវិញបានទេ។`, 
+        () => {
+            delete playlists[pName]; 
+            localStorage.setItem('user_playlists', JSON.stringify(playlists)); 
+            syncPlaylistsToCloud();
+            renderPlaylistsView(); 
+            showToast('លុប Playlist រួចរាល់', 'info'); 
+        }
+    );
 }
-
 
 window.addEventListener('online', () => updateOnlineStatus()); 
 window.addEventListener('offline', () => updateOnlineStatus());
@@ -2911,4 +2987,31 @@ function handleFullScreenAction(action) {
     } else if (action === 'save') {
         downloadSongAction(song.id); // ហៅមុខងារ ទាញយក
     }
+}
+// មុខងារហៅ Custom Confirm Box
+function showCustomConfirm(title, message, onConfirmCallback) {
+    document.getElementById('confirmDialogTitle').innerText = title;
+    document.getElementById('confirmDialogMessage').innerText = message;
+    
+    openModal('customConfirmModal');
+    
+    const btnOk = document.getElementById('btnConfirmOk');
+    const btnCancel = document.getElementById('btnConfirmCancel');
+    
+    // បង្កើត Clone ដើម្បីលុប Event Listener ចាស់ៗចោល (ការពារការចុចម្តង លុប២ដង)
+    const newBtnOk = btnOk.cloneNode(true);
+    const newBtnCancel = btnCancel.cloneNode(true);
+    btnOk.parentNode.replaceChild(newBtnOk, btnOk);
+    btnCancel.parentNode.replaceChild(newBtnCancel, btnCancel);
+    
+    // ចុចយល់ព្រម
+    newBtnOk.addEventListener('click', () => {
+        closeModal('customConfirmModal');
+        if (onConfirmCallback) onConfirmCallback();
+    });
+    
+    // ចុចបោះបង់
+    newBtnCancel.addEventListener('click', () => {
+        closeModal('customConfirmModal');
+    });
 }
