@@ -41,7 +41,7 @@ body {
     color: var(--text); 
     min-height: 100vh; 
     padding-top: max(8px, env(safe-area-inset-top)); 
-    padding-bottom: 0; /* ⬅️ យើងដូរមកដាក់ 0 ដើម្បីកុំឲ្យសល់ចន្លោះក្រោមធំ */
+    padding-bottom: 0; 
     transition: background-color 0.2s, color 0.2s; 
     overscroll-behavior-y: none; 
     -webkit-overflow-scrolling: touch; 
@@ -55,7 +55,6 @@ img { -webkit-touch-callout: none; pointer-events: none; }
 #splashScreen { position: fixed; top: 0; left: 0; right: 0; bottom: 0; width: 100vw; height: 100vh; background-color: #ffffff; display: flex; align-items: center; justify-content: center; z-index: 99999; transition: opacity 0.4s ease-out, visibility 0.4s ease-out; }
 #splashScreen img { max-width: 70%; max-height: 60%; object-fit: contain; border-radius: 16px; pointer-events: auto; }
 #splashScreen.hide { opacity: 0; visibility: hidden; }
-
 
 /* =========================================
    Premium iOS-style Home Dashboard
@@ -94,7 +93,6 @@ body.dark-mode .home-icon-btn.active {
     transform: scale(0.96);
 }
 
-/* រចនាបថបញ្ជីបញ្ឈរសម្រាប់ប្រវត្តិមើល (Vertical History List) */
 .home-vertical-list {
     display: flex;
     flex-direction: column;
@@ -226,7 +224,6 @@ body.dark-mode .home-icon-btn, body.dark-mode .home-quick-actions button, body.d
 .minimal-ref { font-size: 0.72rem; font-weight: 600; color: var(--primary); margin: 0; }
 
 .main-content { 
-    
     width: 100%; 
     bottom: 0;
     max-width: 1200px; 
@@ -257,7 +254,12 @@ body.dark-mode #mainAppHeader { background: rgba(30, 41, 59, 0.65); border-color
 body.dark-mode .chip-btn { box-shadow: 4px 4px 10px rgba(0,0,0,0.4), -4px -4px 10px rgba(255,255,255,0.05); }
 .chip-btn.active { background: var(--primary); color: white; box-shadow: inset 3px 3px 6px rgba(0,0,0,0.2), inset -3px -3px 6px rgba(255,255,255,0.2); }
 
-.app-view { display: none; opacity: 0; transition: opacity 0.25s ease-in-out; }
+.app-view { 
+    display: none; 
+    opacity: 0; 
+    transition: opacity 0.25s ease-in-out; 
+    padding-bottom: 90px; 
+}
 .app-view.active { display: block; opacity: 1; }
 
 .controls { z-index: 1000; background: transparent; padding: 4px 0; margin-bottom: 4px; display: flex; align-items: center; gap: 8px; }
@@ -268,7 +270,7 @@ body.dark-mode .chip-btn { box-shadow: 4px 4px 10px rgba(0,0,0,0.4), -4px -4px 1
     background: var(--bg-glass); 
     backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); 
     margin: 0; 
-    padding: 10px 16px; /* 🔴 កែត្រង់នេះ៖ បន្ថែម 16px ដើម្បីរុញ Icon និងអក្សរចូលក្នុងឱ្យស្មើនឹង Bottom Nav */
+    padding: 10px 16px; 
     border-bottom: 1px solid rgba(255, 255, 255, 0.5);
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.03); 
 }
@@ -309,20 +311,19 @@ body.dark-mode .song-count-badge { box-shadow: 2px 2px 6px rgba(0,0,0,0.4), -2px
     display: grid; 
     grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); 
     gap: 18px; 
-    padding: 0 16px; /* 🔴 បន្ថែមបន្ទាត់នេះ ដើម្បីរុញកាតឱ្យចូលក្នុងស្មើនឹង Header */
+    padding: 0 10px !important; 
 }
 .song-grid.list-view { 
     display: flex; 
     flex-direction: column; 
     gap: 12px; 
-    padding: 0 16px; /* 🔴 បន្ថែមបន្ទាត់នេះ ដើម្បីឱ្យទម្រង់បញ្ជី (List View) រំកិលចូលក្នុងស្មើគ្នាដែរ */
+    padding: 0 10px !important; 
 }
 .song-grid.list-view .song-card { flex-direction: row; height: 110px; align-items: center; }
 .song-grid.list-view .song-img-container { width: 110px; height: 100%; min-height: unset; flex-shrink: 0; }
 .song-grid.list-view .song-info { flex: 1; padding: 8px 12px; display: flex; flex-direction: column; justify-content: center; }
 .song-grid.list-view .card-dropdown { bottom: auto; top: 40px; right: 15px; }
 
-/* បន្ថែមចលនា (Hover Effect) ទៅលើកាត */
 .song-card { 
     background: var(--card-bg); 
     backdrop-filter: blur(16px); 
@@ -334,10 +335,8 @@ body.dark-mode .song-count-badge { box-shadow: 2px 2px 6px rgba(0,0,0,0.4), -2px
     flex-direction: column; 
     position: relative; 
     box-shadow: 6px 6px 15px rgba(180, 185, 200, 0.4), -6px -6px 15px rgba(255, 255, 255, 0.9); 
-    /* ថែម transition សម្រាប់ចលនាទន់ភ្លន់ */
     transition: transform 0.3s cubic-bezier(0.25, 0.8, 0.25, 1), box-shadow 0.3s ease; 
 }
-/* ពេលដាក់ Mouse ពីលើ (Hover) ឱ្យកាតងើបឡើងលើបន្តិច */
 @media (hover: hover) {
     .song-card:hover {
         transform: translateY(-5px);
@@ -358,7 +357,6 @@ body.dark-mode .song-card {
 body.dark-mode .song-key-badge { background: #334155; color: #e2e8f0; border-color: #475569; }
 
 .song-img-container { width: 100%; min-height: 220px; background: #eaebe7; display: flex; align-items: center; justify-content: center; overflow: hidden; cursor: pointer; position: relative; }
-/* ពង្រីករូបភាពបន្តិចពេល Hover */
 @media (hover: hover) {
     .song-card:hover .song-img {
         transform: scale(1.05);
@@ -424,7 +422,7 @@ body.dark-mode .toggle-switch { background: #475569; }
 
 .bottom-nav { 
     position: fixed; 
-    bottom: 10px; /* ទម្លាក់ឲ្យទាបមកត្រឹម 12px ពីគែមអេក្រង់ */
+    bottom: 10px; 
     left: 10px; 
     right: 10px; 
     height: 65px; 
@@ -435,7 +433,7 @@ body.dark-mode .toggle-switch { background: #475569; }
     justify-content: space-around; 
     z-index: 1000; 
     box-shadow: 0 12px 35px rgba(15,23,42,.16); 
-    border-radius: 10px; /* កោងទាំង ៤ ជ្រុង */
+    border-radius: 10px; 
     backdrop-filter: blur(16px); 
     -webkit-backdrop-filter: blur(16px); 
 }
@@ -479,8 +477,28 @@ body.dark-mode .skeleton-card { box-shadow: 4px 4px 15px rgba(0,0,0,0.5), -4px -
 @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.5; } 100% { opacity: 1; } }
 body.dark-mode .skeleton-img, body.dark-mode .skeleton-line, body.dark-mode .skeleton-btn { background: #334155; }
 
-.modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); align-items: flex-end; justify-content: center; z-index: 2000; padding: 0; opacity: 0; transition: opacity 0.3s ease; }
-.modal.active { display: flex; opacity: 1; }
+.modal { 
+    visibility: hidden; 
+    pointer-events: none; 
+    display: flex; 
+    position: fixed; 
+    top: 0; 
+    left: 0; 
+    width: 100%; 
+    height: 100%; 
+    background: rgba(0,0,0,0.5); 
+    align-items: flex-end; 
+    justify-content: center; 
+    z-index: 2000; 
+    padding: 0; 
+    opacity: 0; 
+    transition: opacity 0.35s ease, visibility 0.35s; 
+}
+.modal.active { 
+    visibility: visible; 
+    pointer-events: auto; 
+    opacity: 1; 
+}
 .modal-content { background: var(--card-bg); color: var(--text); padding: 20px 16px; border-radius: 20px 20px 0 0; width: 100%; max-width: 600px; max-height: 90vh; overflow-y: auto; border-top: 1px solid var(--border); transform: translateY(100%); transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1); margin: 0 auto; }
 .modal.active .modal-content { transform: translateY(0); }
 .modal-drag-handle { width: 40px; height: 5px; background: var(--border); border-radius: 3px; margin: 0 auto 15px auto; }
@@ -493,7 +511,7 @@ body.dark-mode .skeleton-img, body.dark-mode .skeleton-line, body.dark-mode .ske
 .preview-container img { width: 100%; max-height: 110px; object-fit: contain; }
 .remove-img-btn { position: absolute; top: 4px; right: 4px; background: rgba(239, 68, 68, 0.9); color: white; border: none; border-radius: 50%; width: 24px; height: 24px; font-size: 0.75rem; cursor: pointer; }
 
-/* ១. ផ្ទៃខាងក្រោយ Modal ទូទៅ (ពណ៌ខ្មៅ) */
+/* ផ្ទៃខាងក្រោយ Modal ទូទៅ (ពណ៌ខ្មៅ) */
 .fullscreen-modal { 
     display: none; 
     position: fixed; 
@@ -507,38 +525,25 @@ body.dark-mode .skeleton-img, body.dark-mode .skeleton-line, body.dark-mode .ske
     align-items: center; 
     justify-content: center; 
 }
-/* ២. ស៊ុមខាងក្រោម (បន្ថយកម្ពស់ពី 50px មក 35px វិញ) */
-.fullscreen-modal::after {
-    content: '';
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    height: calc(35px + env(safe-area-inset-bottom)); 
-    background: #111827; 
-    border-top: 1px solid rgba(255, 255, 255, 0.1);
-    z-index: 3010;
-    pointer-events: none;
-}
 .fullscreen-modal.active { display: flex; }
 
-/* ៣. ស៊ុមខាងលើ (បន្ថយ Padding លើក្រោមពី 12px មក 8px វិញ) */
+/* ស៊ុមខាងលើ (Telegram Style) */
 .fullscreen-header { 
     position: absolute; 
     top: 0; 
     left: 0; 
     right: 0; 
-    background: #111827; 
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1); 
+    background: linear-gradient(to bottom, rgba(0, 0, 0, 0.5) 0%, transparent 100%) !important;
+    border-bottom: none !important; 
     display: flex; 
     justify-content: space-between; 
     align-items: center; 
     color: white; 
     z-index: 3010;
-    /* គម្លាតតូចល្មម ឱ្យអក្សរនៅចំកណ្តាលស៊ុមស្អាត */
     padding: calc(8px + env(safe-area-inset-top)) 16px 8px 16px; 
+    transition: transform 0.3s cubic-bezier(0.25, 0.8, 0.25, 1), opacity 0.3s ease !important;
 }
-/* ៤. កន្លែងផ្ទុករូបភាព (បង្រួមចន្លោះ Padding ឱ្យស៊ីគ្នានឹងស៊ុមថ្មីដែលស្តើងជាងមុន) */
+
 .fullscreen-img-container { 
     width: 100vw; 
     height: 100vh; 
@@ -548,8 +553,7 @@ body.dark-mode .skeleton-img, body.dark-mode .skeleton-line, body.dark-mode .ske
     position: relative; 
     overflow: hidden; 
     touch-action: none; 
-    /* ទុកចន្លោះខាងលើតែ 50px និងខាងក្រោម 45px បានហើយ */
-    padding: calc(50px + env(safe-area-inset-top)) 10px calc(45px + env(safe-area-inset-bottom)) 10px; 
+    padding: calc(50px + env(safe-area-inset-top)) 10px calc(65px + env(safe-area-inset-bottom)) 10px !important; 
 }
 .fullscreen-img { max-width: 100%; max-height: 100%; object-fit: contain; transform-origin: center center; will-change: transform; }
 .fullscreen-nav-btn { position: absolute; top: 50%; transform: translateY(-50%); background: rgba(255, 255, 255, 0.2); color: white; border: none; font-size: 1.2rem; padding: 12px 8px; cursor: pointer; border-radius: 6px; z-index: 3010; }
@@ -586,7 +590,7 @@ body.dark-mode .card-dropdown { box-shadow: 0 4px 15px rgba(0,0,0,0.5); }
     body { 
         display: block; 
         padding-bottom: 0; 
-        padding-left: 80px; /* 🔴 គន្លឹះនៅទីនេះ៖ រុញតួវេបសាយទាំងមូលចេញពីគែមឆ្វេង 80px */
+        padding-left: 80px; 
         box-sizing: border-box;
     }
     
@@ -604,12 +608,12 @@ body.dark-mode .card-dropdown { box-shadow: 0 4px 15px rgba(0,0,0,0.5); }
         border-top: none; 
         border-right: 1px solid var(--border); 
         border-radius: 0; 
-        background: var(--card-bg); /* បញ្ជាក់ពណ៌ផ្ទៃខាងក្រោយកុំឱ្យថ្លា */
+        background: var(--card-bg); 
         box-shadow: 4px 0 15px rgba(0,0,0,0.03); 
         transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         overflow: hidden;
         white-space: nowrap; 
-        z-index: 2000; /* 🔴 ដាក់លេខធំ ដើម្បីឱ្យមីនុយនៅពីលើគេជានិច្ច ពេលវាលាតចេញ */
+        z-index: 2000; 
     }
     
     .bottom-nav:hover {
@@ -645,7 +649,7 @@ body.dark-mode .card-dropdown { box-shadow: 0 4px 15px rgba(0,0,0,0.5); }
     body.dark-mode .bottom-nav-item:hover { background: rgba(59, 130, 246, 0.15); }
     
     .main-content { 
-        margin: 0 auto !important; /* ទុកឱ្យវានៅកណ្តាលធម្មតា ព្រោះ body ត្រូវរុញចេញ 80px រួចហើយ */
+        margin: 0 auto !important; 
         width: 100% !important;
         max-width: 1200px !important;
         padding: 30px 40px !important; 
@@ -663,11 +667,6 @@ body.dark-mode .card-dropdown { box-shadow: 0 4px 15px rgba(0,0,0,0.5); }
    កូដទម្រង់អត្ថបទចម្រៀង និង Chord (Lyrics Mode)
 ========================================= */
 
-/* =========================================
-   ធ្វើឱ្យផ្ទាំង FullScreen Lyrics ចេញជារាងក្រដាស A4
-========================================= */
-
-/* ផ្ទៃខាងក្រោយក្រៅក្រដាស (Backdrop) ឱ្យងងឹតរហូតងាយស្រួលមើលក្រដាស */
 .fullscreen-modal.lyrics-mode { 
     background: #0f172a !important; 
 }
@@ -681,35 +680,38 @@ body.dark-mode .card-dropdown { box-shadow: 0 4px 15px rgba(0,0,0,0.5); }
     color: #ffffff !important; 
 }
 
-/* ទម្រង់សន្លឹកក្រដាស A4 ចំកណ្តាលអេក្រង់ */
 .fullscreen-lyrics { 
     width: 100vw; 
-    max-width: 794px; /* ទំហំទទឹងក្រដាស A4 ស្តង់ដារ */
+    max-width: 100%; 
     height: 100vh; 
-    margin: 0 auto; /* រុញឱ្យនៅចំកណ្តាលអេក្រង់ */
-    padding: calc(100px + env(safe-area-inset-top)) 40px calc(120px + env(safe-area-inset-bottom)) 40px; 
-    
-    background: #ffffff; /* ផ្ទៃពណ៌សដូចក្រដាសពិតៗ */
-    color: #0f172a;      /* អក្សរពណ៌ខ្មៅ ងាយស្រួលអាន */
-    
+    margin: 0; 
+    padding: calc(90px + env(safe-area-inset-top)) 24px calc(110px + env(safe-area-inset-bottom)) 24px !important; 
+    background: var(--bg); 
+    color: var(--text);      
     overflow-y: auto; 
     text-align: left; 
     -webkit-overflow-scrolling: touch; 
-    box-shadow: 0 0 25px rgba(0,0,0,0.5); /* ស្រមោលធ្វើឱ្យក្រដាសអណ្តែត */
+    box-shadow: none; 
 }
 
-/* សម្រាប់ Dark Mode ឱ្យពណ៌ក្រដាសរាងប្រផេះ កុំឱ្យពណ៌សចាំងភ្នែកខ្លាំងពេក */
 body.dark-mode .fullscreen-lyrics {
-    background: #e2e8f0;
-    color: #0f172a;
-    box-shadow: 0 0 30px rgba(0,0,0,0.8);
+    background: var(--bg); 
+    color: var(--text);
+    box-shadow: none;
 }
 
-.transpose-controls { position: absolute; top: calc(60px + env(safe-area-inset-top)); left: 50%; transform: translateX(-50%); background: var(--bg); color: var(--text); padding: 4px 16px; border-radius: 20px; display: flex; align-items: center; gap: 16px; z-index: 3020; box-shadow: 0 4px 15px rgba(0,0,0,0.1); border: 1px solid var(--border); }
+@media (min-width: 768px) {
+    .fullscreen-lyrics {
+        max-width: 794px;
+        margin: 0 auto;
+        border-radius: 12px;
+        box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+        background: var(--card-bg);
+    }
+}
+
 .transpose-controls button { background: var(--card-bg); border: 1px solid var(--border); color: var(--text); font-size: 1.2rem; width: 34px; height: 34px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: 0.2s; }
 .transpose-controls button:active { background: var(--primary); color: white; transform: scale(0.9); }
-
-.fullscreen-lyrics { width: 100vw; height: 100vh; padding: calc(120px + env(safe-area-inset-top)) 20px calc(120px + env(safe-area-inset-bottom)) 20px; color: var(--text); overflow-y: auto; text-align: left; -webkit-overflow-scrolling: touch; }
 
 /* =========================================
    កែសម្រួលគម្លាតអត្ថបទ និង Chord មិនឱ្យគងគ្នា
@@ -717,8 +719,8 @@ body.dark-mode .fullscreen-lyrics {
 
 .lyric-line { 
     display: block; 
-    line-height: 1.8; /* គម្លាតបន្ទាត់ធម្មតា */
-    margin-top: 24px; /* 🔴 ទុកចន្លោះពីលើ ២៤px ជានិច្ច ដើម្បីទប់កុំឱ្យ Chord ប៉ះបន្ទាត់ខាងលើ */
+    line-height: 1.8; 
+    margin-top: 24px; 
     margin-bottom: 2px; 
     font-family: 'Courier New', 'Kantumruy Pro', monospace; 
     font-size: 1.05rem; 
@@ -729,14 +731,14 @@ body.dark-mode .fullscreen-lyrics {
 .chord-word { 
     display: inline-block; 
     position: relative; 
-    line-height: 1; /* ការពារកុំឱ្យអក្សរខាងក្រោមធ្លាក់ឃ្លាតពីខ័រពេក */
+    line-height: 1; 
 }
 
 .chord-word .chord { 
     position: absolute; 
-    bottom: 100%; /* 🔴 រុញ Chord ឱ្យឈរនៅចំពីលើអក្សរ (Lyric) ជានិច្ច */
+    bottom: 100%; 
     left: 0; 
-    margin-bottom: 2px; /* ទុកចន្លោះ ២px ពីលើអក្សរ កុំឱ្យ Chord អង្គុយសង្កត់លើអក្សរពេក */
+    margin-bottom: 2px; 
     color: #ef4444; 
     font-weight: 800; 
     font-family: Arial, sans-serif; 
@@ -745,23 +747,9 @@ body.dark-mode .fullscreen-lyrics {
 }
 
 body.dark-mode .chord-word .chord {
-    color: #dc2626; /* ពណ៌ខ័រសម្រាប់ Dark Mode */
+    color: #dc2626; 
 }
-.chord-word { 
-    display: inline-block; 
-    position: relative; 
-    line-height: 1; 
-}
-.chord-word .chord { 
-    position: absolute; 
-    top: -1.6em; 
-    left: 0; 
-    color: #ef4444; 
-    font-weight: 800; 
-    font-family: Arial, sans-serif; 
-    font-size: 0.95rem; 
-    white-space: nowrap; 
-}
+
 .chord-word .lyric { 
     font-size: 1.05rem; 
     line-height: 1; 
@@ -778,25 +766,24 @@ body.dark-mode .chord-word .chord {
    A4 Paper Style Textarea សម្រាប់បញ្ចូលអត្ថបទ
 ========================================= */
 .a4-lyric-textarea {
-    width: 100%;                /* ឱ្យលាតពេញផ្ទាំង Modal */
-    box-sizing: border-box;     /* ការពារកុំឱ្យលៀនចេញក្រៅ */
-    aspect-ratio: 1 / 1.414;    /* មាត្រដ្ឋានទំហំក្រដាស A4 */
+    width: 100%;                
+    box-sizing: border-box;     
+    aspect-ratio: 1 / 1.414;    
     min-height: 400px;          
     max-height: 55vh;        
-    padding: 30px;              /* ទុកគែមជុំវិញអក្សរឱ្យទូលាយដូចក្រដាសពិតៗ */
+    padding: 30px;              
     border: 1px solid #cbd5e1;
     border-radius: 6px;      
-    background: #f8fafc;        /* ពណ៌សស្រទន់ កុំឱ្យចាំងភ្នែកពេក */
+    background: #f8fafc;        
     color: #0f172a;          
-    font-family: 'Courier New', monospace; /* ជួយឱ្យការតម្រឹម Chord បានត្រង់ជួរល្អ */
+    font-family: 'Courier New', monospace; 
     font-size: 1rem;
-    line-height: 1.8;           /* គម្លាតបន្ទាត់ទូលាយ ស្រួលមើល Chord */
+    line-height: 1.8;           
     resize: vertical;
     outline: none;
-    box-shadow: 2px 4px 15px rgba(0,0,0,0.08); /* ស្រមោលអណ្តែត */
+    box-shadow: 2px 4px 15px rgba(0,0,0,0.08); 
 }
 
-/* ពេលបើក Dark Mode ដាក់ពណ៌ក្រដាសឱ្យស្រអាប់បន្តិច */
 body.dark-mode .a4-lyric-textarea {
     background: #e2e8f0;     
     color: #0f172a;
@@ -804,7 +791,6 @@ body.dark-mode .a4-lyric-textarea {
     box-shadow: 2px 4px 15px rgba(0,0,0,0.4);
 }
 
-/* ពេលចុចវាយអត្ថបទ ឱ្យលោតស៊ុមពណ៌ខៀវ */
 .a4-lyric-textarea:focus {
     border-color: var(--primary);
     box-shadow: 0 0 0 2px rgba(37,99,235,0.2), 2px 4px 15px rgba(0,0,0,0.08);
@@ -857,7 +843,6 @@ body.dark-mode .share-option-btn.active {
    មុខងារបន្ថែមថ្មី (New Features)
 ========================================= */
 
-/* ១. Print Stylesheet (សម្រាប់ព្រីនក្រដាសបទចម្រៀង) */
 @media print {
     body * { visibility: hidden; }
     #fullScreenModal, #fullScreenModal * { visibility: visible; }
@@ -867,7 +852,6 @@ body.dark-mode .share-option-btn.active {
     .chord-word .chord { color: #555 !important; }
 }
 
-/* ៣. Font Size & Presentation Mode */
 .font-size-controls { display: flex; gap: 8px; align-items: center; margin-left: 10px; border-left: 1px solid var(--border); padding-left: 10px; }
 .font-size-controls button { background: var(--card-bg); border: 1px solid var(--border); color: var(--text); padding: 4px 10px; border-radius: 6px; cursor: pointer; font-weight: bold; }
 .font-size-controls button:active { background: var(--primary); color: white; }
@@ -875,7 +859,7 @@ body.dark-mode .share-option-btn.active {
 .presentation-mode { background-color: #000000 !important; }
 .presentation-mode .fullscreen-header, .presentation-mode .transpose-controls { opacity: 0.1; transition: 0.3s; }
 .presentation-mode .fullscreen-header:hover, .presentation-mode .transpose-controls:hover { opacity: 1; }
-.presentation-mode .chord { display: none !important; } /* លាក់ Chord នៅពេលបញ្ចាំង */
+.presentation-mode .chord { display: none !important; } 
 .presentation-mode .lyric { font-size: 3.5rem !important; font-weight: bold; line-height: 1.5; color: white !important; }
 .presentation-mode .lyric-line { text-align: center; margin-bottom: 20px; }
 
@@ -883,7 +867,6 @@ body.dark-mode .share-option-btn.active {
    មុខងារ Metronome & Chord Diagram
 ========================================= */
 
-/* ១. រចនាបថ Metronome Panel */
 .metronome-panel { position: absolute; top: calc(60px + env(safe-area-inset-top)); right: 16px; background: rgba(15, 23, 42, 0.85); backdrop-filter: blur(10px); padding: 12px 16px; border-radius: 16px; border: 1px solid rgba(255,255,255,0.2); color: white; display: none; flex-direction: column; align-items: center; gap: 10px; z-index: 3050; box-shadow: 0 4px 15px rgba(0,0,0,0.3); }
 .bpm-display { font-size: 1.5rem; font-weight: 800; font-family: 'Courier New', Courier, monospace; color: #10b981; }
 .metronome-controls { display: flex; gap: 10px; align-items: center; }
@@ -891,28 +874,34 @@ body.dark-mode .share-option-btn.active {
 .metronome-btn:active { transform: scale(0.9); background: var(--primary); }
 .metronome-btn.play-btn.active { background: #ef4444; }
 
-/* ២. រចនាបថ Chord Diagram Modal */
 .chord-modal { display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0, 0, 0, 0.6); z-index: 4000; align-items: center; justify-content: center; opacity: 0; transition: opacity 0.2s; }
 .chord-modal.active { display: flex; opacity: 1; }
 .chord-modal-content { background: var(--card-bg); padding: 20px; border-radius: 16px; text-align: center; color: var(--text); position: relative; min-width: 200px; box-shadow: 0 10px 25px rgba(0,0,0,0.2); }
 .chord-modal-title { font-size: 1.5rem; font-weight: 800; color: var(--primary); margin-bottom: 10px; }
 .chord-canvas { background: white; border-radius: 8px; margin: 0 auto; display: block; padding: 10px; }
 .chord-close-btn { position: absolute; top: 10px; right: 10px; background: none; border: none; color: var(--text-muted); font-size: 1.2rem; cursor: pointer; }
-.chord { cursor: pointer; transition: color 0.2s; }
-.chord:hover { color: #2563eb !important; text-shadow: 0 0 5px rgba(37,99,235,0.3); }
-
-/* រុញផ្ទាំង Transpose និងប្តូរទំហំអក្សរមកខាងក្រោម */
-.transpose-controls {
-    top: auto !important; 
-    bottom: calc(30px + env(safe-area-inset-bottom)) !important; 
+.chord { 
+    cursor: pointer; 
+    transition: all 0.2s ease;
+    display: inline-block;
+    padding: 6px 8px; 
+    margin: -6px -8px; 
+    border-radius: 6px;
+    -webkit-tap-highlight-color: transparent; 
+}
+.chord:hover { 
+    color: #2563eb !important; 
+    text-shadow: 0 0 5px rgba(37,99,235,0.3); 
+}
+.chord:active {
+    background: rgba(239, 68, 68, 0.15); 
+    transform: scale(1.1);
 }
 
-/* លាក់ប៊ូតុង និងមុខងារ Admin ពីអ្នកប្រើប្រាស់ធម្មតា */
 .editor-only {
     display: none !important;
 }
 
-/* បង្ហាញប៊ូតុង Admin វិញ តែនៅពេលអ្នកប្រើប្រាស់មានសិទ្ធិប៉ុណ្ណោះ */
 body.editor-authorized .editor-only {
     display: inline-flex !important;
 }
@@ -934,8 +923,8 @@ body.editor-authorized .editor-only {
     display: none;
     flex-direction: column;
     align-items: center;
-    width: 340px;          /* ពង្រីកទទឹងផ្ទាំង */
-    max-width: 90vw;       /* ការពារកុំឱ្យហួសអេក្រង់ទូរស័ព្ទតូចៗ */
+    width: 340px;          
+    max-width: 90vw;       
     backdrop-filter: blur(12px);
     -webkit-backdrop-filter: blur(12px);
 }
@@ -949,7 +938,7 @@ body.dark-mode .tuner-floating-panel {
     background: none;
     border: none;
     color: var(--text-muted);
-    font-size: 1.5rem;    /* ពង្រីកប៊ូតុងខ្វែងឱ្យធំងាយចុច */
+    font-size: 1.5rem;    
     cursor: pointer;
     transition: 0.2s;
 }
@@ -1014,7 +1003,6 @@ body.no-scroll {
     touch-action: none;
 }
 
-/* រចនាបថសម្រាប់ Smart Capo Badge */
 .capo-badge {
     position: absolute;
     top: -32px;
@@ -1048,7 +1036,6 @@ body.no-scroll {
     to { opacity: 1; transform: translate(-50%, 0) scale(1); }
 }
 
-/* ចលនាពន្លឺសម្រាប់ Visual Metronome */
 .metronome-flash {
     animation: flashPulse 0.15s ease-out;
 }
@@ -1154,7 +1141,6 @@ body.dark-mode .profile-popup {
     background: rgba(239, 68, 68, 0.1);
 }
 
-/* មុខងារលាក់ខ័រ (Hide Chords) */
 .lyrics-chords-hidden .chord { display: none !important; }
 .lyrics-chords-hidden .lyric-line { line-height: 1.8 !important; }
 
@@ -1166,7 +1152,6 @@ body.dark-mode .profile-popup {
     flex-direction: column;
     align-items: center;
     justify-content: space-between;
-    /* កាត់កម្ពស់ចេញបន្ថែម ឲ្យផុតពី bottom nav */
     height: calc(100vh - 175px - env(safe-area-inset-bottom)); 
     max-width: 500px;
     margin: 0 auto;
@@ -1174,7 +1159,6 @@ body.dark-mode .profile-popup {
     position: relative;
 }
 
-/* ផ្នែកកុងទ័រខាងលើ */
 .tuner-gauge-box {
     width: 100%;
     background: rgba(15, 23, 42, 0.9);
@@ -1223,7 +1207,6 @@ body.dark-mode .profile-popup {
     transform: translateX(-50%);
 }
 
-/* ផ្នែកក្បាលហ្គីតា និងប៊ូតុងអមសងខាង */
 .headstock-section {
     position: relative;
     width: 100%;
@@ -1234,7 +1217,6 @@ body.dark-mode .profile-popup {
     margin: 15px 0;
 }
 .headstock-img {
-    /* ឲ្យរូបភាពរួញតាមកម្ពស់អេក្រង់ កុំឲ្យវារុញប៊ូតុងខាងក្រោមបាត់ */
     max-height: 30vh; 
     object-fit: contain;
     filter: drop-shadow(0 10px 20px rgba(0,0,0,0.3));
@@ -1275,19 +1257,17 @@ body.dark-mode .profile-popup {
     width: 100%;
     display: flex;
     gap: 12px;
-    /* រុញប៊ូតុងឡើងលើបន្តិច ឲ្យផុតពីគែម */
     margin-bottom: 150px; 
 }
 
 /* === Mini Player === */
 .apple-mini-player {
-    /* រក្សាទីតាំងដដែល តែប្តូរពណ៌និងស្រមោលឱ្យភ្លឺរលោង */
     position: fixed;
     bottom: 85px; 
     left: 10px;
     right: 10px;
-    height: 60px; /* ដំឡើងកម្ពស់បន្តិចពី 58px ទៅ 60px */
-    background: rgba(255, 255, 255, 0.75); /* ធ្វើឱ្យថ្លាជាងមុនបន្តិច */
+    height: 60px; 
+    background: rgba(255, 255, 255, 0.75); 
     border: 1px solid rgba(255, 255, 255, 0.4);
     backdrop-filter: blur(30px);
     -webkit-backdrop-filter: blur(30px);
@@ -1314,7 +1294,6 @@ body.dark-mode .apple-mini-player {
 .apple-mini-player.active {
     transform: translateY(0);
     opacity: 1;
-    /* បន្ថែមកូដ ២ បន្ទាត់នេះ ដើម្បីឱ្យអាចចុចបានវិញ ពេលវាលេចចេញមក */
     pointer-events: auto;
     visibility: visible;
 }
@@ -1350,7 +1329,6 @@ body.dark-mode .apple-mini-player {
 }
 
 /* Full Screen Player */
-/* Full Screen Player */
 .apple-full-player {
     position: fixed;
     top: 0;
@@ -1375,7 +1353,6 @@ body.dark-mode .apple-full-player {
     height: 5px;
     background: rgba(0,0,0,0.2);
     border-radius: 3px;
-    /* កែ margin ខាងលើ ដោយបូកបញ្ចូល env(safe-area-inset-top) ដើម្បីរុញផ្ទាំងកាតចម្រៀងចុះក្រោមផុតក្បាល Notch iPhone */
     margin: calc(25px + env(safe-area-inset-top)) auto 20px auto;
 }
 body.dark-mode .full-player-drag-handle { background: rgba(255,255,255,0.2); }
@@ -1389,23 +1366,19 @@ body.dark-mode .full-player-drag-handle { background: rgba(255,255,255,0.2); }
     width: 100%;
     justify-content: flex-start;
 }
-/* === Full Screen Player === */
 .full-cover {
     width: 100%;
     max-width: 340px; 
     max-height: 45vh; 
     aspect-ratio: 1 / 1;
-    border-radius: 16px; /* បង្កើនភាពកោងពី 12px ទៅ 16px */
+    border-radius: 16px; 
     object-fit: cover;
-    /* បន្ថែមស្រមោលឱ្យជ្រៅមើលទៅអណ្តែត */
     box-shadow: 0 25px 50px rgba(0,0,0,0.25), 0 0 0 1px rgba(0,0,0,0.05);
     margin: 0 auto 30px auto;
     background: rgba(0,0,0,0.05);
-    /* ត្រៀមសម្រាប់ចលនារួញ/ពង្រីកពេល Play/Pause */
     transform: scale(0.9);
     transition: transform 0.5s cubic-bezier(0.25, 1, 0.5, 1), box-shadow 0.5s ease;
 }
-/* Class ថ្មីនឹងត្រូវបញ្ជាពី Javascript ពេលភ្លេងកំពុងលេង */
 .apple-full-player.is-playing .full-cover {
     transform: scale(1);
     box-shadow: 0 35px 60px rgba(0,0,0,0.35), 0 0 0 1px rgba(0,0,0,0.05);
@@ -1414,7 +1387,7 @@ body.dark-mode .full-player-drag-handle { background: rgba(255,255,255,0.2); }
     width: 100%;
     display: flex;
     flex-direction: column;
-    gap: 20px; /* បង្រួមចន្លោះល្វែងកណ្តាល */
+    gap: 20px; 
 }
 .full-title-row {
     display: flex;
@@ -1443,7 +1416,6 @@ body.dark-mode .full-player-drag-handle { background: rgba(255,255,255,0.2); }
     text-overflow: ellipsis;
 }
 
-/* Progress Bar Customization */
 .progress-container {
     width: 100%;
 }
@@ -1473,9 +1445,9 @@ body.dark-mode .progress-bar { background: rgba(255,255,255,0.1); }
 
 .full-main-controls {
     display: flex;
-    justify-content: center; /* ដាក់ប៊ូតុងនៅចំកណ្តាល */
+    justify-content: center; 
     align-items: center;
-    gap: 50px; /* គម្លាតរវាងប៊ូតុង Play និង Next */
+    gap: 50px; 
     margin-top: 5px;
 }
 .full-main-controls button {
@@ -1490,7 +1462,7 @@ body.dark-mode .progress-bar { background: rgba(255,255,255,0.1); }
     transform: scale(0.85);
 }
 .play-btn-large {
-    font-size: 3.5rem !important; /* ពង្រីកប៊ូតុង Play ឲ្យធំ */
+    font-size: 3.5rem !important; 
 }
 
 .volume-container {
@@ -1524,7 +1496,7 @@ body.dark-mode .volume-bar { background: rgba(255,255,255,0.1); }
     justify-content: space-between;
     align-items: center;
     padding: 0 20px;
-    margin-top: auto; /* រុញប៊ូតុងតូចៗ៣នេះទៅជាប់គែមក្រោម */
+    margin-top: auto; 
 }
 .bottom-extra-controls button {
     background: none;
@@ -1533,9 +1505,7 @@ body.dark-mode .volume-bar { background: rgba(255,255,255,0.1); }
     font-size: 1.2rem;
     cursor: pointer;
 }
-/* =========================================
-   ប៊ូតុង Play នៅលើកាតចម្រៀង (Song Card)
-========================================= */
+
 .card-play-btn {
     position: absolute;
     bottom: 10px;
@@ -1565,23 +1535,21 @@ body.dark-mode .card-play-btn {
     background: var(--primary);
     color: white;
 }
+
 /* =========================================
    Modern UI Styles (Apple Music / App Store style)
 ========================================= */
 
-/* ១. បន្ថែមសញ្ញា (.) ពីមុខ home-topbar-modern និងកំណត់គម្លាត 10px សងខាង */
 .home-topbar-modern { padding: 10px 10px 5px; display: flex; justify-content: space-between; align-items: center; }
 
 .home-brand-modern { display: flex; flex-direction: column; line-height: 1.2; }
 .icon-btn-modern { background: transparent; border: none; font-size: 1.4rem; color: var(--text); padding: 8px; cursor: pointer; transition: 0.2s; }
 .icon-btn-modern:active { transform: scale(0.85); color: var(--primary); }
 
-/* ២. កំណត់ Margin 10px សងខាងសម្រាប់ Search Bar */
 .home-search-bar-modern { margin: 10px 10px 20px; background: var(--card-bg); border: 1px solid var(--border); padding: 12px 16px; border-radius: 12px; display: flex; align-items: center; gap: 10px; color: var(--text-muted); font-size: 0.9rem; font-weight: 500; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.03); transition: 0.2s; }
 .home-search-bar-modern:active { transform: scale(0.98); }
 body.dark-mode .home-search-bar-modern { background: #1e293b; border-color: #334155; }
 
-/* ៣. កំណត់ Margin 10px សងខាងសម្រាប់ Banner */
 .home-hero-modern { position: relative; margin: 0 10px 12px; border-radius: 16px; overflow: hidden; min-height: 200px; display: flex; align-items: center; padding: 25px 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.15); }
 .home-hero-bg { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background-size: cover; background-position: center; z-index: 1; filter: brightness(0.9); }
 .home-hero-overlay-modern { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(to right, rgba(15,23,42,0.9), rgba(15,23,42,0.3)); z-index: 2; }
@@ -1593,16 +1561,15 @@ body.dark-mode .home-search-bar-modern { background: #1e293b; border-color: #334
 .hero-play-btn { background: white; color: #0f172a; border: none; padding: 10px 18px; border-radius: 20px; font-weight: 700; font-size: 0.85rem; display: inline-flex; align-items: center; gap: 8px; cursor: pointer; transition: 0.2s; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
 .hero-play-btn:active { transform: scale(0.92); }
 
-/* ៤. កំណត់ Margin 10px សងខាងសម្រាប់មីនុយរហ័សទាំង ៤ */
 .home-quick-modern { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin: 0 10px 15px; }
 .quick-btn-modern { background: transparent; border: none; display: flex; flex-direction: column; align-items: center; cursor: pointer; transition: 0.2s; }
 .quick-btn-modern:active { transform: scale(0.9); }
-.quick-icon-modern { width: 60px; height: 60px; border-radius: 18px; display: flex; justify-content: center; align-items: center; font-size: 1.5rem; margin-bottom: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+.quick-icon-modern { width: 60px; height: 60px; border-radius: 18px; display: flex; justify-content: center; align-items: center; font-size: 1.5rem; margin-bottom: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); border: 2px solid currentColor !important; transition: all 0.2s ease !important; }
+.quick-btn-modern:active .quick-icon-modern { transform: scale(0.92) !important; box-shadow: 0 0 15px currentColor !important; }
 .quick-btn-modern strong { font-size: 0.75rem; color: var(--text); font-weight: 700; margin-bottom: 2px; }
 .quick-btn-modern span { font-size: 0.65rem; color: var(--text-muted); }
-body.dark-mode .quick-icon-modern { filter: brightness(0.85); box-shadow: none; }
+body.dark-mode .quick-icon-modern { filter: brightness(0.85); box-shadow: 0 4px 15px rgba(255, 255, 255, 0.08) !important; }
 
-/* ៥. កំណត់ Padding 10px សងខាងសម្រាប់ចំណងជើង និង កាតរុញៗ (Horizontal Scroll) */
 .home-section-modern { margin-bottom: 15px; }
 .section-head-modern { display: flex; justify-content: space-between; align-items: flex-end; padding: 0 10px; margin-bottom: 8px; }
 .section-head-modern h2 { font-size: 1.15rem; font-weight: 800; color: var(--text); margin: 0; display: flex; align-items: center; gap: 8px; }
@@ -1635,7 +1602,6 @@ body.dark-mode .modern-card-img-wrapper { box-shadow: 0 6px 15px rgba(0,0,0,0.5)
 .modern-heart-btn:active { transform: scale(0.8); }
 .modern-heart-btn.active { color: var(--danger); }
 
-/* ៦. កំណត់ Margin 10px សម្រាប់ Daily Worship Bottom Card */
 .daily-worship-card-modern { margin: 0 10px 15px; background: #eef2ff; border: 1px solid #e0e7ff; border-radius: 16px; padding: 16px; display: flex; align-items: center; gap: 15px; cursor: pointer; transition: 0.2s; }
 .daily-worship-card-modern:active { transform: scale(0.97); }
 body.dark-mode .daily-worship-card-modern { background: rgba(55, 48, 163, 0.15); border-color: rgba(67, 56, 202, 0.3); }
@@ -1647,9 +1613,6 @@ body.dark-mode .daily-icon-modern { background: var(--card-bg); }
 .daily-btn-modern { background: white; border: 1px solid var(--border); padding: 8px 14px; border-radius: 20px; font-size: 0.75rem; font-weight: 700; color: var(--primary); cursor: pointer; display: flex; align-items: center; gap: 6px; box-shadow: 0 2px 5px rgba(0,0,0,0.02); pointer-events: none; }
 body.dark-mode .daily-btn-modern { background: var(--card-bg); }
 
-/* =========================================
-   ៧. Sticky Wrapper សម្រាប់ Home Page (កែឲ្យស្មើ)
-========================================= */
 .home-sticky-wrapper {
     position: sticky;
     top: 0;
@@ -1657,8 +1620,8 @@ body.dark-mode .daily-btn-modern { background: var(--card-bg); }
     background: var(--bg-glass); 
     backdrop-filter: blur(20px);
     -webkit-backdrop-filter: blur(20px);
-    margin: -12px 0 15px 0; /* 🔴 កែត្រង់នេះ៖ ប្តូរពី -4px មក 0 សងខាងកុំឱ្យលៀនចេញក្រៅ */
-    padding: 12px 0 5px 0; /* 🔴 កែត្រង់នេះ៖ លុប padding សងខាង ដើម្បីឱ្យ Search Bar ទាញគម្លាតខ្លួនឯង 10px */
+    margin: -12px 0 15px 0; 
+    padding: 12px 0 5px 0; 
     border-bottom: 1px solid rgba(0, 0, 0, 0.05); 
     transition: background 0.3s;
 }
@@ -1670,79 +1633,10 @@ body.dark-mode .home-sticky-wrapper {
 .home-sticky-wrapper .home-search-bar-modern {
     margin-bottom: 5px; 
 }
+
 /* =========================================
    UI/UX Improvements for Large Phones & Tablets
 ========================================= */
-
-/* ១. ពង្រីកទំហំប៊ូតុង ងាយស្រួលចុច (Touch Targets) សម្រាប់ទូរស័ព្ទ */
-.transpose-controls button {
-    width: 44px !important;  /* ពង្រីកពី 34px មក 44px */
-    height: 44px !important;
-    font-size: 1.4rem !important; /* ឱ្យសញ្ញា + និង - ធំជាងមុន */
-}
-
-#toggleChordsBtn {
-    padding: 8px 14px !important;
-    font-size: 0.85rem !important;
-}
-
-.font-size-controls button {
-    padding: 8px 14px !important;
-    font-size: 0.95rem !important;
-}
-
-/* ២. ប្តូរ Apple Full Player ទៅជា Split-view ពេលបើកលើ iPad ឬអេក្រង់ធំ (ចាប់ពី 768px ឡើងទៅ) */
-@media (min-width: 768px) {
-    .full-player-content {
-        flex-direction: row !important; /* តម្រៀបជាជួរដេក */
-        max-width: 900px !important; /* ពង្រីកប្រអប់ឱ្យធំជាង 500px ចាស់ */
-        align-items: center !important;
-        gap: 60px !important;
-        padding-top: 40px !important;
-    }
-    
-    .full-cover {
-        max-width: 400px !important; /* រូប Cover ធំបំផុតត្រឹម 400px */
-        margin: 0 !important; /* ដកការរុញកណ្តាលចេញ ដើម្បីឱ្យនៅស្អិតខាងឆ្វេង */
-        box-shadow: 0 20px 50px rgba(0,0,0,0.3) !important;
-    }
-    
-    .full-info-section {
-        flex: 1; /* ឱ្យផ្នែកខាងស្តាំយកទំហំដែលនៅសល់ទាំងអស់ */
-        justify-content: center;
-        margin-top: -20px;
-    }
-    
-    /* ធ្វើឱ្យប៊ូតុង Play/Pause ធំជាងមុនលើអេក្រង់ធំ */
-    .full-main-controls button {
-        font-size: 2.8rem !important;
-    }
-    .play-btn-large {
-        font-size: 4rem !important;
-    }
-    
-    /* ពង្រីកទំហំអក្សរចំណងជើងបទចម្រៀង */
-    .full-title {
-        font-size: 2rem !important;
-        margin-bottom: 8px !important;
-    }
-    .full-artist {
-        font-size: 1.2rem !important;
-    }
-}
-/* =========================================
-   UI/UX Improvements for Large Phones & Tablets
-========================================= */
-
-/* ១. ប៊ូតុង Transpose ធំជាងមុន មានស៊ុម និងរាងជ្រុងកោង (ងាយកត់សម្គាល់) */
-.transpose-controls button {
-    width: 44px !important;  
-    height: 44px !important;
-    font-size: 1.4rem !important; 
-    border-radius: 12px !important; /* ប្តូរពីរាងមូល ទៅរាងកោងជ្រុង */
-    border: 2px solid var(--primary) !important; /* បន្ថែមបន្ទាត់គែមពណ៌ខៀវលេចធ្លោ */
-    background: var(--bg) !important;
-}
 
 #toggleChordsBtn, .font-size-controls button {
     padding: 8px 14px !important;
@@ -1750,7 +1644,6 @@ body.dark-mode .home-sticky-wrapper {
     border-radius: 12px !important;
 }
 
-/* ២. ប្តូរ Apple Full Player ទៅជា Split-view ពេលបើកលើ iPad (ចាប់ពី 768px ឡើងទៅ) */
 @media (min-width: 768px) {
     .full-player-content {
         flex-direction: row !important;
@@ -1777,7 +1670,7 @@ body.dark-mode .home-sticky-wrapper {
     }
     .play-btn-large {
         font-size: 4.5rem !important;
-        color: var(--primary) !important; /* ប្តូរពណ៌ប៊ូតុង Play លើ iPad ឱ្យលេចធ្លោ */
+        color: var(--primary) !important; 
     }
     
     .full-title {
@@ -1787,91 +1680,29 @@ body.dark-mode .home-sticky-wrapper {
     .full-artist {
         font-size: 1.4rem !important;
     }
-}
-/* =========================================
-   រក្សា UI ដើម តែបន្ថែមស៊ុម និងពន្លឺជុំវិញ Icon ទាំង ៤ (Glowing Border)
-========================================= */
 
-.quick-icon-modern {
-    /* ប្រើ currentColor ដើម្បីឱ្យស៊ុមដូរពណ៌តាម Icon នីមួយៗ (ខៀវ, បៃតង, ទឹកក្រូច, ស្វាយ) */
-    border: 2px solid currentColor !important; 
-    
-    /* ស្រមោលទន់ៗជុំវិញប្រអប់ */
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1) !important; 
-    
-    /* រក្សារាងកោងដូចដើម */
-    border-radius: 18px !important; 
-    
-    transition: all 0.2s ease !important;
-}
-
-/* ពេលបើក Dark Mode ឱ្យវាមានស្រមោលសតិចៗ */
-body.dark-mode .quick-icon-modern {
-    box-shadow: 0 4px 15px rgba(255, 255, 255, 0.08) !important;
-}
-
-/* នៅពេលដែលចុចលើវា (Active) ឱ្យវាបញ្ចេញពន្លឺពណ៌ (Glow) តាមពណ៌របស់វា */
-.quick-btn-modern:active .quick-icon-modern {
-    transform: scale(0.92) !important;
-    box-shadow: 0 0 15px currentColor !important;
-}
-
-/* =========================================
-   Mini Player UI សម្រាប់ Tablet & Desktop Mode
-========================================= */
-
-/* សម្រាប់ Tablet (iPad) អេក្រង់ចាប់ពី 768px ឡើងទៅ */
-@media (min-width: 768px) {
     .apple-mini-player {
-        left: auto !important; /* ដកការទាញទំហំពេញអេក្រង់ចេញ */
-        right: 20px !important; /* ឱ្យអណ្តែតនៅខាងស្តាំ */
-        width: 360px !important; /* កំណត់ប្រវែងខ្លីល្មមសមរម្យ */
-        bottom: 90px !important; /* ទុកចន្លោះឱ្យផុតពី Bottom Nav លើ iPad */
+        left: auto !important; 
+        right: 20px !important; 
+        width: 360px !important; 
+        bottom: 90px !important; 
         border-radius: 18px !important;
         box-shadow: 0 10px 30px rgba(0,0,0,0.15) !important;
     }
 }
 
-/* សម្រាប់ Desktop / Laptop អេក្រង់ចាប់ពី 1025px ឡើងទៅ (មាន Menu ខាងឆ្វេង) */
 @media (min-width: 1025px) {
     .apple-mini-player {
-        bottom: 25px !important; /* ទម្លាក់ចុះមកកៀកគែមក្រោម ព្រោះគ្មាន Bottom Nav ទេ */
+        bottom: 25px !important; 
         right: 30px !important;
-        width: 380px !important; /* ពង្រីកបន្តិចឱ្យសមនឹងអេក្រង់កុំព្យូទ័រ */
+        width: 380px !important; 
     }
-}
-
-/* =========================================
-   តម្រឹមគម្លាត (Alignment) 10px សម្រាប់ទំព័រទាំងអស់ (Songs, Albums, Playlists) ឱ្យស្មើ Bottom Nav
-========================================= */
-
-/* ១. ទំព័រចម្រៀងទាំងអស់ (Songs) */
-.song-grid {
-    padding: 0 10px !important; /* ទាញកាតចម្រៀងឱ្យចូលមកគម្លាត 10px */
-}
-.song-grid.list-view {
-    padding: 0 10px !important;
-}
-.sticky-action-bar {
-    padding: 10px 10px !important; /* ទាញ Header ទំព័រចម្រៀងឱ្យស្មើ 10px */
-}
-
-/* ២. ទំព័រអាល់ប៊ុម (Albums) និង Playlist */
-#viewAlbums, #viewPlaylists {
-    padding: 0 10px !important; /* ទាញកាតអាល់ប៊ុម និង Playlist ឱ្យចូលមក 10px */
-}
-
-/* ៣. កែសម្រួល Header អាល់ប៊ុម (ដែលមានកូដ Inline Style លៀនចេញក្រៅ -16px ពីមុន) */
-#viewAlbums > div:first-child {
-    margin: 0 -10px 15px -10px !important; /* ឱ្យ Background កញ្ចក់ថ្លាៗ (Glassmorphism) រត់ពេញគែមអេក្រង់សងខាង */
-    padding: 12px 10px !important; /* រុញអក្សរ និងប៊ូតុងចូលក្នុង 10px ស្មើនឹងកាត និង Bottom Nav ខាងក្រោមបេះបិទ */
 }
 
 /* =========================================
    Home Header & Search Bar Styles 
 ========================================= */
 
-/* Topbar Elements */
 .home-brand-modern {
     display: flex;
     flex-direction: row;
@@ -1923,48 +1754,153 @@ body.dark-mode .quick-icon-modern {
     flex-shrink: 0;
 }
 
-/* Utilities (អាចប្រើប្រាស់បានច្រើនកន្លែង) */
-.pos-relative {
-    position: relative !important;
+.pos-relative { position: relative !important; }
+.no-padding { padding: 0 !important; }
+.badge-top-right { top: 5px; right: 5px; }
+
+.search-icon-left { position: absolute; left: 16px; top: 50%; transform: translateY(-50%); color: var(--text-muted); }
+.home-search-input { width: 100%; padding: 12px 40px; border: none; background: transparent; outline: none; color: var(--text); font-size: 0.95rem; }
+.clear-search-btn { position: absolute; right: 12px; top: 50%; transform: translateY(-50%); background: none; border: none; color: var(--text-muted); display: none; cursor: pointer; padding: 4px; }
+.home-search-dropdown-spacing { top: 100%; margin-top: 8px; }
+
+/* របារបញ្ជាខាងក្រោម Full Screen (Telegram Style) */
+.fullscreen-bottom-toolbar {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: calc(55px + env(safe-area-inset-bottom));
+    background: linear-gradient(to top, rgba(0, 0, 0, 0.5) 0%, transparent 100%) !important;
+    border-top: none !important;
+    z-index: 3050; 
+    display: flex;
+    justify-content: space-evenly;
+    align-items: center;
+    padding-bottom: env(safe-area-inset-bottom);
+    transition: transform 0.3s cubic-bezier(0.25, 0.8, 0.25, 1), opacity 0.3s ease !important;
 }
-.no-padding {
-    padding: 0 !important;
+.fs-bottom-btn {
+    background: transparent;
+    border: none;
+    color: white;
+    font-size: 1.15rem;
+    display: flex;
+    flex-direction: column; 
+    align-items: center;
+    gap: 4px;
+    cursor: pointer;
+    padding: 4px 16px;
+    transition: 0.2s;
 }
-.badge-top-right {
-    top: 5px;
-    right: 5px;
+.fs-bottom-btn span { font-size: 0.65rem; font-weight: 600; color: rgba(255, 255, 255, 0.7); }
+.fs-bottom-btn:active { color: var(--primary); transform: scale(0.9); }
+.fs-bottom-btn:active span { color: var(--primary); }
+
+/* =========================================
+   កែសម្រួលផ្ទាំង Transpose ឱ្យនៅខាងក្រោម (ពីលើប៊ូតុង Tools)
+========================================= */
+
+.transpose-controls {
+    top: auto !important; 
+    bottom: calc(75px + env(safe-area-inset-bottom)) !important; 
+    left: 50% !important;
+    transform: translateX(-50%) translateY(20px) scale(0.95) !important;
+    
+    background: rgba(15, 23, 42, 0.85) !important;
+    backdrop-filter: blur(10px) !important;
+    border: 1px solid rgba(255, 255, 255, 0.15) !important;
+    border-radius: 16px !important;
+    padding: 10px 15px !important;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3) !important;
+    
+    opacity: 0 !important;
+    visibility: hidden !important;
+    pointer-events: none !important;
+    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) !important;
+    z-index: 3040 !important; 
 }
 
-/* Search Bar Elements */
-.search-icon-left {
-    position: absolute;
-    left: 16px;
-    top: 50%;
-    transform: translateY(-50%);
-    color: var(--text-muted);
+.transpose-controls.show-tools {
+    transform: translateX(-50%) translateY(0) scale(1) !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+    pointer-events: auto !important;
 }
-.home-search-input {
-    width: 100%;
-    padding: 12px 40px;
-    border: none;
-    background: transparent;
-    outline: none;
-    color: var(--text);
-    font-size: 0.95rem;
+
+.transpose-controls button {
+    width: 44px !important;  
+    height: 44px !important;
+    font-size: 1.4rem !important; 
+    border-radius: 12px !important; 
+    border: 2px solid var(--primary) !important; 
+    background: var(--bg) !important;
 }
-.clear-search-btn {
-    position: absolute;
-    right: 12px;
-    top: 50%;
-    transform: translateY(-50%);
-    background: none;
-    border: none;
-    color: var(--text-muted);
-    display: none; /* នឹងត្រូវបង្ហាញដោយ JS */
-    cursor: pointer;
-    padding: 4px;
+
+/* =========================================
+   UI Hidden State (Telegram Style Fullscreen)
+========================================= */
+.fullscreen-modal.ui-hidden .fullscreen-header {
+    transform: translateY(-100%);
+    opacity: 0;
+    pointer-events: none;
 }
-.home-search-dropdown-spacing {
-    top: 100%;
-    margin-top: 8px;
+
+.fullscreen-modal.ui-hidden .fullscreen-bottom-toolbar {
+    transform: translateY(100%);
+    opacity: 0;
+    pointer-events: none;
+}
+
+.fullscreen-modal.ui-hidden .fullscreen-nav-btn,
+.fullscreen-modal.ui-hidden .metronome-panel,
+.fullscreen-modal.ui-hidden .transpose-controls.show-tools {
+    opacity: 0 !important;
+    pointer-events: none !important;
+    transform: translateX(-50%) translateY(20px) scale(0.95) !important;
+    transition: opacity 0.3s ease;
+}
+/* =========================================
+   កែសម្រួលផ្ទាំង Transpose ឱ្យនៅខាងក្រោម (ពីលើប៊ូតុង Tools)
+========================================= */
+
+.transpose-controls {
+    position: absolute !important; /* បន្ថែមបន្ទាត់នេះ ដើម្បីឱ្យវាអណ្តែត */
+    display: flex !important;      /* បន្ថែមបន្ទាត់នេះ ដើម្បីរៀបប៊ូតុងជាជួរដេក */
+    align-items: center !important;
+    gap: 8px !important;
+    
+    top: auto !important; 
+    bottom: calc(75px + env(safe-area-inset-bottom)) !important; /* កម្ពស់ពីលើរបារ Tools */
+    left: 50% !important;
+    
+    /* ត្រៀមខ្លួនសម្រាប់ស្លាយឡើងលើ */
+    transform: translateX(-50%) translateY(20px) scale(0.95) !important;
+    
+    background: rgba(15, 23, 42, 0.85) !important;
+    backdrop-filter: blur(10px) !important;
+    border: 1px solid rgba(255, 255, 255, 0.15) !important;
+    border-radius: 16px !important;
+    padding: 10px 15px !important;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3) !important;
+    
+    opacity: 0 !important;
+    visibility: hidden !important;
+    pointer-events: none !important;
+    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) !important;
+    z-index: 3040 !important; 
+}
+
+/* ពេលចុចបង្ហាញ គឺស្លាយឡើងមកលើឱ្យចំកន្លែង */
+.transpose-controls.show-tools {
+    transform: translateX(-50%) translateY(0) scale(1) !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+    pointer-events: auto !important;
+}
+
+/* ការពារកុំឱ្យផ្ទាំង Tools លាក់បាត់ពេល UI ផ្សេងទៀតត្រូវបានលាក់ */
+.fullscreen-modal.ui-hidden .transpose-controls.show-tools {
+    opacity: 0 !important;
+    pointer-events: none !important;
+    transform: translateX(-50%) translateY(20px) scale(0.95) !important;
 }
