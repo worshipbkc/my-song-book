@@ -1215,11 +1215,24 @@ function clearSearchInput() {
 function hideSearchDropdown() { const dropdown = document.getElementById('searchDropdown'); if (dropdown) dropdown.style.display = 'none'; }
 
 function selectSearchDropdownItem(songId) { 
-    hideSearchDropdown(); 
     const song = songsList.find(s => s.id === songId);
     if (song) {
-        document.getElementById('searchInput').value = song.title;
-        handleSearchInput();
+        const searchInput = document.getElementById('searchInput');
+        
+        // ១. បញ្ចូលចំណងជើងទៅក្នុងប្រអប់ Search
+        searchInput.value = song.title;
+        
+        // ២. បង្ហាញប៊ូតុងលុប (ខ្វែង)
+        document.getElementById('clearSearchBtn').style.display = 'flex';
+        
+        // ៣. ទាញទិន្នន័យបង្ហាញតែបទដែលបានជ្រើសរើសនៅ Grid ខាងក្រោម
+        renderSongs();
+        
+        // ៤. បង្ខំឱ្យបិទផ្ទាំងបញ្ជី Dropdown កុំឱ្យបាំងអេក្រង់
+        hideSearchDropdown();
+        
+        // ៥. ទម្លាក់ក្តារចុច (Keyboard) ទៅវិញដោយស្វ័យប្រវត្តិ
+        searchInput.blur();
     }
 }
 
