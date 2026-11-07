@@ -79,7 +79,7 @@
     <!-- Search Bar សម្រាប់ Home -->
     <div class="home-search-bar-modern pos-relative no-padding">
         <i class="fa-solid fa-magnifying-glass search-icon-left"></i>
-        <input type="text" id="homeSearchInput" class="home-search-input" placeholder="Search songs, artists, or keywords..." oninput="handleHomeSearch()" onfocus="handleHomeSearch()" autocomplete="off">
+        <input type="text" id="homeSearchInput" class="home-search-input" placeholder="Search songs, artists, or keywords..." oninput="debouncedHomeSearch()" onfocus="handleHomeSearch()" autocomplete="off">
         <button id="clearHomeSearchBtn" class="clear-search-btn" onclick="clearHomeSearch()">
             <i class="fa-solid fa-circle-xmark"></i>
         </button>
@@ -186,7 +186,7 @@
                     <!-- កំណត់ max-width: 100% ដើម្បីការពារកុំឱ្យរីកធំហួសអេក្រង់ -->
                     <div class="home-search-bar-modern" style="position: relative; padding: 0; flex: 1; min-width: 0; margin: 0; max-width: 100%; z-index: 101;">
                         
-                        <input type="text" id="searchInput" placeholder="ស្វែងរកបទចម្រៀង..." oninput="handleSearchInput()" onfocus="handleSearchInput()" autocomplete="off" style="width: 100%; box-sizing: border-box; padding: 8px 70px 8px 16px; border: none; background: transparent; outline: none; color: var(--text); font-family: 'Kantumruy Pro'; font-size: 0.95rem;">
+                        <input type="text" id="searchInput" placeholder="ស្វែងរកបទចម្រៀង..." oninput="debouncedSearchInput()" onfocus="handleSearchInput()" autocomplete="off" style="width: 100%; box-sizing: border-box; padding: 8px 70px 8px 16px; border: none; background: transparent; outline: none; color: var(--text); font-family: 'Kantumruy Pro'; font-size: 0.95rem;">
                         
                         <button class="clear-btn" id="clearSearchBtn" onclick="clearSearchInput()" title="លុបអក្សរ" style="position: absolute; right: 38px; top: 50%; transform: translateY(-50%); background: none; border: none; color: var(--text-muted); cursor: pointer; padding: 4px; font-size: 0.9rem; display: none;"><i class="fa-solid fa-circle-xmark"></i></button>
                         
@@ -348,9 +348,9 @@
             </div>
             
             <div class="bottom-extra-controls">
-                <button><i class="fa-regular fa-comment"></i></button>
-                <button><i class="fa-solid fa-tower-broadcast"></i></button>
-                <button><i class="fa-solid fa-list-ul"></i></button>
+                <button onclick="handlePlayerAction('lyrics')" title="មើលអត្ថបទ"><i class="fa-solid fa-file-lines"></i></button>
+                <button onclick="handlePlayerAction('share')" title="ចែករំលែក"><i class="fa-solid fa-share-nodes"></i></button>
+                <button onclick="handlePlayerAction('playlist')" title="បញ្ចូលទៅ Playlist"><i class="fa-solid fa-folder-plus"></i></button>
             </div>
         </div>
     </div>
@@ -409,9 +409,8 @@
         </div>
     </div>
 
-    <!-- ប៊ូតុងប្តូរ Key (Transpose) -->
-    <!-- ប៊ូតុងប្តូរ Key (Transpose), បិទខ័រ និងកែទំហំអក្សរ -->
-    <div class="transpose-controls" id="transposeControls" style="display: none;">
+   <!-- ផ្ទាំងបញ្ជា Tools ដែលត្រូវស្លាយចេញមក (ដក style ពណ៌លឿងចេញ) -->
+    <div class="transpose-controls" id="transposeControls">
         <div id="capoSuggestion" class="capo-badge">💡 Capo 1 ➔ C</div>
         
         <button onclick="changeTranspose(-1)">-</button>
@@ -423,7 +422,6 @@
         
         <div style="width: 1px; height: 25px; background: var(--border); margin: 0 2px;"></div>
         
-        <!-- ប៊ូតុងថ្មីសម្រាប់ បិទ/បើក ខ័រ -->
         <button id="toggleChordsBtn" onclick="toggleChordsVisibility()" style="border-radius: 8px; width: auto; padding: 0 10px; gap: 5px;">
             <i class="fa-solid fa-eye-slash" id="toggleChordsIcon"></i> <span id="toggleChordsText" style="font-size: 0.75rem; font-weight: 700;">បិទខ័រ</span>
         </button>
@@ -442,6 +440,22 @@
         <img src="" id="fullScreenImg" class="fullscreen-img" alt="Song">
         <div id="fullScreenLyrics" class="fullscreen-lyrics" style="display:none;"></div>
     </div>
+
+    <button class="fullscreen-nav-btn fullscreen-next" onclick="slideFullScreen(1, event)">❯</button>
+
+    <!-- របារបញ្ជាខាងក្រោម (Telegram Style) ដាក់ត្រូវទីតាំង -->
+    <div class="fullscreen-bottom-toolbar">
+        <button id="toolbarToolsBtn" onclick="toggleMusicTools(event)" class="fs-bottom-btn" style="display: none;">
+            <i class="fa-solid fa-sliders"></i> <span>Tools</span>
+        </button>
+        <button onclick="handleFullScreenAction('share')" class="fs-bottom-btn">
+            <i class="fa-solid fa-share-nodes"></i> <span>Share</span>
+        </button>
+        <button onclick="handleFullScreenAction('save')" class="fs-bottom-btn">
+            <i class="fa-solid fa-download"></i> <span>Save</span>
+        </button>
+    </div>
+
 
     <button class="fullscreen-nav-btn fullscreen-next" onclick="slideFullScreen(1, event)">❯</button>
 </div>
@@ -676,10 +690,10 @@
         
     </div>
 </div>
+<script src="ui-features.js"></script>
 <script src="player.js"></script>
 <script src="tuner.js"></script>
 <script src="admin.js"></script>
-<script src="ui-features.js"></script>
 <script src="app.js"></script>
 
 <div class="app-view" id="viewTuner">
